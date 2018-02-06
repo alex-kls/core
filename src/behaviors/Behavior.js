@@ -20,7 +20,7 @@ var noExportProperties = [
     'treeColumnPropertiesColumnSelection',
 ];
 
-Array.prototype.move = function(oldIndex, len, newIndex) {
+Array.prototype.move = function(oldIndex, len, newIndex) { // eslint-disable-line
     while (oldIndex < 0) {
         oldIndex += this.length;
     }

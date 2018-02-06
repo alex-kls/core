@@ -363,7 +363,9 @@ var Renderer = Base.extend('Renderer', {
      * @returns {Point} Cell coordinates
      */
     getGridCellFromMousePoint: function(point) {
-
+        if (!this.visibleColumns.length){
+            return null;
+        }
         var x = point.x,
             y = point.y,
             isPseudoRow = false,

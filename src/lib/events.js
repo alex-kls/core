@@ -340,7 +340,7 @@ module.exports = {
                 decoratedEvent;
 
             // No events on the whitespace of the grid unless they're drag events
-            if (!c.fake || e.detail.dragstart) {
+            if (c && (!c.fake || e.detail.dragstart)) {
                 primitiveEvent = c.cellEvent;
             }
 

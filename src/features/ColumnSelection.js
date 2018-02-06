@@ -415,17 +415,4 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
     }
 });
 
-function doubleClickDelay(grid, event) {
-    var columnProperties;
-
-    return (
-        event.isHeaderCell &&
-        !(columnProperties = event.columnProperties).unsortable &&
-        columnProperties.sortOnDoubleClick &&
-        300
-    );
-}
-
-
-
 module.exports = ColumnSelection;

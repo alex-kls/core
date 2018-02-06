@@ -144,17 +144,12 @@ exports.mixin = {
      * @param {number} newValue - The new scroll value.
      */
     setVScrollValue: function(y) {
-        var self = this;
         y = Math.min(this.sbVScroller.range.max, Math.max(0, Math.round(y)));
         if (y !== this.vScrollValue) {
             this.behavior._setScrollPositionY(y);
-            var oldY = this.vScrollValue;
             this.vScrollValue = y;
+            this.sbVScroller.index = y;
             this.scrollValueChangedNotification();
-            setTimeout(function() {
-                // self.sbVRangeAdapter.subjectChanged();
-                self.fireScrollEvent('fin-scroll-y', oldY, y);
-            });
         }
     },
 
@@ -172,19 +167,12 @@ exports.mixin = {
      * @param {number} newValue - The new scroll value.
      */
     setHScrollValue: function(x) {
-        var self = this;
         x = Math.min(this.sbHScroller.range.max, Math.max(0, Math.round(x)));
         if (x !== this.hScrollValue) {
             this.behavior._setScrollPositionX(x);
-            var oldX = this.hScrollValue;
-            console.trace();
             this.hScrollValue = x;
             this.scrollValueChangedNotification();
-            setTimeout(function() {
-                //self.sbHRangeAdapter.subjectChanged();
-                self.fireScrollEvent('fin-scroll-x', oldX, x);
-                //self.synchronizeScrollingBoundries(); // todo: Commented off to prevent the grid from bouncing back, but there may be repurcussions...
-            });
+            this.sbHScroller.index = x;
         }
     },
 
@@ -325,7 +313,7 @@ exports.mixin = {
         // inform scroll bars
         if (this.sbHScroller) {
             var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
-            var hscrollValue = this.getHScrollValue()
+            var hscrollValue = this.getHScrollValue();
             this.setHScrollbarValues(hMax);
             this.setHScrollValue(Math.min(hscrollValue, hMax));
         }
