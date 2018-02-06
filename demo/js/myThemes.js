@@ -22,12 +22,16 @@ window.fin.Hypergrid.myThemes = {
         rowHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
         rowHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
-        backgroundColor2: 'rgb(201, 201, 201)',
+        backgroundColor2: 'rgb(0, 0, 0)',
         lineColor: 'rgb(199, 199, 199)',
         voffset: 0,
         scrollbarHoverOver: 'visible',
         scrollbarHoverOff: 'hidden',
         scrollingEnabled: true,
+
+        placeholderColor: 'rgb(0, 0, 0)',
+        ghostBorderColor: 'rgb(51, 153, 255)',
+        ghostBackgroundColor: 'rgb(0, 0, 0)',
 
         fixedRowAlign: 'center',
         fixedColAlign: 'center',
@@ -65,12 +69,16 @@ window.fin.Hypergrid.myThemes = {
         rowHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
         rowHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
-        backgroundColor2: 'rgb(201, 201, 201)',
+        backgroundColor2: 'rgb(0, 0, 0)',
         lineColor: 'rgb(199, 199, 199)',
         voffset: 0,
         scrollbarHoverOver: 'visible',
         scrollbarHoverOff: 'hidden',
         scrollingEnabled: true,
+
+        placeholderColor: 'rgb(0, 0, 0)',
+        ghostBorderColor: 'rgb(51, 153, 255)',
+        ghostBackgroundColor: 'rgb(0, 0, 0)',
 
         fixedRowAlign: 'center',
         fixedColAlign: 'center',
@@ -108,12 +116,16 @@ window.fin.Hypergrid.myThemes = {
         rowHeaderForegroundSelectionColor: 'rgb(25, 25, 25)',
         rowHeaderBackgroundSelectionColor: 'rgb(255, 220, 97)',
 
-        backgroundColor2: 'rgb(201, 201, 201)',
+        backgroundColor2: 'rgb(0, 0, 0)',
         lineColor: 'rgb(199, 199, 199)',
         voffset: 0,
         scrollbarHoverOver: 'visible',
         scrollbarHoverOff: 'hidden',
         scrollingEnabled: true,
+
+        placeholderColor: 'rgb(0, 0, 0)',
+        ghostBorderColor: 'rgb(51, 153, 255)',
+        ghostBackgroundColor: 'rgb(0, 0, 0)',
 
         fixedRowAlign: 'center',
         fixedColAlign: 'center',

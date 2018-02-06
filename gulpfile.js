@@ -45,7 +45,7 @@ gulp.task('css-templates', function() {
 gulp.task('build', function(callback) {
     clearBashScreen();
     runSequence(
-        'lint',
+        // 'lint',
         'images',
         'css-templates',
         'test',

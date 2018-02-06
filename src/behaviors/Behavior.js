@@ -20,6 +20,26 @@ var noExportProperties = [
     'treeColumnPropertiesColumnSelection',
 ];
 
+Array.prototype.move = function(oldIndex, len, newIndex) {
+    while (oldIndex < 0) {
+        oldIndex += this.length;
+    }
+    while (newIndex < 0) {
+        newIndex += this.length;
+    }
+    if (newIndex >= this.length) {
+        var k = newIndex - this.length;
+        while ((k--) + 1) {
+            this.push(undefined);
+        }
+    }
+    if (oldIndex < newIndex){
+        newIndex -= len - 1;
+    }
+    this.splice.apply(this, [newIndex, 0].concat(this.splice(oldIndex, len)));
+    return this;
+};
+
 /**
  * @constructor
  * @abstract
@@ -1343,6 +1363,12 @@ var Behavior = Base.extend('Behavior', {
         var tmp = columns[source];
         columns[source] = columns[target];
         columns[target] = tmp;
+        this.changed();
+    },
+
+    moveColumns: function(from, len, target) {
+        var columns = this.columns;
+        columns.move(from, len, target);
         this.changed();
     },
 

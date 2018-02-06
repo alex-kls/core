@@ -177,6 +177,7 @@ exports.mixin = {
         if (x !== this.hScrollValue) {
             this.behavior._setScrollPositionX(x);
             var oldX = this.hScrollValue;
+            console.trace();
             this.hScrollValue = x;
             this.scrollValueChangedNotification();
             setTimeout(function() {
@@ -324,13 +325,15 @@ exports.mixin = {
         // inform scroll bars
         if (this.sbHScroller) {
             var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
+            var hscrollValue = this.getHScrollValue()
             this.setHScrollbarValues(hMax);
-            this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
+            this.setHScrollValue(Math.min(hscrollValue, hMax));
         }
         if (this.sbVScroller) {
             var vMax = Math.max(0, numRows - this.properties.fixedRowCount - lastPageRowCount);
+            var vscrollValue = this.getVScrollValue();
             this.setVScrollbarValues(vMax);
-            this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
+            this.setVScrollValue(Math.min(vscrollValue, vMax));
         }
 
         this.computeCellsBounds();

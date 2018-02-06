@@ -340,9 +340,8 @@ var Renderer = Base.extend('Renderer', {
             fixedColumnCount = this.grid.getFixedColumnCount(),
             scrollLeft = this.grid.getHScrollValue(),
             visibleColumns = this.visibleColumns;
-
-        for (var c = 1; c < visibleColumns.length - 1; c++) {
-            width = visibleColumns[c].left - (visibleColumns[c].left - visibleColumns[c - 1].left) / 2;
+        for (var c = 1; c < visibleColumns.length; c++) {
+            width = visibleColumns[c].left;
             if (pixelX < width) {
                 if (c > fixedColumnCount) {
                     c += scrollLeft;
@@ -623,7 +622,7 @@ var Renderer = Base.extend('Renderer', {
 
         this.gridRenderer.paintCells.call(this, gc);
 
-        this.renderOverrides(gc);
+        // this.renderOverrides(gc);
 
         this.renderLastSelection(gc);
 

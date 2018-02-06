@@ -14,8 +14,8 @@ var canDragCursorName = '-webkit-grab',
 var columnAnimationTime = 150;
 var dragger;
 var draggerCTX;
-var floatColumn;
-var floatColumnCTX;
+var placeholder;
+var placeholderCTX;
 
 /**
  * @constructor
@@ -78,7 +78,6 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
      * @param {Hypergrid} grid
      */
     initializeOn: function(grid) {
-        this.isFloatingNow = false;
         this.initializeAnimationSupport(grid);
         if (this.next) {
             this.next.initializeOn(grid);
@@ -100,14 +99,14 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             document.body.appendChild(dragger);
             draggerCTX = dragger.getContext('2d');
         }
-        if (!floatColumn) {
-            floatColumn = document.createElement('canvas');
-            floatColumn.setAttribute('width', '0px');
-            floatColumn.setAttribute('height', '0px');
-            floatColumn.style.position = 'fixed';
+        if (!placeholder) {
+            placeholder = document.createElement('canvas');
+            placeholder.setAttribute('width', '0px');
+            placeholder.setAttribute('height', '0px');
+            placeholder.style.position = 'fixed';
 
-            document.body.appendChild(floatColumn);
-            floatColumnCTX = floatColumn.getContext('2d');
+            document.body.appendChild(placeholder);
+            placeholderCTX = placeholder.getContext('2d');
         }
 
     },
@@ -137,15 +136,16 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             this.dragCol = gridCell.x;
             this.dragOffset = event.mousePoint.x;
             this.detachChain();
-            x = event.primitiveEvent.detail.mouse.x - this.dragOffset;
+            x = event.primitiveEvent.detail.mouse.x;
             //y = event.primitiveEvent.detail.mouse.y;
             this.createDragColumn(grid, x, this.dragCol);
+            this.createPlaceholder(grid, this.dragCol);
         } else if (this.next) {
             this.next.handleMouseDrag(grid, event);
         }
 
         if (this.dragging) {
-            x = event.primitiveEvent.detail.mouse.x - this.dragOffset;
+            x = event.primitiveEvent.detail.mouse.x;
             //y = event.primitiveEvent.detail.mouse.y;
             this.dragColumn(grid, x);
         }
@@ -164,7 +164,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             if (event.isHeaderCell) {
                 this.dragArmed = true;
                 this.cursor = draggingCursorName;
-                grid.clearSelections();
+                // grid.clearSelections();
             }
         }
         if (this.next) {
@@ -207,11 +207,12 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
      */
     handleMouseMove: function(grid, event) {
         if (
+            event.isColumnSelected &&
             grid.behavior.isColumnReorderable() &&
             !event.isColumnFixed &&
             !this.dragging &&
-            event.isHeaderCell &&
-            event.mousePoint.y < grid.properties.columnGrabMargin
+            event.isHeaderCell
+            // && event.mousePoint.y < grid.properties.columnGrabMargin
         ) {
             this.cursor = canDragCursorName;
         } else {
@@ -229,122 +230,40 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
-     * @desc this is the main event handler that manages the dragging of the column
+     * @desc this is the main event handler that manages the dragging of the column and moving of placeholder
      * @param {Hypergrid} grid
-     * @param {boolean} draggedToTheRight - are we moving to the right
      */
-    floatColumnTo: function(grid, draggedToTheRight) {
-        this.floatingNow = true;
-
+    movePlaceholderTo: function(grid, overCol) {
         var visibleColumns = grid.renderer.visibleColumns;
+
+        var d = placeholder;
+        d.style.display = 'inline';
+
         var scrollLeft = grid.getHScrollValue();
-        var floaterIndex = grid.renderOverridesCache.floater.columnIndex;
-        var draggerIndex = grid.renderOverridesCache.dragger.columnIndex;
-        var hdpiratio = grid.renderOverridesCache.dragger.hdpiratio;
-
-        var draggerStartX;
-        var floaterStartX;
         var fixedColumnCount = grid.getFixedColumnCount();
-        var draggerWidth = grid.getColumnWidth(draggerIndex);
-        var floaterWidth = grid.getColumnWidth(floaterIndex);
-
-        var max = grid.getVisibleColumnsCount();
-
-        var doffset = 0;
-        var foffset = 0;
-
-        if (draggerIndex >= fixedColumnCount) {
-            doffset = scrollLeft;
-        }
-        if (floaterIndex >= fixedColumnCount) {
-            foffset = scrollLeft;
+        if (overCol < fixedColumnCount) {
+            scrollLeft = 0;
         }
 
-        if (draggedToTheRight) {
-            draggerStartX = visibleColumns[Math.min(max, draggerIndex - doffset)].left;
-            floaterStartX = visibleColumns[Math.min(max, floaterIndex - foffset)].left;
-
-            grid.renderOverridesCache.dragger.startX = (draggerStartX + floaterWidth) * hdpiratio;
-            grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
-
+        var x;
+        if(overCol >= scrollLeft + visibleColumns.length){
+            var lastColumn = visibleColumns[visibleColumns.length - 1];
+            x = lastColumn.left + lastColumn.width - 3;
         } else {
-            floaterStartX = visibleColumns[Math.min(max, floaterIndex - foffset)].left;
-            draggerStartX = floaterStartX + draggerWidth;
-
-            grid.renderOverridesCache.dragger.startX = floaterStartX * hdpiratio;
-            grid.renderOverridesCache.floater.startX = draggerStartX * hdpiratio;
+            x = visibleColumns[overCol - scrollLeft].left;
         }
-        grid.swapColumns(draggerIndex, floaterIndex);
-        grid.renderOverridesCache.dragger.columnIndex = floaterIndex;
-        grid.renderOverridesCache.floater.columnIndex = draggerIndex;
 
-
-        this.floaterAnimationQueue.unshift(this.doColumnMoveAnimation(grid, floaterStartX, draggerStartX));
-
-        this.doFloaterAnimation(grid);
-
+        this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, ' + 0 + 'px)');
+        grid.repaint();
     },
 
     /**
      * @memberOf CellMoving.prototype
-     * @desc manifest the column drag and drop animation
+     * @desc create the placeholder at columnIndex where column(s) should be moved to
      * @param {Hypergrid} grid
-     * @param {number} floaterStartX - the x start coordinate of the column underneath that floats behind the dragged column
-     * @param {number} draggerStartX - the x start coordinate of the dragged column
+     * @param {number} columnIndex - the index of the column after which
      */
-    doColumnMoveAnimation: function(grid, floaterStartX, draggerStartX) {
-        var self = this;
-        return function() {
-            var d = floatColumn;
-            d.style.display = 'inline';
-            self.setCrossBrowserProperty(d, 'transform', 'translate(' + floaterStartX + 'px, ' + 0 + 'px)');
-
-            //d.style.webkit-webkit-Transform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
-            //d.style.webkit-webkit-Transform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
-
-            requestAnimationFrame(function() {
-                self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease');
-                self.setCrossBrowserProperty(d, 'transform', 'translate(' + draggerStartX + 'px, ' + -2 + 'px)');
-            });
-            grid.repaint();
-            //need to change this to key frames
-
-            setTimeout(function() {
-                self.setCrossBrowserProperty(d, 'transition', '');
-                grid.renderOverridesCache.floater = null;
-                grid.repaint();
-                self.doFloaterAnimation(grid);
-                requestAnimationFrame(function() {
-                    d.style.display = 'none';
-                    self.isFloatingNow = false;
-                });
-            }, columnAnimationTime + 50);
-        };
-    },
-
-    /**
-     * @memberOf CellMoving.prototype
-     * @desc manifest the floater animation
-     * @param {Hypergrid} grid
-     */
-    doFloaterAnimation: function(grid) {
-        if (this.floaterAnimationQueue.length === 0) {
-            this.floatingNow = false;
-            grid.repaint();
-            return;
-        }
-        var animation = this.floaterAnimationQueue.pop();
-        animation();
-    },
-
-    /**
-     * @memberOf CellMoving.prototype
-     * @desc create the float column at columnIndex underneath the dragged column
-     * @param {Hypergrid} grid
-     * @param {number} columnIndex - the index of the column that will be floating
-     */
-    createFloatColumn: function(grid, columnIndex) {
-
+    createPlaceholder: function(grid, columnIndex) {
         var fixedColumnCount = grid.getFixedColumnCount();
         var scrollLeft = grid.getHScrollValue();
 
@@ -352,40 +271,34 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             scrollLeft = 0;
         }
 
-        var columnWidth = grid.getColumnWidth(columnIndex);
+        var width = 3;
         var colHeight = grid.div.clientHeight;
-        var d = floatColumn;
+        var d = placeholder;
         var style = d.style;
         var location = grid.div.getBoundingClientRect();
 
-        style.top = (location.top - 2) + 'px';
-        style.left = location.left + 'px';
+        style.top = location.top + 'px';
+        style.left = location.left - 2 + 'px';
 
-        var hdpiRatio = grid.getHiDPI(floatColumnCTX);
+        var hdpiRatio = grid.getHiDPI(placeholderCTX);
 
-        d.setAttribute('width', Math.round(columnWidth * hdpiRatio) + 'px');
+        d.setAttribute('width', Math.round(width * hdpiRatio) + 'px');
         d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
-        style.boxShadow = '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)';
-        style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
+        // style.boxShadow = '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)';
+        style.width = width + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
         style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
-        style.borderTop = '1px solid ' + grid.properties.lineColor;
-        style.backgroundColor = grid.properties.backgroundColor;
+        style.backgroundColor = 'rgb(110, 110, 110)';
 
         var startX = grid.renderer.visibleColumns[columnIndex - scrollLeft].left * hdpiRatio;
 
-        floatColumnCTX.scale(hdpiRatio, hdpiRatio);
+        placeholderCTX.scale(hdpiRatio, hdpiRatio);
 
         grid.renderOverridesCache.floater = {
             columnIndex: columnIndex,
-            ctx: floatColumnCTX,
-            startX: startX,
-            width: columnWidth,
-            height: colHeight,
-            hdpiratio: hdpiRatio
+            startX: startX
         };
 
         style.zIndex = '4';
-        this.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -2 + 'px)');
         style.cursor = draggingCursorName;
         grid.repaint();
     },
@@ -436,41 +349,41 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         }
 
         var hdpiRatio = grid.getHiDPI(draggerCTX);
-        var columnWidth = grid.getColumnWidth(columnIndex);
+        var selectedColumns = grid.getSelectedColumns();
+        var consequent = this._isConsequent(selectedColumns);
+        var columns = consequent ? selectedColumns : [columnIndex];
+
+        var columnWidth = 0;
+        columns.forEach(function(col){
+            columnWidth += grid.getColumnWidth(col);
+        });
+
         var colHeight = grid.div.clientHeight;
         var d = dragger;
         var location = grid.div.getBoundingClientRect();
         var style = d.style;
-
-        style.top = location.top + 'px';
+        // offset from top + header height
+        var offsetY = grid.getFixedRowsHeight();
+        style.top = location.top + offsetY + 'px';
         style.left = location.left + 'px';
-        style.opacity = 0.85;
-        style.boxShadow = '0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)';
-        //style.zIndex = 100;
-        style.borderTop = '1px solid ' + grid.properties.lineColor;
-        style.backgroundColor = grid.properties.backgroundColor;
+        style.opacity = 0.2;
+        style.borderTop = '1px solid rgb(51, 153, 255)';
+        style.backgroundColor = 'rgb(0, 0, 0)';
 
         d.setAttribute('width', Math.round(columnWidth * hdpiRatio) + 'px');
         d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
 
         style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
-        style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
-
-        var startX = grid.renderer.visibleColumns[columnIndex - scrollLeft].left * hdpiRatio;
+        style.height = colHeight - offsetY + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
 
         draggerCTX.scale(hdpiRatio, hdpiRatio);
 
         grid.renderOverridesCache.dragger = {
             columnIndex: columnIndex,
-            startIndex: columnIndex,
-            ctx: draggerCTX,
-            startX: startX,
-            width: columnWidth,
-            height: colHeight,
-            hdpiratio: hdpiRatio
+            startIndex: columnIndex
         };
 
-        this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, -5px)');
+        // this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, -5px)');
         style.zIndex = '5';
         style.cursor = draggingCursorName;
         grid.repaint();
@@ -488,72 +401,43 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         var self = this;
 
         var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
-
-        var hdpiRatio = grid.getHiDPI(draggerCTX);
-
-        var dragColumnIndex = grid.renderOverridesCache.dragger.columnIndex;
+        var dragColumnIndex = grid.renderOverridesCache.dragger.startIndex;
 
         var minX = 0;
         var maxX = grid.renderer.getFinalVisibleColumnBoundary();
-        x = Math.min(x, maxX + 15);
-        x = Math.max(minX - 15, x);
-
-        //am I at my lower bound
-        var atMin = x < minX && dragColumnIndex !== 0;
-
-        //am I at my upper bound
-        var atMax = x > maxX;
 
         var d = dragger;
 
         this.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + 0 + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
 
-        this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, ' + -10 + 'px)');
+        this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, ' + 0 + 'px)');
         requestAnimationFrame(function() {
             d.style.display = 'inline';
         });
 
-        var overCol = grid.renderer.getColumnFromPixelX(x + (d.width / 2 / hdpiRatio));
+        var overCol = grid.renderer.getColumnFromPixelX(x);
 
-        if (atMin) {
-            overCol = 0;
+        if (x < minX + 10) {
+            this.checkAutoScrollToLeft(grid, x);
+        }
+        if (x > minX + 10) {
+            this.columnDragAutoScrollingLeft = false;
+        }
+        if (x > maxX - 10) {
+            this.checkAutoScrollToRight(grid, x);
+        }
+        if (x < maxX - 10) {
+            this.columnDragAutoScrollingRight = false;
         }
 
-        if (atMax) {
-            overCol = grid.getColumnCount() - 1;
-        }
-
-        var doAFloat = dragColumnIndex > overCol;
-        doAFloat = doAFloat || (overCol - dragColumnIndex >= 1);
-
-        if (doAFloat && !autoScrollingNow) {
+        var selectedColumns = grid.getSelectedColumns();
+        if(!autoScrollingNow && !selectedColumns.splice(1).includes(overCol)) {
+            grid.renderOverridesCache.dragger.columnIndex = overCol;
             var draggedToTheRight = dragColumnIndex < overCol;
-            // if (draggedToTheRight) {
-            //     overCol -= 1;
-            // }
-            if (this.isFloatingNow) {
-                return;
+            if (draggedToTheRight) {
+                overCol += 1;
             }
-
-            this.isFloatingNow = true;
-            this.createFloatColumn(grid, overCol);
-            this.floatColumnTo(grid, draggedToTheRight);
-        } else {
-
-            if (x < minX - 10) {
-                this.checkAutoScrollToLeft(grid, x);
-            }
-            if (x > minX - 10) {
-                this.columnDragAutoScrollingLeft = false;
-            }
-            //lets check for autoscroll to right if were up against it
-            if (atMax || x > maxX + 10) {
-                this.checkAutoScrollToRight(grid, x);
-                return;
-            }
-            if (x < maxX + 10) {
-                this.columnDragAutoScrollingRight = false;
-            }
+            this.movePlaceholderTo(grid, overCol);
         }
     },
 
@@ -579,14 +463,9 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         if (!grid.dragging || scrollLeft > (grid.sbHScroller.range.max - 2)) {
             return;
         }
-        var draggedIndex = grid.renderOverridesCache.dragger.columnIndex;
         grid.scrollBy(1, 0);
-        var newIndex = draggedIndex + 1;
-
-        grid.swapColumns(newIndex, draggedIndex);
-        grid.renderOverridesCache.dragger.columnIndex = newIndex;
-
-        setTimeout(this._checkAutoScrollToRight.bind(this, grid, x), 250);
+        grid.renderOverridesCache.dragger.columnIndex += 1;
+        setTimeout(this._checkAutoScrollToRight.bind(this, grid, x), 150);
     },
 
     /**
@@ -607,15 +486,13 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         if (!this.columnDragAutoScrollingLeft) {
             return;
         }
-
         var scrollLeft = grid.getHScrollValue();
         if (!grid.dragging || scrollLeft < 1) {
             return;
         }
-        var draggedIndex = grid.renderOverridesCache.dragger.columnIndex;
-        grid.swapColumns(draggedIndex + scrollLeft, draggedIndex + scrollLeft - 1);
         grid.scrollBy(-1, 0);
-        setTimeout(this._checkAutoScrollToLeft.bind(this, grid, x), 250);
+        grid.renderOverridesCache.dragger.columnIndex -= 1;
+        setTimeout(this._checkAutoScrollToLeft.bind(this, grid, x), 150);
     },
 
     /**
@@ -625,35 +502,56 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
      */
     endDragColumn: function(grid) {
 
-        var fixedColumnCount = grid.getFixedColumnCount();
-        var scrollLeft = grid.getHScrollValue();
-
-        var columnIndex = grid.renderOverridesCache.dragger.columnIndex;
-
-        if (columnIndex < fixedColumnCount) {
-            scrollLeft = 0;
-        }
-
-        var self = this;
-        var startX = grid.renderer.visibleColumns[columnIndex - scrollLeft].left;
         var d = dragger;
         var changed = grid.renderOverridesCache.dragger.startIndex !== grid.renderOverridesCache.dragger.columnIndex;
-        self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
-        self.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -1 + 'px)');
-        d.style.boxShadow = '0px 0px 0px #888888';
 
-        setTimeout(function() {
-            grid.renderOverridesCache.dragger = null;
-            grid.repaint();
-            requestAnimationFrame(function() {
-                d.style.display = 'none';
-                grid.endDragColumnNotification(); //internal notification
-                if (changed){
-                    grid.fireSyntheticOnColumnsChangedEvent(); //public notification
+        var selectedColumns = grid.getSelectedColumns();
+        var consequent = this._isConsequent(selectedColumns);
+
+        var placeholderIndex = grid.renderOverridesCache.dragger.columnIndex;
+        var draggerIndex = grid.renderOverridesCache.dragger.startIndex;
+        var from = consequent ? selectedColumns[0] : [draggerIndex];
+        var len = consequent ? selectedColumns.length : 1;
+        grid.moveColumns(from, len, placeholderIndex);
+
+        var f = placeholder;
+        requestAnimationFrame(function() {
+            f.style.display = 'none';
+        });
+
+        grid.renderOverridesCache.dragger = null;
+        grid.repaint();
+
+        grid.clearSelections();
+        var startNewSelectionFrom;
+        if(from < placeholderIndex){
+            startNewSelectionFrom = placeholderIndex - (len - 1);
+        } else {
+            startNewSelectionFrom = placeholderIndex;
+        }
+        grid.selectColumn(startNewSelectionFrom, startNewSelectionFrom + (len - 1));
+
+        requestAnimationFrame(function() {
+            d.style.display = 'none';
+            grid.endDragColumnNotification(); //internal notification
+            if (changed){
+                grid.fireSyntheticOnColumnsChangedEvent(); //public notification
+            }
+        });
+
+    },
+
+    _isConsequent: function(arr){
+        var consequent = true;
+        if(arr.length > 1) {
+            arr.sort();
+            for (var i = 0; i < arr.length - 1; i++) {
+                if(arr[i + 1] - arr[i] != 1){
+                    consequent = false;
                 }
-            });
-        }, columnAnimationTime + 50);
-
+            }
+        }
+        return consequent;
     }
 
 });

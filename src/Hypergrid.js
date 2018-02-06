@@ -1665,6 +1665,14 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.behavior.swapColumns(source, target);
     },
 
+    moveColumns: function(from, len, target) {
+        this.behavior.moveColumns(from, len, target);
+    },
+
+    getSelectedColumns: function() {
+        return this.behavior.getSelectedColumns();
+    },
+
     endDragColumnNotification: function() {
         this.behavior.endDragColumnNotification();
     },
