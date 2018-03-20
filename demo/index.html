@@ -27,8 +27,8 @@
             get('data/test_data.json', function(data) {
                 var loadingSpan = document.querySelector('span#loading');
                 loadingSpan.style.visibility = "hidden";
-                var div = document.querySelector('div#json-example'),
-                    grid = new fin.Hypergrid(div, { data: data });
+                var div = document.querySelector('div#json-example');
+                window.grid = new fin.Hypergrid(div, { data: data });
             });
         };
     </script>

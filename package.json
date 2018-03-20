@@ -1,5 +1,5 @@
 {
-    "name": "fin-hypergrid-extended",
+    "name": "fin-hypergrid",
     "version": "3.0.0",
     "description": "Canvas-based high-performance grid extended",
     "main": "src/Hypergrid",
