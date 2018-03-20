@@ -100,6 +100,17 @@ var defaults = {
      */
     backgroundSelectionColor: 'rgba(147, 185, 255, 0.625)',
 
+    /**
+     * Background color for header selected cell(s).
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    backgroundHeaderSelectionColor: 'rgb(221, 221, 221)',
+
+
+    disableHoverHighlighting: true,
+
 
     /********** SECTION: COLUMN HEADER COLORS **********/
 

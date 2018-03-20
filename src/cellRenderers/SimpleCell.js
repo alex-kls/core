@@ -75,16 +75,24 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         // fill background only if our bgColor is populated or we are a selected cell
         colors = [];
         c = 0;
-        if (config.isCellHovered && config.hoverCellHighlight.enabled) {
-            hoverColor = config.hoverCellHighlight.backgroundColor;
-        } else if (config.isRowHovered && (hover = config.hoverRowHighlight).enabled) {
-            hoverColor = config.isDataColumn || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
-        } else if (config.isColumnHovered && (hover = config.hoverColumnHighlight).enabled) {
-            hoverColor = config.isDataRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+
+        if (!config.disableHoverHighlighting) {
+            if (config.isCellHovered && config.hoverCellHighlight.enabled) {
+                hoverColor = config.hoverCellHighlight.backgroundColor;
+            } else if (config.isRowHovered && (hover = config.hoverRowHighlight).enabled) {
+                hoverColor = config.isDataColumn || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+            } else if (config.isColumnHovered && (hover = config.hoverColumnHighlight).enabled) {
+                hoverColor = config.isDataRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+            }
         }
+
         if (gc.alpha(hoverColor) < 1) {
             if (config.isSelected) {
-                selectColor = config.backgroundSelectionColor;
+                if (!config.isHeaderRow && config.isDataColumn) {
+                    selectColor = config.backgroundSelectionColor;
+                } else {
+                    selectColor = config.backgroundHeaderSelectionColor;
+                }
             }
 
             if (gc.alpha(selectColor) < 1) {
@@ -131,6 +139,11 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
+
+            if (config.isHeaderRow) {
+                gc.cache.font = 'bold ' + gc.cache.font;
+            }
+
             valWidth = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
                 : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
