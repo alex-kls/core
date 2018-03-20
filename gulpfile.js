@@ -12,7 +12,7 @@ var pkgjson     = require('./package.json'),
     path        = require('path'),
     pipe        = require('multipipe');
 
-var srcDir      = './src/forBuild/',
+var srcDir      = './src/',
     testDir     = './test/',
     jsFiles     = '**/*.js',
     demoDir     = './demo/',
@@ -26,7 +26,7 @@ gulp.task('doc', doc);
 gulp.task('images', swallowImages);
 gulp.task('browserify', bundleUp.bind(null,
     pkgjson.name,
-    srcDir,
+    srcDir + 'forBuild/',
     buildDir
 ));
 gulp.task('browserify-demo', bundleUp.bind(null,
