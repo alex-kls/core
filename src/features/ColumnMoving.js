@@ -148,7 +148,8 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
                 this.dragging = true;
                 this.dragCol = gridCell.x;
 
-                var firstSelectedColumn = grid.getSelectedColumns()[0];
+                var firstSelectedColumn = grid.getSelectedColumns()[0] ||
+                    grid.renderer.visibleColumns.findIndex(function(c) {return c.column === event.column;});
                 var hScrollOffset = grid.getHScrollValue();
                 var firstSelectedColumnX = grid.renderer.visibleColumns[Math.max(0, firstSelectedColumn - hScrollOffset)].left;
 
