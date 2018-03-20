@@ -28,7 +28,29 @@
                 var loadingSpan = document.querySelector('span#loading');
                 loadingSpan.style.visibility = "hidden";
                 var div = document.querySelector('div#json-example');
-                window.grid = new fin.Hypergrid(div, { data: data });
+                var inLoad = false;
+
+                function loadData(data) {
+                    inLoad = false;
+                    window.grid.addData(data);
+                }
+
+                function onScrollEnd() {
+                    console.log("SCROLL END");
+                    if (!inLoad) {
+                        inLoad = true;
+                        get('data/test_data.json', loadData);
+                    }
+                }
+
+                var options = {
+                    data: data,
+                    callbacks: {
+                        onScrollEndLimitTrigger: 200,
+                        onScrollEnd: onScrollEnd,
+                    }
+                };
+                window.grid = new fin.Hypergrid(div, options);
             });
         };
     </script>

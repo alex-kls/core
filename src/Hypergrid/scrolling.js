@@ -280,6 +280,13 @@ exports.mixin = {
                 this.cellEditor.scrollValueChangedNotification();
             }
 
+            if (
+                this.callbacks.onScrollEnd &&
+                this.sbVScroller.range.max - this.vScrollValue < (this.callbacks.onScrollEndLimitTrigger || 500)
+            ) {
+                this.callbacks.onScrollEnd();
+            }
+
             this.computeCellsBounds();
         }
     },

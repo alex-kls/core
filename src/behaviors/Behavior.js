@@ -182,6 +182,32 @@ var Behavior = Base.extend('Behavior', {
     setData: function(dataRows, options) {
     },
 
+    /**
+     * @abstract
+     * @summary Add grid data.
+     * @desc Exits without doing anything if no data (`dataRows` undefined or omitted and `options.data` undefined).
+     *
+     * @param {function|object[]} [dataRows=options.data] - Array of uniform data row objects or function returning same.
+     *
+     * @param {object} [options] - _(Promoted to first argument position when `dataRows` omitted.)_
+     *
+     * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
+     * * An array of congruent raw data objects
+     * * A function returning same
+     * * Omit for non-local datasources
+     *
+     * @param {function|menuItem[]} [options.schema] - Passed to behavior constructor. May be:
+     * * A schema array
+     * * A function returning same. Called at filter reset time with behavior as context.
+     * * Omit to allow the data model to generate a basic schema from its data.
+     *
+     * @param {boolean} [options.apply=true] Apply data transformations to the new data.
+     *
+     * @memberOf Behavior#
+     */
+    addData: function(dataRows, options) {
+    },
+
     get renderedColumnCount() {
         return this.grid.renderer.visibleColumns.length;
     },

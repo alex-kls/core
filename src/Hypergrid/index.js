@@ -67,6 +67,9 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * @param {string} [options.boundingRect.right='auto']
  * @param {string} [options.boundingRect.bottom='auto']
  * @param {string} [options.boundingRect.position='relative']
+ *
+ * @param {function} [options.callbacks.onScrollEnd] - function for infinite scroll behaviour
+ * @param {number} [options.callbacks.onScrollEndLimitTrigger] - pixels to the end of bound when should be called `onScrollEnd`
  */
 var Hypergrid = Base.extend('Hypergrid', {
     initialize: function(container, options) {
@@ -131,6 +134,8 @@ var Hypergrid = Base.extend('Hypergrid', {
         if (options.state) {
             this.loadState(options.state);
         }
+
+        this.callbacks = options.callbacks || {};
 
         /**
          * @name plugins
@@ -779,6 +784,30 @@ var Hypergrid = Base.extend('Hypergrid', {
             this.setBehavior(options);
         }
         this.behavior.setData(dataRows, options);
+        this.setInfo(dataRows.length ? '' : this.properties.noDataMessage);
+        this.behavior.changed();
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @summary Add the underlying datasource.
+     * @desc This can be done dynamically.
+     * @param {function|object[]} dataRows - May be:
+     * * An array of congruent raw data objects.
+     * * A function returning same.
+     * @param {object} [options] - _(See also {@link Behavior#setData} for additional options.)_
+     * @param {Behavior} [options.Behavior=Local] - The behavior (model) can be either a constructor or an instance.
+     * @param {dataModelAPI} [options.dataModel] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
+     * @param {function} [options.DataModel=require('datasaur-local')] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
+     * @param {dataModelAPI} [options.metadata] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
+     * @param {dataRowObject[]} [options.data] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
+     * @param {function|menuItem[]} [options.schema] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
+     */
+    addData: function(dataRows, options) {
+        if (!this.behavior) {
+            this.setBehavior(options);
+        }
+        this.behavior.addData(dataRows, options);
         this.setInfo(dataRows.length ? '' : this.properties.noDataMessage);
         this.behavior.changed();
     },
@@ -1844,6 +1873,8 @@ function Var() {
     this.gridBorderRight = defaults.gridBorderRight;
     this.gridBorderBottom = defaults.gridBorderBottom;
     this.gridBorderLeft = defaults.gridBorderLeft;
+    this.onScrollEnd = defaults.onScrollEnd;
+    this.onScrollEndLimitTrigger = defaults.onScrollEndLimitTrigger;
 }
 
 function findOrCreateContainer(boundingRect) {

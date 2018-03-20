@@ -1,6 +1,6 @@
 'use strict';
 
-var DataSourceBase = require('datasaur-base');
+var DataSourceBase = require('../DatasaurBase');
 
 /**
  * @implements dataModelAPI

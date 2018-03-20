@@ -8,7 +8,7 @@ var Behavior = require('./Behavior');
  * @summary Default data source.
  * @desc If defined, will be used as a default data source for newly instantiated `Hypergrid` objects without `DataSource` or `dataSource` options specified. Scheduled for removal in next version (v4).
  */
-var DefaultDataModel = require('datasaur-local');
+var DefaultDataModel = require('../DatasaurLocal');
 
 var decorators = require('./dataModel/decorators');
 
@@ -108,6 +108,72 @@ var Local = Behavior.extend('Local', {
         // Inform interested data models of data.
         this.subgrids.forEach(function(dataModel) {
             dataModel.setData(dataRows, schema);
+        });
+
+        if (grid.cellEditor) {
+            grid.cellEditor.cancelEditing();
+        }
+
+        if (reindex) {
+            this.reindex();
+        }
+
+        if (schemaChanged) {
+            this.createColumns();
+        }
+
+        grid.allowEvents(this.getRowCount());
+    },
+
+    /**
+     * @memberOf Local#
+     * @summary Add grid data.
+     * @desc Exits without doing anything if no data (`dataRows` undefined or omitted and `options.data` undefined).
+     *
+     * @param {function|object[]} [dataRows=options.data] - Array of uniform data row objects or function returning same.
+     *
+     * @param {object} [options] - _(Promoted to first argument position when `dataRows` omitted.)_
+     *
+     * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
+     * * An array of congruent raw data objects
+     * * A function returning same
+     * * Omit for non-local datasources
+     *
+     * @param {function|menuItem[]} [options.schema] - Passed to behavior constructor. May be:
+     * * A schema array
+     * * A function returning same. Called at filter reset time with behavior as context.
+     * * Omit to allow the data model to generate a basic schema from its data.
+     *
+     * @param {boolean} [options.apply=true] Apply data transformations to the new data.
+     */
+    addData: function(dataRows, options) {
+        if (!(Array.isArray(dataRows) || typeof dataRows === 'function')) {
+            options = dataRows;
+            dataRows = options && options.data;
+        }
+
+        dataRows = this.unwrap(dataRows);
+
+        if (dataRows === undefined) {
+            return;
+        }
+
+        if (!Array.isArray(dataRows)) {
+            throw 'Expected data to be an array (of data row objects).';
+        }
+
+        options = options || {};
+
+        var grid = this.grid,
+            schema = this.unwrap(options.schema), // *always* define a new schema on reset
+            schemaChanged = schema || !this.subgrids.lookup.data.getColumnCount(), // schema will change if a new schema was provided OR data model has an empty schema now, which triggers schema generation on setData below
+            reindex = options.apply === undefined || options.apply; // defaults to true
+
+        // Inform interested data models of data.
+        this.subgrids.forEach(function(dataModel) {
+            if (dataModel.addData) {
+                dataModel.addData(dataRows, schema);
+            }
         });
 
         if (grid.cellEditor) {

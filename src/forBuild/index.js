@@ -30,8 +30,8 @@ Hypergrid.src = {};
 
 // Install implicit modules which are external modules but are not overridable so non-configurable, non-writable
 Object.defineProperties(Hypergrid.modules, {
-    'datasaur-base': { value: require('datasaur-base') }, // may be removed in a future release
-    'datasaur-local': { value: require('datasaur-local') }, // may be removed in a future release
+    'datasaur-base': { value: require('../DatasaurBase') }, // may be removed in a future release
+    'datasaur-local': { value: require('../DatasaurLocal') }, // may be removed in a future release
     'extend-me': {value: require('extend-me') },
     'object-iterators': { value: require('object-iterators') },
     overrider: { value: require('overrider') },

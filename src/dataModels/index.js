@@ -9,7 +9,7 @@ var Registry = require('../lib/Registry');
  */
 var DataModels = Registry.extend('DataModels', {
 
-    BaseClass: require('datasaur-base'),
+    BaseClass: require('../DatasaurBase'),
 
     initialize: function() {
         // preregister the standard cell editors
