@@ -4,25 +4,8 @@
 'use strict';
 
 var Base = require('../Base');
-var images = require('../../images/index');
-
-
-var propClassGet = [
-    undefined,
-    function(cellEvent) {
-        return cellEvent.columnProperties;
-    },
-    function(cellEvent) {
-        var rowStripes = cellEvent.isDataRow && cellEvent.columnProperties.rowStripes;
-        return rowStripes && rowStripes[cellEvent.dataCell.y % rowStripes.length];
-    },
-    function(cellEvent) {
-        return cellEvent.rowOwnProperties;
-    },
-    function(cellEvent) {
-        return cellEvent.cellOwnProperties;
-    }
-];
+var images = require('../../images');
+var layerProps = require('./layer-props');
 
 
 var visibleColumnPropertiesDescriptorFn = function(grid) {
@@ -75,10 +58,10 @@ var paintCellsFunctions = [];
 
 
 /** @typedef {object} CanvasRenderingContext2D
- * @see [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+ * @see [CanvasRenderingContext2D](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D)
  */
 
-/** @typedef {object} visibleColumnDescriptor
+/** @typedef {object} visibleColumnArray
  * @property {number} index - A back reference to the element's array index in {@link Renderer#visibleColumns}.
  * @property {number} columnIndex - Dereferences {@link Behavior#columns}, the subset of _active_ columns, specifying which column to show in that position.
  * @property {number} left - Pixel coordinate of the left edge of this column, rounded to nearest integer.
@@ -86,7 +69,7 @@ var paintCellsFunctions = [];
  * @property {number} width - Width of this column in pixels, rounded to nearest integer.
  */
 
-/** @typedef {object} visibleRowDescriptor
+/** @typedef {object} visibleRowArray
  * @property {number} index - A back reference to the element's array index in {@link Renderer#visibleRows}.
  * @property {number} rowIndex - Local vertical row coordinate within the subgrid to which the row belongs, adjusted for scrolling.
  * @property {dataModelAPI} subgrid - A reference to the subgrid to which the row belongs.
@@ -148,7 +131,7 @@ var Renderer = Base.extend('Renderer', {
          * 1. The first element will be -1 if the row handle column is being rendered.
          * 2. A zero-based list of consecutive of integers representing the fixed columns (if any).
          * 3. An n-based list of consecutive of integers representing the scrollable columns (where n = number of fixed columns + the number of columns scrolled off to the left).
-         * @type {visibleColumnDescriptor}
+         * @type {visibleColumnArray}
          */
         this.visibleColumns = Object.defineProperties([], visibleColumnPropertiesDescriptorFn(this.grid));
 
@@ -162,7 +145,7 @@ var Renderer = Base.extend('Renderer', {
          *   2. An n-based list of consecutive of integers representing the scrollable rows (where n = number of fixed rows + the number of rows scrolled off the top).
          *
          * Note that non-scrollable subgrids can come both before _and_ after the scrollable subgrid.
-         * @type {visibleRowDescriptor}
+         * @type {visibleRowArray}
          */
         this.visibleRows = [];
 
@@ -246,17 +229,6 @@ var Renderer = Base.extend('Renderer', {
     },
 
     /**
-     * Previously used by fin-canvas.
-     * @memberOf Renderer.prototype
-     * @returns {Object} a property value at a key, delegates to the grid
-     * @deprecated
-     */
-    resolveProperty: function(key) {
-        this.deprecated('resolveProperty', 'The .resolveProperty(key) method is deprecated as of v1.2.10 in favor of the .grid.properties object dereferenced with [key]. (Will be removed in a future release.)');
-        return this.properties[key];
-    },
-
-    /**
      * @memberOf Renderer.prototype
      * @summary Notify the fin-hypergrid every time we've repainted.
      * @desc This is the entry point from fin-canvas.
@@ -287,28 +259,10 @@ var Renderer = Base.extend('Renderer', {
 
     /**
      * @memberOf Renderer.prototype
-     * @returns {number[]} Rows we just rendered.
-     */
-    getVisibleRows: function() {
-        this.deprecated('getVisibleRows', 'The getVisibleRows() method has been deprecated as of v1.2.0. (Will be removed in a future version.) Previously returned the this.visibleRows array but because this.visibleRows is no longer a simple array of integers but is now an array of objects, it now returns an array mapped to this.visibleRows[*].rowIndex. Note however that this mapping is not equivalent to what this method previously returned because while each object\'s .rowIndex property is still adjusted for scrolling within the data subgrid, the index is now local to (zero-based within) each subgrid');
-        return this.visibleRows.map(function(vr) { return vr.rowIndex; });
-    },
-
-    /**
-     * @memberOf Renderer.prototype
      * @returns {number} Number of columns we just rendered.
      */
     getVisibleColumnsCount: function() {
         return this.visibleColumns.length - 1;
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {number} Columns we just rendered.
-     */
-    getVisibleColumns: function() {
-        this.deprecated('visibleColumns', 'The getVisibleColumns() method has been deprecated as of v1.2.0. (Will be removed in a future version.) Previously returned the this.visibleColumns but because this.visibleColumns is no longer a simple array of integers but is now an array of objects, it now returns an array mapped to the equivalent visibleColumns[*].columnIndex.');
-        return this.visibleColumns.map(function(vc) { return vc.columnIndex; });
     },
 
     /**
@@ -407,6 +361,23 @@ var Renderer = Base.extend('Renderer', {
         }
 
         return result;
+    },
+
+    /**
+     * Matrix of unformatted values of visible cells.
+     * @returns {Array<Array>}
+     */
+    getVisibleCellMatrix: function() {
+        var rows = Array(this.visibleRows.length);
+        var adjust = this.grid.behavior.hasTreeColumn() ? 1 : 0;
+        for (var y = 0; y < rows.length; ++y) { rows[y] = Array(this.visibleColumns.length); }
+        this.cellEventPool.map(function(cell) {
+            var x = cell.gridCell.x + adjust;
+            if (x >= 0) {
+                rows[cell.gridCell.y][x] = cell.value;
+            }
+        });
+        return rows;
     },
 
     /**
@@ -742,16 +713,6 @@ var Renderer = Base.extend('Renderer', {
         return this.grid.getHScrollValue();
     },
 
-    getColumnEdges: function() {
-        this.deprecated('columnEdges', 'The getColumnEdges() mehtod has been deprecated as of version 1.2.0 in favor of visibleColumns[*].top. (Will be removed in a future version.) Note however that columnEdges had one additional element (representing the right edge of the last visible column) which visibleColumns lacks. Instead you can reference visibleColumns[*].bottom.');
-        return this.visibleColumns.map(function(vc) { return vc.left; }).concat([this.visibleColumns[this.visibleColumns.length - 1].right]);
-    },
-
-    getRowEdges: function() {
-        this.deprecated('rowEdges', 'The getRowEdges() method has been deprecated as of version 1.2.0 in favor of visibleRows[*].top. (Will be removed in a future version.) Note however that rowEdges had one additional element (representing the bottom edge of the last visible row) which visibleRows lacks. Instead you can reference visibleRows[*].bottom.');
-        return this.visibleRows.map(function(vr) { return vr.top; }).concat([this.visibleRows[this.visibleRows.length - 1].bottom]);
-    },
-
     /**
      * @memberOf Renderer.prototype
      * @returns {boolean} The last col was rendered (is visible)
@@ -794,14 +755,6 @@ var Renderer = Base.extend('Renderer', {
         }
 
         return result;
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {fin-canvas} my [fin-canvas](https://github.com/stevewirts/fin-canvas)
-     */
-    getCanvas: function() {
-        return this.deprecated('getCanvas()', 'grid.canvas', '1.2.2');
     },
 
     /**
@@ -966,6 +919,7 @@ var Renderer = Base.extend('Renderer', {
             x = (config.gridCell = cellEvent.gridCell).x,
             r = (config.dataCell = cellEvent.dataCell).y,
 
+            value,
             format,
             isSelected;
 
@@ -995,12 +949,12 @@ var Renderer = Base.extend('Renderer', {
         if (!isHandleColumn) {
             //Including hierarchyColumn
             config.dataRow = cellEvent.dataRow;
-            config.value = cellEvent.value;
+            value = cellEvent.value;
         } else {
             if (isDataRow) {
                 // row handle for a data row
                 if (config.rowHeaderNumbers) {
-                    config.value = r + 1; // row number is 1-based
+                    value = r + 1; // row number is 1-based
                 }
             } else if (isHeaderRow) {
                 // row handle for header row: gets "master" checkbox
@@ -1025,69 +979,67 @@ var Renderer = Base.extend('Renderer', {
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = selectionModel.isInCurrentSelectionRectangle(x, r);
         config.prefillColor = prefillColor;
+        config.buttonCells = this.buttonCells; // allow the renderer to identify itself if it's a button
+        config.subrow = 0;
 
         if (grid.mouseDownState) {
             config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
         }
 
-        // compute value if a calculator
-        if (isUserDataArea && !(config.value && config.value.constructor === Array)) { // fastest array determination
-            config.value = config.exec(config.value);
+        // subrow logic - coded for efficiency when no subrows (!value.subrows)
+        var isArray = isUserDataArea && value && value.constructor === Array, // fastest array determination
+            subrows = isArray && value.subrows && value.length;
+
+        if (subrows) {
+            var bounds = config.bounds = Object.assign({}, config.bounds);
+            bounds.height /= subrows;
+            config.subrows = subrows;
+            config.value = config.exec(value[0]);
+        } else {
+            subrows = 1;
+            config.value = !isArray && isUserDataArea ? config.exec(value) : value;
         }
 
-        // This call's dataModel.getCell which developer can override to:
-        // * mutate the (writable) properties of `config`
-        // * mutate cell renderer choice (instance of which is returned)
-        var cellRenderer = behavior.dataModel.getCell(config, config.renderer);
+        while (true) { // eslint-disable-line
+            // This call's dataModel.getCell which developer can override to:
+            // * mutate the (writable) properties of `config` (including config.value)
+            // * mutate cell renderer choice (instance of which is returned)
+            var cellRenderer = cellEvent.subgrid.getCell(config, config.renderer);
 
-        // Overwrite possibly mutated cell properties, if requested to do so by `getCell` override
-        if (cellEvent.cellOwnProperties && config.reapplyCellProperties) {
-            Object.assign(config, cellEvent.cellOwnProperties);
+            behavior.cellPropertiesPrePaintNotification(config);
+
+            config.formatValue = grid.getFormatter(format);
+
+            // Following supports partial render
+            config.snapshot = cellEvent.snapshot;
+            config.minWidth = cellEvent.minWidth; // in case `paint` aborts before setting `minWidth`
+
+            // Render the cell
+            cellRenderer.paint(gc, config);
+
+            // Following supports partial render:
+            cellEvent.snapshot[config.subrow] = config.snapshot;
+            if (cellEvent.minWidth === undefined || config.minWidth > cellEvent.minWidth) {
+                cellEvent.minWidth = config.minWidth;
+            }
+
+            if (++config.subrow === subrows) {
+                break;
+            }
+
+            bounds.y += bounds.height;
+            config.value = config.exec(value[config.subrow]);
         }
-
-        behavior.cellPropertiesPrePaintNotification(config);
-
-        //allow the renderer to identify itself if it's a button
-        config.buttonCells = this.buttonCells;
-
-        config.formatValue = grid.getFormatter(format);
-
-        // Following supports partial render>
-        config.snapshot = cellEvent.snapshot;
-        config.minWidth = cellEvent.minWidth; // in case `paint` aborts before setting `minWidth`
-
-        // Render the cell
-        cellRenderer.paint(gc, config);
-
-        // Following supports partial render:
-        cellEvent.snapshot = config.snapshot;
-        cellEvent.minWidth = config.minWidth;
 
         return config.minWidth;
     },
 
     /**
      * Overridable for alternative or faster logic.
-     * @param cellEvent
+     * @param CellEvent
+     * @returns {object} Layered config object.
      */
-    assignProps: function(cellEvent) {
-        var i, base, assignments,
-            propLayers = cellEvent.columnProperties.propClassLayers;
-
-        if (propLayers[0] !== 1) {
-            i = 0; // all prop layers
-            base = this.grid.properties;
-        } else {
-            i = 1; // skip column prop layer
-            base = cellEvent.columnProperties; // because column has grid properties as prototype
-        }
-
-        for (assignments = [Object.create(base)]; i < propLayers.length; ++i) {
-            assignments.push(propClassGet[propLayers[i]](cellEvent));
-        }
-
-        return Object.assign.apply(Object, assignments);
-    },
+    assignProps: layerProps,
 
     /**
      * @param {number|CellEvent} colIndexOrCellEvent - This is the "data" x coordinate.
@@ -1142,8 +1094,9 @@ var Renderer = Base.extend('Renderer', {
     },
 
     isViewableButton: function(c, r) {
-        var key = c + ',' + r;
-        return this.buttonCells[key] === true;
+        // Cell with 'button' renderer clicked returns an array; other cells return `undefined`.
+        // The array contains bounding rect per subrow with a button. When no subrows array length is 1.
+        return this.buttonCells[c + ',' + r];
     },
 
     getBounds: function() {
@@ -1321,15 +1274,7 @@ function computeCellsBounds() {
     }
 
     // get height of total number of rows in all subgrids following the data subgrid
-    footerHeight = gridProps.defaultRowHeight *
-        subgrids.reduce(function(rows, subgrid) {
-            if (scrollableSubgrid) {
-                rows += subgrid.getRowCount();
-            } else {
-                scrollableSubgrid = subgrid.isData;
-            }
-            return rows;
-        }, 0);
+    footerHeight = gridProps.defaultRowHeight * behavior.getFooterRowCount();
 
     for (
         base = r = g = y = 0, G = subgrids.length, Y = bounds.height - footerHeight;

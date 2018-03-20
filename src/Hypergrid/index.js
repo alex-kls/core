@@ -2,57 +2,56 @@
 
 'use strict';
 
-require('./lib/polyfills'); // Installs misc. polyfills into global objects, as needed
+require('../lib/polyfills'); // Installs misc. polyfills into global objects, as needed
 
 var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
-var injectCSS = require('inject-stylesheet-template').bind(require('../css'));
+var injectCSS = require('inject-stylesheet-template').bind(require('../../css'));
 
-var Base = require('./Base');
-var defaults = require('./defaults');
-var dynamicPropertyDescriptors = require('./lib/dynamicProperties');
-var Canvas = require('./lib/Canvas');
-var Renderer = require('./renderer');
-var SelectionModel = require('./lib/SelectionModel');
-var Localization = require('./lib/Localization');
-var Behavior = require('./behaviors/Behavior');
-var behaviorJSON = require('./behaviors/JSON');
-var CellRenderers = require('./cellRenderers');
-var CellEditors = require('./cellEditors');
+var Base = require('../Base');
+var defaults = require('../defaults');
+var dynamicPropertyDescriptors = require('../lib/dynamicProperties');
+var Canvas = require('../lib/Canvas');
+var Renderer = require('../renderer');
+var SelectionModel = require('../lib/SelectionModel');
+var Localization = require('../lib/Localization');
+var Behavior = require('../behaviors/Behavior');
+var behaviorJSON = require('../behaviors/Local');
+var cellRenderers = require('../cellRenderers');
+var cellEditors = require('../cellEditors');
+var modules = require('./modules');
 
 var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
     RECT_STYLES = EDGE_STYLES.concat(['width', 'height', 'position']);
 
 /**
  * @mixes scrolling.mixin
+ * @mixes events.mixin
+ * @mixes selection.mixin
+ * @mixes themes.instanceMixin
  * @constructor
  * @param {string|Element} [container] - CSS selector or Element
- * @param {object} [options]
- * @param {function} [options.Behavior=behaviors.JSON] - A grid behavior constructor (extended from {@link Behavior}).
- * @param {function[]} [options.pipeline] - A list function constructors to use for passing data through a series of transforms to occur on reindex call
- * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
- * * An array of congruent raw data objects
- * * A function returning same
- * @param {function|menuItem[]} [options.schema=derivedSchema] - Passed to behavior constructor. May be:
+ * @param {object} [options] - If `options.data` provided, passed to {@link Hypergrid#setData setData}; else if `options.Behavior` provided, passed to {@link Hypergrid#setBehavior setBehavior}.
+ * @param {function} [options.Behavior=Local] - _Per {@link Behavior#setData}._
+ * @param {dataModelAPI} [options.dataModel] - _Passed to behavior {@link Behavior constructor}._
+ * @param {function} [options.DataModel=require('datasaur-local')] - _Passed to behavior {@link Behavior constructor}._
+ * @param {function|object[]} [options.data] - _Passed to behavior {@link Behavior constructor}._
+ * @param {function|menuItem[]} [options.schema] - _Passed to behavior {@link Behavior constructor}._
+ * @param {dataModelAPI} [options.metadata] - _Passed to behavior {@link Behavior constructor}._
  * * A schema array
- * * A function returning a schema array. Called at filter reset time with behavior as context.
- * * Omit to generate a basic schema from `this.behavior.columns`.
+ * @param {subgridSpec[]} [options.subgrids=this.properties.subgrids] - _Per {@link Behavior#setData}._
  *
  * @param {pluginSpec|pluginSpec[]} [options.plugins]
- *
- * @param {subgridSpec[]} [options.subgrids]
  *
  * @param {object} [options.state]
  *
  * @param {string|Element} [options.container] - CSS selector or Element
  *
  * @param {string} [options.localization=Hypergrid.localization]
- * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
+ * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
  * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
  * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
- *
- * @param {object} [options.schema]
  *
  * @param {object} [options.margin] - Optional canvas "margins" applied to containing div as .left, .top, .right, .bottom. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container` rule.)
  * @param {string} [options.margin.top='0px']
@@ -79,7 +78,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             container = null;
         }
 
-        this.options = options = options || {};
+        options = options || {};
 
         this.clearState();
 
@@ -107,26 +106,30 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         /**
          * @name cellRenderers
-         * @type {CellRenderer}
+         * @type {Registry}
          * @memberOf Hypergrid#
          */
-        this.cellRenderers = new CellRenderers();
+        this.cellRenderers = cellRenderers;
 
         /**
+         * Private version of cell editors registry with a bound `create` method for use by `getCellEditorAt`.
          * @name cellEditors
-         * @type {CellEditor}
+         * @type {Registry}
          * @memberOf Hypergrid#
          */
-        this.cellEditors = new CellEditors({ grid: this });
+        this.cellEditors = Object.create(cellEditors);
+        Object.defineProperty(this.cellEditors, 'create', { value: createCellEditor.bind(this) });
 
-        if (this.options.Behavior) {
-            this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
-        } else if (this.options.data) {
-            this.setData(this.options.data, this.options); // if no behavior has yet been set, `setData` sets a default behavior and this.options.pipeline
+        this.initCanvas(options);
+
+        if (options.data) {
+            this.setData(options.data, options); // if no behavior has yet been set, `setData` sets a default behavior
+        } else if (options.Behavior || options.dataModel || options.DataModel) {
+            this.setBehavior(options); // also sets options.data
         }
 
-        if (this.options.state) {
-            this.loadState(this.options.state);
+        if (options.state) {
+            this.loadState(options.state);
         }
 
         /**
@@ -153,28 +156,45 @@ var Hypergrid = Base.extend('Hypergrid', {
         }.bind(this));
 
         setTimeout(this.repaint.bind(this));
+
+        Hypergrid.grids.push(this);
+
+        this.resetGridBorder('Top');
+        this.resetGridBorder('Right');
+        this.resetGridBorder('Bottom');
+        this.resetGridBorder('Left');
     },
 
+    /**
+     * Be a responsible citizen and call this function on instance disposal!
+     */
     terminate: function() {
         document.removeEventListener('mousedown', this.mouseCatcher);
+        this.canvas.stop();
+        Hypergrid.grids.splice(this.grids.indexOf(this), 1);
     },
 
-    registerCellEditor: function(Constructor, name) {
-        return this.deprecated('registerCellEditor(Constructor, name)', 'cellEditors.add(name, Constructor)', '1.0.6', arguments);
+
+    resetGridBorder: function(edge) {
+        edge = edge || '';
+
+        var propName = 'gridBorder' + edge,
+            styleName = 'border' + edge,
+            props = this.properties,
+            border = props[propName];
+
+        switch (border) {
+            case true:
+                border = props.lineWidth + 'px solid ' + props.lineColor;
+                break;
+            case false:
+                border = null;
+                break;
+        }
+        this.canvas.canvas.style[styleName] = border;
     },
-    createCellEditor: function(name) {
-        return this.deprecated('createCellEditor(name)', 'cellEditors.create(name)', '1.0.6', arguments);
-    },
-    getCellProvider: function(name) {
-        return this.deprecated('getCellProvider()', 'cellRenderers', '1.0.6', arguments);
-    },
-    registerLocalizer: function(name, localizer, baseClassName, newClassName) {
-        return this.deprecated('registerLocalizer(name, localizer, baseClassName, newClassName)', 'localization.add(name, localizer)', '1.0.6', arguments,
-            'STRUCTURAL CHANGE: No longer supports deriving and registering a new cell editor class. Use .cellEditors.get(baseClassName).extend(newClassName || name, {...}) for that.');
-    },
-    getRenderer: function() {
-        return this.deprecated('getRenderer()', 'renderer', '1.1.0');
-    },
+
+    modules: modules, // Mutate or replace prototype prop to affect all grid instances; set instance prop to affect just instance.
 
     /**
      *
@@ -252,8 +272,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      */
     clearState: function() {
-        this._theme = Object.create(defaults);
-
         /**
          * @name properties
          * @type {object}
@@ -263,10 +281,11 @@ var Hypergrid = Base.extend('Hypergrid', {
          * 2. Extends from the theme object.
          * 3. The theme object in turn extends from the {@link module:defaults|defaults} object.
          *
-         * Note: Any changes the application developer may wish to make to the {@link module:defaults|defaults} object should be made _before_ reaching this point (_i.e.,_ prior to any grid instantiations).
+         * Note: Any changes the application developer may wish to make to the {@link module:defaults|defaults}
+         * object should be made _before_ reaching this point (_i.e.,_ prior to any grid instantiations).
          * @memberOf Hypergrid#
          */
-        this.properties = Object.defineProperties(Object.create(this.theme, dynamicPropertyDescriptors), {
+        this.properties = Object.defineProperties(this.initThemeLayer(), {
             grid: { value: this },
             var: { value: new Var() }
         });
@@ -290,10 +309,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {object} [options]
      * @param {object} [options.subgrids] - Consumed by {@link Behavior#reset}.
      * If omitted, previously established subgrids list is reused.
-     * @param {object} [options.pipeline] - Consumed by {@link dataModels.JSON#reset}.
-     * If omitted, previously established pipeline is reused.
-     * @param {object} [options.controllers] - Consumed by {@link dataModels.JSON#reset}.
-     * If omitted, previously established controllers list is reused.
      * @memberOf Hypergrid#
      */
     reset: function(options) {
@@ -322,11 +337,8 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.scrollingNow = false;
         this.lastEdgeSelection = [0, 0];
 
-        options = options || {};
         this.behavior.reset({
-            subgrids: options.subgrids,
-            pipeline: options.pipeline,
-            controllers: options.controllers
+            subgrids: options && options.subgrids
         });
 
         this.renderer.reset();
@@ -480,10 +492,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         }, this);
     },
 
-    getProperties: function() {
-        return this.deprecated('getProperties()', 'properties', '1.2.0');
-    },
-
     computeCellsBounds: function() {
         this.renderer.computeCellsBounds();
     },
@@ -504,22 +512,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     formatValue: function(localizerName, value) {
         var formatter = this.getFormatter(localizerName);
         return formatter(value);
-    },
-
-    isRowResizeable: function() {
-        return this.deprecated('isRowResizeable()', 'properties.rowResize', 'v1.2.10');
-    },
-
-    isCheckboxOnlyRowSelections: function() {
-        return this.deprecated('isCheckboxOnlyRowSelections()', 'properties.checkboxOnlyRowSelections', 'v1.2.10');
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @returns {Point} The cell over which the cursor is hovering.
-     */
-    getHoverCell: function() {
-        return this.deprecated('getHoverCell()', 'hoverCell', 'v1.2.0');
     },
 
 
@@ -564,15 +556,6 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @returns {object} The state object for remembering our state.
-     * @see [Memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
-     */
-    getPrivateState: function() {
-        return this.deprecated('getPrivateState()', 'properties', '1.2.0');
-    },
-
-    /**
-     * @memberOf Hypergrid#
      * @desc Set the state object to return to the given user configuration.
      * @param {object} state - A memento object.
      * @see [Memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
@@ -596,7 +579,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {object} [options]
      * @param {string[]} [options.blacklist] - List of grid properties to exclude. Pertains to grid own properties only.
      * @param {boolean} [options.compact] - Run garbage collection first. The only property this current affects is `properties.calculators` (removes unused calculators).
-     * @param {number|string} [options.space='\t'] - For no space, give `0`. (See {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify|JSON.stringify}'s `space` param other options.)
+     * @param {number|string} [options.space='\t'] - For no space, give `0`. (See {@link https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Local/stringify|JSON.stringify}'s `space` param other options.)
      * @param {function} [options.headerify] - If your headers were generated by a function (taking column name as a parameter), give a reference to that function here to avoid persisting headers that match the generated string.
      * @memberOf Hypergrid#
      */
@@ -611,7 +594,9 @@ var Hypergrid = Base.extend('Hypergrid', {
             if (options.compact) {
                 var columns = this.behavior.getColumns();
                 Object.keys(calculators).forEach(function(key) {
-                    if (!columns.find(function(column) { return column.properties.calculator === calculators[key]; })) {
+                    if (!columns.find(function(column) {
+                            return column.properties.calculator === calculators[key];
+                        })) {
                         delete calculators[key];
                     }
                 });
@@ -754,25 +739,24 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @summary Set the Behavior (model) object for this grid control.
-     * @desc This can be done dynamically.
-     * @param {object} options - _(See {@link behaviors.JSON#setData}.)_
-     * @param {Behavior} [options.behavior=behaviors.JSON] - The behavior (model) can be either a constructor or an instance.
-     * @param {dataRowObject[]} [options.data] - _(See {@link behaviors.JSON#setData}.)_
-     * @param {pipelineSchema} [options.pipeline] - New pipeline description.
+     * @summary Set the Behavior object for this grid control.
+     * @desc Called when `options.Behavior` from:
+     * * Hypergrid constructor
+     * * `setData` when not called explicitly before then
+     * @param {object} [options] - _Per {@link Behavior#setData}._
+     * @param {Behavior} [options.Behavior=Local] - The behavior (model) can be either a constructor or an instance.
+     * @param {dataModelAPI} [options.dataModel] - A fully instantiated data model object.
+     * @param {function} [options.DataModel=require('datasaur-local')] - Data model will be instantiated from this constructor unless `options.dataModel` was given.
+     * @param {dataModelAPI} [options.metadata] - Value to be passed to setMetadataStore if the data model has changed.
+     * @param {dataRowObject[]} [options.data] - _Per {@link Behavior#setData}._
+     * @param {function|menuItem[]} [options.schema] - _Per {@link Behavior#setData}.
      */
     setBehavior: function(options) {
-        if (!this.behavior) {
-            // If we get here it means:
-            // 1. Called from constructor because behavior included in options object.
-            // 2. Called from `setData` _and_ wasn't called explicitly since instantiation
-            var Behavior = options.Behavior || behaviorJSON;
-            this.behavior = new Behavior(this, options);
-            this.initCanvas();
-            this.initScrollbars();
-            this.refreshProperties();
-            this.behavior.reindex();
-        }
+        var Behavior = options && options.Behavior || behaviorJSON;
+        this.behavior = new Behavior(this, options);
+        this.initScrollbars();
+        this.refreshProperties();
+        this.behavior.reindex();
     },
 
     /**
@@ -782,13 +766,18 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {function|object[]} dataRows - May be:
      * * An array of congruent raw data objects.
      * * A function returning same.
-     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
+     * @param {object} [options] - _(See also {@link Behavior#setData} for additional options.)_
+     * @param {Behavior} [options.Behavior=Local] - The behavior (model) can be either a constructor or an instance.
+     * @param {dataModelAPI} [options.dataModel] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
+     * @param {function} [options.DataModel=require('datasaur-local')] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
+     * @param {dataModelAPI} [options.metadata] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
+     * @param {dataRowObject[]} [options.data] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
+     * @param {function|menuItem[]} [options.schema] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
      */
     setData: function(dataRows, options) {
-        // Call `setBehavior` here just in case not previously set by constructor _or_ explicitly since instantiation
-        this.setBehavior({
-            pipeline: this.options.pipeline
-        });
+        if (!this.behavior) {
+            this.setBehavior(options);
+        }
         this.behavior.setData(dataRows, options);
         this.setInfo(dataRows.length ? '' : this.properties.noDataMessage);
         this.behavior.changed();
@@ -796,29 +785,6 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     setInfo: function(messages) {
         this.renderer.setInfo(messages);
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @summary _(See {@link Hypergrid.prototype#setData}.)_
-     * @desc Binds the data and reshapes the grid (new column objects created)
-     * @param {function|object[]} dataRows - May be:
-     * * An array of congruent raw data objects.
-     * * A function returning same.
-     * @param {object} [options]
-     */
-    updateData: function(dataRows, options){
-        this.deprecated('updateData(dataRows, options)', 'setData(dataRows, options)', 'v1.2.10', arguments,
-            'To update data without changing column definitions, call setData _without a schema._');
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @param {object} [pipelines] - New pipeline description. _(See {@link dataModels.JSON#setPipeline}.)_
-     * @param {object} [options] - _(See {@link dataModels.JSON#setPipeline}.)_
-     */
-    setPipeline: function(DataSources, options){
-        this.behavior.setPipeline(DataSources, options);
     },
 
     /**
@@ -880,17 +846,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.renderer.getBounds();
     },
 
-    /**
-     * @memberOf Hypergrid#
-     * @returns {string} The value of a lnf property.
-     * @param {string} key - A look-and-feel key.
-     */
-    resolveProperty: function(key) {
-        // todo: when we remove this method, also remove forwards from Behavior.js and Renderer.js
-        this.deprecated('resolveProperty', '.resolveProperty(key) deprecated as of v1.2.0 in favor of .properties dereferenced by [key]. (Will be removed in a future version.)');
-        return this.properties[key];
-    },
-
     repaint: function() {
         var now = this.properties.repaintImmediately;
         var canvas = this.canvas;
@@ -909,14 +864,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     paintNow: function() {
         this.canvas.paintNow();
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @returns {boolean} In HiDPI mode (has an attribute as such).
-     */
-    useHiDPI: function() {
-        return this.deprecated('useHiDPI()', 'properties.useHiDPI', 'v1.2.10');
     },
 
     /**
@@ -969,23 +916,30 @@ var Hypergrid = Base.extend('Hypergrid', {
     /**
      * @memberOf Hypergrid#
      * @summary Initialize drawing surface.
+     * @param {object} [options]
+     * @param {object} [options.margin] - Optional canvas "margins" applied to containing div as .left, .top, .right, .bottom. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container` rule.)
+     * @param {string} [options.margin.top='0px']
+     * @param {string} [options.margin.right='0px']
+     * @param {string} [options.margin.bottom='0px']
+     * @param {string} [options.margin.left='0px']
      * @private
      */
-    initCanvas: function() {
+    initCanvas: function(options) {
         if (!this.divCanvas) {
             var divCanvas = document.createElement('div');
 
-            setStyles(divCanvas, this.options.margin, EDGE_STYLES);
+            setStyles(divCanvas, options && options.margin, EDGE_STYLES);
 
             this.div.appendChild(divCanvas);
 
-            var canvas = new Canvas(divCanvas, this.renderer, this.options.canvas);
+            var canvas = new Canvas(divCanvas, this.renderer);
             canvas.canvas.classList.add('hypergrid');
 
             this.divCanvas = divCanvas;
             this.canvas = canvas;
 
             this.delegateCanvasEvents();
+            this.delegateDataEvents();
         }
     },
 
@@ -1000,14 +954,16 @@ var Hypergrid = Base.extend('Hypergrid', {
     /**
      * @memberOf Hypergrid#
      * @desc Switch the cursor for a grid instance.
-     * @param {string} cursorName - A well know cursor name.
+     * @param {string|string[]} cursorName - A well know cursor name.
      * @see [cursor names](http://www.javascripter.net/faq/stylesc.htm)
      */
     beCursor: function(cursorName) {
         if (!cursorName) {
-            cursorName = 'default';
+            cursorName = ['default'];
+        } else if (!Array.isArray(cursorName)) {
+            cursorName = [cursorName];
         }
-        this.div.style.cursor = cursorName;
+        cursorName.forEach(function(name) { this.cursor = name; }, this.div.style);
     },
 
     /**
@@ -1056,24 +1012,12 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @returns {Canvas} Our fin-canvas instance.
-     */
-    getCanvas: function() {
-        return this.deprecated('getCanvas()', 'canvas', '1.2.2');
-    },
-
-    /**
-     * @memberOf Hypergrid#
      * @summary Open the cell-editor for the cell at the given coordinates.
      * @param {CellEvent} event - Coordinates of "edit point" (gridCell.x, dataCell.y).
      * @return {undefined|CellEditor} The cellEditor determined from the cell's render properties, which may be modified by logic added by overriding {@link DataModel#getCellEditorAt|getCellEditorAt}.
      */
     editAt: function(event) {
         var cellEditor;
-
-        if (arguments.length === 2) {
-            return this.deprecated('editAt(cellEditor, event)', 'editAt(event)', '1.0.6', arguments);
-        }
 
         this.abortEditing(); // if another editor is open, close it first
 
@@ -1159,6 +1103,83 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
+     * @summary Scroll horizontal and vertically by the provided offsets.
+     * @param {number} offsetX - Scroll in the x direction this much.
+     * @param {number} offsetY - Scroll in the y direction this much.
+     */
+    scrollBy: function(offsetX, offsetY) {
+        this.scrollHBy(offsetX);
+        this.scrollVBy(offsetY);
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @summary Scroll vertically by the provided offset.
+     * @param {number} offsetY - Scroll in the y direction this much.
+     */
+    scrollVBy: function(offsetY) {
+        var max = this.sbVScroller.range.max;
+        var oldValue = this.getVScrollValue();
+        var newValue = Math.min(max, Math.max(0, oldValue + offsetY));
+        if (newValue !== oldValue) {
+            this.setVScrollValue(newValue);
+        }
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @summary Scroll horizontally by the provided offset.
+     * @param {number} offsetX - Scroll in the x direction this much.
+     */
+    scrollHBy: function(offsetX) {
+        var max = this.sbHScroller.range.max;
+        var oldValue = this.getHScrollValue();
+        var newValue = Math.min(max, Math.max(0, oldValue + offsetX));
+        if (newValue !== oldValue) {
+            this.setHScrollValue(newValue);
+        }
+    },
+
+    scrollToMakeVisible: function(c, r) {
+        var delta,
+            dw = this.renderer.dataWindow,
+            fixedColumnCount = this.properties.fixedColumnCount,
+            fixedRowCount = this.properties.fixedRowCount;
+
+        // scroll only if target not in fixed columns
+        if (c >= fixedColumnCount) {
+            // target is to left of scrollable columns; negative delta scrolls left
+            if ((delta = c - dw.origin.x) < 0) {
+                this.sbHScroller.index += delta;
+
+                // target is to right of scrollable columns; positive delta scrolls right
+                // Note: The +1 forces right-most column to scroll left (just in case it was only partially in view)
+            } else if ((c - dw.corner.x + 1) > 0) {
+                this.sbHScroller.index = this.renderer.getMinimumLeftPositionToShowColumn(c);
+            }
+        }
+
+        if (
+            r >= fixedRowCount && // scroll only if target not in fixed rows
+            (
+                // target is above scrollable rows; negative delta scrolls up
+                (delta = r - dw.origin.y) < 0 ||
+
+                // target is below scrollable rows; positive delta scrolls down
+                (delta = r - dw.corner.y) > 0
+            )
+        ) {
+            this.sbVScroller.index += delta;
+        }
+    },
+
+    selectCellAndScrollToMakeVisible: function(c, r) {
+        this.scrollToMakeVisible(c, r);
+        this.selectCell(c, r, true);
+    },
+
+    /**
+     * @memberOf Hypergrid#
      * @summary Answer which data cell is under a pixel value mouse point.
      * @param {mousePoint} mouse - The mouse point to interrogate.
      */
@@ -1185,26 +1206,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     resized: function() {
         this.behaviorShapeChanged();
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @summary A click event occurred.
-     * @desc Determine the cell and delegate to the behavior (model).
-     * @param {MouseEvent} event - The mouse event to interrogate.
-     * @returns {boolean|undefined} Changed. Specifically, one of:
-     * * `undefined` row had no drill-down control
-     * * `true` drill-down changed
-     * * `false` drill-down unchanged (was already in requested state)
-     */
-    cellClicked: function(event) {
-        var result = this.behavior.cellClicked(event);
-
-        if (result !== undefined) {
-            this.behavior.changed();
-        }
-
-        return result;
     },
 
     /**
@@ -1235,7 +1236,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         return columns.slice.apply(columns, arguments);
     },
 
-    getHiddenColumns: function(){
+    getHiddenColumns: function() {
         //A non in-memory behavior will be more troublesome
         return this.behavior.getHiddenColumns();
     },
@@ -1263,6 +1264,92 @@ var Hypergrid = Base.extend('Hypergrid', {
     editorTakeFocus: function() {
         if (this.cellEditor) {
             return this.cellEditor.takeFocus();
+        }
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Initialize the scroll bars.
+     */
+    initScrollbars: function() {
+        if (this.sbHScroller && this.sbVScroller) {
+            return;
+        }
+
+        var Scrollbar = Hypergrid.modules.scrollbar;
+
+        var horzBar = new Scrollbar({
+            orientation: 'horizontal',
+            onchange: this.setHScrollValue.bind(this),
+            cssStylesheetReferenceElement: this.div
+        });
+
+        var vertBar = new Scrollbar({
+            orientation: 'vertical',
+            onchange: this.setVScrollValue.bind(this),
+            paging: {
+                up: this.pageUp.bind(this),
+                down: this.pageDown.bind(this)
+            }
+        });
+
+        this.sbHScroller = horzBar;
+        this.sbVScroller = vertBar;
+
+        var hPrefix = this.properties.hScrollbarClassPrefix;
+        var vPrefix = this.properties.vScrollbarClassPrefix;
+
+        if (hPrefix && hPrefix !== '') {
+            this.sbHScroller.classPrefix = hPrefix;
+        }
+
+        if (vPrefix && vPrefix !== '') {
+            this.sbVScroller.classPrefix = vPrefix;
+        }
+
+        this.div.appendChild(horzBar.bar);
+        this.div.appendChild(vertBar.bar);
+
+        this.resizeScrollbars();
+    },
+
+    resizeScrollbars: function() {
+        this.sbHScroller.shortenBy(this.sbVScroller).resize();
+        //this.sbVScroller.shortenBy(this.sbHScroller);
+        this.sbVScroller.resize();
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Scroll values have changed, we've been notified.
+     */
+    setVScrollbarValues: function(max) {
+        this.sbVScroller.range = {
+            min: 0,
+            max: max
+        };
+    },
+
+    setHScrollbarValues: function(max) {
+        this.sbHScroller.range = {
+            min: 0,
+            max: max
+        };
+    },
+
+    scrollValueChangedNotification: function() {
+        if (
+            this.hScrollValue !== this.sbPrevHScrollValue ||
+            this.vScrollValue !== this.sbPrevVScrollValue
+        ) {
+            this.sbPrevHScrollValue = this.hScrollValue;
+            this.sbPrevVScrollValue = this.vScrollValue;
+
+            if (this.cellEditor) {
+                this.cellEditor.scrollValueChangedNotification();
+            }
+
+            this.computeCellsBounds();
         }
     },
 
@@ -1334,10 +1421,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         }
     },
 
-    getColumnEdge: function(c) {
-        return this.behavior.getColumnEdge(c, this.getRenderer());
-    },
-
     /**
      * @memberOf Hypergrid#
      * @returns {number} The total width of all the fixed columns.
@@ -1390,10 +1473,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     getRowCount: function() {
         return this.behavior.getRowCount();
-    },
-
-    getUnfilteredRowCount: function() {
-        return this.deprecated('getUnfilteredRowCount()', '', '1.2.0', arguments, 'No longer supported');
     },
 
     /**
@@ -1488,10 +1567,10 @@ var Hypergrid = Base.extend('Hypergrid', {
         if (window.devicePixelRatio && this.properties.useHiDPI) {
             var devicePixelRatio = window.devicePixelRatio || 1,
                 backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
-                ctx.mozBackingStorePixelRatio ||
-                ctx.msBackingStorePixelRatio ||
-                ctx.oBackingStorePixelRatio ||
-                ctx.backingStorePixelRatio || 1,
+                    ctx.mozBackingStorePixelRatio ||
+                    ctx.msBackingStorePixelRatio ||
+                    ctx.oBackingStorePixelRatio ||
+                    ctx.backingStorePixelRatio || 1,
                 result = devicePixelRatio / backingStoreRatio;
         } else {
             result = 1;
@@ -1558,28 +1637,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @returns {object[]} Objects with the values that were just rendered.
      */
     getRenderedData: function() {
-        // assumes one row of headers
-        var behavior = this.behavior,
-            colCount = this.getColumnCount().length,
-            rowCount = this.renderer.visibleRows.length,
-            headers = new Array(colCount),
-            results = new Array(rowCount),
-            row;
-
-        headers.forEach(function(header, c) {
-            headers[c] = behavior.getActiveColumn(c).header;
-        });
-
-        results.forEach(function(result, r) {
-            row = results[r] = {
-                hierarchy: behavior.getFixedColumnValue(0, r)
-            };
-            headers.forEach(function(field, c) {
-                row[field] = behavior.getValue(c, r);
-            });
-        });
-
-        return results;
+        return this.renderer.getVisibleCellMatrix();
     },
 
     /**
@@ -1687,10 +1745,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         return mouseDown.x < 0 || mouseDown.y < headerRowCount;
     },
 
-    _getBoundsOfCell: function(x, y) {
-        return this.deprecated('_getBoundsOfCell()', 'getBoundsOfCell()', '1.2.0', arguments);
-    },
-
     /**
      * @param {index} x - Data x coordinate.
      * @return {Object} The properties for a specific column.
@@ -1719,13 +1773,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.renderer.resetAllCellPropertiesCaches();
     },
 
-    isShowRowNumbers: function() {
-        return this.deprecated('isShowRowNumbers()', 'properties.showRowNumbers', 'v1.2.10');
-    },
-    isEditable: function() {
-        return this.deprecated('isEditable()', 'properties.editable', 'v1.2.10');
-    },
-
     /**
      * @param {integerRowIndex|sectionPoint} rn
      * @returns {boolean}
@@ -1733,10 +1780,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     isGridRow: function(y) {
         return new this.behavior.CellEvent(0, y).isDataRow;
-    },
-
-    isShowHeaderRow: function() {
-        return this.deprecated('isShowHeaderRow()', 'properties.showHeaderRow', 'v1.2.10');
     },
 
     /**
@@ -1747,28 +1790,30 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.behavior.getHeaderRowCount();
     },
 
-    isShowFilterRow: function() {
-        return this.deprecated('isShowFilterRow()', 'properties.showFilterRow', 'v1.2.10');
+    /**
+     * @returns {number} The total number of rows of all subgrids following the data subgrid.
+     * @memberOf Hypergrid#
+     */
+    getFooterRowCount: function() {
+        return this.behavior.getFooterRowCount();
     },
 
-    hasTreeColumn: function() {
-        return this.behavior.hasTreeColumn();
+    /**
+     * @returns {number} The total number of logical rows of all subgrids.
+     * @memberOf Hypergrid#
+     */
+    getLogicalRowCount: function() {
+        return this.behavior.getLogicalRowCount();
     },
-    isHierarchyColumn: function(x) {
-        return this.deprecated('isHierarchyColumn(x)', '', 'v1.3.3');
-    },
-    isRowNumberAutosizing: function() {
-        return this.deprecated('isRowNumberAutosizing()', 'properties.rowNumberAutosizing', 'v1.2.10');
+
+    hasTreeColumn: function(columnIndex) {
+        return this.behavior.hasTreeColumn(columnIndex);
     },
     lookupFeature: function(key) {
         return this.behavior.lookupFeature(key);
     },
     getRow: function(y) {
-        return this.behavior.getRow(y);
-    },
-
-    isColumnAutosizing: function() {
-        return this.deprecated('isColumnAutosizing()', 'columnAutosizing', 'v1.2.2', arguments, 'Note however that as of v1.2.2 columnAutosizing grid property no longer has the global meaning it had previously and should no longer be referred to directly. Refer to each column\'s `columnAutosizing` property instead.');
+        return this.deprecated('getRow(y)', 'behavior.dataModel.getRow(y)', '3.0.0', arguments, 'We removed grid.getRow(y) and grid.behavior.getRow(). If you are determined to call getRow, call it on the data model directily. However, calling .getRow(y) is not recommended; always try to use .getValue(x, y) instead. See https://github.com/fin-hypergrid/core/wiki/getRow(y)-and-getData()-(ab)use for more information.');
     },
 
     newPoint: function(x, y) {
@@ -1778,186 +1823,11 @@ var Hypergrid = Base.extend('Hypergrid', {
         return new Rectangle(x, y, width, height);
     },
 
-    /**
-     * @summary Get the given data controller.
-     * @param {string} type
-     * @returns {null|undefined|*} The data controller or:
-     * * `null` means unknown data controller.
-     * * `undefined` means the data source handles this data controller but the data controller is undefined.
-     * @memberOf Hypergrid#
-     */
-    getController: function(type) {
-        return this.behavior.getController(type);
-    },
-
-    /**
-     * @summary Set the given data controller(s).
-     * @desc The data model needs to be able to accept the specified data controller type(s). If it fails to accept the specified data controller(s), an error condition is raised.
-     *
-     * (To ignore the error, place the call in a `try...catch`. From there you could call {@link Base#notify|notify} to report it as a warning or an alert instead.)
-     *
-     * Setting data controller(s) triggers a shape change.
-     * @param {string} typeOrHashOfTypes - One of:
-     * * **object** - Hash of multiple data controllers, by type.
-     * * **string** - Type of the single data controller given in `controller`.
-     * @param {dataControlInterface} [controller] - Only required when 'hash' is a string; omit when `hash` is an object.
-     * @returns {object} - Hash of all results, by type. Each member will be:
-     * * The given data controller for that type when defined.
-     * * A new "null" data controller, generated by the data model when the given data controller for that type was `undefined`.
-     * * `undefined` - The data controller was unknown to the data model.
-     * @memberOf Hypergrid#
-     */
-    setController: function(typeOrHashOfTypes, controller) {
-        var results = this.behavior.setController(typeOrHashOfTypes, controller),
-            rejections = Object.keys(results).filter(function(name) {
-                return !results[name];
-            }).toString();
-
-        if (rejections) {
-            throw 'Unexpected data controller(s): ' + rejections;
-        }
-
-        return results;
-    },
-
-    prop: function(type, columnIndex, keyOrHash, value) {
-        return this.behavior.prop.apply(this.behavior, arguments);
-    },
-
     get charMap() {
         return this.behavior.charMap;
-    },
-
-    applyTheme: function(theme) {
-        // Before calling the inner `applyTheme` method, delete all the own props of this grid instance's theme layer (defined by previous call)
-        var themeLayer = this.theme;
-        Object.getOwnPropertyNames(themeLayer).forEach(function(propName) {
-            delete themeLayer[propName];
-        });
-
-        // Don't call the inner `applyTheme` method with a null theme because this would copy the default theme into this grid instance's theme layer which is not what we want; we just want to remove the instance's theme (already done, above) to reveal the global them underneath.
-        if (!theme || typeof theme === 'object' && Object.getOwnPropertyNames(theme).length === 0) {
-            return;
-        }
-
-        applyTheme.call(this, theme);
-    },
-
-    /**
-     * Get registered theme name or unregistered or anonymous theme object.
-     * @returns {string|undefined|object} One of:
-     * * **string:** When theme name is registered (except 'default').
-     * * **undefined:** When theme layer is empty (or theme name is 'default').
-     * * **object:** When theme name is not registered.
-     */
-    getTheme: function() {
-        var theme = this.theme,
-            themeName = theme.themeName;
-        return themeName === 'default' || !Object.getOwnPropertyNames(theme).length
-            ? undefined // default theme or no theme
-            : themeName in Hypergrid.themes
-            ? themeName // registered theme name
-            : theme; // unregistered theme object
-    },
-
-    /**
-     * @summary The theme layer in the properties hierarchy.
-     * @desc The theme layer is the second layer, above the `defaults` layer, and below the `properties` layer.
-     * Attempting to reset the theme throws an error (to guard against confusion with the `properties.theme` setter).
-     * @name theme
-     * @type {object}
-     * @summary The prototype layer where theme look and feel properties can be defined.
-     * @type {object}
-     * @memberOf Hypergrid#
-     */
-    get theme() {
-        return this._theme;
-    },
-    set theme(theme) {
-        console.warn('Attempt to reset grid.theme (properties layer). Use grid.applyTheme or the grid.properties.theme setter to apply a new theme.');
     }
 });
 
-
-/**
- * @param {string} [themeName] - A registry name for the new theme. May be omitted if the theme has an embedded name (in `theme.themeName`).
- * _If omitted, the 2nd parameter (`theme`) is promoted to first position._
- */
-function registerTheme(name, theme) {
-    if (arguments.length === 1) {
-        theme = name;
-        name = theme.themeName;
-    }
-
-    if (!name) {
-        throw new Base.prototype.HypergridError('Cannot register a theme without a name.');
-    }
-
-    if (name === 'default') {
-        throw new Base.prototype.HypergridError('Cannot register a theme named "default".');
-    }
-
-    theme.themeName = theme.themeName || name;
-
-    Hypergrid.themes[name] = theme;
-}
-
-/**
- * Apply props from the given theme object to context's `theme` object.
- * In practice, this is one of:
- * * **When called by grid instance method:**
- * The instance's `theme` layer in the properties hierarchy.
- * * **When called by shared method:**
- * The `defaults` layer at the bottom of the properties hierarchy (_i.e.,_ the global theme).
- *
- * Note that a `themeName` property is always added to mask (in the case of an instance theme) or override (in the case of the global theme) `defaults.themeName`.
- * @this {Hypergrid|Hypergrid.constructor}
- * @param {object|string} [theme=Hypergrid.themes.default] - One of:
- * * **string:** A registered theme name.
- * * **object:** A theme object.
- * @param {string|undefined} [theme.themeName=undefined] - When `theme` is an object but this property is omitted, defaults to an explicit `undefined`.
- * @memberOf Hypergrid~
- * @private
- */
-function applyTheme(theme) {
-    switch (typeof theme) {
-        case 'undefined':
-        case 'object':
-            if (theme && Object.getOwnPropertyNames(theme).length) { break; }
-            theme = 'default';
-            // fallthrough
-        case 'string':
-            theme = Hypergrid.themes[theme];
-            if (theme) { break; }
-            // fallthrough
-        default:
-            throw new Base.prototype.HypergridError('Unknown theme "' + theme + '"');
-    }
-
-    var newThemePropertyDescriptors = Object.getOwnPropertyDescriptors(theme);
-
-    // When no theme name, set it to explicit `undefined` (to mask defaults.themeName).
-    if (!('themeName' in newThemePropertyDescriptors)) {
-        newThemePropertyDescriptors.themeName = {
-            configurable: true,
-            value: undefined
-        };
-    }
-
-    // Make sure all the new theme props are configurable so they can be deleted by the next call.
-    _(newThemePropertyDescriptors).each(function(descriptor, key) {
-        if (key in dynamicPropertyDescriptors) {
-            // Dynamic properties are defined on properties layer; defining these
-            // r-values on the theme layer is ineffective so let's not allow it.
-            delete newThemePropertyDescriptors[key];
-        } else {
-            descriptor.configurable = true;
-        }
-    });
-
-    // Apply the theme (i.e., add new members to theme layer)
-    Object.defineProperties(this.theme, newThemePropertyDescriptors);
-}
 
 /**
  * Creates an instance variable backer for use by the getters and setters described in {@link dynamicPropertyDescriptors}.
@@ -1966,20 +1836,14 @@ function applyTheme(theme) {
  * @private
  */
 function Var() {
-    var BACKING_STORE = '.var.';
-    Object.getOwnPropertyNames(dynamicPropertyDescriptors).forEach(function(name) {
-        var descriptor = dynamicPropertyDescriptors[name];
-        if (
-            methodContains(descriptor.get, BACKING_STORE) ||
-            methodContains(descriptor.set, BACKING_STORE)
-        ) {
-            this[name] = defaults[name];
-        }
-    }, this);
-}
-
-function methodContains(method, sarg) {
-    return method && method.toString().indexOf(sarg) !== -1;
+    this.gridRenderer = defaults.gridRenderer;
+    this.rowHeaderCheckboxes = defaults.rowHeaderCheckboxes;
+    this.rowHeaderNumbers = defaults.rowHeaderNumbers;
+    this.gridBorder = defaults.gridBorder;
+    this.gridBorderTop = defaults.gridBorderTop;
+    this.gridBorderRight = defaults.gridBorderRight;
+    this.gridBorderBottom = defaults.gridBorderBottom;
+    this.gridBorderLeft = defaults.gridBorderLeft;
 }
 
 function findOrCreateContainer(boundingRect) {
@@ -2041,6 +1905,13 @@ function deepClone(object) {
     return result;
 }
 
+function createCellEditor(name, props) {
+    var CellEditor = cellEditors.get(name);
+    if (CellEditor) {
+        return new CellEditor(this, props);
+    }
+}
+
 /**
  * @name plugins
  * @memberOf Hypergrid
@@ -2070,7 +1941,7 @@ Hypergrid.plugins = {};
  * @type {object}
  * @summary Shared localization defaults for all grid instances.
  * @desc These property values are overridden by those supplied in the `Hypergrid` constructor's `options.localization`.
- * @property {string|string[]} [locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFormat` and `Intl.DateFormat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
+ * @property {string|string[]} [locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFormat` and `Intl.DateFormat`. See {@ https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
  * @property {object} [numberOptions] - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
  * @property {object} [dateOptions] - Options passed to `Intl.DateFormat` for creating the basic "date" localizer.
  */
@@ -2080,11 +1951,49 @@ Hypergrid.localization = {
 };
 
 
-Hypergrid.prototype.setController.onerror = 'warn';
+// mix in the mixins
 
-Hypergrid.prototype.mixIn(require('./lib/events'));
-Hypergrid.prototype.mixIn(require('./lib/selection'));
-Hypergrid.prototype.mixIn(require('./lib/scrolling').mixin);
+Hypergrid.mixIn = Hypergrid.prototype.mixIn;
+Hypergrid.mixIn(require('./themes').sharedMixin);
+
+Hypergrid.prototype.mixIn(require('./themes').mixin);
+Hypergrid.prototype.mixIn(require('./events').mixin);
+Hypergrid.prototype.mixIn(require('./dataModel/events').mixin);
+Hypergrid.prototype.mixIn(require('./selection').mixin);
+Hypergrid.prototype.mixIn(require('./scrolling').mixin);
+
+
+// deprecated module access
+
+function pleaseUse(requireString, module) {
+    if (!pleaseUse.warned[requireString]) {
+        var key = requireString.match(/\w+$/)[0];
+        console.warn('Reference to ' + key + ' external module using' +
+            ' `Hypergrid.' + key + '.` has been deprecated as of v3.0.0 in favor of' +
+            ' `require(\'' + requireString + '\')` from within a Hypergrid Client Module' +
+            ' (otherwise use `Hypergrid.require(...)`) and will be removed in a future release.' +
+            ' See https://github.com/fin-hypergrid/core/wiki/Client-Modules#internal-modules.');
+        pleaseUse.warned[requireString] = true;
+    }
+    return module;
+}
+pleaseUse.warned = {};
+
+
+Object.defineProperties(Hypergrid, {
+    Base: { get: function() { return pleaseUse('fin-hypergrid/src/Base', require('../Base')); } },
+    images: { get: function() { return pleaseUse('fin-hypergrid/images', require('../../images')); } }
+});
+
+
+/**
+ * @summary List of grid instances.
+ * @desc Added in {@link Hypergrid constructor}; removed in {@link Hypergrid#terminate terminate()}.
+ * Used in themes.js.
+ * @type {Hypergrid[]}
+ */
+Hypergrid.grids = [];
+
 
 /** @name defaults
  * @memberOf Hypergrid
@@ -2092,49 +2001,18 @@ Hypergrid.prototype.mixIn(require('./lib/scrolling').mixin);
  * @summary The `defaults` layer of the Hypergrid properties hierarchy.
  * @desc Default values for all Hypergrid properties, including grid-level properties and column property defaults.
  *
+ * Synonym: `properties`
  * Properties are divided broadly into two categories:
  * * Style (a.k.a. "lnf" for "look'n'feel") properties
  * * All other properties.
  */
-Hypergrid.defaults = defaults;
+Hypergrid.defaults = Hypergrid.properties = defaults;
 
-/** @name properties
- * @memberOf Hypergrid
- * @type {object}
- * @summary Synonym for {@link Hypergrid.defaults}.
- */
-Hypergrid.properties = defaults;
 
-/** @name dataModels
- * @memberOf Hypergrid
- * @type {object}
- * @summary Registry of data models.
- * @see {@link dataModels}
- */
-Hypergrid.dataModels = require('./dataModels');
-
-/** @name themes
- * @memberOf Hypergrid
- * @type {object}
- * @summary The Hypergrid theme registry.
- * @desc The standard registry consists of a single theme, `default`, built from values in defaults.js.
- * App developers are free to add in additional themes, such as those in {@link https://openfin.github.com/fin-hypergrid-themes/themes}:
- * ```javascript
- * Object.assign(Hypergrid.themes, require('fin-hypergrid-themes/themes'));
- * ```
- */
-Hypergrid.themes = require('./themes');
-
-Hypergrid.registerTheme = registerTheme;
-Hypergrid.applyTheme = applyTheme;
-Object.defineProperty(Hypergrid, 'theme', { // global theme setter/getter
-    get: function() {
-        return Hypergrid.defaults;
-    },
-    set: applyTheme
-});
-
-Hypergrid.modules = require('./lib/modules');
+// Define modules namespace and install overridable external modules.
+// Hypergrid core code references them via this object — rather than require() — where used.
+// Note that `modules` also supports the Hypergrid Module Loader (included only with the build file).
+Hypergrid.modules = modules;
 
 
 module.exports = Hypergrid;

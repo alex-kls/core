@@ -44,7 +44,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @desc set my next field, or if it's populated delegate to the feature in my next field
      * @param {Feature} nextFeature - this is how we build the chain of responsibility
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     setNext: function(nextFeature) {
         if (this.next) {
@@ -76,7 +77,8 @@ var Feature = Base.extend('Feature', {
      * @desc handle mouse move down the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleMouseMove: function(grid, event) {
         if (this.next) {
@@ -88,7 +90,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleMouseExit: function(grid, event) {
         if (this.next) {
@@ -100,7 +103,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleMouseEnter: function(grid, event) {
         if (this.next) {
@@ -112,7 +116,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleMouseDown: function(grid, event) {
         if (this.next) {
@@ -124,7 +129,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleMouseUp: function(grid, event) {
         if (this.next) {
@@ -136,7 +142,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleKeyDown: function(grid, event) {
         if (this.next) {
@@ -150,7 +157,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleKeyUp: function(grid, event) {
         if (this.next) {
@@ -162,7 +170,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleWheelMoved: function(grid, event) {
         if (this.next) {
@@ -174,7 +183,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleDoubleClick: function(grid, event) {
         if (this.next) {
@@ -186,7 +196,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleClick: function(grid, event) {
         if (this.next) {
@@ -198,7 +209,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleMouseDrag: function(grid, event) {
         if (this.next) {
@@ -210,7 +222,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleContextMenu: function(grid, event) {
         if (this.next) {
@@ -221,22 +234,13 @@ var Feature = Base.extend('Feature', {
     /**
      * @memberOf Feature.prototype
      * @desc toggle the column picker
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     moveSingleSelect: function(grid, x, y) {
         if (this.next) {
             this.next.moveSingleSelect(grid, x, y);
         }
-    },
-
-    /**
-     * @memberOf Feature.prototype
-     * @param {Hypergrid} grid
-     * @param {Object} event - the event details
-     */
-    isFixedRow: function(grid, event) {
-        this.deprecated('isFixedRow', 'isFixedRow(grid, event) has been deprecated as of v1.2.0 in favor of event.isRowFixed. (Will be removed in a future version.)');
-        return event.isRowFixed;
     },
 
     /**
@@ -253,16 +257,6 @@ var Feature = Base.extend('Feature', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    isFixedColumn: function(grid, event) {
-        this.deprecated('isFixedColumn', 'isFixedColumn(grid, event) has been deprecated as of v1.2.0 in favor of event.isColumnFixed. (Will be removed in a future version.)');
-        return event.isColumnFixed;
-    },
-
-    /**
-     * @memberOf Feature.prototype
-     * @param {Hypergrid} grid
-     * @param {Object} event - the event details
-     */
     isFirstFixedColumn: function(grid, event) {
         return event.gridCell.x === 0;
     },
@@ -271,17 +265,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     */
-    isTopLeft: function(grid, event) {
-        this.deprecated('isTopLeft', 'isTopLeft(grid, event) has been deprecated as of v1.2.0 in favor of event.isCellFixed. (Will be removed in a future version.)');
-        return event.isCellFixed;
-    },
-
-    /**
-     * @memberOf Feature.prototype
-     * @param {Hypergrid} grid
-     * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     setCursor: function(grid) {
         if (this.next) {
@@ -296,7 +281,8 @@ var Feature = Base.extend('Feature', {
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
-     * @private Not really private but was cluttering up all the feature doc pages.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
      */
     initializeOn: function(grid) {
         if (this.next) {
@@ -305,9 +291,6 @@ var Feature = Base.extend('Feature', {
     }
 
 });
-
-
-Feature.abstract = true; // don't instantiate directly
 
 
 module.exports = Feature;

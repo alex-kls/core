@@ -12,7 +12,7 @@ var pkgjson     = require('./package.json'),
     path        = require('path'),
     pipe        = require('multipipe');
 
-var srcDir      = './src/',
+var srcDir      = './src/forBuild/',
     testDir     = './test/',
     jsFiles     = '**/*.js',
     demoDir     = './demo/',

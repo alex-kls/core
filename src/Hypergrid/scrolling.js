@@ -3,7 +3,8 @@
 var Scrollbar = require('./modules').Scrollbar;
 
 /**
- * Additions to `Hypergrid.prototype` for scrollbar support.
+ * @summary Scrollbar support.
+ * @desc Hypergrid/index.js mixes this module into its prototype.
  * @mixin
  */
 exports.mixin = {
@@ -144,12 +145,18 @@ exports.mixin = {
      * @param {number} newValue - The new scroll value.
      */
     setVScrollValue: function(y) {
+        var self = this;
         y = Math.min(this.sbVScroller.range.max, Math.max(0, Math.round(y)));
         if (y !== this.vScrollValue) {
-            this.behavior._setScrollPositionY(y);
+            this.behavior.setScrollPositionY(y);
+            this.behavior.changed();
+            var oldY = this.vScrollValue;
             this.vScrollValue = y;
-            this.sbVScroller.index = y;
             this.scrollValueChangedNotification();
+            setTimeout(function() {
+                // self.sbVRangeAdapter.subjectChanged();
+                self.fireScrollEvent('fin-scroll-y', oldY, y);
+            });
         }
     },
 
@@ -167,12 +174,19 @@ exports.mixin = {
      * @param {number} newValue - The new scroll value.
      */
     setHScrollValue: function(x) {
+        var self = this;
         x = Math.min(this.sbHScroller.range.max, Math.max(0, Math.round(x)));
         if (x !== this.hScrollValue) {
-            this.behavior._setScrollPositionX(x);
+            this.behavior.setScrollPositionX(x);
+            this.behavior.changed();
+            var oldX = this.hScrollValue;
             this.hScrollValue = x;
             this.scrollValueChangedNotification();
-            this.sbHScroller.index = x;
+            setTimeout(function() {
+                //self.sbHRangeAdapter.subjectChanged();
+                self.fireScrollEvent('fin-scroll-x', oldX, x);
+                //self.synchronizeScrollingBoundries(); // todo: Commented off to prevent the grid from bouncing back, but there may be repercussions...
+            });
         }
     },
 
@@ -313,15 +327,13 @@ exports.mixin = {
         // inform scroll bars
         if (this.sbHScroller) {
             var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
-            var hscrollValue = this.getHScrollValue();
             this.setHScrollbarValues(hMax);
-            this.setHScrollValue(Math.min(hscrollValue, hMax));
+            this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
         }
         if (this.sbVScroller) {
             var vMax = Math.max(0, numRows - this.properties.fixedRowCount - lastPageRowCount);
-            var vscrollValue = this.getVScrollValue();
             this.setVScrollbarValues(vMax);
-            this.setVScrollValue(Math.min(vscrollValue, vMax));
+            this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
         }
 
         this.computeCellsBounds();

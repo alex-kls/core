@@ -1,11 +1,5 @@
 'use strict';
 
-var toFunction = require('../lib/toFunction');
-
-var FIELD = 'columnProperties.field is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
-    COLUMN_NAME = 'columnProperties.columnName is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
-    COLUMN_ONLY_PROPERTY = 'Attempt to set column-only property on a non-column properties object.';
-
 /**
  * @this {Column}
  * @returns {object}
@@ -13,10 +7,10 @@ var FIELD = 'columnProperties.field is deprecated as of v1.1.0 in favor of colum
  */
 function createColumnProperties() {
     var column = this,
-        tableState = column.behavior.grid.properties,
+        gridProps = column.behavior.grid.properties,
         properties;
 
-    properties = Object.create(tableState, {
+    properties = Object.create(gridProps, {
 
         index: { // read-only (no setter)
             get: function() {
@@ -32,14 +26,12 @@ function createColumnProperties() {
 
         field: { // read-only (no setter)
             get: function() {
-                if (FIELD) { console.warn(FIELD); FIELD = undefined; }
                 return column.name;
             }
         },
 
         columnName: { // read-only (no setter)
             get: function() {
-                if (COLUMN_NAME) { console.warn(COLUMN_NAME); COLUMN_NAME = undefined; }
                 return column.name;
             }
         },
@@ -50,7 +42,8 @@ function createColumnProperties() {
             },
             set: function(header) {
                 if (this !== column.properties) {
-                    throw new column.HypergridError(COLUMN_ONLY_PROPERTY);
+                    // trying to set a cell header
+                    gridProps.header = header; // throw same error as when trying to set a grid header
                 }
                 column.header = header;
             }
@@ -62,7 +55,8 @@ function createColumnProperties() {
             },
             set: function(type) {
                 if (this !== column.properties) {
-                    throw new column.HypergridError(COLUMN_ONLY_PROPERTY);
+                    // trying to set a cell type
+                    gridProps.type = type; // throw same error as when trying to set a grid type
                 }
                 column.type = type;
             }
@@ -74,45 +68,65 @@ function createColumnProperties() {
             },
             set: function(calculator) {
                 if (this !== column.properties) {
-                    throw new column.HypergridError(COLUMN_ONLY_PROPERTY);
+                    // trying to set a cell calculator
+                    gridProps.calculator = calculator; // throw same error as when trying to set a grid calculator
                 }
+                column.calculator = calculator;
+            }
+        },
 
-                if (!calculator) {
-                    column.calculator = undefined;
-                    return;
-                }
-
-                if (typeof calculator === 'function') {
-                    calculator = calculator.toString();
-                } else if (typeof calculator !== 'string') {
-                    throw new this.grid.HypergridError('Expected function or string containing function or function name.');
-                }
-
-                var matches, key = calculator,
-                    calculators = this.grid.properties.calculators = this.grid.properties.calculators || {};
-
-                if (/^\w+$/.test(calculator)) { // just a function name?
-                    calculator = calculators[calculator];
+        format: {
+            get: function() {
+                return 'format' in column.schema ? column.schema.format : gridProps.format;
+            },
+            set: function(format) {
+                if (this !== column.properties) {
+                    // set on instance to override this accessor (could be cell props obj or anon obj created by renderer)
+                    Object.defineProperty(this, 'format', {
+                        enumerable: true,
+                        configurable: true,
+                        writable: true,
+                        value: format
+                    });
+                } else if (format === undefined) {
+                    delete column.schema.format; // remove column prop to so getter returns grid prop
                 } else {
-                    matches = calculator.match(/^function\s*(\w+)\(/);
-                    if (matches) {
-                        key = matches[1];
-                    }
+                    column.schema.format = format;
                 }
+            }
+        },
 
-                column.calculator = calculators[key] = typeof calculators[key] === 'function'
-                    ? calculators[key] || key //null calculators use the key itself (anonymous functions)
-                    : toFunction(calculator);
+        renderer: {
+            get: function() {
+                return 'renderer' in column.schema ? column.schema.renderer : gridProps.renderer;
+            },
+            set: function(renderer) {
+                if (this !== column.properties) {
+                    // set on instance to override this accessor (could be cell props obj or anon obj created by renderer)
+                    Object.defineProperty(this, 'renderer', {
+                        enumerable: true,
+                        configurable: true,
+                        writable: true,
+                        value: renderer
+                    });
+                } else if (renderer === undefined) {
+                    delete column.schema.renderer; // remove column prop to so getter returns grid prop
+                } else {
+                    column.schema.renderer = renderer;
+                }
             }
         },
 
         toJSON: {
-            // although we don't generally want header, type, and calculator to be enumerable, we do want them to be serializable
+            // although we don't generally want these to be enumerable, we do want them to be serializable
+            // todo: ??? not sure now (3/13/2018) why these shouldn't be enumerable
             value: function() {
                 return Object.assign({
                     header: this.header,
                     type: this.type,
-                    calculator: this.calculator
+                    calculator: this.calculator,
+                    format: this.format,
+                    renderer: this.renderer
                 }, this);
             }
         }
@@ -363,13 +377,23 @@ createColumnProperties.filterDescriptors = {
             this.filterRenderer = value;
         }
     },
+    editor: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.filterEditor;
+        },
+        set: function(value) {
+            this.filterEditor = value;
+        }
+    },
     rightIcon: {
         configurable: true,
         enumerable: true,
         get: function() {
             var result;
             if (this.filterable) {
-                result = this.value.length ? 'filter-on' : 'filter-off';
+                result = this.filter ? 'filter-on' : 'filter-off';
             }
             return result;
         },
@@ -471,4 +495,10 @@ createColumnProperties.columnHeaderDescriptors = {
     rightIcon: { writable: true, value: undefined},
 };
 
-module.exports.createColumnProperties = createColumnProperties;
+/**
+ * Column.js mixes this module into its prototype.
+ * @mixin
+ */
+exports.mixin = {
+    createColumnProperties: createColumnProperties
+};

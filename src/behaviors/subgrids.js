@@ -1,6 +1,6 @@
 'use strict';
 
-var dataModels = require('../dataModels');
+var dataModels = require('../dataModels/index');
 
 /** @typedef subgridConstructorRef
  * @summary Type definition.
@@ -20,7 +20,11 @@ var dataModels = require('../dataModels');
  *   * Remaining elements are used as additional parameters to the constructor.
  */
 
-module.exports = {
+/**
+ * Behavior.js mixes this module into its prototype.
+ * @mixin
+ */
+exports.mixin = {
     /**
      * An array where each element represents a subgrid to be rendered in the hypergrid.
      *
@@ -75,20 +79,24 @@ module.exports = {
         } else if (spec instanceof Array && spec.length) {
             Constructor = derefSubgridRef.call(this, spec[0]);
             variableArgArray = spec.slice(1);
-            subgrid = this.createApply(Constructor, variableArgArray, this.grid);
+            subgrid = this.createApply(Constructor, variableArgArray, undefined, { grid: this.grid });
+            subgrid = this.decorateDataModel(subgrid);
         } else if (typeof spec === 'object') {
             subgrid = spec;
         } else {
             Constructor = derefSubgridRef.call(this, spec);
             variableArgArray = Array.prototype.slice.call(arguments, 1);
-            subgrid = this.createApply(Constructor, variableArgArray, this.grid);
+            subgrid = this.createApply(Constructor, variableArgArray, undefined, { grid: this.grid });
+            subgrid = this.decorateDataModel(subgrid);
         }
 
         // undefined type is data
-        subgrid.type = subgrid.type || 'data';
+        if (!subgrid.type) {
+            subgrid.type = 'data';
+        }
 
         // make dictionary lookup entry
-        var key = subgrid.name || subgrid.type;
+        var key = subgrid.type === 'data' && subgrid.type || subgrid.name || subgrid.type;
         this._subgrids.lookup[key] = this._subgrids.lookup[key] || subgrid; // only save first with this key
 
         // make isType boolean
@@ -99,8 +107,8 @@ module.exports = {
 
     /**
      * @summary Gets the number of "header rows".
-     * @desc Defined as the sum of all rows of all subgrids before the (first) data subgrid.
-     * @memberOf behaviors.JSON.prototype
+     * @desc Defined as the sum of all rows in all subgrids before the (first) data subgrid.
+     * @memberOf Local.prototype
      */
     getHeaderRowCount: function() {
         var result = 0;
@@ -113,6 +121,34 @@ module.exports = {
         });
 
         return result;
+    },
+
+    /**
+     * @summary Gets the number of "footer rows".
+     * @desc Defined as the sum of all rows in all subgrids after the (last) data subgrid.
+     * @memberOf Local.prototype
+     */
+    getFooterRowCount: function() {
+        var gotData;
+        return this.subgrids.reduce(function(rows, subgrid) {
+            if (gotData && !subgrid.isData) {
+                rows += subgrid.getRowCount();
+            } else {
+                gotData = subgrid.isData;
+            }
+            return rows;
+        }, 0);
+    },
+
+    /**
+     * @summary Gets the total number of logical rows.
+     * @desc Defined as the sum of all rows in all subgrids.
+     * @memberOf Local.prototype
+     */
+    getLogicalRowCount: function() {
+        return this.subgrids.reduce(function(rows, subgrid) {
+            return (rows += subgrid.getRowCount());
+        }, 0);
     }
 };
 

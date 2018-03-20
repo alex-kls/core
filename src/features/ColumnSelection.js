@@ -10,7 +10,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * The pixel location of the mouse pointer during a drag operation.
-     * @type {window.fin.rectangular.Point}
+     * @type {Point}
      * @default null
      * @memberOf ColumnSelection.prototype
      */
@@ -71,14 +71,22 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
+        if (this.doubleClickTimer) {
+            return;
+        }
+
+        // todo: >= 5 depends on header being top-most row which is currently always true but we may allow header "section" to be arbitrary position within quadrant (see also handleMouseDown in ColumnMoving.js)
         if (
-            !event.isColumnSelected &&
             grid.properties.columnSelection &&
+            event.mousePoint.y >= 5 &&
             !event.primitiveEvent.detail.isRightClick &&
             event.isHeaderCell
         ) {
-            this.dragging = true;
-            this.extendSelection(grid, event.gridCell.x, event.primitiveEvent.detail.keys);
+            // HOLD OFF WHILE WAITING FOR DOUBLE-CLICK
+            this.doubleClickTimer = setTimeout(
+                doubleClickTimerCallback.bind(this, grid, event),
+                doubleClickDelay.call(this, grid, event)
+            );
         } else if (this.next) {
             this.next.handleMouseDown(grid, event);
         }
@@ -413,6 +421,24 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
         var dragger = grid.lookupFeature('ColumnMoving');
         return dragger && dragger.dragging && !this.dragging;
     }
+
 });
+
+function doubleClickDelay(grid, event) {
+    var columnProperties;
+
+    return (
+        event.isHeaderCell &&
+        !(columnProperties = event.columnProperties).unsortable &&
+        columnProperties.sortOnDoubleClick &&
+        300
+    );
+}
+
+function doubleClickTimerCallback(grid, event) {
+    this.doubleClickTimer = undefined;
+    this.dragging = true;
+    this.extendSelection(grid, event.gridCell.x, event.primitiveEvent.detail.keys);
+}
 
 module.exports = ColumnSelection;
