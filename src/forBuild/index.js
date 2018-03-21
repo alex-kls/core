@@ -7,10 +7,7 @@
  * What this file is:
  * * This file is browserify's entry point.
  * * This file creates the `window.fin.Hypergrid` object.
- *
- * What this file is not:
- * * This file is not a node module; it has no reference to `module.exports` or `exports`; it cannot be "required" by any other file.
- * * This file (along with module-loader.js) is blacklisted in .npmignore and is not published to npm.
+ * * Bundled file can be used as require module for creating new Hypergrid objects
  */
 
 // Create the `fin` namespace if not already extant
@@ -32,7 +29,7 @@ Hypergrid.src = {};
 Object.defineProperties(Hypergrid.modules, {
     'datasaur-base': { value: require('../DatasaurBase') }, // may be removed in a future release
     'datasaur-local': { value: require('../DatasaurLocal') }, // may be removed in a future release
-    'extend-me': {value: require('extend-me') },
+    'extend-me': { value: require('extend-me') },
     'object-iterators': { value: require('object-iterators') },
     overrider: { value: require('overrider') },
     rectangular: { value: require('rectangular') },
@@ -87,4 +84,7 @@ function deprecated(key, registry) {
 
     return Hypergrid.require(requireString);
 }
+
 deprecated.warned = {};
+
+module.exports = Hypergrid;

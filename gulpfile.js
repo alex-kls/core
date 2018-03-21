@@ -101,7 +101,8 @@ function test(cb) {
 function bundleUp(destName, srcDir, buildDir) {
     var options = {
         entries: srcDir + 'index.js',
-        debug: true
+        debug: true,
+        standalone: 'standalone'
     };
 
     return browserify(options)
