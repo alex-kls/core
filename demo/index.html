@@ -51,6 +51,30 @@
                     }
                 };
                 window.grid = new fin.Hypergrid(div, options);
+
+                var themeObject = {
+                    noDataMessage: 'Zero Rows!',
+                    backgroundColor: 'white',
+                    foregroundSelectionFont: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
+                    backgroundSelectionColor: 'rgb(236,243,255)',
+                    foregroundSelectionColor: '#333',
+                    columnClip: false,
+                    defaultRowHeight: 21,
+                    editor: 'textfield',
+                    rowHeaderColor: '#333',
+                    lineColor: '#DEDEDE',
+                    renderFalsy: true,
+                    rowHeaderCheckboxes: false,
+                    rowHeaderForegroundSelectionFont: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
+                    font: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
+                    selectionRegionOutlineColor: 'rgb(143,177,232)',
+                    gridBorder:true,
+                    hoverColumnHighlight: false,
+                    hoverRowHighlight: false,
+                    halign: 'left'
+                };
+
+                grid.applyTheme(themeObject);
             });
         };
     </script>
