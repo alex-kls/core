@@ -1296,7 +1296,15 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    truncateTextWithEllipsis: true
+    truncateTextWithEllipsis: true,
+
+    /**
+     * @desc If true, colors will be combined on render.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    combineColors: true
 };
 
 

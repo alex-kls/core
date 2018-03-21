@@ -2,15 +2,45 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <script src="build/fin-hypergrid.js"></script>
+    <style>
+        div.finbar-vertical {
+            margin: 0 -1px 0 0 !important;
+            width: 17px;
+            background-color: rgba(237, 237, 237, 1);
+            box-shadow: 0 0 0 #000, 0 0 0px #000, 0 0 0 #000;
+        }
+        div.finbar-vertical div.thumb {
+            margin: 0 0 17px 0;
+            width: 11px;
+            background-color: rgba(158, 158, 158, 1);
+            box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+            border-radius: 0px;
+            border: 1px solid rgba(132, 132, 132, 1);
+            /*right: 3px;*/
+        }
+        div.finbar-horizontal {
+            margin: 0 0 -1px 0 !important;
+            height: 17px;
+            background-color: rgba(237, 237, 237, 1);
+            box-shadow: 0 0 0 #000, 0 0 0 #000, 0 0 0 #000;
+        }
+        div.finbar-horizontal div.thumb {
+            margin: 0;
+            height: 11px;
+            background-color: rgba(158, 158, 158, 1);
+            box-shadow: 0 0 0 #000, 0 0 0 #000, 0 0 0 #000;
+            border-radius: 0;
+            border: 1px solid rgba(132, 132, 132, 1);
+            bottom: 0;
+        }
+
+    </style>
 </head>
 <body>
-
-
-    <script src="build/fin-hypergrid.js"></script>
-
     <script>
         var letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R']
-        var rowsCount = 10;
+        var rowsCount = 40;
 
         var data = [];
 
@@ -30,7 +60,8 @@
             backgroundColor: 'white',
             foregroundSelectionFont: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
             backgroundSelectionColor: 'rgb(236,243,255)',
-            backgroundSelectionColor: 'rgb(236,243,255)',
+            columnHeaderBackgroundColor: 'rgb(243,243,243)',
+            rowHeaderBackgroundColor: 'rgb(243,243,243)',
             foregroundSelectionColor: '#333',
             columnClip: false,
             defaultRowHeight: 21,
@@ -41,11 +72,13 @@
             rowHeaderCheckboxes: false,
             rowHeaderForegroundSelectionFont: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
             font: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
+            columnHeaderFont: 'bold 12px "Helvetica Neue",Helvetica,Arial,sans-serif',
             selectionRegionOutlineColor: 'rgb(143,177,232)',
             gridBorder:true,
             hoverColumnHighlight: false,
             hoverRowHighlight: false,
-            halign: 'left'
+            halign: 'left',
+            combineColors: false
         };
 
         grid.applyTheme(themeObject);

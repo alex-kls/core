@@ -99,19 +99,35 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
                 inheritsBackgroundColor = (config.backgroundColor === config.prefillColor);
                 if (!inheritsBackgroundColor) {
                     foundationColor = true;
-                    colors.push(config.backgroundColor);
+
+                    if (config.combineColors) {
+                        colors.push(config.backgroundColor);
+                    } else {
+                        colors = [config.backgroundColor];
+                    }
+
                     same = same &&  foundationColor === snapshot.foundationColor &&
                         config.backgroundColor === snapshot.colors[c++];
                 }
             }
 
             if (selectColor !== undefined) {
-                colors.push(selectColor);
+                if (config.combineColors) {
+                    colors.push(selectColor);
+                } else {
+                    colors = [selectColor];
+                }
+                // colors.push(selectColor);
                 same = same && selectColor === snapshot.colors[c++];
             }
         }
         if (hoverColor !== undefined) {
-            colors.push(hoverColor);
+            if (config.combineColors) {
+                colors.push(hoverColor);
+            } else {
+                colors = [hoverColor];
+            }
+
             same = same && hoverColor === snapshot.colors[c++];
         }
 
@@ -140,15 +156,10 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
 
-            if (config.isHeaderRow) {
-                gc.cache.font = 'bold ' + gc.cache.font;
-            }
-
             valWidth = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
                 : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
-        } else if (centerIcon) {
-            // Measure & draw center icon
+        } else if (centerIcon) {            // Measure & draw center icon
             iyoffset = Math.round((height - centerIcon.height) / 2);
             ixoffset = Math.round((width - centerIcon.width) / 2);
             gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
