@@ -68,8 +68,8 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * @param {string} [options.boundingRect.bottom='auto']
  * @param {string} [options.boundingRect.position='relative']
  *
- * @param {function} [options.callbacks.onScrollEnd] - function for infinite scroll behaviour
- * @param {number} [options.callbacks.onScrollEndLimitTrigger] - pixels to the end of bound when should be called `onScrollEnd`
+ * @param {function} [options.api.onScrollEnd] - function for infinite scroll behaviour
+ * @param {number} [options.api.onScrollEndLimitTrigger] - pixels to the end of bound when should be called `onScrollEnd`
  */
 var Hypergrid = Base.extend('Hypergrid', {
     initialize: function(container, options) {
@@ -135,7 +135,14 @@ var Hypergrid = Base.extend('Hypergrid', {
             this.loadState(options.state);
         }
 
-        this.callbacks = options.callbacks || {};
+        // merge api mixins
+        this.api = options.api || {};
+        var apiMixins = require('./api').mixin;
+        for (var k in apiMixins) {
+            if (apiMixins.hasOwnProperty(k)) {
+                this.api[k] = apiMixins[k].bind(this);
+            }
+        }
 
         /**
          * @name plugins
@@ -780,6 +787,8 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {function|menuItem[]} [options.schema] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
      */
     setData: function(dataRows, options) {
+        console.log(dataRows);
+        console.log(options);
         if (!this.behavior) {
             this.setBehavior(options);
         }
@@ -804,6 +813,8 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {function|menuItem[]} [options.schema] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
      */
     addData: function(dataRows, options) {
+        console.log(dataRows);
+        console.log(options);
         if (!this.behavior) {
             this.setBehavior(options);
         }
@@ -1873,8 +1884,6 @@ function Var() {
     this.gridBorderRight = defaults.gridBorderRight;
     this.gridBorderBottom = defaults.gridBorderBottom;
     this.gridBorderLeft = defaults.gridBorderLeft;
-    this.onScrollEnd = defaults.onScrollEnd;
-    this.onScrollEndLimitTrigger = defaults.onScrollEndLimitTrigger;
 }
 
 function findOrCreateContainer(boundingRect) {

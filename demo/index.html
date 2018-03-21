@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <script src="build/fin-hypergrid.js"></script>
     <script>
         'use strict';
@@ -24,30 +24,50 @@
         }
 
         window.onload = function() {
-            get('data/test_data.json', function(data) {
+            get('data/datadoc.json', function(result) {
                 var loadingSpan = document.querySelector('span#loading');
                 loadingSpan.style.visibility = "hidden";
                 var div = document.querySelector('div#json-example');
                 var inLoad = false;
 
-                function loadData(data) {
+                function prepareData(result) {
+                    var res = [];
+                    result.data.children.forEach(function(c) {
+                        res.push(c.data);
+                    });
+                    return res;
+                }
+
+                function prepareSchema(result) {
+                    var res = [];
+                    result.headers.children.forEach(function(h) {
+                        res.push({ header: h.key, name: h.key });
+                    });
+                    return res;
+                }
+
+                function loadData(result) {
                     inLoad = false;
-                    window.grid.addData(data);
+                    window.grid.addData({
+                        schema: prepareSchema(result),
+                        data: prepareData(result)
+                    });
                 }
 
                 function onScrollEnd() {
                     console.log("SCROLL END");
                     if (!inLoad) {
                         inLoad = true;
-                        get('data/test_data.json', loadData);
+                        get('result/datadoc.json', loadData);
                     }
                 }
 
                 var options = {
-                    data: data,
+                    schema: prepareSchema(result),
+                    data: prepareData(result),
                     callbacks: {
                         onScrollEndLimitTrigger: 200,
-                        onScrollEnd: onScrollEnd,
+                        onScrollEnd: onScrollEnd
                     }
                 };
                 window.grid = new fin.Hypergrid(div, options);
@@ -68,19 +88,52 @@
                     rowHeaderForegroundSelectionFont: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
                     font: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
                     selectionRegionOutlineColor: 'rgb(143,177,232)',
-                    gridBorder:true,
+                    gridBorder: true,
                     hoverColumnHighlight: false,
                     hoverRowHighlight: false,
                     halign: 'left'
                 };
 
                 grid.applyTheme(themeObject);
+
+                var colDef = [{
+                    "colId": "c0",
+                    "field": "c0",
+                    "originalField": "c0",
+                    "headerName": "Name",
+                    "suppressSorting": false,
+                    "minWidth": 10,
+                    "maxWidth": 2000,
+                    "suppressMenu": 0,
+                    "suppressMovable": false,
+                    "suppressSizeToFit": false,
+                    "sort": null,
+                    "sortedAt": null,
+                    "columnGroupShow": "open"
+                }, {
+                    "colId": "c1",
+                    "field": "c1",
+                    "originalField": "c1",
+                    "headerName": "Date",
+                    "suppressSorting": false,
+                    "minWidth": 10,
+                    "maxWidth": 2000,
+                    "suppressMenu": 0,
+                    "suppressMovable": false,
+                    "suppressSizeToFit": false,
+                    "sort": null,
+                    "sortedAt": null,
+                    "columnGroupShow": "open"
+                }];
+
+                grid.api.setColumnDefs(colDef);
+
             });
         };
     </script>
     <style>
-        div.finbar-horizontal>.thumb,
-        div.finbar-vertical>.thumb {
+        div.finbar-horizontal > .thumb,
+        div.finbar-vertical > .thumb {
             background-color: #000 !important;
             opacity: 0.7 !important;
         }

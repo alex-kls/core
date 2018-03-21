@@ -251,11 +251,13 @@ var Behavior = Base.extend('Behavior', {
 
         this.allColumns[tc] = this.columns[tc] = this.newColumn({
             index: tc,
-            header: schema[tc].header
+            header: schema[tc].header,
+            name: schema[tc].name
         });
         this.allColumns[rc] = this.columns[rc] = this.newColumn({
             index: rc,
-            header: schema[rc].header
+            header: schema[rc].header,
+            name: schema[rc].name
         });
 
         this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = [propClassEnum.COLUMNS];
