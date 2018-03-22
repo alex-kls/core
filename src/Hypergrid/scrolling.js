@@ -281,10 +281,10 @@ exports.mixin = {
             }
 
             if (
-                this.callbacks.onScrollEnd &&
-                this.sbVScroller.range.max - this.vScrollValue < (this.callbacks.onScrollEndLimitTrigger || 500)
+                this.api.onScrollEnd &&
+                this.sbVScroller.range.max - this.vScrollValue < (this.api.onScrollEndLimitTrigger || 500)
             ) {
-                this.callbacks.onScrollEnd();
+                this.api.onScrollEnd();
             }
 
             this.computeCellsBounds();
