@@ -1273,6 +1273,7 @@ var defaults = {
      */
     features: [
         'filters',
+        'contextmenu',
         'cellselection',
         'keypaging',
         'columnresizing',
@@ -1304,7 +1305,84 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    combineColors: true
+    combineColors: true,
+
+    /**
+     * @desc If true, colors will be combined on render.
+     * @default
+     * @memberOf module:defaults
+     */
+    cellContextMenu: {
+        items:[
+            {
+                title: 'data cell first',
+                callbackFn: function(event) {
+                    console.log('data cell first callback works fine');
+                }
+            }
+        ]
+    },
+    /**
+     * @desc if true, data cell context menu can be triggered.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    showCellContextMenu: true,
+
+    applyContextMenuStyling: true,
+
+    contextMenuHolderStyle: {
+        position: 'fixed',
+        border: 'none',
+        fontSize: '14px',
+        zIndex: 2,
+        margin: '0 0 0 0',
+        fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
+    },
+    contextMenuListStyle: {
+        padding: '5px 0',
+        maxHeight: '290px',
+        minWidth: '220px',
+        overflow: 'hidden',
+        border: '1px solid #ccc',
+        backgroundColor: '#fff',
+        display: 'flex',
+        flexDirection: 'column',
+        marginTop: '-1px',
+        borderCollapse: 'collapse'
+    },
+    contextMenuListOptionStyle: {
+        height: '27px',
+        fontSize: '13px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    contextMenuListOptionHoverStyle: {
+        backgroundColor: '#eee'
+    },
+    contextMenuListOptionIconStyle: {
+        width: '30px',
+        padding: '2px 4px',
+        verticalAlign: 'middle'
+    },
+    contextMenuListOptionTextStyle: {
+        padding: '2px 4px',
+        verticalAlign: 'middle',
+        flexGrow: '1'
+    },
+    contextMenuListOptionShortcutStyle: {
+        padding: '2px 2px 2px 20px',
+        verticalAlign: 'middle',
+        Width: '0'
+    },
+    contextMenuListOptionPopupPointerStyle: {
+        padding: '2px 4px',
+        verticalAlign: 'middle',
+        width: '30px'
+    }
 };
 
 

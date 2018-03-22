@@ -27,6 +27,7 @@ var Features = Registry.extend('Features', {
         // this.add(require('./RowResizing'));
         this.add(Features.RowSelection);
         this.add(Features.ThumbwheelScrolling);
+        this.add(Features.ContextMenu);
     }
 
 });
@@ -49,6 +50,6 @@ Features.OnHover = require('./OnHover');
 // Features.RowResizing = require('./RowResizing');
 Features.RowSelection = require('./RowSelection');
 Features.ThumbwheelScrolling = require('./ThumbwheelScrolling');
-
+Features.ContextMenu = require('./ContextMenu');
 
 module.exports = new Features;

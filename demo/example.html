@@ -34,7 +34,6 @@
             border: 1px solid rgba(132, 132, 132, 1);
             bottom: 0;
         }
-
     </style>
 </head>
 <body>
@@ -72,13 +71,65 @@
             rowHeaderCheckboxes: false,
             rowHeaderForegroundSelectionFont: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
             font: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
-            columnHeaderFont: 'bold 12px "Helvetica Neue",Helvetica,Arial,sans-serif',
-            selectionRegionOutlineColor: 'rgb(143,177,232)',
+            columnHeaderFont: 'bold 13px "Helvetica Neue",Helvetica,Arial,sans-serif',
+            selectionRegionOutlineColor: 'rgb(66,133,244)',
             gridBorder:true,
             hoverColumnHighlight: false,
             hoverRowHighlight: false,
             halign: 'left',
-            combineColors: false
+            combineColors: false,
+            cellContextMenu: {
+                items:[
+                    {
+                        title: 'Copy',
+                        callbackFn: function (clickEvent, gridEvent) {
+                            console.log('first callback works fine');
+                            console.log('grid event', gridEvent);
+                        },
+                        children: {
+                            items:[
+                                {
+                                    title: 'third',
+                                    callbackFn: function (clickEvent, gridEvent) {
+                                        console.log('third callback works fine');
+                                    },
+                                    isShown: function (event) {
+                                        return true;
+                                    },
+                                    children: {
+                                        items:[
+                                            {
+                                                title: 'third',
+                                                callbackFn: function (clickEvent, gridEvent) {
+                                                    console.log('third callback works fine');
+                                                }
+                                            },
+                                            {
+                                                title: 'fourth',
+                                                callbackFn: function (clickEvent, gridEvent) {
+                                                    console.log('fourth callback works fine');
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    title: 'fourth',
+                                    callbackFn: function (clickEvent, gridEvent) {
+                                        console.log('fourth callback works fine');
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Copy With Headers',
+                        callbackFn: function (clickEvent, gridEvent) {
+                            console.log('second callback works fine');
+                        }
+                    }
+                ]
+            }
         };
 
         grid.applyTheme(themeObject);
