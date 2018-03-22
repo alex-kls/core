@@ -11,7 +11,7 @@ var menuDiv;
  */
 var ContextMenu = Feature.extend('ContextMenu', {
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ContextMenu.prototype
      * @desc give me an opportunity to initialize stuff on the grid
      * @param {Hypergrid} grid
      */
@@ -25,9 +25,8 @@ var ContextMenu = Feature.extend('ContextMenu', {
         }
     },
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ContextMenu.prototype
      * @desc initialize context menu div
-     * @param {Hypergrid} grid
      */
     initializeContextMenuDiv: function() {
         var menuHolderDiv = document.createElement('div');
@@ -44,9 +43,9 @@ var ContextMenu = Feature.extend('ContextMenu', {
     },
 
     /**
+     * @memberOf ContextMenu.prototype
      * @param {Hypergrid} grid
-     * @param {CellEvent} event - the event details
-     * @memberOf CellClick#
+     * @param {CellEvent} event
      */
     handleClick: function(grid, event) {
         this.hideContextMenu(menuDiv);
@@ -57,9 +56,9 @@ var ContextMenu = Feature.extend('ContextMenu', {
     },
 
     /**
+     * @memberOf ContextMenu.prototype
      * @param {Hypergrid} grid
      * @param {CellEvent} event - the event details
-     * @memberOf CellClick#
      */
     handleContextMenu: function(grid, event) {
         var contextMenu = grid.properties.theme.cellContextMenu;
@@ -76,11 +75,14 @@ var ContextMenu = Feature.extend('ContextMenu', {
 
     /**
      * @memberOf ContextMenu.prototype
-     * @desc utility method to paint context menu based on click event
-     * @param {HTMLElement} menuHolderDiv
+     * @desc utility method to paint context menu based on click event, and position params
+     * @param {object} menuHolderDiv - object with Html element and related elements
      * @param {Hypergrid} grid
      * @param {CellEvent} event
-     * @param {[]} items
+     * @param {[]} items - menu items
+     * @param {number} x - defines horizontal point of menu start
+     * @param {number} y - defines vertical point of menu start
+     * @param {boolean} rightToLeft - if true, menu will be displayed that way when it horizontally ends on X point
      */
     paintContextMenu: function(menuHolderDiv, grid, event, items, x, y, rightToLeft) {
         this.hideContextMenu(menuHolderDiv);
@@ -192,7 +194,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
 
                 if (item.childMenu && !self.isElementContainsChild(item.childMenu.element, event.relatedTarget)) {
                     self.hideContextMenu(item.childMenu);
-                    self.removeContextMenuDiv(item.childMenu.element);
+                    self.removeDOMElement(item.childMenu.element);
                     item.childMenu = null;
                 }
             });
@@ -211,8 +213,8 @@ var ContextMenu = Feature.extend('ContextMenu', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
-     * @desc utility method to clear context menu state
+     * @memberOf ContextMenu.prototype
+     * @desc utility method to clear context menu HTML object and all related objects
      * @param {object} menuHolderDiv
      */
     clearContextMenu: function(menuHolderDiv) {
@@ -225,6 +227,15 @@ var ContextMenu = Feature.extend('ContextMenu', {
         }
     },
 
+    /**
+     * @memberOf ContextMenu.prototype
+     * @desc utility method to start show context menu on defined point.
+     * @desc Menu must be formed before it will be passed to this method
+     * @param {object} menuHolderDiv - object with Html element and related elements
+     * @param {number} x - defines horizontal point of menu start
+     * @param {number} y - defines vertical point of menu start
+     * @param {boolean} rightToLeft - if true, menu will be displayed that way when it horizontally ends on X point
+     */
     showContextMenu: function(menuHolderDiv, x, y, rightToLeft) {
         menuHolderDiv.element.style.display = 'block';
         menuHolderDiv.element.style.top = y + 'px';
@@ -235,13 +246,32 @@ var ContextMenu = Feature.extend('ContextMenu', {
         }
         menuHolderDiv.element.style.left = startX + 'px';
     },
+
+    /**
+     * @memberOf ContextMenu.prototype
+     * @desc utility method to stop displaying context menu
+     * @param {object} menuHolderDiv - object with Html element and related elements
+     */
     hideContextMenu: function(menuHolderDiv) {
         this.clearContextMenu(menuHolderDiv);
         menuHolderDiv.element.style.display = 'none';
     },
-    removeContextMenuDiv: function(element) {
+
+    /**
+     * @memberOf ContextMenu.prototype
+     * @desc utility method to remove HTML element from current DOM
+     * @param {HTMLElement} element - HTML element that need to be removed from DOM
+     */
+    removeDOMElement: function(element) {
         element.remove();
     },
+
+    /**
+     * @memberOf ContextMenu.prototype
+     * @desc utility method to check is one HTML element contains another in any level
+     * @param {HTMLElement} element - HTML element that need to be checked
+     * @param {HTMLElement} concreteChild - HTML element that need to be found inside
+     */
     isElementContainsChild: function(element, concreteChild) {
         if (element === concreteChild) {
             return true;

@@ -1338,7 +1338,7 @@ var defaults = {
         fontSize: '14px',
         zIndex: 2,
         margin: '0 0 0 0',
-        fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
+        fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif'
     },
     contextMenuListStyle: {
         padding: '5px 0',
@@ -1358,7 +1358,7 @@ var defaults = {
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: '#fff'
     },
     contextMenuListOptionHoverStyle: {
         backgroundColor: '#eee'
