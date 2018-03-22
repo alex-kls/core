@@ -242,6 +242,8 @@
                     backgroundColor: 'white',
                     foregroundSelectionFont: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
                     backgroundSelectionColor: 'rgb(236,243,255)',
+                    columnHeaderBackgroundColor: 'rgb(243,243,243)',
+                    rowHeaderBackgroundColor: 'rgb(243,243,243)',
                     foregroundSelectionColor: '#333',
                     columnClip: false,
                     defaultRowHeight: 21,
@@ -252,11 +254,65 @@
                     rowHeaderCheckboxes: false,
                     rowHeaderForegroundSelectionFont: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
                     font: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
-                    selectionRegionOutlineColor: 'rgb(143,177,232)',
-                    gridBorder: true,
+                    columnHeaderFont: 'bold 13px "Helvetica Neue",Helvetica,Arial,sans-serif',
+                    selectionRegionOutlineColor: 'rgb(66,133,244)',
+                    gridBorder:true,
                     hoverColumnHighlight: false,
                     hoverRowHighlight: false,
-                    halign: 'left'
+                    halign: 'left',
+                    combineColors: false,
+                    cellContextMenu: {
+                        items:[
+                            {
+                                title: 'Copy',
+                                callbackFn: function (clickEvent, gridEvent) {
+                                    console.log('first callback works fine');
+                                    console.log('grid event', gridEvent);
+                                },
+                                children: {
+                                    items:[
+                                        {
+                                            title: 'third',
+                                            callbackFn: function (clickEvent, gridEvent) {
+                                                console.log('third callback works fine');
+                                            },
+                                            isShown: function (event) {
+                                                return true;
+                                            },
+                                            children: {
+                                                items:[
+                                                    {
+                                                        title: 'third',
+                                                        callbackFn: function (clickEvent, gridEvent) {
+                                                            console.log('third callback works fine');
+                                                        }
+                                                    },
+                                                    {
+                                                        title: 'fourth',
+                                                        callbackFn: function (clickEvent, gridEvent) {
+                                                            console.log('fourth callback works fine');
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            title: 'fourth',
+                                            callbackFn: function (clickEvent, gridEvent) {
+                                                console.log('fourth callback works fine');
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                title: 'Copy With Headers',
+                                callbackFn: function (clickEvent, gridEvent) {
+                                    console.log('second callback works fine');
+                                }
+                            }
+                        ]
+                    }
                 };
 
                 grid.applyTheme(themeObject);
