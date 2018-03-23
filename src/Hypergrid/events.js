@@ -484,6 +484,10 @@ var mixin = {
             });
         });
 
+        this.addInternalEventListener('fin-grid-rendered', function(e) {
+            grid.delegateGridRendered(event);
+        });
+
         //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
         document.body.addEventListener('copy', function(evt) {
             self.checkClipboardCopy(evt);
@@ -515,6 +519,15 @@ var mixin = {
      */
     delegateContextMenu: function(event) {
         this.behavior.onContextMenu(this, event);
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Delegate GridRendered to the behavior (model).
+     * @param {Event} event - The pertinent event.
+     */
+    delegateGridRendered: function(event) {
+        this.behavior.onGridRendered(this, event);
     },
 
     /**

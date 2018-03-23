@@ -28,6 +28,8 @@ var Features = Registry.extend('Features', {
         this.add(Features.RowSelection);
         this.add(Features.ThumbwheelScrolling);
         this.add(Features.ContextMenu);
+        this.add(Features.ColumnFixation);
+        this.add(Features.RowFixation);
     }
 
 });
@@ -51,5 +53,7 @@ Features.OnHover = require('./OnHover');
 Features.RowSelection = require('./RowSelection');
 Features.ThumbwheelScrolling = require('./ThumbwheelScrolling');
 Features.ContextMenu = require('./ContextMenu');
+Features.ColumnFixation = require('./ColumnFixation');
+Features.RowFixation = require('./RowFixation');
 
 module.exports = new Features;

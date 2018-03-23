@@ -374,6 +374,11 @@ var Behavior = Base.extend('Behavior', {
         this.addState(memento);
     },
 
+    /**
+     * @memberOf Behavior#
+     * @desc Add new state to params object.
+     * @param {Object} properties - assignable grid properties
+     */
     addState: function(properties) {
         Object.assign(this.grid.properties, properties);
         this.setAllColumnProperties(properties.columnProperties);
@@ -665,6 +670,19 @@ var Behavior = Base.extend('Behavior', {
     onWheelMoved: function(grid, event) {
         if (this.featureChain) {
             this.featureChain.handleWheelMoved(grid, event);
+            this.setCursor(grid);
+        }
+    },
+
+    /**
+     * @memberOf Behavior#
+     * @desc delegate handling tap to the feature chain of responsibility
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     */
+    onGridRendered: function(grid, event) {
+        if (this.featureChain) {
+            this.featureChain.handleGridRendered(grid, event);
             this.setCursor(grid);
         }
     },

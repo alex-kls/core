@@ -61,13 +61,13 @@ var ContextMenu = Feature.extend('ContextMenu', {
      * @param {CellEvent} event - the event details
      */
     handleContextMenu: function(grid, event) {
-        var contextMenu = grid.properties.theme.cellContextMenu;
+        var contextMenu = grid.properties.cellContextMenu;
         this.paintContextMenu(menuDiv,
             grid,
             event,
             contextMenu.items,
-            event.primitiveEvent.detail.mouse.x + 20,
-            event.primitiveEvent.detail.mouse.y);
+            event.primitiveEvent.detail.mouse.x + 8,
+            event.primitiveEvent.detail.mouse.y + 33);
         if (this.next) {
             this.next.handleContextMenu(grid, event);
         }
@@ -86,130 +86,143 @@ var ContextMenu = Feature.extend('ContextMenu', {
      */
     paintContextMenu: function(menuHolderDiv, grid, event, items, x, y, rightToLeft) {
         this.hideContextMenu(menuHolderDiv);
-
+        var self = this;
 
         var menuListHolderDiv = document.createElement('div');
 
         menuHolderDiv.element.appendChild(menuListHolderDiv);
 
-        var self = this;
-
         items.forEach(function(item){
-            if (item.hasOwnProperty('isShown')) {
-                if ((typeof item.isShown === 'function') && !item.isShown(event)) {
-                    return;
-                } else if (!item.isShown) {
-                    return;
-                }
-            }
-
-            var menuOption = document.createElement('div');
-            menuOption.style.display = 'block';
-
-            menuOption.setAttribute('class', 'ag-menu-option');
-
-            var menuOptionIconSpan = document.createElement('span');
-            menuOptionIconSpan.setAttribute('class', 'ag-menu-option-icon');
-            menuOptionIconSpan.setAttribute('id', 'eIcon');
-            menuOption.appendChild(menuOptionIconSpan);
-
-            var menuOptionNameSpan = document.createElement('span');
-            menuOptionNameSpan.setAttribute('class', 'ag-menu-option-text');
-            menuOptionNameSpan.setAttribute('id', 'eName');
-            menuOptionNameSpan.innerHTML = item.title;
-            menuOption.appendChild(menuOptionNameSpan);
-
-            var menuOptionShortcutSpan = document.createElement('span');
-            menuOptionShortcutSpan.setAttribute('class', 'context-menu-option-shortcut');
-            menuOptionShortcutSpan.setAttribute('id', 'eShortcut');
-            menuOption.appendChild(menuOptionShortcutSpan);
-
-            var menuOptionPopupPointerSpan = document.createElement('span');
-            menuOptionPopupPointerSpan.setAttribute('class', 'context-menu-option-popup-pointer');
-            menuOptionPopupPointerSpan.setAttribute('id', 'ePopupPointer');
-
-            if (item.children && item.children.items.length) {
-                menuOptionPopupPointerSpan.innerHTML = '->';
-            }
-
-            menuOption.appendChild(menuOptionPopupPointerSpan);
-
-            menuOption.addEventListener('click', function(clickEvent){
-                item.callbackFn(clickEvent, event);
-            });
-
-            if (grid.properties.theme.applyContextMenuStyling){
-                if (grid.properties.theme.contextMenuListOptionStyle) {
-                    Object.assign(menuOption.style, grid.properties.theme.contextMenuListOptionStyle);
-                }
-
-                if (grid.properties.theme.contextMenuListOptionIconStyle) {
-                    Object.assign(menuOptionIconSpan.style, grid.properties.theme.contextMenuListOptionIconStyle);
-                }
-
-                if (grid.properties.theme.contextMenuListOptionTextStyle) {
-                    Object.assign(menuOptionNameSpan.style, grid.properties.theme.contextMenuListOptionTextStyle);
-                }
-
-                if (grid.properties.theme.contextMenuListOptionShortcutStyle) {
-                    Object.assign(menuOptionShortcutSpan.style, grid.properties.theme.contextMenuListOptionShortcutStyle);
-                }
-
-                if (grid.properties.theme.contextMenuListOptionPopupPointerStyle) {
-                    Object.assign(menuOptionPopupPointerSpan.style, grid.properties.theme.contextMenuListOptionPopupPointerStyle);
-                }
-            }
-
-            menuListHolderDiv.appendChild(menuOption);
-
-            menuOption.addEventListener('mouseenter', function(event){
-                if (item.children &&
-                    item.children.items &&
-                    item.children.items.length &&
-                    !item.childMenu) {
-                    item.childMenu = self.initializeContextMenuDiv();
-
-                    menuHolderDiv.related.push(item.childMenu);
-
-                    var rectangle = menuOption.getBoundingClientRect();
-                    var rightBorderX = rectangle.right;
-                    if ((rightBorderX + 200) > window.innerWidth) {
-                        self.paintContextMenu(item.childMenu, grid, event, item.children.items, rectangle.left, rectangle.top, true);
-                    } else {
-                        self.paintContextMenu(item.childMenu, grid, event, item.children.items, rightBorderX, rectangle.top);
-                    }
-                }
-            });
-
-            menuOption.addEventListener('mouseover', function(event){
-                if (grid.properties.theme.applyContextMenuStyling && grid.properties.theme.contextMenuListOptionHoverStyle){
-                    Object.assign(menuOption.style, grid.properties.theme.contextMenuListOptionHoverStyle);
-                }
-            });
-
-            menuOption.addEventListener('mouseleave', function(event){
-                 if (grid.properties.theme.applyContextMenuStyling && grid.properties.theme.contextMenuListOptionStyle){
-                    Object.assign(menuOption.style, grid.properties.theme.contextMenuListOptionStyle);
-                 }
-
-                if (item.childMenu && !self.isElementContainsChild(item.childMenu.element, event.relatedTarget)) {
-                    self.hideContextMenu(item.childMenu);
-                    self.removeDOMElement(item.childMenu.element);
-                    item.childMenu = null;
-                }
-            });
+            self.makeContextMenuItem(grid, event, menuHolderDiv, menuListHolderDiv, item);
         });
 
-        if (grid.properties.theme.applyContextMenuStyling){
-            if (grid.properties.theme.contextMenuHolderStyle) {
-                Object.assign(menuHolderDiv.element.style, grid.properties.theme.contextMenuHolderStyle);
+        if (grid.properties.applyContextMenuStyling){
+            if (grid.properties.contextMenuHolderStyle) {
+                Object.assign(menuHolderDiv.element.style, grid.properties.contextMenuHolderStyle);
             }
-            if (grid.properties.theme.applyContextMenuStyling) {
-                Object.assign(menuListHolderDiv.style, grid.properties.theme.contextMenuListStyle);
+            if (grid.properties.applyContextMenuStyling) {
+                Object.assign(menuListHolderDiv.style, grid.properties.contextMenuListStyle);
             }
         }
 
         this.showContextMenu(menuHolderDiv, x, y, rightToLeft);
+    },
+
+    /**
+     * @memberOf ContextMenu.prototype
+     * @desc utility method to paint single menu item and append it to list that passed as param
+     * @param {Hypergrid} grid
+     * @param {CellEvent} event
+     * @param {object} menuHolderDiv - object with Html element and related elements
+     * @param {HTMLElement} menuListHolderDiv - HTML element that represents a list of menu items
+     * @param {object} item - menu item object
+     */
+    makeContextMenuItem: function(grid, event, menuHolderDiv, menuListHolderDiv, item) {
+        if (item.hasOwnProperty('isShown')) {
+            if ((typeof item.isShown === 'function') && !item.isShown(event)) {
+                return;
+            } else if (!item.isShown) {
+                return;
+            }
+        }
+
+        var menuOption = document.createElement('div');
+        menuOption.style.display = 'block';
+
+        menuOption.setAttribute('class', 'ag-menu-option');
+
+        var menuOptionIconSpan = document.createElement('span');
+        menuOptionIconSpan.setAttribute('class', 'ag-menu-option-icon');
+        menuOptionIconSpan.setAttribute('id', 'eIcon');
+        menuOption.appendChild(menuOptionIconSpan);
+
+        var menuOptionNameSpan = document.createElement('span');
+        menuOptionNameSpan.setAttribute('class', 'ag-menu-option-text');
+        menuOptionNameSpan.setAttribute('id', 'eName');
+        menuOptionNameSpan.innerHTML = item.title;
+        menuOption.appendChild(menuOptionNameSpan);
+
+        var menuOptionShortcutSpan = document.createElement('span');
+        menuOptionShortcutSpan.setAttribute('class', 'context-menu-option-shortcut');
+        menuOptionShortcutSpan.setAttribute('id', 'eShortcut');
+        menuOption.appendChild(menuOptionShortcutSpan);
+
+        var menuOptionPopupPointerSpan = document.createElement('span');
+        menuOptionPopupPointerSpan.setAttribute('class', 'context-menu-option-popup-pointer');
+        menuOptionPopupPointerSpan.setAttribute('id', 'ePopupPointer');
+
+        if (item.children && item.children.items.length) {
+            menuOptionPopupPointerSpan.innerHTML = '->';
+        }
+
+        menuOption.appendChild(menuOptionPopupPointerSpan);
+
+        menuOption.addEventListener('click', function(clickEvent){
+            item.callbackFn(clickEvent, event);
+        });
+
+        if (grid.properties.applyContextMenuStyling){
+            if (grid.properties.contextMenuListOptionStyle) {
+                Object.assign(menuOption.style, grid.properties.contextMenuListOptionStyle);
+            }
+
+            if (grid.properties.contextMenuListOptionIconStyle) {
+                Object.assign(menuOptionIconSpan.style, grid.properties.contextMenuListOptionIconStyle);
+            }
+
+            if (grid.properties.contextMenuListOptionTextStyle) {
+                Object.assign(menuOptionNameSpan.style, grid.properties.contextMenuListOptionTextStyle);
+            }
+
+            if (grid.properties.contextMenuListOptionShortcutStyle) {
+                Object.assign(menuOptionShortcutSpan.style, grid.properties.contextMenuListOptionShortcutStyle);
+            }
+
+            if (grid.properties.contextMenuListOptionPopupPointerStyle) {
+                Object.assign(menuOptionPopupPointerSpan.style, grid.properties.contextMenuListOptionPopupPointerStyle);
+            }
+        }
+
+        menuListHolderDiv.appendChild(menuOption);
+
+        var self = this;
+
+        menuOption.addEventListener('mouseenter', function(event){
+            if (item.children &&
+                item.children.items &&
+                item.children.items.length &&
+                !item.childMenu) {
+                item.childMenu = self.initializeContextMenuDiv();
+
+                menuHolderDiv.related.push(item.childMenu);
+
+                var rectangle = menuOption.getBoundingClientRect();
+                var rightBorderX = rectangle.right;
+                if ((rightBorderX + 200) > window.innerWidth) {
+                    self.paintContextMenu(item.childMenu, grid, event, item.children.items, rectangle.left, rectangle.top, true);
+                } else {
+                    self.paintContextMenu(item.childMenu, grid, event, item.children.items, rightBorderX, rectangle.top);
+                }
+            }
+        });
+
+        menuOption.addEventListener('mouseover', function(event){
+            if (grid.properties.applyContextMenuStyling && grid.properties.contextMenuListOptionHoverStyle){
+                Object.assign(menuOption.style, grid.properties.contextMenuListOptionHoverStyle);
+            }
+        });
+
+        menuOption.addEventListener('mouseleave', function(event){
+            if (grid.properties.applyContextMenuStyling && grid.properties.contextMenuListOptionStyle){
+                Object.assign(menuOption.style, grid.properties.contextMenuListOptionStyle);
+            }
+
+            if (item.childMenu && !self.isElementContainsChild(item.childMenu.element, event.relatedTarget)) {
+                self.hideContextMenu(item.childMenu);
+                self.removeDOMElement(item.childMenu.element);
+                item.childMenu = null;
+            }
+        });
     },
 
     /**

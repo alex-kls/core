@@ -59,7 +59,7 @@ var defaults = {
      * @type {cssFont}
      * @memberOf module:defaults
      */
-    font: '13px Tahoma, Geneva, sans-serif',
+    font: '13px "Helvetica Neue",Helvetica,Arial,sans-serif',
 
     /**
      * Font color for data cells.
@@ -75,7 +75,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    backgroundColor: 'rgb(241, 241, 241)',
+    backgroundColor: 'white',
 
     /**
      * Font style for selected cell(s).
@@ -83,7 +83,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    foregroundSelectionFont: 'bold 13px Tahoma, Geneva, sans-serif',
+    foregroundSelectionFont: '13px "Helvetica Neue",Helvetica,Arial,sans-serif',
 
     /**
      * Font color for selected cell(s).
@@ -91,14 +91,14 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    foregroundSelectionColor: 'rgb(0, 0, 128)',
+    foregroundSelectionColor: '#333',
     /**
      * Background color for selected cell(s).
      * @default
      * @type {string}
      * @memberOf module:defaults
      */
-    backgroundSelectionColor: 'rgba(147, 185, 255, 0.625)',
+    backgroundSelectionColor: 'rgb(236,243,255)',
 
     /**
      * Background color for header selected cell(s).
@@ -121,7 +121,7 @@ var defaults = {
      * @type {cssFont}
      * @memberOf module:defaults
      */
-    columnHeaderFont: '12px Tahoma, Geneva, sans-serif',
+    columnHeaderFont: 'bold 13px "Helvetica Neue",Helvetica,Arial,sans-serif',
 
     /**
      * @default
@@ -136,14 +136,14 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    columnHeaderForegroundSelectionFont: 'bold 12px Tahoma, Geneva, sans-serif',
+    columnHeaderForegroundSelectionFont: 'bold 13px "Helvetica Neue",Helvetica,Arial,sans-serif',
 
     /**
      * @default
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    columnHeaderBackgroundColor: 'rgb(223, 227, 232)',
+    columnHeaderBackgroundColor: 'rgb(243,243,243)',
 
     /**
      * @default
@@ -164,7 +164,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    columnHeaderHalign: 'center',
+    columnHeaderHalign: 'left',
 
     /**
      * @default
@@ -188,14 +188,14 @@ var defaults = {
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    rowHeaderColor: 'rgb(25, 25, 25)',
+    rowHeaderColor: '#333',
 
     /**
      * @default
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    rowHeaderBackgroundColor: 'rgb(223, 227, 232)',
+    rowHeaderBackgroundColor: 'rgb(243,243,243)',
 
     /**
      * @default
@@ -210,7 +210,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    rowHeaderForegroundSelectionFont: 'bold 12px Tahoma, Geneva, sans-serif',
+    rowHeaderForegroundSelectionFont: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
 
     /**
      * @default
@@ -390,7 +390,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    halign: 'center',
+    halign: 'left',
 
     /**
      * Padding to left and right of cell value.
@@ -464,7 +464,7 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    renderFalsy: false,
+    renderFalsy: true,
 
     /**
      * The name of a registered headerify function.
@@ -536,7 +536,7 @@ var defaults = {
      * @type {boolean|string}
      * @memberOf module:defaults
      */
-    gridBorder: false,
+    gridBorder: true,
 
     /**
      * Set canvas's left CSS border to this string.
@@ -584,7 +584,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    fixedLinesHWidth: 2,
+    fixedLinesHWidth: 6,
 
     /**
      * Define this property to render just the edges of the lines between fixed & scolling rows, creating a double-line effect. The value is the thickness of the edges. Typical definition would be `1` in tandem with setting `fixedLinesWidth` to `3`.
@@ -600,7 +600,7 @@ var defaults = {
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    fixedLinesHColor: 'rgb(164,164,164)', // ~21% darker than `lineColor` default
+    fixedLinesHColor: 'rgb(218,223,232)', // ~21% darker than `lineColor` default
 
     /**
      * Define this property to style rule lines between fixed & scolling columns differently from `lineWidth`.
@@ -608,7 +608,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    fixedLinesVWidth: 2,
+    fixedLinesVWidth: 6,
 
     /**
      * Define this property to render just the edges of the lines between fixed & scolling columns, creating a double-line effect. The value is the thickness of the edges. Typical definition would be `1` in tandem with setting `fixedLinesWidth` to `3`.
@@ -624,14 +624,14 @@ var defaults = {
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    fixedLinesVColor: 'rgb(164,164,164)', // ~21% darker than `lineColor` default
+    fixedLinesVColor: 'rgb(218,223,232)', // ~21% darker than `lineColor` default
 
     /**
      * @default
      * @type {number}
      * @memberOf module:defaults
      */
-    defaultRowHeight: 15,
+    defaultRowHeight: 21,
 
     /**
      * @default
@@ -812,7 +812,7 @@ var defaults = {
      * @memberOf module:defaults
      * @see {@link module:dynamicPropertyDescriptors.showRowNumbers}
      */
-    rowHeaderCheckboxes: true,
+    rowHeaderCheckboxes: false,
 
     /**
      * @default
@@ -878,7 +878,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    selectionRegionOutlineColor: 'rgb(69, 69, 69)',
+    selectionRegionOutlineColor: 'rgb(66,133,244)',
 
     /**
      * @default
@@ -1055,7 +1055,7 @@ var defaults = {
      * @memberOf module:defaults
      * @tutorial cell-editors
      */
-    editor: undefined,
+    editor: 'textfield',
 
     /**
      * Name of cell renderer from the {@link module:cellRenderers|cellRenderers API}.
@@ -1099,7 +1099,7 @@ var defaults = {
      * @memberOf module:defaults
      */
     hoverRowHighlight: {
-        enabled: true,
+        enabled: false,
         backgroundColor: 'rgba(100, 100, 25, 0.30)'
 
     },
@@ -1110,7 +1110,7 @@ var defaults = {
      * @memberOf module:defaults
      */
     hoverColumnHighlight: {
-        enabled: true,
+        enabled: false,
         backgroundColor: 'rgba(60, 60, 15, 0.15)'
     },
 
@@ -1245,7 +1245,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    columnClip: true,
+    columnClip: false,
 
     /**
      * @summary Repeating pattern of property overrides for grid rows.
@@ -1274,6 +1274,8 @@ var defaults = {
     features: [
         'filters',
         'contextmenu',
+        'columnfixation',
+        'rowfixation',
         'cellselection',
         'keypaging',
         'columnresizing',
@@ -1305,7 +1307,7 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    combineColors: true,
+    combineColors: false,
 
     /**
      * @desc If true, colors will be combined on render.
@@ -1315,11 +1317,33 @@ var defaults = {
     cellContextMenu: {
         items:[
             {
-                title: 'data cell first',
-                callbackFn: function(event) {
-                    console.log('data cell first callback works fine');
+                title: '<b>Filter</b> to value',
+                callbackFn: function(clickEvent, gridEvent) {
+                    console.log('first callback works fine');
+                    console.log('grid event', clickEvent);
                 }
-            }
+            },
+            {
+                title: '<b>Exclude</b> this value',
+                callbackFn: function(clickEvent, gridEvent) {
+                    console.log('second callback works fine');
+                    console.log('grid event', clickEvent);
+                }
+            },
+            {
+                title: 'Copy',
+                callbackFn: function(clickEvent, gridEvent) {
+                    console.log('third callback works fine');
+                    console.log('grid event', clickEvent);
+                }
+            },
+            {
+                title: 'Copy With Headers',
+                callbackFn: function(clickEvent, gridEvent) {
+                    console.log('fourth callback works fine');
+                    console.log('grid event', clickEvent);
+                }
+            },
         ]
     },
     /**

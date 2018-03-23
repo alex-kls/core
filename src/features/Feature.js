@@ -288,8 +288,26 @@ var Feature = Base.extend('Feature', {
         if (this.next) {
             this.next.initializeOn(grid);
         }
-    }
+    },
 
+    /**
+     * @memberOf Feature.prototype
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
+     */
+    handleGridRendered: function(grid, event) {
+        if (this.next) {
+            this.next.handleGridRendered(grid, event);
+        }
+    },
+
+    handleDataShapeChanged: function(grid, event) {
+        if (this.next) {
+            this.next.handleGridRendered(grid, event);
+        }
+    }
 });
 
 
