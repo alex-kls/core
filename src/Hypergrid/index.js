@@ -68,8 +68,7 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * @param {string} [options.boundingRect.bottom='auto']
  * @param {string} [options.boundingRect.position='relative']
  *
- * @param {function} [options.api.onScrollEnd] - function for infinite scroll behaviour
- * @param {number} [options.api.onScrollEndLimitTrigger] - pixels to the end of bound when should be called `onScrollEnd`
+ * @param {number} [options.api.onScrollEndLimitTrigger] - pixels to the end of bound when should be recalled `api.setDatasource`
  */
 var Hypergrid = Base.extend('Hypergrid', {
     initialize: function(container, options) {
@@ -97,7 +96,12 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         this.lastEdgeSelection = [0, 0];
         this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
-        this.selectionModel = new SelectionModel(this);
+        if (this.selectionModel) {
+            this.selectionModel.reset();
+        } else {
+            this.selectionModel = new SelectionModel(this);
+        }
+
         this.renderOverridesCache = {};
         this.allowEventHandlers = true;
         this.dragExtent = new Point(0, 0);
@@ -140,7 +144,7 @@ var Hypergrid = Base.extend('Hypergrid', {
          * @summary api for using with datadocs like ag-grid
          * @desc set of methods which was used in ag-grid
          *
-         * @type {*|{onScrollEnd: Function, onScrollEndLimitTrigger: number}|{}}
+         * @type {*|{onScrollEndLimitTrigger: number}|{}}
          * @memberOf Hypergrid#
          */
         // create api

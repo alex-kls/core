@@ -98,7 +98,23 @@ function sizeColumnsToFit() {
 }
 
 function destroy() {
+    this.cancelEditing();
 
+    this.sbPrevVScrollValue = null;
+    this.sbPrevHScrollValue = null;
+
+    this.hoverCell = null;
+    this.scrollingNow = false;
+
+    this.behavior.reset();
+
+    this.renderer.reset();
+    this.canvas.resize();
+    this.behaviorChanged();
+
+    this.refreshProperties();
+
+    this.initialize(this.div);
 }
 
 function getRangeSelections() {
@@ -170,11 +186,15 @@ function setFloatingTopRowDataForInMemoryModel(rows) {
 function setDatasource(datasource) {
     console.log(datasource);
 
+    this.api.datasource = datasource;
+
     var setRowData = this.api.setRowData;
 
+    var startRow = this.data.length;
+
     var params = {
-        startRow: 0, // replace with correct getter
-        endRow: 1000, // replace with correct getter
+        startRow: startRow, // replace with correct getter
+        endRow: startRow + this.paginationPageSize, // replace with correct getter
         successCallback: function(rows, lastRowIndex) {
             setRowData(rows);
         },

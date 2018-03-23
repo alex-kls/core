@@ -213,29 +213,14 @@
                     return res;
                 }
 
-                function loadData(result) {
-                    inLoad = false;
-                    window.grid.api.setColumnDefs(colDef);
-                    window.grid.api.setRowData(prepareData(result));
-                }
-
-                function onScrollEnd() {
-                    console.log("SCROLL END");
-                    if (!inLoad) {
-                        inLoad = true;
-                        get('data/datadoc.json', loadData);
-                    }
-                }
-
                 var options = {
                     schema: prepareSchema(result),
                     data: [],
                     api: {
-                        onScrollEndLimitTrigger: 200,
-                        onScrollEnd: onScrollEnd
+                        onScrollEndLimitTrigger: 200
                     }
                 };
-                window.grid = new fin.Hypergrid(div, options);
+                window.grid = window.grid || new fin.Hypergrid(div, options);
 
                 var themeObject = {
                     noDataMessage: 'Zero Rows!',
@@ -318,7 +303,6 @@
                 grid.applyTheme(themeObject);
 
                 grid.api.setColumnDefs(colDef);
-
 
                 setTimeout(function() {
                     window.grid.api.setColumnDefs(colDef);
