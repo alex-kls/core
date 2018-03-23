@@ -1248,10 +1248,17 @@ function computeCellsBounds() {
             left = x;
             widthSpaced = width;
         }
+
+        var column = behavior.getActiveColumn(vx);
+
+        // if (column.index === undefined) {
+        //     column.index = c;
+        // }
+
         this.visibleColumns[c] = this.visibleColumnsByIndex[vx] = vc = {
             index: c,
             columnIndex: vx,
-            column: behavior.getActiveColumn(vx),
+            column: column,
             gap: gap,
             left: left,
             width: widthSpaced,

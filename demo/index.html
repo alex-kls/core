@@ -30,6 +30,173 @@
                 var div = document.querySelector('div#json-example');
                 var inLoad = false;
 
+                var colDef = [{
+                    "colId": "$$row_number",
+                    "headerName": "",
+                    "width": 50,
+                    "pinned": "left",
+                    "suppressMenu": true,
+                    "suppressMovable": true,
+                    "suppressResize": true,
+                    "suppressSorting": true,
+                    "suppressSizeToFit": true,
+                    "enableRowResizing": true
+                }, {
+                    "colId": "c0",
+                    "field": "c0",
+                    "originalField": "c0",
+                    "headerName": "Field 1",
+                    "suppressSorting": false,
+                    "minWidth": 10,
+                    "maxWidth": 2000,
+                    "suppressMenu": 0,
+                    "suppressMovable": false,
+                    "suppressSizeToFit": false,
+                    "sort": null,
+                    "sortedAt": null,
+                    "columnGroupShow": "open"
+                }, {
+                    "colId": "c1",
+                    "field": "c1",
+                    "originalField": "c1",
+                    "headerName": "Field 2",
+                    "suppressSorting": false,
+                    "minWidth": 10,
+                    "maxWidth": 2000,
+                    "suppressMenu": 0,
+                    "suppressMovable": false,
+                    "suppressSizeToFit": false,
+                    "sort": null,
+                    "sortedAt": null,
+                    "columnGroupShow": "open"
+                }, {
+                    "colId": "c2",
+                    "field": "c2",
+                    "originalField": "c2",
+                    "headerName": "Field 3",
+                    "suppressSorting": false,
+                    "minWidth": 10,
+                    "maxWidth": 2000,
+                    "suppressMenu": 0,
+                    "suppressMovable": false,
+                    "suppressSizeToFit": false,
+                    "sort": null,
+                    "sortedAt": null,
+                    "columnGroupShow": "open"
+                }, {
+                    "colId": "c3",
+                    "field": "c3",
+                    "originalField": "c3",
+                    "headerName": "Field 4",
+                    "suppressSorting": false,
+                    "minWidth": 10,
+                    "maxWidth": 2000,
+                    "suppressMenu": 0,
+                    "suppressMovable": false,
+                    "suppressSizeToFit": false,
+                    "sort": null,
+                    "sortedAt": null,
+                    "columnGroupShow": "open"
+                }, {
+                    "colId": "c4",
+                    "field": "c4",
+                    "originalField": "c4",
+                    "headerName": "Field 5",
+                    "suppressSorting": false,
+                    "minWidth": 10,
+                    "maxWidth": 2000,
+                    "suppressMenu": 0,
+                    "suppressMovable": false,
+                    "suppressSizeToFit": false,
+                    "sort": null,
+                    "sortedAt": null,
+                    "columnGroupShow": "open"
+                }, {
+                    "colId": "c5",
+                    "field": "c5",
+                    "originalField": "c5",
+                    "headerName": "Field 6",
+                    "suppressSorting": false,
+                    "minWidth": 10,
+                    "maxWidth": 2000,
+                    "suppressMenu": 0,
+                    "suppressMovable": false,
+                    "suppressSizeToFit": false,
+                    "sort": null,
+                    "sortedAt": null,
+                    "columnGroupShow": "open"
+                }, {
+                    "colId": "c6",
+                    "field": "c6",
+                    "originalField": "c6",
+                    "headerName": "Field 7",
+                    "suppressSorting": false,
+                    "minWidth": 10,
+                    "maxWidth": 2000,
+                    "suppressMenu": 0,
+                    "suppressMovable": false,
+                    "suppressSizeToFit": false,
+                    "sort": null,
+                    "sortedAt": null,
+                    "columnGroupShow": "open"
+                }, {
+                    "colId": "c7",
+                    "field": "c7",
+                    "originalField": "c7",
+                    "headerName": "Field 8",
+                    "suppressSorting": false,
+                    "minWidth": 10,
+                    "maxWidth": 2000,
+                    "suppressMenu": 0,
+                    "suppressMovable": false,
+                    "suppressSizeToFit": false,
+                    "sort": null,
+                    "sortedAt": null,
+                    "columnGroupShow": "open"
+                }, {
+                    "colId": "c8",
+                    "field": "c8",
+                    "originalField": "c8",
+                    "headerName": "Field 9",
+                    "suppressSorting": false,
+                    "minWidth": 10,
+                    "maxWidth": 2000,
+                    "suppressMenu": 0,
+                    "suppressMovable": false,
+                    "suppressSizeToFit": false,
+                    "sort": null,
+                    "sortedAt": null,
+                    "columnGroupShow": "open"
+                }, {
+                    "colId": "c9",
+                    "field": "c9",
+                    "originalField": "c9",
+                    "headerName": "Field 10",
+                    "suppressSorting": false,
+                    "minWidth": 10,
+                    "maxWidth": 2000,
+                    "suppressMenu": 0,
+                    "suppressMovable": false,
+                    "suppressSizeToFit": false,
+                    "sort": null,
+                    "sortedAt": null,
+                    "columnGroupShow": "open"
+                }, {
+                    "colId": "c10",
+                    "field": "c10",
+                    "originalField": "c10",
+                    "headerName": "Field 11",
+                    "suppressSorting": false,
+                    "minWidth": 10,
+                    "maxWidth": 2000,
+                    "suppressMenu": 0,
+                    "suppressMovable": false,
+                    "suppressSizeToFit": false,
+                    "sort": null,
+                    "sortedAt": null,
+                    "columnGroupShow": "open"
+                }];
+
                 function prepareData(result) {
                     var res = [];
                     result.data.children.forEach(function(c) {
@@ -46,36 +213,19 @@
                     return res;
                 }
 
-                function loadData(result) {
-                    inLoad = false;
-                    window.grid.addData({
-                        schema: prepareSchema(result),
-                        data: prepareData(result)
-                    });
-                }
-
-                function onScrollEnd() {
-                    console.log("SCROLL END");
-                    if (!inLoad) {
-                        inLoad = true;
-                        get('result/datadoc.json', loadData);
-                    }
-                }
-
                 var options = {
                     schema: prepareSchema(result),
-                    data: prepareData(result),
-                    callbacks: {
-                        onScrollEndLimitTrigger: 200,
-                        onScrollEnd: onScrollEnd
+                    data: [],
+                    api: {
+                        onScrollEndLimitTrigger: 200
                     }
                 };
-                window.grid = new fin.Hypergrid(div, options);
+                window.grid = window.grid || new fin.Hypergrid(div, options);
 
                 var themeObject = {
                     noDataMessage: 'Zero Rows!',
                     backgroundColor: 'white',
-                    foregroundSelectionFont: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
+                    foregroundSelectionFont: '13px "Helvetica Neue",Helvetica,Arial,sans-serif',
                     backgroundSelectionColor: 'rgb(236,243,255)',
                     columnHeaderBackgroundColor: 'rgb(243,243,243)',
                     rowHeaderBackgroundColor: 'rgb(243,243,243)',
@@ -92,6 +242,7 @@
                     columnHeaderFont: 'bold 13px "Helvetica Neue",Helvetica,Arial,sans-serif',
                     selectionRegionOutlineColor: 'rgb(66,133,244)',
                     gridBorder: true,
+
                     hoverColumnHighlight: false,
                     hoverRowHighlight: false,
                     halign: 'left',
@@ -152,37 +303,12 @@
 
                 grid.applyTheme(themeObject);
 
-                var colDef = [{
-                    "colId": "c0",
-                    "field": "c0",
-                    "originalField": "c0",
-                    "headerName": "Name",
-                    "suppressSorting": false,
-                    "minWidth": 10,
-                    "maxWidth": 2000,
-                    "suppressMenu": 0,
-                    "suppressMovable": false,
-                    "suppressSizeToFit": false,
-                    "sort": null,
-                    "sortedAt": null,
-                    "columnGroupShow": "open"
-                }, {
-                    "colId": "c1",
-                    "field": "c1",
-                    "originalField": "c1",
-                    "headerName": "Date",
-                    "suppressSorting": false,
-                    "minWidth": 10,
-                    "maxWidth": 2000,
-                    "suppressMenu": 0,
-                    "suppressMovable": false,
-                    "suppressSizeToFit": false,
-                    "sort": null,
-                    "sortedAt": null,
-                    "columnGroupShow": "open"
-                }];
-
                 grid.api.setColumnDefs(colDef);
+
+                setTimeout(function() {
+                    window.grid.api.setColumnDefs(colDef);
+                    window.grid.api.setRowData(prepareData(result));
+                },1000);
 
             });
         };

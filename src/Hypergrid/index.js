@@ -68,8 +68,7 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * @param {string} [options.boundingRect.bottom='auto']
  * @param {string} [options.boundingRect.position='relative']
  *
- * @param {function} [options.api.onScrollEnd] - function for infinite scroll behaviour
- * @param {number} [options.api.onScrollEndLimitTrigger] - pixels to the end of bound when should be called `onScrollEnd`
+ * @param {number} [options.api.onScrollEndLimitTrigger] - pixels to the end of bound when should be recalled `api.setDatasource`
  */
 var Hypergrid = Base.extend('Hypergrid', {
     initialize: function(container, options) {
@@ -97,7 +96,12 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         this.lastEdgeSelection = [0, 0];
         this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
-        this.selectionModel = new SelectionModel(this);
+        if (this.selectionModel) {
+            this.selectionModel.reset();
+        } else {
+            this.selectionModel = new SelectionModel(this);
+        }
+
         this.renderOverridesCache = {};
         this.allowEventHandlers = true;
         this.dragExtent = new Point(0, 0);
@@ -135,14 +139,37 @@ var Hypergrid = Base.extend('Hypergrid', {
             this.loadState(options.state);
         }
 
-        // merge api mixins
+        /**
+         * @name api
+         * @summary api for using with datadocs like ag-grid
+         * @desc set of methods which was used in ag-grid
+         *
+         * @type {*|{onScrollEndLimitTrigger: number}|{}}
+         * @memberOf Hypergrid#
+         */
+        // create api
         this.api = options.api || {};
-        var apiMixins = require('./api').mixin;
-        for (var k in apiMixins) {
-            if (apiMixins.hasOwnProperty(k)) {
-                this.api[k] = apiMixins[k].bind(this);
+        this.columnApi = options.columnApi || {};
+        // merge api mixins
+        var bindAllFunctions = function(from, to, context) {
+            for (var k in from) {
+                if (from.hasOwnProperty(k)) {
+                    if (typeof from[k] === 'function') {
+                        to[k] = from[k].bind(context);
+                    } else {
+                        to[k] = from[k];
+                        bindAllFunctions(to[k], from[k], context);
+                    }
+                }
             }
-        }
+        };
+        bindAllFunctions(require('./api'), this.api, this);
+        bindAllFunctions(require('./columnApi'), this.columnApi, this);
+
+        this.columnDefs = options.columnDefs || [];
+        this.data = options.data || [];
+        this.rowData = options.rowData || [];
+        this.paginationPageSize = options.paginationPageSize || 1000;
 
         /**
          * @name plugins
@@ -787,8 +814,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {function|menuItem[]} [options.schema] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
      */
     setData: function(dataRows, options) {
-        console.log(dataRows);
-        console.log(options);
         if (!this.behavior) {
             this.setBehavior(options);
         }
@@ -813,13 +838,17 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {function|menuItem[]} [options.schema] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
      */
     addData: function(dataRows, options) {
-        console.log(dataRows);
-        console.log(options);
+        if (!options) {
+            options = {};
+        }
         if (!this.behavior) {
             this.setBehavior(options);
         }
+        if (!options.schema) {
+            options.schema = this.behavior.dataModel.getSchema();
+        }
         this.behavior.addData(dataRows, options);
-        this.setInfo(dataRows.length ? '' : this.properties.noDataMessage);
+        this.setInfo(this.behavior.dataModel.getData().length ? '' : this.properties.noDataMessage);
         this.behavior.changed();
     },
 
@@ -1003,7 +1032,9 @@ var Hypergrid = Base.extend('Hypergrid', {
         } else if (!Array.isArray(cursorName)) {
             cursorName = [cursorName];
         }
-        cursorName.forEach(function(name) { this.cursor = name; }, this.div.style);
+        cursorName.forEach(function(name) {
+            this.cursor = name;
+        }, this.div.style);
     },
 
     /**
@@ -2017,12 +2048,21 @@ function pleaseUse(requireString, module) {
     }
     return module;
 }
+
 pleaseUse.warned = {};
 
 
 Object.defineProperties(Hypergrid, {
-    Base: { get: function() { return pleaseUse('fin-hypergrid/src/Base', require('../Base')); } },
-    images: { get: function() { return pleaseUse('fin-hypergrid/images', require('../../images')); } }
+    Base: {
+        get: function() {
+            return pleaseUse('fin-hypergrid/src/Base', require('../Base'));
+        }
+    },
+    images: {
+        get: function() {
+            return pleaseUse('fin-hypergrid/images', require('../../images'));
+        }
+    }
 });
 
 

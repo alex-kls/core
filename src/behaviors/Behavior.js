@@ -267,7 +267,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getActiveColumn: function(x) {
-        return this.columns[x];
+        return this.columns[x] || this.columns[parseInt(x, 10)];
     },
 
     /**

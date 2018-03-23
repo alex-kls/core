@@ -203,7 +203,7 @@ exports.mixin = {
      * @desc Initialize the scroll bars.
      */
     initScrollbars: function() {
-        if (this.sbHScroller && this.sbVScroller){
+        if (this.sbHScroller && this.sbVScroller) {
             return;
         }
 
@@ -280,11 +280,15 @@ exports.mixin = {
                 this.cellEditor.scrollValueChangedNotification();
             }
 
-            if (
-                this.api.onScrollEnd &&
-                this.sbVScroller.range.max - this.vScrollValue < (this.api.onScrollEndLimitTrigger || 500)
-            ) {
-                this.api.onScrollEnd();
+            if (this.sbVScroller.range.max - this.vScrollValue < (this.api.onScrollEndLimitTrigger || 500)) {
+                // datadoc infinite scroll
+                if (this.api.datasource && !this.scrollTriggered) {
+                    this.api.setDatasource(this.api.datasource);
+                }
+
+                this.scrollTriggered = true;
+            } else {
+                this.scrollTriggered = false;
             }
 
             this.computeCellsBounds();
