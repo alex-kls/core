@@ -3,6 +3,40 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <script src="build/fin-hypergrid.js"></script>
+
+    <style>
+        div.finbar-vertical {
+            margin: 0 -1px 0 0 !important;
+            width: 17px;
+            background-color: rgba(237, 237, 237, 1);
+            box-shadow: 0 0 0 #000, 0 0 0px #000, 0 0 0 #000;
+        }
+        div.finbar-vertical div.thumb {
+            margin: 0 0 17px 0;
+            width: 11px;
+            background-color: rgba(158, 158, 158, 1);
+            box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+            border-radius: 0px;
+            border: 1px solid rgba(132, 132, 132, 1);
+            /*right: 3px;*/
+        }
+        div.finbar-horizontal {
+            margin: 0 0 -1px 0 !important;
+            height: 17px;
+            background-color: rgba(237, 237, 237, 1);
+            box-shadow: 0 0 0 #000, 0 0 0 #000, 0 0 0 #000;
+        }
+        div.finbar-horizontal div.thumb {
+            margin: 0;
+            height: 11px;
+            background-color: rgba(158, 158, 158, 1);
+            box-shadow: 0 0 0 #000, 0 0 0 #000, 0 0 0 #000;
+            border-radius: 0;
+            border: 1px solid rgba(132, 132, 132, 1);
+            bottom: 0;
+        }
+    </style>
+
     <script>
         'use strict';
 
@@ -30,18 +64,7 @@
                 var div = document.querySelector('div#json-example');
                 var inLoad = false;
 
-                var colDef = [{
-                    "colId": "$$row_number",
-                    "headerName": "",
-                    "width": 50,
-                    "pinned": "left",
-                    "suppressMenu": true,
-                    "suppressMovable": true,
-                    "suppressResize": true,
-                    "suppressSorting": true,
-                    "suppressSizeToFit": true,
-                    "enableRowResizing": true
-                }, {
+                var colDef = [ {
                     "colId": "c0",
                     "field": "c0",
                     "originalField": "c0",
@@ -222,93 +245,12 @@
                 };
                 window.grid = window.grid || new fin.Hypergrid(div, options);
 
-                var themeObject = {
-                    noDataMessage: 'Zero Rows!',
-                    backgroundColor: 'white',
-                    foregroundSelectionFont: '13px "Helvetica Neue",Helvetica,Arial,sans-serif',
-                    backgroundSelectionColor: 'rgb(236,243,255)',
-                    columnHeaderBackgroundColor: 'rgb(243,243,243)',
-                    rowHeaderBackgroundColor: 'rgb(243,243,243)',
-                    foregroundSelectionColor: '#333',
-                    columnClip: false,
-                    defaultRowHeight: 21,
-                    editor: 'textfield',
-                    rowHeaderColor: '#333',
-                    lineColor: '#DEDEDE',
-                    renderFalsy: true,
-                    rowHeaderCheckboxes: false,
-                    rowHeaderForegroundSelectionFont: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
-                    font: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
-                    columnHeaderFont: 'bold 13px "Helvetica Neue",Helvetica,Arial,sans-serif',
-                    selectionRegionOutlineColor: 'rgb(66,133,244)',
-                    gridBorder: true,
-
-                    hoverColumnHighlight: false,
-                    hoverRowHighlight: false,
-                    halign: 'left',
-                    combineColors: false,
-                    cellContextMenu: {
-                        items: [
-                            {
-                                title: 'Copy',
-                                callbackFn: function (clickEvent, gridEvent) {
-                                    console.log('first callback works fine');
-                                    console.log('grid event', gridEvent);
-                                },
-                                children: {
-                                    items: [
-                                        {
-                                            title: 'third',
-                                            callbackFn: function (clickEvent, gridEvent) {
-                                                console.log('third callback works fine');
-                                            },
-                                            isShown: function (event) {
-                                                return true;
-                                            },
-                                            children: {
-                                                items: [
-                                                    {
-                                                        title: 'third',
-                                                        callbackFn: function (clickEvent, gridEvent) {
-                                                            console.log('third callback works fine');
-                                                        }
-                                                    },
-                                                    {
-                                                        title: 'fourth',
-                                                        callbackFn: function (clickEvent, gridEvent) {
-                                                            console.log('fourth callback works fine');
-                                                        }
-                                                    }
-                                                ]
-                                            }
-                                        },
-                                        {
-                                            title: 'fourth',
-                                            callbackFn: function (clickEvent, gridEvent) {
-                                                console.log('fourth callback works fine');
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                title: 'Copy With Headers',
-                                callbackFn: function (clickEvent, gridEvent) {
-                                    console.log('second callback works fine');
-                                }
-                            }
-                        ]
-                    }
-                };
-
-                grid.applyTheme(themeObject);
-
                 grid.api.setColumnDefs(colDef);
 
                 setTimeout(function() {
                     window.grid.api.setColumnDefs(colDef);
                     window.grid.api.setRowData(prepareData(result));
-                },1000);
+                }, 1000);
 
             });
         };

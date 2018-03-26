@@ -850,7 +850,7 @@ var Renderer = Base.extend('Renderer', {
                 if (edgeWidth) {
                     gc.fillRect(0, gap.top, viewWidth, edgeWidth);
                     gc.fillRect(0, gap.bottom - edgeWidth, viewWidth, edgeWidth);
-                } else {
+                } else if (gridProps.fixedRowCount > 1) {
                     gc.fillRect(0, gap.top, viewWidth, gap.bottom - gap.top);
                 }
             }
@@ -1163,7 +1163,7 @@ function computeCellsBounds() {
         x, X, // horizontal pixel loop index and limit
         y, Y, // vertical pixel loop index and limit
         c, C, // column loop index and limit
-        g, G, // subgrid loop index and limit
+        currentSubgridIndex, subgridsSize, // subgrid loop index and limit
         r, R, // row loop index and limit
         subrows, // rows in subgrid g
         base, // sum of rows for all subgrids so far
@@ -1173,7 +1173,7 @@ function computeCellsBounds() {
         scrollableSubgrid,
         footerHeight,
         vx, vy,
-        vr, vc,
+        visibleRow, vc,
         width, height,
         firstVX, lastVX,
         firstVY, lastVY,
@@ -1284,11 +1284,11 @@ function computeCellsBounds() {
     footerHeight = gridProps.defaultRowHeight * behavior.getFooterRowCount();
 
     for (
-        base = r = g = y = 0, G = subgrids.length, Y = bounds.height - footerHeight;
-        g < G;
-        g++, base += subrows
+        base = r = currentSubgridIndex = y = 0, subgridsSize = subgrids.length, Y = bounds.height - footerHeight;
+        currentSubgridIndex < subgridsSize;
+        currentSubgridIndex++, base += subrows
     ) {
-        subgrid = subgrids[g];
+        subgrid = subgrids[currentSubgridIndex];
         subrows = subgrid.getRowCount();
         scrollableSubgrid = subgrid.isData;
         isSubgridEd = (sgEd === subgrid);
@@ -1298,10 +1298,10 @@ function computeCellsBounds() {
         for (R = r + subrows; r < R && y < Y; r++) {
             vy = r;
             if (scrollableSubgrid) {
-                if ((gap = hasFixedRowGap && r === fixedRowCount)) {
+                if ((gap = hasFixedRowGap && r === fixedRowCount && r !== 1)) {
                     y += fixedWidthH - lineWidthH;
                     this.visibleRows.gap = {
-                        top: vr.bottom,
+                        top: visibleRow.bottom,
                         bottom: undefined
                     };
                 }
@@ -1321,7 +1321,7 @@ function computeCellsBounds() {
             height = behavior.getRowHeight(rowIndex, subgrid);
 
             heightSpaced = height - lineWidthH;
-            this.visibleRows[r] = vr = {
+            this.visibleRows[r] = visibleRow = {
                 index: r,
                 subgrid: subgrid,
                 gap: gap,
@@ -1332,15 +1332,15 @@ function computeCellsBounds() {
             };
 
             if (gap) {
-                this.visibleRows.gap.bottom = vr.top;
+                this.visibleRows.gap.bottom = visibleRow.top;
             }
 
             if (scrollableSubgrid) {
-                this.visibleRowsByDataRowIndex[vy - base] = vr;
+                this.visibleRowsByDataRowIndex[vy - base] = visibleRow;
             }
 
             if (isSubgridEd && yEd === rowIndex) {
-                vrEd = vr;
+                vrEd = visibleRow;
             }
 
             y += height;

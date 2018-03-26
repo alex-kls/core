@@ -44,7 +44,7 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    handleGridRendered: function(grid, event){
+    handleGridRendered: function(grid, event) {
         this.initializeAnimationSupport(grid);
 
         if (this.next) {
@@ -57,9 +57,7 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      * @param {Hypergrid} grid
      */
     initializeAnimationSupport: function(grid) {
-        if (!dragger) {
-            this.createDragger(grid);
-        }
+        this.createOrUpdateDragger(grid);
         if (!placeholder) {
             placeholder = document.createElement('canvas');
             placeholder.setAttribute('width', '0px');
@@ -132,8 +130,8 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      * @param {boolean?} movePlaceholderNeeded
      */
     moveDragger: function(grid, x, movePlaceholderNeeded) {
-        movePlaceholderNeeded = typeof movePlaceholderNeeded !== 'undefined' ?  movePlaceholderNeeded : true;
-        dragger.style.left = x + 'px';
+        movePlaceholderNeeded = typeof movePlaceholderNeeded !== 'undefined' ? movePlaceholderNeeded : true;
+        dragger.style.left = x + grid.canvas.size.left + 'px';
 
         if (movePlaceholderNeeded) {
             var nearestColumnIndex = this.getNearestColumnIndex(grid, x);
@@ -169,16 +167,14 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
         var hdpiRatio = grid.getHiDPI(placeholderCTX);
         var headerHeight = grid.getRowHeight(0);
 
-        var d = placeholder;
-        var style = d.style;
         var location = grid.div.getBoundingClientRect();
 
-        style.top = location.top + 'px';
+        placeholder.style.top = location.top + 'px';
+        placeholder.setAttribute('width', Math.round(width * hdpiRatio) + 'px');
+        placeholder.setAttribute('height', Math.round(gridHeight * hdpiRatio) + 'px');
+        placeholder.style.display = 'inline';
 
-        d.setAttribute('width', Math.round(width * hdpiRatio) + 'px');
-        d.setAttribute('height', Math.round(gridHeight * hdpiRatio) + 'px');
-        d.style.display = 'inline';
-
+        placeholderCTX.clearRect(0, 0, width, gridHeight);
         placeholderCTX.fillStyle = grid.properties.columnFixationPlaceholderHeaderColor;
         placeholderCTX.fillRect(0, 0, width, headerHeight);
         placeholderCTX.fillStyle = grid.properties.columnFixationPlaceholderBodyColor;
@@ -186,7 +182,7 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
 
         placeholderCTX.scale(hdpiRatio, hdpiRatio);
 
-        style.zIndex = '4';
+        placeholder.style.zIndex = '4';
 
         this.movePlaceholderTo(grid, grid.getFixedColumnCount());
     },
@@ -212,15 +208,22 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      * @desc create the dragged column based on current count of fixed columns
      * @param {Hypergrid} grid
      */
-    createDragger: function(grid) {
-        dragger = document.createElement('canvas');
-        draggerCTX = dragger.getContext('2d');
-        document.body.appendChild(dragger);
+    createOrUpdateDragger: function(grid) {
+        if (this.dragging) {
+            return;
+        }
 
-        grid.paintNow();
+        this.fixedLinesHWidth = grid.properties.fixedLinesHWidth;
 
-        var width = grid.properties.fixedLinesHWidth;
+        if (!dragger) {
+            dragger = document.createElement('canvas');
+            draggerCTX = dragger.getContext('2d');
+            document.body.appendChild(dragger);
+        }
+
+        var width = this.fixedLinesHWidth;
         var startX = this.getStartByFixedColumnsCount(grid);
+
         var headerHeight = grid.getRowHeight(0);
         var gridHeight = grid.div.clientHeight;
 
@@ -283,7 +286,7 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
             draggerCTX.fillRect(0, headerHeight, width, gridHeight);
 
             document.onmousemove = function(e) {
-                var pos1 = e.clientX - (grid.properties.fixedLinesHWidth / 2);
+                var pos1 = e.clientX - (grid.properties.fixedLinesHWidth / 2) - grid.canvas.size.left;
 
                 self.moveDragger(grid, pos1);
             };
@@ -295,7 +298,7 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
                     self.cursor = null;
                     self.performFixation(grid);
                     grid.paintNow();
-                    self.moveDragger(grid, self.getStartByFixedColumnsCount(grid), false);
+                    self.moveDragger(grid, self.getStartByFixedColumnsCount(grid) - grid.canvas.size.left, false);
                 }
                 self.dragging = false;
                 self.cursor = null;
@@ -326,9 +329,23 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
         if (columnIndex < 0) {
             columnIndex = 0;
         }
-        var scrollLeft = grid.getHScrollValue();
-        return (grid.renderer.visibleColumns[columnIndex + scrollLeft].left) + 2;
+
+        var column, res;
+        if (columnIndex > 0) {
+            // otherwise detect column and use it's right side
+            column = grid.renderer.visibleColumns[columnIndex - 1];
+            if (!column) {
+                column = grid.renderer.visibleColumns[0];
+            }
+            res = column ? column.right : 0;
+        } else {
+            // if no selection use left side of first column
+            res = grid.renderer.visibleColumns[0].left - this.fixedLinesHWidth;
+        }
+
+        return res + grid.canvas.size.left;
     },
+
     /**
      * @memberOf ColumnFixation.prototype
      * @desc utility method to set grid options when dragging ends
@@ -348,7 +365,7 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      * @param {Hypergrid} grid
      * @param {number} x - horizontal cursor position
      */
-    getNearestColumnIndex: function(grid, x){
+    getNearestColumnIndex: function(grid, x) {
         var columnUnderCursorIndex = grid.renderer.getColumnFromPixelX(x);
         var visibleColumns = grid.renderer.visibleColumns;
 

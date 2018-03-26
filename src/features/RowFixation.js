@@ -44,7 +44,7 @@ var RowFixation = Feature.extend('RowFixation', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    handleGridRendered: function(grid, event){
+    handleGridRendered: function(grid, event) {
         this.initializeAnimationSupport(grid);
 
         if (this.next) {
@@ -57,14 +57,12 @@ var RowFixation = Feature.extend('RowFixation', {
      * @param {Hypergrid} grid
      */
     initializeAnimationSupport: function(grid) {
-        if (!rowFixationDragger) {
-            this.createDragger(grid);
-        }
+        this.createOrUpdateDragger(grid);
         if (!rowFixationPlaceholder) {
             rowFixationPlaceholder = document.createElement('canvas');
             rowFixationPlaceholder.setAttribute('width', '0px');
             rowFixationPlaceholder.setAttribute('height', '0px');
-            rowFixationPlaceholder.style.position = 'fixed';
+            rowFixationPlaceholder.style.position = 'absolute';
 
             document.body.appendChild(rowFixationPlaceholder);
             rowFixationPlaceholderCTX = rowFixationPlaceholder.getContext('2d');
@@ -124,8 +122,9 @@ var RowFixation = Feature.extend('RowFixation', {
      * @param {boolean?} movePlaceholderNeeded
      */
     moveDragger: function(grid, x, y, movePlaceholderNeeded) {
-        movePlaceholderNeeded = typeof movePlaceholderNeeded !== 'undefined' ?  movePlaceholderNeeded : true;
-        rowFixationDragger.style.top = y + 'px';
+        movePlaceholderNeeded = typeof movePlaceholderNeeded !== 'undefined' ? movePlaceholderNeeded : true;
+        console.log(y + grid.canvas.size.top);
+        rowFixationDragger.style.top = y + grid.canvas.size.top + 'px';
 
         if (movePlaceholderNeeded) {
             var nearestRowIndex = this.getNearestRowIndex(grid, x, y);
@@ -143,8 +142,6 @@ var RowFixation = Feature.extend('RowFixation', {
      * @param {number} column
      */
     movePlaceholderTo: function(grid, column) {
-        // rowFixationPlaceholder.style.display = 'inline';
-
         var newStartY = this.getStartByRowIndex(grid, column);
 
         rowFixationPlaceholder.style.top = newStartY + 'px';
@@ -158,7 +155,7 @@ var RowFixation = Feature.extend('RowFixation', {
     createPlaceholder: function(grid) {
         var fixationLineWidth = grid.properties.fixedLinesVWidth;
         var startY = this.getStartByFixedRowsCount(grid);
-        var rowHeaderWidth = grid.getColumnWidth(-1);
+        var rowHeaderWidth = grid.renderer.visibleColumns[0].left;
         var gridWidth = grid.div.clientWidth;
 
         var hdpiRatio = grid.getHiDPI(rowFixationPlaceholderCTX);
@@ -170,8 +167,6 @@ var RowFixation = Feature.extend('RowFixation', {
         rowFixationPlaceholder.style.top = startY + 'px';
         rowFixationPlaceholder.style.left = location.left + 'px';
         rowFixationPlaceholder.style.display = 'inline';
-
-        // document.body.appendChild(placeholder);
 
         rowFixationPlaceholderCTX.clearRect(0, 0, gridWidth, fixationLineWidth);
         rowFixationPlaceholderCTX.fillStyle = grid.properties.rowFixationPlaceholderHeaderColor;
@@ -203,15 +198,20 @@ var RowFixation = Feature.extend('RowFixation', {
      * @desc create the dragged column based on current count of fixed columns
      * @param {Hypergrid} grid
      */
-    createDragger: function(grid) {
-        rowFixationDragger = document.createElement('canvas');
-        rowFixationDraggerCTX = rowFixationDragger.getContext('2d');
-        document.body.appendChild(rowFixationDragger);
+    createOrUpdateDragger: function(grid) {
+        if (this.dragging) {
+            return;
+        }
 
-        // grid.paintNow();
+        if (!rowFixationDragger) {
+            rowFixationDragger = document.createElement('canvas');
+            rowFixationDraggerCTX = rowFixationDragger.getContext('2d');
+            document.body.appendChild(rowFixationDragger);
+        }
 
-        var fixationLineWidth = grid.properties.fixedLinesVWidth;
+        var fixationLineWidth = this.fixationLineWidth = grid.properties.fixedLinesVWidth;
         var startY = this.getStartByFixedRowsCount(grid);
+
         var rowHeaderWidth = grid.renderer.visibleColumns[0].left;
         var gridWidth = grid.div.clientWidth;
 
@@ -221,6 +221,7 @@ var RowFixation = Feature.extend('RowFixation', {
         rowFixationDragger.setAttribute('width', (gridWidth * hdpiRatio) + 'px');
         rowFixationDragger.setAttribute('height', (fixationLineWidth * hdpiRatio) + 'px');
         rowFixationDragger.style.position = 'fixed';
+        console.log(startY);
         rowFixationDragger.style.top = startY + 'px';
         rowFixationDragger.style.left = location.left + 'px';
         rowFixationDragger.style.display = 'inline';
@@ -274,7 +275,7 @@ var RowFixation = Feature.extend('RowFixation', {
             rowFixationDraggerCTX.fillRect(rowHeaderWidth, 0, gridWidth, fixationLineWidth);
 
             document.onmousemove = function(e) {
-                var newY = e.clientY - (grid.properties.fixedLinesVWidth / 2);
+                var newY = e.clientY - (grid.properties.fixedLinesVWidth / 2) - grid.canvas.size.top;
 
                 self.moveDragger(grid, e.clientX, newY);
             };
@@ -286,7 +287,7 @@ var RowFixation = Feature.extend('RowFixation', {
                     self.cursor = null;
                     self.performFixation(grid);
                     grid.paintNow();
-                    self.moveDragger(grid, 0, self.getStartByFixedRowsCount(grid), false);
+                    self.moveDragger(grid, 0, self.getStartByFixedRowsCount(grid) - grid.canvas.size.top, false);
                 }
                 self.dragging = false;
                 self.cursor = null;
@@ -319,8 +320,18 @@ var RowFixation = Feature.extend('RowFixation', {
             rowIndex = headerRowCount;
         }
 
-        var scrollTop = grid.getVScrollValue();
-        return (grid.renderer.visibleRows[rowIndex + scrollTop].top) + 2;
+        var res;
+        if (rowIndex > 1) { // 1 because of headers
+            var row = grid.renderer.visibleRows[rowIndex - 1];
+            if (!row) {
+                row = grid.renderer.visibleRows[0];
+            }
+            res = row ? row.bottom : 0;
+        } else {
+            res = grid.renderer.visibleRows[0].bottom - this.fixationLineWidth;
+        }
+
+        return res + grid.canvas.size.top;
     },
     /**
      * @memberOf RowFixation.prototype
@@ -346,8 +357,8 @@ var RowFixation = Feature.extend('RowFixation', {
      * @param {number} x - horizontal cursor position
      * @param {number} y - horizontal cursor position
      */
-    getNearestRowIndex: function(grid, x, y){
-        var cellUnderCursor = grid.renderer.getGridCellFromMousePoint({x:x, y:y});
+    getNearestRowIndex: function(grid, x, y) {
+        var cellUnderCursor = grid.renderer.getGridCellFromMousePoint({ x: x, y: y });
         var rowUnderCursorIndex = cellUnderCursor.cellEvent.visibleRow.rowIndex;
         var visibleRows = grid.renderer.visibleRows;
 
