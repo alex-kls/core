@@ -321,7 +321,7 @@ var RowFixation = Feature.extend('RowFixation', {
         }
 
         var scrollTop = grid.getVScrollValue();
-        return (grid.renderer.visibleRows[rowIndex].top) + scrollTop + 2;
+        return (grid.renderer.visibleRows[rowIndex + scrollTop].top) + 2;
     },
     /**
      * @memberOf RowFixation.prototype
@@ -352,11 +352,9 @@ var RowFixation = Feature.extend('RowFixation', {
         var rowUnderCursorIndex = cellUnderCursor.cellEvent.visibleRow.rowIndex;
         var visibleRows = grid.renderer.visibleRows;
 
-        var offset = 0;
-
         var max = grid.getVisibleRowsCount();
-        var columnStartY = visibleRows[Math.min(max, rowUnderCursorIndex - offset)].top;
-        var columnEndY = visibleRows[Math.min(max, rowUnderCursorIndex - offset)].bottom;
+        var columnStartY = visibleRows[Math.min(max, rowUnderCursorIndex)].top;
+        var columnEndY = visibleRows[Math.min(max, rowUnderCursorIndex)].bottom;
 
         var res = rowUnderCursorIndex;
 

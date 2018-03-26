@@ -327,7 +327,7 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
             columnIndex = 0;
         }
         var scrollLeft = grid.getHScrollValue();
-        return (grid.renderer.visibleColumns[columnIndex].left) + scrollLeft + 2;
+        return (grid.renderer.visibleColumns[columnIndex + scrollLeft].left) + 2;
     },
     /**
      * @memberOf ColumnFixation.prototype
@@ -352,11 +352,9 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
         var columnUnderCursorIndex = grid.renderer.getColumnFromPixelX(x);
         var visibleColumns = grid.renderer.visibleColumns;
 
-        var offset = 0;
-
         var max = grid.getVisibleColumnsCount();
-        var columnStartX = visibleColumns[Math.min(max, columnUnderCursorIndex - offset)].left;
-        var columnEndX = visibleColumns[Math.min(max, columnUnderCursorIndex - offset)].right;
+        var columnStartX = visibleColumns[Math.min(max, columnUnderCursorIndex)].left;
+        var columnEndX = visibleColumns[Math.min(max, columnUnderCursorIndex)].right;
 
         var res = columnUnderCursorIndex;
 
