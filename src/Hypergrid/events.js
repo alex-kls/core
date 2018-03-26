@@ -210,6 +210,18 @@ var mixin = {
 
     /**
      * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-column-drag-start` event.
+     */
+    fireSyntheticOnColumnResizedEvent: function(columnOrIndex, width) {
+        var event = {
+            columnOrIndex: columnOrIndex,
+            width: width
+        };
+        return dispatchEvent.call(this, 'fin-column-resized-event', {}, event);
+    },
+
+    /**
+     * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-keydown` event.
      * @param {keyEvent} event - The canvas event.
      */
@@ -492,6 +504,10 @@ var mixin = {
         document.body.addEventListener('copy', function(evt) {
             self.checkClipboardCopy(evt);
         });
+
+        this.addInternalEventListener('fin-column-resized-event', function(e) {
+            grid.delegateColumnResizedEvent(event);
+        });
     },
 
     /**
@@ -528,6 +544,10 @@ var mixin = {
      */
     delegateGridRendered: function(event) {
         this.behavior.onGridRendered(this, event);
+    },
+
+    delegateColumnResizedEvent: function(event) {
+        this.behavior.onColumnResizedEvent(this, event);
     },
 
     /**

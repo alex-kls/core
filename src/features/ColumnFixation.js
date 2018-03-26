@@ -3,19 +3,15 @@
 
 'use strict';
 
-// This feature is responsible for column drag and drop reordering.
-// This object is a mess and desperately needs a complete rewrite.....
-
 var Feature = require('./Feature');
-
-var GRAB = ['grab', '-moz-grab', '-webkit-grab'],
-    GRABBING = ['grabbing', '-moz-grabbing', '-webkit-grabbing'];
-    // setName = function(name) { this.cursor = name; };
 
 var dragger;
 var draggerCTX;
 var placeholder;
 var placeholderCTX;
+
+var GRAB = ['grab', '-moz-grab', '-webkit-grab'],
+    GRABBING = ['grabbing', '-moz-grabbing', '-webkit-grabbing'];
 
 /**
  * @constructor
@@ -55,7 +51,6 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
             this.next.handleGridRendered(grid);
         }
     },
-
     /**
      * @memberOf ColumnFixation.prototype
      * @desc initialize animation support on the grid
@@ -63,17 +58,7 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      */
     initializeAnimationSupport: function(grid) {
         if (!dragger) {
-            dragger = document.createElement('canvas');
-            dragger.setAttribute('width', '0px');
-            dragger.setAttribute('height', '0px');
-            dragger.style.position = 'fixed';
-            dragger.style.pointerEvents = 'none';
-
-            document.body.appendChild(dragger);
-            draggerCTX = dragger.getContext('2d');
-
-            // grid.paintNow();
-            // this.createDragger(grid);
+            this.createDragger(grid);
         }
         if (!placeholder) {
             placeholder = document.createElement('canvas');
@@ -92,10 +77,6 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      * @param {Object} event - the event details
      */
     handleMouseDrag: function(grid, event) {
-        if (this.dragging) {
-            this.moveDragger(grid, event.primitiveEvent.detail.mouse.x);
-        }
-
         if (this.next) {
             this.next.handleMouseDrag(grid, event);
         }
@@ -107,14 +88,7 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
-        if (this.overAreaDivider(grid, event) && !this.dragging){
-            this.cursor = GRABBING;
-            this.dragging = true;
-
-            this.createPlaceholder(grid);
-            this.createDragger(grid);
-            this.dragOffset = dragger.getBoundingClientRect().left;
-        } else if (this.next) {
+        if (this.next) {
             this.next.handleMouseDown(grid, event);
         }
     },
@@ -125,13 +99,6 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      * @param {Object} event - the event details
      */
     handleMouseUp: function(grid, event) {
-        if (this.dragging) {
-            this.cursor = null;
-            this.performFixation(grid);
-        }
-        this.dragging = false;
-        this.cursor = null;
-
         if (this.next) {
             this.next.handleMouseUp(grid, event);
         }
@@ -143,29 +110,18 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      * @param {Object} event - the event details
      */
     handleMouseMove: function(grid, event) {
-        this.cursor = null;
-
-        if (!this.dragging && this.overAreaDivider(grid, event)) {
-            this.cursor = GRAB;
-        } else if (this.next) {
+        if (this.next) {
             this.next.handleMouseMove(grid, event);
         }
     },
 
-    /**
-     * @memberOf ColumnResizing.prototype
-     * @desc returns the index of which divider I'm over
-     * @returns {boolean}
-     * @param {Hypergrid} grid
-     * @param {Object} event - the event details
-     */
-    overAreaDivider: function(grid, event) {
-        var isFirstColumnAfterFixed = (event.dataCell.x === (grid.properties.fixedColumnCount)) && event.isHeaderCell;
-        if (!isFirstColumnAfterFixed) {
-            return false;
-        }
+    handleColumnResizedEvent: function(grid, event) {
+        grid.paintNow();
+        this.moveDragger(grid, this.getStartByFixedColumnsCount(grid), false);
 
-        return (event.mousePoint.x >= (0 - grid.properties.fixedLinesHWidth) && (event.mousePoint.x <= 0));
+        if (this.next) {
+            this.next.handleColumnResizedEvent(grid, event);
+        }
     },
 
     /**
@@ -173,15 +129,18 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      * @desc utility function to move dragger based on current cursor position
      * @param {Hypergrid} grid
      * @param {number} x
+     * @param {boolean?} movePlaceholderNeeded
      */
-    moveDragger: function(grid, x) {
-        var distance = x - this.dragOffset;
-        this.setCrossBrowserProperty(dragger, 'transform', 'translate(' + distance + 'px, ' + 0 + 'px)');
+    moveDragger: function(grid, x, movePlaceholderNeeded) {
+        movePlaceholderNeeded = typeof movePlaceholderNeeded !== 'undefined' ?  movePlaceholderNeeded : true;
+        dragger.style.left = x + 'px';
 
-        var nearestColumnIndex = this.getNearestColumnIndex(grid, x);
-        if ((nearestColumnIndex !== undefined) && nearestColumnIndex !== this.currentPlaceholderColumnPos) {
-            this.movePlaceholderTo(grid, nearestColumnIndex);
-            this.currentPlaceholderColumnPos = nearestColumnIndex;
+        if (movePlaceholderNeeded) {
+            var nearestColumnIndex = this.getNearestColumnIndex(grid, x);
+            if ((nearestColumnIndex !== undefined) && nearestColumnIndex !== this.currentPlaceholderColumnPos) {
+                this.movePlaceholderTo(grid, nearestColumnIndex);
+                this.currentPlaceholderColumnPos = nearestColumnIndex;
+            }
         }
     },
 
@@ -193,9 +152,8 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      */
     movePlaceholderTo: function(grid, column) {
         placeholder.style.display = 'inline';
-        var scrollLeft = grid.getHScrollValue();
 
-        var newStartX = (grid.renderer.visibleColumns[column].left) + scrollLeft + 3;
+        var newStartX = this.getStartByColumnIndex(grid, column);
 
         placeholder.style.left = newStartX + 'px';
     },
@@ -221,9 +179,9 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
         d.setAttribute('height', Math.round(gridHeight * hdpiRatio) + 'px');
         d.style.display = 'inline';
 
-        placeholderCTX.fillStyle = '#659DFC';
+        placeholderCTX.fillStyle = grid.properties.columnFixationPlaceholderHeaderColor;
         placeholderCTX.fillRect(0, 0, width, headerHeight);
-        placeholderCTX.fillStyle = '#AFBBD1';
+        placeholderCTX.fillStyle = grid.properties.columnFixationPlaceholderBodyColor;
         placeholderCTX.fillRect(0, headerHeight, width, gridHeight);
 
         placeholderCTX.scale(hdpiRatio, hdpiRatio);
@@ -255,14 +213,17 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      * @param {Hypergrid} grid
      */
     createDragger: function(grid) {
+        dragger = document.createElement('canvas');
+        draggerCTX = dragger.getContext('2d');
+        document.body.appendChild(dragger);
+
+        grid.paintNow();
+
         var width = grid.properties.fixedLinesHWidth;
-        var scrollLeft = grid.getHScrollValue();
-        var startX = (grid.renderer.visibleColumns[grid.properties.fixedColumnCount].left) + scrollLeft + 2;
+        var startX = this.getStartByFixedColumnsCount(grid);
         var headerHeight = grid.getRowHeight(0);
         var gridHeight = grid.div.clientHeight;
 
-        dragger = document.createElement('canvas');
-        draggerCTX = dragger.getContext('2d');
         var hdpiRatio = grid.getHiDPI(draggerCTX);
         var location = grid.div.getBoundingClientRect();
 
@@ -273,76 +234,101 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
         dragger.style.left = startX + 'px';
         dragger.style.display = 'inline';
 
-        document.body.appendChild(dragger);
-
         draggerCTX.clearRect(0, 0, width, gridHeight);
-        draggerCTX.fillStyle = '#BCBCBC';
+        draggerCTX.fillStyle = grid.properties.columnFixationDraggerHeaderInactiveColor;
         draggerCTX.fillRect(0, 0, width, headerHeight);
 
-        draggerCTX.fillStyle = '#AFBBD1';
-        draggerCTX.fillRect(0, headerHeight, width, gridHeight);
-        // var self = this;
-        // dragger.addEventListener('mouseenter', function(event) {
-        //     event.stopImmediatePropagation();
-        //     event.preventDefault();
-        //     dragger.style.cursor = 'grab';
-        //
-        //     draggerCTX.clearRect(0, 0, width, gridHeight);
-        //     draggerCTX.fillStyle = '#A5C6FE';
-        //     draggerCTX.fillRect(0, 0, width, headerHeight);
-        // });
-        //
-        // dragger.addEventListener('mouseleave', function() {
-        //     event.stopImmediatePropagation();
-        //     event.preventDefault();
-        //     dragger.style.cursor = 'none';
-        //
-        //     draggerCTX.clearRect(0, 0, width, gridHeight);
-        //     draggerCTX.fillStyle = 'rgb(218,223,232)';
-        //     draggerCTX.fillRect(0, 0, width, headerHeight);
-        // });
-        //
-        // dragger.addEventListener('mousedown', function(event) {
-        //     event.stopImmediatePropagation();
-        //     event.preventDefault();
-        //     dragger.style.cursor = 'grabbing';
-        //
-        //     self.dragging = true;
-        //
-        //     self.createPlaceholder(grid);
-        //     self.dragOffset = dragger.getBoundingClientRect().left;
-        //
-        //     draggerCTX.clearRect(0, 0, width, gridHeight);
-        //     draggerCTX.fillStyle = '#5d79bc';
-        //     draggerCTX.fillRect(0, 0, width, headerHeight);
-        //     draggerCTX.fillStyle = '#AFBBD1';
-        //     draggerCTX.fillRect(0, headerHeight, width, gridHeight);
-        //
-        //     document.onmousemove = function(e) {
-        //         var x = document.all ? window.event.clientX : e.pageX;
-        //         self.moveDragger(grid, x);
-        //     };
-        // }, false);
-        //
-        //
-        // dragger.addEventListener('mouseup', function() {
-        //     event.stopImmediatePropagation();
-        //     event.preventDefault();
-        //     dragger.style.cursor = 'none';
-        //
-        //     if (this.dragging) {
-        //         this.cursor = null;
-        //         this.performFixation(grid);
-        //     }
-        //     this.dragging = false;
-        //     this.cursor = null;
-        //
-        //     draggerCTX.clearRect(0, 0, width, gridHeight);
-        //     draggerCTX.fillStyle = 'rgb(218,223,232)';
-        //     draggerCTX.fillRect(0, 0, width, headerHeight);
-        // });
+        var self = this;
+        dragger.onmouseenter = function(event) {
+            if (!self.dragging) {
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                self.cursor = GRAB;
+
+                draggerCTX.clearRect(0, 0, width, gridHeight);
+                draggerCTX.fillStyle = grid.properties.columnFixationDraggerHeaderHoveredColor;
+                draggerCTX.fillRect(0, 0, width, headerHeight);
+            }
+        };
+
+        dragger.onmouseleave = function() {
+            if (!self.dragging) {
+                event.stopImmediatePropagation();
+                event.preventDefault();
+
+                self.cursor = null;
+
+                draggerCTX.clearRect(0, 0, width, gridHeight);
+                draggerCTX.fillStyle = grid.properties.columnFixationDraggerHeaderInactiveColor;
+                draggerCTX.fillRect(0, 0, width, headerHeight);
+            }
+        };
+
+        dragger.onmousedown = function(event) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            this.cursor = GRABBING;
+
+            self.dragging = true;
+
+            grid.scrollToMakeVisible(grid.getFixedColumnCount(), grid.getFixedRowCount() - 1);
+
+            self.createPlaceholder(grid);
+            self.dragOffset = dragger.getBoundingClientRect().left;
+
+            draggerCTX.clearRect(0, 0, width, gridHeight);
+            draggerCTX.fillStyle = grid.properties.columnFixationDraggerHeaderDraggingColor;
+            draggerCTX.fillRect(0, 0, width, headerHeight);
+            draggerCTX.fillStyle = grid.properties.columnFixationDraggerBodyDraggingColor;
+            draggerCTX.fillRect(0, headerHeight, width, gridHeight);
+
+            document.onmousemove = function(e) {
+                var pos1 = e.clientX - (grid.properties.fixedLinesHWidth / 2);
+
+                self.moveDragger(grid, pos1);
+            };
+            document.onmouseup = function(e) {
+                document.onmousemove = null;
+                document.onmouseup = null;
+
+                if (self.dragging) {
+                    self.cursor = null;
+                    self.performFixation(grid);
+                    grid.paintNow();
+                    self.moveDragger(grid, self.getStartByFixedColumnsCount(grid), false);
+                }
+                self.dragging = false;
+                self.cursor = null;
+
+                draggerCTX.clearRect(0, 0, width, gridHeight);
+                draggerCTX.fillStyle = grid.properties.columnFixationDraggerHeaderInactiveColor;
+                draggerCTX.fillRect(0, 0, width, headerHeight);
+            };
+        };
     },
 
+    /**
+     * @memberOf ColumnFixation.prototype
+     * @desc utility method to get start position of the dragger based on current fixed columns count
+     * @param {Hypergrid} grid
+     */
+    getStartByFixedColumnsCount: function(grid) {
+        return this.getStartByColumnIndex(grid, grid.properties.fixedColumnCount);
+    },
+
+    /**
+     * @memberOf ColumnFixation.prototype
+     * @desc utility method to get start position of the dragger based on columnIndex
+     * @param {Hypergrid} grid
+     * @param {number} columnIndex
+     */
+    getStartByColumnIndex: function(grid, columnIndex) {
+        if (columnIndex < 0) {
+            columnIndex = 0;
+        }
+        var scrollLeft = grid.getHScrollValue();
+        return (grid.renderer.visibleColumns[columnIndex].left) + scrollLeft + 2;
+    },
     /**
      * @memberOf ColumnFixation.prototype
      * @desc utility method to set grid options when dragging ends
@@ -354,7 +340,6 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
         });
 
         placeholder.style.display = 'none';
-        dragger.style.display = 'none';
     },
 
     /**
@@ -379,11 +364,10 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
             res += 1;
         }
 
-        if (res === visibleColumns[visibleColumns.length - 1].columnIndex) {
-            res -= 1;
+        if (res >= visibleColumns[visibleColumns.length - 1].columnIndex) {
+            res = visibleColumns[visibleColumns.length - 2].columnIndex;
         }
 
-        console.log('nearest column index is', res);
         return res;
     },
 
@@ -391,7 +375,7 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
         if (property in element.style) {
             element.style[property] = value;
         }
-    },
+    }
 });
 
 module.exports = ColumnFixation;

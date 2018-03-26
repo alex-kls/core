@@ -54,10 +54,10 @@
         var grid = new fin.Hypergrid();
         grid.setData(data);
 
-        var fixedCount = 1;
+        var fixedCount = 0;
         grid.addProperties({
             fixedColumnCount: fixedCount,
-            fixedRowCount: 4
+            fixedRowCount: fixedCount
         });
 
         function changeFixedCount(delta){

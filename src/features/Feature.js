@@ -307,6 +307,18 @@ var Feature = Base.extend('Feature', {
         if (this.next) {
             this.next.handleGridRendered(grid, event);
         }
+    },
+
+    /**
+     * @memberOf Feature.prototype
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     * @private
+     */
+    handleColumnResizedEvent: function(grid, event) {
+        if (this.next) {
+            this.next.handleColumnResizedEvent(grid, event);
+        }
     }
 });
 

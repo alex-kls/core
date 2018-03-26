@@ -323,6 +323,7 @@ var Behavior = Base.extend('Behavior', {
         var column = columnOrIndex >= -2 ? this.getActiveColumn(columnOrIndex) : columnOrIndex;
         column.setWidth(width);
         this.stateChanged();
+        this.grid.fireSyntheticOnColumnResizedEvent(columnOrIndex, width);
     },
 
     /**
@@ -684,6 +685,12 @@ var Behavior = Base.extend('Behavior', {
         if (this.featureChain) {
             this.featureChain.handleGridRendered(grid, event);
             this.setCursor(grid);
+        }
+    },
+
+    onColumnResizedEvent: function(grid, event) {
+        if (this.featureChain) {
+            this.featureChain.handleColumnResizedEvent(grid, event);
         }
     },
 

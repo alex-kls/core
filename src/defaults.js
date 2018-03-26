@@ -1406,7 +1406,22 @@ var defaults = {
         padding: '2px 4px',
         verticalAlign: 'middle',
         width: '30px'
-    }
+    },
+
+    columnFixationDraggerHeaderInactiveColor: '#BCBCBC',
+    columnFixationDraggerHeaderHoveredColor: '#A5C6FE',
+    columnFixationDraggerHeaderDraggingColor: '#A5C6FE',
+    columnFixationDraggerBodyDraggingColor: '#DBE5F7',
+    columnFixationPlaceholderHeaderColor: '#659DFC',
+    columnFixationPlaceholderBodyColor: '#AFBBD1',
+
+    rowFixationDraggerHeaderInactiveColor: '#BCBCBC',
+    rowFixationDraggerHeaderHoveredColor: '#A5C6FE',
+    rowFixationDraggerHeaderDraggingColor: '#A5C6FE',
+    rowFixationDraggerBodyDraggingColor: '#DBE5F7',
+    rowFixationPlaceholderHeaderColor: '#659DFC',
+    rowFixationPlaceholderBodyColor: '#AFBBD1'
+
 };
 
 
