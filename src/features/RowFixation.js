@@ -176,9 +176,8 @@ var RowFixation = Feature.extend('RowFixation', {
         rowFixationPlaceholderCTX.clearRect(0, 0, gridWidth, fixationLineWidth);
         rowFixationPlaceholderCTX.fillStyle = grid.properties.rowFixationPlaceholderHeaderColor;
         rowFixationPlaceholderCTX.fillRect(0, 0, rowHeaderWidth, fixationLineWidth);
-        rowFixationPlaceholderCTX.fillStyle = grid.properties.rowFixationPlaceholderHeaderColor;
+        rowFixationPlaceholderCTX.fillStyle = grid.properties.rowFixationPlaceholderBodyColor;
         rowFixationPlaceholderCTX.fillRect(rowHeaderWidth, 0, gridWidth, fixationLineWidth);
-
 
         this.movePlaceholderTo(grid, grid.getFixedRowCount());
     },
