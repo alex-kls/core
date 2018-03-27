@@ -196,7 +196,9 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.closePath();
         }
 
-        config.minWidth = leftPadding + valWidth + rightPadding;
+        if (valWidth) {
+            config.minWidth = leftPadding + valWidth + rightPadding;
+        }
     }
 });
 

@@ -178,8 +178,7 @@ Column.prototype = {
     },
 
     checkColumnAutosizing: function(force) {
-        var properties = this.properties,
-            width, preferredWidth, autoSized;
+        var properties = this.properties, width, preferredWidth, autoSized;
 
         if (properties.columnAutosizing) {
             width = properties.width;

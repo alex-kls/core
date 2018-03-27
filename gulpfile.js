@@ -1,22 +1,22 @@
 'use strict';
 
-var pkgjson     = require('./package.json'),
-    gulp        = require('gulp'),
-    $$          = require('gulp-load-plugins')(),
-    browserify  = require('browserify'),
-    source      = require('vinyl-source-stream'),
-    buffer      = require('vinyl-buffer'),
+var pkgjson = require('./package.json'),
+    gulp = require('gulp'),
+    $$ = require('gulp-load-plugins')(),
+    browserify = require('browserify'),
+    source = require('vinyl-source-stream'),
+    buffer = require('vinyl-buffer'),
     runSequence = require('run-sequence'),
     browserSync = require('browser-sync').create(),
-    exec        = require('child_process').exec,
-    path        = require('path'),
-    pipe        = require('multipipe');
+    exec = require('child_process').exec,
+    path = require('path'),
+    pipe = require('multipipe');
 
-var srcDir      = './src/',
-    testDir     = './test/',
-    jsFiles     = '**/*.js',
-    demoDir     = './demo/',
-    buildDir    = demoDir + 'build/';
+var srcDir = './src/',
+    testDir = './test/',
+    jsFiles = '**/*.js',
+    demoDir = './demo/',
+    buildDir = demoDir + 'build/';
 
 //  //  //  //  //  //  //  //  //  //  //  //
 
@@ -28,11 +28,6 @@ gulp.task('browserify', bundleUp.bind(null,
     pkgjson.name,
     srcDir + 'forBuild/',
     buildDir
-));
-gulp.task('browserify-demo', bundleUp.bind(null,
-    'index',
-    './demo/js/demo/',
-    './demo/js/demo/build/'
 ));
 
 gulp.task('reloadBrowsers', reloadBrowsers);
@@ -50,13 +45,12 @@ gulp.task('build', function(callback) {
         'css-templates',
         'test',
         'browserify',
-        'browserify-demo',
         //'doc',
         callback
     );
 });
 
-gulp.task('watch', function () {
+gulp.task('watch', function() {
     gulp.watch([
         srcDir + '**', '!' + srcDir + 'jsdoc/**',
         './css/*.css',
@@ -94,8 +88,7 @@ function lint() {
 }
 
 function test(cb) {
-    return gulp.src(testDir + jsFiles)
-        .pipe($$.mocha({reporter: 'spec'}));
+    return gulp.src(testDir + jsFiles).pipe($$.mocha({ reporter: 'spec' }));
 }
 
 function bundleUp(destName, srcDir, buildDir) {
@@ -124,7 +117,7 @@ function bundleUp(destName, srcDir, buildDir) {
 }
 
 function doc(cb) {
-    exec(path.resolve('jsdoc.sh'), function (err, stdout, stderr) {
+    exec(path.resolve('jsdoc.sh'), function(err, stdout, stderr) {
         console.log(stdout);
         console.log(stderr);
         cb(err);
@@ -153,7 +146,7 @@ function clearBashScreen() {
 function swallowImages() {
     var config = {
         src: {
-            globs: [ 'images/*.png', 'images/*.gif','images/*.jpeg', 'images/*.jpg' ],
+            globs: ['images/*.png', 'images/*.gif', 'images/*.jpeg', 'images/*.jpg'],
             options: {}
         },
         transform: {
@@ -194,9 +187,9 @@ function templates(src, type) {
 
             // quote each line and join them into a single string
             content = 'exports' + member + " = [\n'" + content
-                    .replace(/\\/g, "\\\\") // escape all backslashes
-                    .replace(/'/g, "\\'") // escape all single-quotes
-                    .replace(/\n/g, "',\n'") + "'\n].join('\\n');\n";
+                .replace(/\\/g, "\\\\") // escape all backslashes
+                .replace(/'/g, "\\'") // escape all single-quotes
+                .replace(/\n/g, "',\n'") + "'\n].join('\\n');\n";
 
             // remove possible blank line at end of each
             content = content.replace(/,\n''\n]/g, "\n]");
@@ -205,5 +198,7 @@ function templates(src, type) {
         }))
         .pipe($$.concat("index.js"))
         .pipe($$.header("'use strict';\n\n"))
-        .pipe(gulp.dest(function(file) { return file.base; }));
+        .pipe(gulp.dest(function(file) {
+            return file.base;
+        }));
 }

@@ -328,7 +328,7 @@ var RowFixation = Feature.extend('RowFixation', {
             }
             res = row ? row.bottom : 0;
         } else {
-            res = grid.renderer.visibleRows[0].bottom - this.fixationLineWidth;
+            res = grid.renderer.visibleRows[0].bottom - this.fixationLineWidth + 2;
         }
 
         return res + grid.canvas.size.top;

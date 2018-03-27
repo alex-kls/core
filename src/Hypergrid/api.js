@@ -1,19 +1,50 @@
 'use strict';
 
+var equal = require('deep-equal');
+
 // helper methods
 
-var convertColDefs = function(colDefs) {
-    var res = [];
+function range(start, stop) {
+    var result = [];
+    for (var idx = start.charCodeAt(0), end = stop.charCodeAt(0); idx <= end; ++idx) {
+        result.push(String.fromCharCode(idx));
+    }
+    return result;
+}
 
-    colDefs.forEach(function(cd) {
-        res.push({
-            header: cd.headerName || '',
-            name: cd.originalField || ''
+function idOf(range, i) {
+    return (i >= 26 ? idOf(range, (i / 26 >> 0) - 1) : '') + range[i % 26 >> 0];
+}
+
+function convertColDefs(colDefs, firstRowFont) {
+    var schema = [];
+    var data = { __META: { __ROW: { font: firstRowFont, foregroundSelectionFont: firstRowFont } } }; // set bold font for title row
+    var az = range('A', 'Z');
+
+    function colDefMapper(singleColDef, letters) {
+        var originalField = singleColDef && singleColDef.originalField;
+        schema.push({
+            header: letters || '',
+            name: originalField || letters
         });
-    });
 
-    return res;
-};
+        if (originalField) {
+            data[originalField] = singleColDef.headerName || '';
+        }
+    }
+
+    if (colDefs.length < az.length) {
+        az.forEach(function(singleLetter, index) {
+            colDefMapper(colDefs[index], singleLetter);
+        });
+    } else {
+        colDefs.forEach(function(singleColDef, index) {
+            colDefMapper(singleColDef, idOf(az, index));
+        });
+    }
+
+    return { schema: schema, data: data };
+}
 
 // api methods
 
@@ -75,14 +106,28 @@ function setColumnDefs(colDefs) {
 
     this.columnDefs = colDefs;
 
-    var schema = convertColDefs(colDefs);
-    // this.behavior.dataModel.setSchema(schema);
+    var schema = convertColDefs(colDefs, this.properties.columnHeaderFontBold);
+    var firstRowData = schema.data;
+    var data = this.behavior.getData();
+
+    // create first row from headers
+    if (!data || data.length === 0) {
+        data = [firstRowData];
+    } else if (data && !equal(data[0], firstRowData)) {
+        data.splice(0, 0, firstRowData);
+    }
+
+    console.log(data);
+
     this.behavior.setData({
-        data: this.behavior.getData(),
-        schema: schema
+        data: data,
+        schema: schema.schema
     });
     this.allowEvents(true);
-    this.behavior.dataModel.setSchema(schema);
+    this.behavior.dataModel.setSchema(schema.schema);
+
+    var grid = this;
+    grid.behavior.setColumnProperties(grid.behavior.rowColumnIndex, { halign: 'center', width: 50 });
 }
 
 function setRowData(rowData) {
@@ -185,30 +230,30 @@ function setFloatingTopRowDataForInMemoryModel(rows) {
 
 function setDatasource(datasource) {
     console.log(datasource);
-
-    this.api.datasource = datasource;
-
-    var setRowData = this.api.setRowData;
-
-    var startRow = this.data.length;
-
-    if (startRow < datasource.totalSize) {
-        var params = {
-            startRow: startRow, // replace with correct getter
-            endRow: startRow + this.paginationPageSize, // replace with correct getter
-            successCallback: function(rows, lastRowIndex) {
-                setRowData(rows, lastRowIndex);
-            },
-            failCallback: function() {
-                setRowData([]);
-            },
-            sortModel: datasource.sortModel,
-            filterModel: {},
-            context: undefined
-        };
-
-        datasource.getRows(params);
-    }
+    console.log('setDatasource isn\' active for now, will be enabled in future');
+    // this.api.datasource = datasource;
+    //
+    // var setRowData = this.api.setRowData;
+    //
+    // var startRow = this.data.length;
+    //
+    // if (startRow < datasource.totalSize) {
+    //     var params = {
+    //         startRow: startRow, // replace with correct getter
+    //         endRow: startRow + this.paginationPageSize, // replace with correct getter
+    //         successCallback: function(rows, lastRowIndex) {
+    //             setRowData(rows, lastRowIndex);
+    //         },
+    //         failCallback: function() {
+    //             setRowData([]);
+    //         },
+    //         sortModel: datasource.sortModel,
+    //         filterModel: {},
+    //         context: undefined
+    //     };
+    //
+    //     datasource.getRows(params);
+    // }
 }
 
 function onGroupExpandedOrCollapsed(refreshFromIndex) {
