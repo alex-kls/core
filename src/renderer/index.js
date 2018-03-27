@@ -850,7 +850,7 @@ var Renderer = Base.extend('Renderer', {
                 if (edgeWidth) {
                     gc.fillRect(0, gap.top, viewWidth, edgeWidth);
                     gc.fillRect(0, gap.bottom - edgeWidth, viewWidth, edgeWidth);
-                } else if (gridProps.fixedRowCount > 1) {
+                } else if (gridProps.fixedRowCount > 0) {
                     gc.fillRect(0, gap.top, viewWidth, gap.bottom - gap.top);
                 }
             }
