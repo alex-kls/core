@@ -222,17 +222,17 @@ var Behavior = Base.extend('Behavior', {
 
     clearColumns: function() {
         var schema = this.schema,
-            tc = this.treeColumnIndex,
-            rc = this.rowColumnIndex;
+            treeColumnIndex = this.treeColumnIndex,
+            rowColumnIndex = this.rowColumnIndex;
 
-        schema[tc] = schema[tc] || {
-            index: tc,
+        schema[treeColumnIndex] = schema[treeColumnIndex] || {
+            index: treeColumnIndex,
             name: 'Tree',
             header: 'Tree'
         };
 
-        schema[rc] = schema[rc] || {
-            index: rc,
+        schema[rowColumnIndex] = schema[rowColumnIndex] || {
+            index: rowColumnIndex,
             name: '',
             header: ''
         };
@@ -249,18 +249,19 @@ var Behavior = Base.extend('Behavior', {
          */
         this.allColumns = [];
 
-        this.allColumns[tc] = this.columns[tc] = this.newColumn({
-            index: tc,
-            header: schema[tc].header,
-            name: schema[tc].name
+        this.allColumns[treeColumnIndex] = this.columns[treeColumnIndex] = this.newColumn({
+            index: treeColumnIndex,
+            header: schema[treeColumnIndex].header,
+            name: schema[treeColumnIndex].name
         });
-        this.allColumns[rc] = this.columns[rc] = this.newColumn({
-            index: rc,
-            header: schema[rc].header,
-            name: schema[rc].name
+        this.allColumns[rowColumnIndex] = this.columns[rowColumnIndex] = this.newColumn({
+            index: rowColumnIndex,
+            header: schema[rowColumnIndex].header,
+            name: schema[rowColumnIndex].name
         });
 
-        this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = [propClassEnum.COLUMNS];
+        this.columns[treeColumnIndex].properties.propClassLayers = this.columns[rowColumnIndex].properties.propClassLayers = [propClassEnum.COLUMNS];
+        Object.assign(this.columns[rowColumnIndex].properties, { columnAutosizing: false, minWidth: this.grid.properties.columnHeaderInitWidth });
 
         // Signal the renderer to size the now-reset handle column before next render
         this.grid.renderer.resetRowHeaderColumnWidth();

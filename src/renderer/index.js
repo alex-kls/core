@@ -840,28 +840,35 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     paintGridlines: function(gc) {
-        var visibleColumns = this.visibleColumns, C = visibleColumns.length,
-            visibleRows = this.visibleRows, R = visibleRows.length;
+        var visibleColumns = this.visibleColumns,
+            columnsLength = visibleColumns.length,
+            visibleRows = this.visibleRows,
+            rowsLength = visibleRows.length;
 
-        if (C && R) {
+        if (columnsLength && rowsLength) {
             var gridProps = this.properties,
-                viewWidth = visibleColumns[C - 1].right,
-                viewHeight = visibleRows[R - 1].bottom;
+                viewWidth = visibleColumns[columnsLength - 1].right,
+                viewHeight = visibleRows[rowsLength - 1].bottom;
 
             if (gridProps.gridLinesV) {
                 gc.cache.fillStyle = gridProps.gridLinesVColor;
-                for (var right, vc = visibleColumns[0], c = 1; c < C; c++) {
+                for (var right, vc = visibleColumns[0], c = 1; c < columnsLength; c++) {
                     right = vc.right;
                     vc = visibleColumns[c];
                     if (!vc.gap) {
                         gc.fillRect(right, 0, gridProps.gridLinesVWidth, viewHeight);
                     }
                 }
+
+                if (this.grid.properties.rowHeaderNumbers) {
+                    right = visibleColumns[this.grid.behavior.rowColumnIndex].right;
+                    gc.fillRect(right, 0, gridProps.gridLinesVWidth, viewHeight);
+                }
             }
 
             if (gridProps.gridLinesH) {
                 gc.cache.fillStyle = gridProps.gridLinesHColor;
-                for (var bottom, vr = visibleRows[0], r = 1; r < R; r++) {
+                for (var bottom, vr = visibleRows[0], r = 1; r < rowsLength; r++) {
                     bottom = vr.bottom;
                     vr = visibleRows[r];
                     if (!vr.gap) {
@@ -953,7 +960,7 @@ var Renderer = Base.extend('Renderer', {
 
         if (isHandleColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
-            config.halign = 'right';
+            config.halign = this.properties.columnHeaderHalign;
         } else if (isTreeColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
             config.halign = 'left';
@@ -1437,6 +1444,7 @@ function resetRowHeaderColumnWidth(gc, rowCount) {
             : cellProperties.font;
 
         width += gc.getTextWidth(rowCount);
+        width = width < cellProperties.minWidth ? cellProperties.minWidth : width;
     }
 
     columnProperties.preferredWidth = columnProperties.width = width;

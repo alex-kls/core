@@ -196,16 +196,9 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.closePath();
         }
 
-        // if (config.isFirstSelectedCell) {
-        //     gc.beginPath();
-        //     gc.rect(x, y, width, height);
-        //     gc.cache.lineWidth = 2;
-        //     gc.cache.strokeStyle = config.selectionRegionOutlineColor;
-        //     gc.stroke();
-        //     gc.closePath();
-        // }
-
-        config.minWidth = leftPadding + valWidth + rightPadding;
+        if (valWidth) {
+            config.minWidth = leftPadding + valWidth + rightPadding;
+        }
     }
 });
 

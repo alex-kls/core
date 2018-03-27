@@ -121,7 +121,15 @@ var defaults = {
      * @type {cssFont}
      * @memberOf module:defaults
      */
-    columnHeaderFont: 'bold 13px "Helvetica Neue",Helvetica,Arial,sans-serif',
+    columnHeaderFont: '13px "Helvetica Neue",Helvetica,Arial,sans-serif',
+
+    /**
+     * @summary text style for header row
+     * @default
+     * @type {cssFont}
+     * @memberOf module:defaults
+     */
+    columnHeaderFontBold: 'bold 13px "Helvetica Neue",Helvetica,Arial,sans-serif',
 
     /**
      * @default
@@ -136,7 +144,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    columnHeaderForegroundSelectionFont: 'bold 13px "Helvetica Neue",Helvetica,Arial,sans-serif',
+    columnHeaderForegroundSelectionFont: '13px "Helvetica Neue",Helvetica,Arial,sans-serif',
 
     /**
      * @default
@@ -160,11 +168,20 @@ var defaults = {
     columnHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
     /**
+     * @summary align of first number column
      * @default
      * @type {string}
      * @memberOf module:defaults
      */
-    columnHeaderHalign: 'left',
+    columnHeaderHalign: 'center',
+
+    /**
+     * @summary initial width of number column
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    columnHeaderInitWidth: 50,
 
     /**
      * @default
@@ -1293,8 +1310,8 @@ var defaults = {
     features: [
         'filters',
         'contextmenu',
-        'columnfixation',
-        'rowfixation',
+        // 'columnfixation',
+        // 'rowfixation',
         'cellselection',
         'keypaging',
         'columnresizing',
