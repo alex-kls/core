@@ -87,7 +87,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         }
 
         if (gc.alpha(hoverColor) < 1) {
-            if (config.isSelected) {
+            if (config.isSelected && !config.isFirstSelectedCell) {
                 if (!config.isHeaderRow && config.isDataColumn) {
                     selectColor = config.backgroundSelectionColor;
                 } else {
@@ -148,8 +148,8 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         layerColors(gc, colors, x, y, width, height, foundationColor);
 
         // Measure left and right icons, needed for rendering and for return value (min width)
-        leftPadding = leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPadding;
-        rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPadding;
+        leftPadding = leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPaddingLeft;
+        rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPaddingRight;
 
         if (renderValue) {
             // draw text
@@ -195,6 +195,15 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.stroke();
             gc.closePath();
         }
+
+        // if (config.isFirstSelectedCell) {
+        //     gc.beginPath();
+        //     gc.rect(x, y, width, height);
+        //     gc.cache.lineWidth = 2;
+        //     gc.cache.strokeStyle = config.selectionRegionOutlineColor;
+        //     gc.stroke();
+        //     gc.closePath();
+        // }
 
         config.minWidth = leftPadding + valWidth + rightPadding;
     }
@@ -271,7 +280,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         y = config.bounds.y,
         width = config.bounds.width,
         halignOffset = leftPadding,
-        halign = config.halign,
+        halign = config.isRowHeaderCell ? config.rowHeaderHalign : config.halign,
         minWidth,
         metrics;
 

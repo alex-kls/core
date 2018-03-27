@@ -597,8 +597,35 @@ var Renderer = Base.extend('Renderer', {
 
         // this.renderOverrides(gc);
 
+        this.renderFirstSelectedCell(gc);
         this.renderLastSelection(gc);
 
+        gc.closePath();
+    },
+
+    renderFirstSelectedCell: function(gc) {
+        var firstSelectedCell = this.grid.selectionModel.getFirstSelectedCellOfLastSelection();
+
+        if (!firstSelectedCell) {
+            return;
+        }
+
+        if (!this.grid.isDataVisible(firstSelectedCell.x, firstSelectedCell.y)) {
+            return;
+        }
+
+        var pointWithHeaders = {
+            x: firstSelectedCell.x - this.grid.getHScrollValue(),
+            y: firstSelectedCell.y + this.grid.getHeaderRowCount() - this.grid.getVScrollValue()
+        };
+
+        var cellBounds = this.grid.getBoundsOfCell(pointWithHeaders);
+
+        gc.beginPath();
+        gc.rect(cellBounds.left, cellBounds.top, cellBounds.width, cellBounds.height);
+        gc.cache.lineWidth = 2;
+        gc.cache.strokeStyle = this.grid.properties.selectionRegionOutlineColor;
+        gc.stroke();
         gc.closePath();
     },
 
@@ -640,7 +667,7 @@ var Renderer = Base.extend('Renderer', {
 
         var gridProps = this.properties;
         vcOrigin = vcOrigin || this.visibleColumns[gridProps.fixedColumnCount];
-        vrOrigin = vrOrigin || this.visibleRows[gridProps.fixedRowCount];
+        vrOrigin = vrOrigin || this.visibleRows[gridProps.fixedRowCount + this.grid.getHeaderRowCount()];
         vcCorner = vcCorner || (selection.corner.x > lastColumn.columnIndex ? lastColumn : vci[gridProps.fixedColumnCount - 1]);
         vrCorner = vrCorner || (selection.corner.y > lastRow.rowIndex ? lastRow : vri[gridProps.fixedRowCount - 1]);
 
@@ -653,7 +680,8 @@ var Renderer = Base.extend('Renderer', {
                 height: vrCorner.bottom - vrOrigin.top
             },
             selectionRegionOverlayColor: this.gridRenderer.paintCells.partial ? 'transparent' : gridProps.selectionRegionOverlayColor,
-            selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor
+            selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor,
+            selectionRegionBorderWidth: gridProps.selectionRegionBorderWidth ? gridProps.selectionRegionBorderWidth : 1
         };
         this.grid.cellRenderers.get('lastselection').paint(gc, config);
         if (this.gridRenderer.paintCells.key === 'by-cells') {
@@ -978,9 +1006,11 @@ var Renderer = Base.extend('Renderer', {
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = selectionModel.isInCurrentSelectionRectangle(x, r);
+        config.isFirstSelectedCell = selectionModel.isFirstSelectedCell(x, r);
         config.prefillColor = prefillColor;
         config.buttonCells = this.buttonCells; // allow the renderer to identify itself if it's a button
         config.subrow = 0;
+        config.isRowHeaderCell = cellEvent.isDataRow && !cellEvent.isDataColumn;
 
         if (grid.mouseDownState) {
             config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
@@ -1392,7 +1422,8 @@ function computeCellsBounds() {
 function resetRowHeaderColumnWidth(gc, rowCount) {
     var columnProperties = this.grid.behavior.getColumnProperties(this.grid.behavior.rowColumnIndex),
         gridProps = this.grid.properties,
-        width = 2 * columnProperties.cellPadding;
+        // width = 2 * columnProperties.cellPadding;
+        width = columnProperties.cellPaddingLeft + columnProperties.cellPaddingRight;
 
     // Checking images.checked also supports a legacy feature in which checkbox could be hidden by undefining the image.
     if (gridProps.rowHeaderCheckboxes && images.checked) {

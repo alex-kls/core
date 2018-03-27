@@ -524,6 +524,29 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @param x
+     * @param y
+     * @returns {*}
+     */
+    isFirstSelectedCell: function(x, y) {
+        var firstSelectedCell = this.getFirstSelectedCellOfLastSelection();
+        return firstSelectedCell && (firstSelectedCell.x === x) && (firstSelectedCell.y === y);
+    },
+
+    /**
+     * @memberOf SelectionModel.prototype
+     * @desc Returns first selected cell of last selection
+     * @returns {*}
+     */
+    getFirstSelectedCellOfLastSelection: function() {
+        var last = this.selections[this.selections.length - 1];
+        if (last) {
+            return last.firstSelectedCell;
+        }
+    },
+
+    /**
+     * @memberOf SelectionModel.prototype
      * @param rect
      * @param x
      * @param y

@@ -221,7 +221,6 @@ var RowFixation = Feature.extend('RowFixation', {
         rowFixationDragger.setAttribute('width', (gridWidth * hdpiRatio) + 'px');
         rowFixationDragger.setAttribute('height', (fixationLineWidth * hdpiRatio) + 'px');
         rowFixationDragger.style.position = 'fixed';
-        console.log(startY);
         rowFixationDragger.style.top = startY + 'px';
         rowFixationDragger.style.left = location.left + 'px';
         rowFixationDragger.style.display = 'inline';

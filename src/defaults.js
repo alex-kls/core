@@ -67,7 +67,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    color: 'rgb(25, 25, 25)',
+    color: '#060606',
 
     /**
      * Background color for data cells.
@@ -75,7 +75,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
 
     /**
      * Font style for selected cell(s).
@@ -91,14 +91,14 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    foregroundSelectionColor: '#333',
+    foregroundSelectionColor: '#060606',
     /**
      * Background color for selected cell(s).
      * @default
      * @type {string}
      * @memberOf module:defaults
      */
-    backgroundSelectionColor: 'rgb(236,243,255)',
+    backgroundSelectionColor: '#ECF3FF',
 
     /**
      * Background color for header selected cell(s).
@@ -106,7 +106,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    backgroundHeaderSelectionColor: 'rgb(221, 221, 221)',
+    backgroundHeaderSelectionColor: '#DDDDDD',
 
 
     disableHoverHighlighting: true,
@@ -128,7 +128,7 @@ var defaults = {
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    columnHeaderColor: 'rgb(25, 25, 25)',
+    columnHeaderColor: '#060606',
 
     /**
      * Font style for selected columns' headers.
@@ -150,7 +150,7 @@ var defaults = {
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    columnHeaderForegroundSelectionColor: 'rgb(80, 80, 80)',
+    columnHeaderForegroundSelectionColor: '#060606',
 
     /**
      * @default
@@ -188,7 +188,7 @@ var defaults = {
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    rowHeaderColor: '#333',
+    rowHeaderColor: '#060606',
 
     /**
      * @default
@@ -202,7 +202,7 @@ var defaults = {
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    rowHeaderForegroundSelectionColor: 'rgb(80, 80, 80)',
+    rowHeaderForegroundSelectionColor: '#060606',
 
     /**
      * Font style for selected rows' headers.
@@ -402,7 +402,11 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    cellPadding: 5,
+    cellPadding: 4,
+
+    cellPaddingRight: 5,
+
+    cellPaddingLeft: 6,
 
     /**
      * Padding to left and right of cell icons.
@@ -645,7 +649,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    minimumColumnWidth: 5,
+    minimumColumnWidth: 30,
 
     //for immediate painting, set these values to 0, true respectively
 
@@ -800,6 +804,13 @@ var defaults = {
 
     /**
      * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    rowHeaderHalign: 'center',
+
+    /**
+     * @default
      * @type {boolean}
      * @memberOf module:defaults
      * @see {@link module:dynamicPropertyDescriptors.showRowNumbers}
@@ -878,7 +889,15 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    selectionRegionOutlineColor: 'rgb(66,133,244)',
+    selectionRegionOutlineColor: '#4285F4',
+
+    /**
+     * @summary Width of selected region border
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    selectionRegionBorderWidth: 1,
 
     /**
      * @default
@@ -1320,28 +1339,28 @@ var defaults = {
                 title: '<b>Filter</b> to value',
                 callbackFn: function(clickEvent, gridEvent) {
                     console.log('first callback works fine');
-                    console.log('grid event', clickEvent);
+                    console.log('grid event', gridEvent);
                 }
             },
             {
                 title: '<b>Exclude</b> this value',
                 callbackFn: function(clickEvent, gridEvent) {
                     console.log('second callback works fine');
-                    console.log('grid event', clickEvent);
+                    console.log('grid event', gridEvent);
                 }
             },
             {
                 title: 'Copy',
                 callbackFn: function(clickEvent, gridEvent) {
                     console.log('third callback works fine');
-                    console.log('grid event', clickEvent);
+                    console.log('grid event', gridEvent);
                 }
             },
             {
                 title: 'Copy With Headers',
                 callbackFn: function(clickEvent, gridEvent) {
                     console.log('fourth callback works fine');
-                    console.log('grid event', clickEvent);
+                    console.log('grid event', gridEvent);
                 }
             },
         ]

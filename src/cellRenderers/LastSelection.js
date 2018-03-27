@@ -18,26 +18,36 @@ var LastSelection = CellRenderer.extend('LastSelection', {
                 width = config.bounds.width,
                 height = config.bounds.height;
 
-            gc.beginPath();
-
-            gc.rect(x, y, width, height);
-
             if (visOverlay) {
+                gc.beginPath();
+
+                gc.rect(x, y, width, height);
+
                 gc.cache.fillStyle = config.selectionRegionOverlayColor;
                 gc.fill();
+
+                gc.closePath();
             }
 
             if (visOutline) {
-                gc.cache.lineWidth = 1;
-                gc.cache.strokeStyle = config.selectionRegionOutlineColor;
-                gc.stroke();
+                drawRectBorder(gc,
+                    x - 1,
+                    y - 1,
+                    width + 1,
+                    height + 1,
+                    config.selectionRegionOutlineColor,
+                    config.selectionRegionBorderWidth);
             }
-
-            gc.closePath();
         }
     }
 });
 
 module.exports = LastSelection;
 
-
+function drawRectBorder(ctx, x, y, width, height, color, lineWidth) {
+    ctx.cache.fillStyle = color;
+    ctx.fillRect(x, y, lineWidth, height);
+    ctx.fillRect(x, y, width, lineWidth);
+    ctx.fillRect(x + width, y, lineWidth, height);
+    ctx.fillRect(x, y + height, width + 1, lineWidth);
+}
