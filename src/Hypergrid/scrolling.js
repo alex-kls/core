@@ -282,9 +282,10 @@ exports.mixin = {
 
             if (this.sbVScroller.range.max - this.vScrollValue < (this.api.onScrollEndLimitTrigger || 500)) {
                 // datadoc infinite scroll
-                if (this.api.datasource && !this.scrollTriggered) {
-                    this.api.setDatasource(this.api.datasource);
-                }
+                console.log('datadoc infinite scroll is disabled for now');
+                // if (this.api.datasource && !this.scrollTriggered) {
+                //     this.api.setDatasource(this.api.datasource);
+                // }
 
                 this.scrollTriggered = true;
             } else {

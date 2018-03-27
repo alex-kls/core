@@ -230,30 +230,29 @@ function setFloatingTopRowDataForInMemoryModel(rows) {
 
 function setDatasource(datasource) {
     console.log(datasource);
-    console.log('setDatasource isn\' active for now, will be enabled in future');
-    // this.api.datasource = datasource;
-    //
-    // var setRowData = this.api.setRowData;
-    //
-    // var startRow = this.data.length;
-    //
-    // if (startRow < datasource.totalSize) {
-    //     var params = {
-    //         startRow: startRow, // replace with correct getter
-    //         endRow: startRow + this.paginationPageSize, // replace with correct getter
-    //         successCallback: function(rows, lastRowIndex) {
-    //             setRowData(rows, lastRowIndex);
-    //         },
-    //         failCallback: function() {
-    //             setRowData([]);
-    //         },
-    //         sortModel: datasource.sortModel,
-    //         filterModel: {},
-    //         context: undefined
-    //     };
-    //
-    //     datasource.getRows(params);
-    // }
+    this.api.datasource = datasource;
+
+    var setRowData = this.api.setRowData;
+
+    var startRow = this.data.length;
+
+    if (startRow < datasource.totalSize) {
+        var params = {
+            startRow: startRow, // replace with correct getter
+            endRow: startRow + this.paginationPageSize, // replace with correct getter
+            successCallback: function(rows, lastRowIndex) {
+                setRowData(rows, lastRowIndex);
+            },
+            failCallback: function() {
+                setRowData([]);
+            },
+            sortModel: datasource.sortModel,
+            filterModel: {},
+            context: undefined
+        };
+
+        datasource.getRows(params);
+    }
 }
 
 function onGroupExpandedOrCollapsed(refreshFromIndex) {

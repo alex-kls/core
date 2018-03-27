@@ -1,37 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <script src="build/fin-hypergrid.js"></script>
     <style>
-        div.finbar-vertical {
-            margin: 0 -1px 0 0 !important;
-            width: 17px;
-            background-color: rgba(237, 237, 237, 1);
-            box-shadow: 0 0 0 #000, 0 0 0px #000, 0 0 0 #000;
+        body * {
+            box-sizing: border-box;
         }
-        div.finbar-vertical div.thumb {
-            margin: 0 0 17px 0;
-            width: 11px;
-            background-color: rgba(158, 158, 158, 1);
-            box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
-            border-radius: 0px;
-            border: 1px solid rgba(132, 132, 132, 1);
-            /*right: 3px;*/
+
+        /* for beautiful canvas drawing */
+
+        canvas {
+            image-rendering: optimizeSpeed;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: -o-crisp-edges;
+            image-rendering: pixelated;
+            -ms-interpolation-mode: nearest-neighbor;
         }
-        div.finbar-horizontal {
-            margin: 0 0 -1px 0 !important;
-            height: 17px;
+
+        /* both horizontal and vertical scrolls styles */
+
+        div.finbar-horizontal, div.finbar-vertical {
             background-color: rgba(237, 237, 237, 1);
             box-shadow: 0 0 0 #000, 0 0 0 #000, 0 0 0 #000;
         }
-        div.finbar-horizontal div.thumb {
-            margin: 0;
-            height: 11px;
+
+        div.finbar-horizontal div.thumb, div.finbar-vertical div.thumb {
             background-color: rgba(158, 158, 158, 1);
             box-shadow: 0 0 0 #000, 0 0 0 #000, 0 0 0 #000;
+            -webkit-box-shadow: 0 0 0 #000, 0 0 0 #000, 0 0 0 #000;
+            -moz-box-shadow: 0 0 0 #000, 0 0 0 #000, 0 0 0 #000;
             border-radius: 0;
             border: 1px solid rgba(132, 132, 132, 1);
+        }
+
+        div.finbar-horizontal > .thumb, div.finbar-vertical > .thumb {
+            position: absolute;
+            margin: 2px;
+            opacity: .4;
+            transition: opacity .5s
+        }
+
+        div.finbar-horizontal > .thumb.hover, div.finbar-vertical > .thumb.hover {
+            opacity: 1;
+            transition: opacity .5s
+        }
+
+        /* only vertical bar styles */
+
+        div.finbar-vertical {
+            margin: 0 -1px 0 0 !important;
+            width: 13px !important;
+        }
+
+        div.finbar-vertical div.thumb {
+            margin: 0 0 17px 0;
+            width: 13px;
+            right: 0;
+        }
+
+        /* only horizontal bar styles */
+
+        div.finbar-horizontal {
+            margin: 0 0 -1px 0 !important;
+            height: 13px !important;
+        }
+
+        div.finbar-horizontal div.thumb {
+            margin: 0;
+            height: 13px;
             bottom: 0;
         }
     </style>
@@ -41,33 +79,32 @@
         var letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R'];
         var rowsCount = 40;
 
-        var data = [];
+    var data = [];
 
-        for(var i=0;i<=rowsCount;i++){
-            var rowObj = {};
-            letters.forEach(function(l){
-                rowObj[l] = Math.random()
-            });
-            data.push(rowObj);
-        }
-
-        var grid = new fin.Hypergrid();
-        grid.setData(data);
-
-        var fixedCount = 0;
-        grid.addProperties({
-            fixedColumnCount: fixedCount,
-            fixedRowCount: fixedCount
+    for (var i = 0; i <= rowsCount; i++) {
+        var rowObj = {};
+        letters.forEach(function(l) {
+            rowObj[l] = Math.random()
         });
+        data.push(rowObj);
+    }
 
-        function changeFixedCount(delta){
-            fixedCount += delta;
-            grid.addProperties({
-                fixedColumnCount: fixedCount
-            });
-        }
-    </script>
+    var grid = new fin.Hypergrid();
+    grid.setData(data);
 
+    var fixedCount = 0;
+    grid.addProperties({
+        fixedColumnCount: fixedCount,
+        fixedRowCount: fixedCount
+    });
+
+    function changeFixedCount(delta) {
+        fixedCount += delta;
+        grid.addProperties({
+            fixedColumnCount: fixedCount
+        });
+    }
+</script>
 <button onclick="changeFixedCount(-1)"><-</button>
 <button onclick="changeFixedCount(1)">-></button>
 </body>

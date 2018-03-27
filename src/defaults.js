@@ -522,7 +522,7 @@ var defaults = {
      * @memberOf module:defaults
      * @see {@link module:dynamicPropertyDescriptors.lineColor}
      */
-    gridLinesHColor: 'rgb(199, 199, 199)',
+    gridLinesHColor: '#dadada',
 
     /**
      * @default
@@ -543,7 +543,7 @@ var defaults = {
      * @memberOf module:defaults
      * @see {@link module:dynamicPropertyDescriptors.lineColor}
      */
-    gridLinesVColor: 'rgb(199, 199, 199)',
+    gridLinesVColor: '#dadada',
 
     /**
      * Set canvas's CSS border to this string as well as `gridBorderLeft`, `gridBorderRight`, `gridBorderTop`, and `gridBorderBottom`.
