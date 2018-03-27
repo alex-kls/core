@@ -66,8 +66,8 @@ var ContextMenu = Feature.extend('ContextMenu', {
             grid,
             event,
             contextMenu.items,
-            event.primitiveEvent.detail.mouse.x + 8,
-            event.primitiveEvent.detail.mouse.y + 33);
+            event.primitiveEvent.detail.mouse.x + grid.canvas.size.left,
+            event.primitiveEvent.detail.mouse.y + grid.canvas.size.top + 25);
         if (this.next) {
             this.next.handleContextMenu(grid, event);
         }
