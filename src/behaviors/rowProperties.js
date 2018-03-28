@@ -99,7 +99,8 @@ exports.mixin = {
      */
     getRowHeight: function(yOrCellEvent, dataModel) {
         var rowProps = this.getRowProperties(yOrCellEvent, undefined, dataModel);
-        return rowProps && rowProps.height || this.grid.properties.defaultRowHeight;
+        return rowProps && rowProps.height ||
+            this.grid.properties[dataModel && dataModel.isHeader ? 'defaultHeaderRowHeight' : 'defaultRowHeight'];
     },
 
     /**

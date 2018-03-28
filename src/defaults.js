@@ -129,10 +129,10 @@ var defaults = {
      * @type {cssFont}
      * @memberOf module:defaults
      */
-    columnHeaderFont: '13px "Helvetica Neue",Helvetica,Arial,sans-serif',
+    columnHeaderFont: '11px arial,sans-serif',
 
     /**
-     * @summary text style for header row
+     * @summary text style for data row with headers/titles
      * @default
      * @type {cssFont}
      * @memberOf module:defaults
@@ -147,12 +147,12 @@ var defaults = {
     columnHeaderColor: '#060606',
 
     /**
-     * Font style for selected columns' headers.
+     * @summary Font style for selected columns' headers.
      * @default
      * @type {string}
      * @memberOf module:defaults
      */
-    columnHeaderForegroundSelectionFont: '13px "Helvetica Neue",Helvetica,Arial,sans-serif',
+    columnHeaderForegroundSelectionFont: '11px arial,sans-serif',
 
     /**
      * @default
@@ -206,7 +206,7 @@ var defaults = {
      * @type {cssFont}
      * @memberOf module:defaults
      */
-    rowHeaderFont: '12px Tahoma, Geneva, sans-serif',
+    rowHeaderFont: '11px arial,sans-serif',
 
     /**
      * @default
@@ -235,7 +235,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    rowHeaderForegroundSelectionFont: '12px "Helvetica Neue",Helvetica,Arial,sans-serif',
+    rowHeaderForegroundSelectionFont: '11px arial,sans-serif',
 
     /**
      * @default
@@ -537,7 +537,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    gridLinesHHeaderColor: '#cccccc',
+    gridLinesHHeaderColor: '#c1c1c1',
 
     /**
      * @default
@@ -564,7 +564,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    gridLinesVHeaderColor: '#cccccc',
+    gridLinesVHeaderColor: '#c1c1c1',
 
     /**
      * Set canvas's CSS border to this string as well as `gridBorderLeft`, `gridBorderRight`, `gridBorderTop`, and `gridBorderBottom`.
@@ -674,6 +674,14 @@ var defaults = {
      * @memberOf module:defaults
      */
     defaultRowHeight: 21,
+
+    /**
+     * @summary height parameter for header row
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    defaultHeaderRowHeight: 23,
 
     /**
      * @default
