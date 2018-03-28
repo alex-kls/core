@@ -280,17 +280,16 @@ exports.mixin = {
                 this.cellEditor.scrollValueChangedNotification();
             }
 
-            if (this.sbVScroller.range.max - this.vScrollValue < (this.api.onScrollEndLimitTrigger || 500)) {
-                // datadoc infinite scroll
-                console.log('datadoc infinite scroll is disabled for now');
-                // if (this.api.datasource && !this.scrollTriggered) {
-                //     this.api.setDatasource(this.api.datasource);
-                // }
-
-                this.scrollTriggered = true;
-            } else {
-                this.scrollTriggered = false;
-            }
+            // if (this.properties.onScrollEndLimitTrigger > 0 && this.sbVScroller.range.max - this.vScrollValue < this.properties.onScrollEndLimitTrigger) {
+            //     // datadoc infinite scroll
+            //     if (this.api.datasource && !this.scrollTriggered) {
+            //         this.api.setDatasource(this.api.datasource);
+            //     }
+            //
+            //     this.scrollTriggered = true;
+            // } else {
+            //     this.scrollTriggered = false;
+            // }
 
             this.computeCellsBounds();
         }

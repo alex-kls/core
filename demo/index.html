@@ -216,8 +216,15 @@
                 setTimeout(function() {
                     window.grid.api.setColumnDefs(colDef);
                     window.grid.api.setRowData(prepareData(result));
-                }, 1000);
 
+                    setTimeout(function() {
+                        window.grid.api.setColumnDefs(colDef);
+
+                        setTimeout(function() {
+                            window.grid.api.setRowData(prepareData(result));
+                        }, 1000);
+                    }, 1000);
+                }, 1000);
             });
         };
     </script>

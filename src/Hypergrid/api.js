@@ -102,7 +102,7 @@ var virtualPageRowModel = {
 };
 
 function setColumnDefs(colDefs) {
-    console.log(colDefs);
+    console.log('setColumnDefs', colDefs);
 
     this.columnDefs = colDefs;
 
@@ -131,7 +131,7 @@ function setColumnDefs(colDefs) {
 }
 
 function setRowData(rowData) {
-    console.log(rowData);
+    console.log('setRowData', rowData);
 
     [].push.apply(this.data, rowData);
 
@@ -139,10 +139,12 @@ function setRowData(rowData) {
 }
 
 function sizeColumnsToFit() {
-
+    console.log('sizeColumnsToFit');
+    this.behavior.autosizeAllColumns();
 }
 
 function destroy() {
+    console.log('destroy');
     this.cancelEditing();
 
     this.sbPrevVScrollValue = null;
@@ -163,7 +165,7 @@ function destroy() {
 }
 
 function getRangeSelections() {
-
+    console.log('getRangeSelections');
 }
 
 function copySelectedRangeToClipboard(includeHeaders) {
@@ -171,65 +173,68 @@ function copySelectedRangeToClipboard(includeHeaders) {
 }
 
 function getSelectedColumns() {
-
+    console.log('getSelectedColumns');
 }
 
 function getModel() {
+    console.log('getModel');
     return {
         rowsToDisplay: [],
         getRow: function() {
-
+            console.log('getRow');
         }
     };
 }
 
 function refreshView() {
-
+    console.log('refreshView');
 }
 
 function removeItems(rowNodes) {
-    console.log(rowNodes);
+    console.log('removeItems', rowNodes);
 
 }
 
 function insertItemsAtIndex(index, items) {
-    console.log(index, items);
+    console.log('insertItemsAtIndex', index, items);
 }
 
 function clearRangeSelection() {
-
+    console.log('clearRangeSelection');
+    this.clearSelections();
 }
 
 function clearFocusedCell() {
-
+    console.log('clearFocusedCell');
+    this.clearSelections();
 }
 
 function getFloatingTopRowData() {
-
+    console.log('getFloatingTopRowData');
 }
 
 function getFloatingTopRowCount() {
-
+    console.log('getFloatingTopRowCount');
 }
 
 function showNoRowsOverlay() {
-
+    console.log('showNoRowsOverlay');
 }
 
 function hideOverlay() {
-
+    console.log('hideOverlay');
 }
 
 function refreshCells(rowNodes, colIds, animate) {
-    console.log(rowNodes, colIds, animate);
+    console.log('refreshCells', rowNodes, colIds, animate);
 }
 
 function setFloatingTopRowDataForInMemoryModel(rows) {
-    console.log(rows);
+    console.log('setFloatingTopRowDataForInMemoryModel', rows);
 }
 
 function setDatasource(datasource) {
-    console.log(datasource);
+    console.log('setDatasource', datasource);
     this.api.datasource = datasource;
 
     var setRowData = this.api.setRowData;
@@ -256,19 +261,20 @@ function setDatasource(datasource) {
 }
 
 function onGroupExpandedOrCollapsed(refreshFromIndex) {
-    console.log(refreshFromIndex);
+    console.log('onGroupExpandedOrCollapsed', refreshFromIndex);
 }
 
 function getSortModel() {
+    console.log('getSortModel');
     return [];
 }
 
 function doLayout() {
-
+    console.log('doLayout');
 }
 
 function refreshInMemoryRowModel() {
-
+    console.log('refreshInMemoryRowModel');
 }
 
 module.exports = {

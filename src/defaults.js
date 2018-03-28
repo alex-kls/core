@@ -410,6 +410,14 @@ var defaults = {
     hScrollbarClassPrefix: '',
 
     /**
+     * @summary limit for initiating scroll end event
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    onScrollEndLimitTrigger: -1,
+
+    /**
      * Horizontal alignment of each cell as interpreted by it's cell renderer.
      * @default
      * @type {string}

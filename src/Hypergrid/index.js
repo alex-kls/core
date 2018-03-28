@@ -67,8 +67,6 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * @param {string} [options.boundingRect.right='auto']
  * @param {string} [options.boundingRect.bottom='auto']
  * @param {string} [options.boundingRect.position='relative']
- *
- * @param {number} [options.api.onScrollEndLimitTrigger] - pixels to the end of bound when should be recalled `api.setDatasource`
  */
 var Hypergrid = Base.extend('Hypergrid', {
     initialize: function(container, options) {
@@ -143,8 +141,6 @@ var Hypergrid = Base.extend('Hypergrid', {
          * @name api
          * @summary api for using with datadocs like ag-grid
          * @desc set of methods which was used in ag-grid
-         *
-         * @type {*|{onScrollEndLimitTrigger: number}|{}}
          * @memberOf Hypergrid#
          */
         // create api
