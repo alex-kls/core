@@ -835,6 +835,37 @@ var Renderer = Base.extend('Renderer', {
         return this.dataWindow.corner.y - this.properties.fixedRowCount + 1;
     },
 
+    /**
+     * @memberOf Renderer.prototype
+     * @returns {number} The row to goto for a page right.
+     */
+    getPageRightRow: function() {
+        return this.dataWindow.corner.x - this.properties.fixedColumnCount;
+    },
+
+    /**
+     * @memberOf Renderer.prototype
+     * @returns {number} The row to go to for a page left.
+     */
+    getPageLeftRow: function() {
+        console.log(this.dataWindow.origin.x);
+        var widthLeft = this.bounds.width;
+        var currentColumnToScrollIndex = this.dataWindow.origin.x - 1;
+
+        while (currentColumnToScrollIndex >= 0){
+            widthLeft -= this.grid.getColumnWidth(currentColumnToScrollIndex);
+
+            if (widthLeft < 0) {
+                break;
+            }
+
+            currentColumnToScrollIndex -= 1;
+        }
+
+        var additionalColumns = this.grid.properties.rowHeaderNumbers ? 1 : 0;
+        return currentColumnToScrollIndex + additionalColumns;
+    },
+
     renderErrorCell: function(err, gc, vc, vr) {
         var message = err && (err.message || err) || 'Unknown error.',
             bounds = { x: vc.left, y: vr.top, width: vc.width, height: vr.height },

@@ -212,7 +212,11 @@ exports.mixin = {
         var horzBar = new Scrollbar({
             orientation: 'horizontal',
             onchange: self.setHScrollValue.bind(self),
-            cssStylesheetReferenceElement: this.div
+            cssStylesheetReferenceElement: this.div,
+            paging: {
+                up: self.pageLeft.bind(self),
+                down: self.pageRight.bind(self)
+            }
         });
 
         var vertBar = new Scrollbar({
@@ -377,17 +381,23 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
-     * @desc Not yet implemented.
+     * @desc Scroll left one full page.
+     * @returns {number}
      */
     pageLeft: function() {
-        throw 'page left not yet implemented';
+        var rowNum = this.renderer.getPageLeftRow();
+        this.setHScrollValue(rowNum);
+        return rowNum;
     },
 
     /**
      * @memberOf Hypergrid#
-     * @desc Not yet implemented.
+     * @desc Scroll right one full page.
+     * @returns {number}
      */
     pageRight: function() {
-        throw 'page right not yet implemented';
+        var rowNum = this.renderer.getPageRightRow();
+        this.setHScrollValue(rowNum);
+        return rowNum;
     }
 };
