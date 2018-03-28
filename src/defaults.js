@@ -524,6 +524,13 @@ var defaults = {
      */
     gridLinesHColor: '#dadada',
 
+    /** @type {string}
+     * @desc Color of borders, that painted under header part of each row
+     * @default
+     * @memberOf module:defaults
+     */
+    gridLinesHHeaderColor: '#cccccc',
+
     /**
      * @default
      * @type {boolean}
@@ -541,9 +548,15 @@ var defaults = {
     /** @type {string}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.lineColor}
      */
     gridLinesVColor: '#dadada',
+
+    /** @type {string}
+     * @desc Color of borders, that painted on left side of header part of each column
+     * @default
+     * @memberOf module:defaults
+     */
+    gridLinesVHeaderColor: '#cccccc',
 
     /**
      * Set canvas's CSS border to this string as well as `gridBorderLeft`, `gridBorderRight`, `gridBorderTop`, and `gridBorderBottom`.

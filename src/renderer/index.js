@@ -849,30 +849,73 @@ var Renderer = Base.extend('Renderer', {
             var gridProps = this.properties,
                 viewWidth = visibleColumns[columnsLength - 1].right,
                 viewHeight = visibleRows[rowsLength - 1].bottom;
+            var headerRowsCount = this.grid.getHeaderRowCount();
 
             if (gridProps.gridLinesV) {
                 gc.cache.fillStyle = gridProps.gridLinesVColor;
-                for (var right, vc = visibleColumns[0], c = 1; c < columnsLength; c++) {
-                    right = vc.right;
+
+                for (var right, vc = visibleColumns[0], c = 0; c < columnsLength; c++) {
                     vc = visibleColumns[c];
+                    right = vc.right;
                     if (!vc.gap) {
                         gc.fillRect(right, 0, gridProps.gridLinesVWidth, viewHeight);
                     }
                 }
 
+                if (gridProps.gridLinesVHeaderColor && (gridProps.gridLinesVHeaderColor !== gridProps.gridLinesVColor)) {
+
+                    var headerHeight = 0;
+                    for (var i = 0; i < headerRowsCount; i++) {
+                        headerHeight += this.grid.getRowHeight(i);
+                    }
+
+                    gc.cache.fillStyle = gridProps.gridLinesVHeaderColor;
+                    for (var headerRight, headerVc = visibleColumns[0], headerC = 0; headerC < columnsLength; headerC++) {
+                        headerVc = visibleColumns[headerC];
+                        headerRight = headerVc.right;
+                        if (!headerVc.gap) {
+                            gc.fillRect(headerRight, 0, gridProps.gridLinesVWidth, headerHeight);
+                        }
+                    }
+                }
+
                 if (this.grid.properties.rowHeaderNumbers) {
                     right = visibleColumns[this.grid.behavior.rowColumnIndex].right;
+                    gc.cache.fillStyle = gridProps.gridLinesVHeaderColor ?
+                        gridProps.gridLinesVHeaderColor :
+                        gridProps.gridLinesVColor;
                     gc.fillRect(right, 0, gridProps.gridLinesVWidth, viewHeight);
                 }
             }
 
             if (gridProps.gridLinesH) {
                 gc.cache.fillStyle = gridProps.gridLinesHColor;
-                for (var bottom, vr = visibleRows[0], r = 1; r < rowsLength; r++) {
-                    bottom = vr.bottom;
+                for (var bottom, vr = visibleRows[0], r = 0; r < rowsLength; r++) {
                     vr = visibleRows[r];
+                    bottom = vr.bottom;
                     if (!vr.gap) {
                         gc.fillRect(0, bottom, viewWidth, gridProps.gridLinesHWidth);
+                    }
+                }
+
+                if (gridProps.gridLinesHHeaderColor &&
+                    (gridProps.gridLinesHHeaderColor !== gridProps.gridLinesHColor)) {
+                    var additionalWidth = gridProps.gridLinesV ? gridProps.gridLinesVWidth : 0;
+                    var firstRowWidth = this.grid.properties.rowHeaderNumbers
+                        ? visibleColumns[this.grid.behavior.rowColumnIndex].right + additionalWidth
+                        : 0;
+
+                    gc.cache.fillStyle = gridProps.gridLinesHHeaderColor;
+                    for (var headerBottom, headerVr = visibleRows[0], headerR = 0; headerR < rowsLength; headerR++) {
+                        headerVr = visibleRows[headerR];
+                        headerBottom = headerVr.bottom;
+                        if (!vr.gap) {
+                            if (headerR < headerRowsCount) {
+                                gc.fillRect(0, headerBottom, viewWidth, gridProps.gridLinesHWidth);
+                            } else {
+                                gc.fillRect(0, headerBottom, firstRowWidth, gridProps.gridLinesHWidth);
+                            }
+                        }
                     }
                 }
             }
