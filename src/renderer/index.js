@@ -1001,7 +1001,7 @@ var Renderer = Base.extend('Renderer', {
             format,
             isSelected;
 
-        if (isHandleColumn) {
+        if (isHandleColumn && cellEvent.gridCell.y !== cellEvent.dataCell.y) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
             config.halign = this.properties.columnHeaderHalign;
         } else if (isTreeColumn) {
@@ -1056,7 +1056,7 @@ var Renderer = Base.extend('Renderer', {
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = selectionModel.isInCurrentSelectionRectangle(x, r);
-        config.isFirstSelectedCell = selectionModel.isFirstSelectedCell(x, r);
+        config.isFirstSelectedCell = !isHeaderRow && selectionModel.isFirstSelectedCell(x, r);
         config.prefillColor = prefillColor;
         config.buttonCells = this.buttonCells; // allow the renderer to identify itself if it's a button
         config.subrow = 0;
