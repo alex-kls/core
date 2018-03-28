@@ -597,8 +597,8 @@ var Renderer = Base.extend('Renderer', {
 
         // this.renderOverrides(gc);
 
-        this.renderFirstSelectedCell(gc);
         this.renderLastSelection(gc);
+        this.renderFirstSelectedCell(gc);
 
         gc.closePath();
     },
@@ -614,8 +614,13 @@ var Renderer = Base.extend('Renderer', {
             return;
         }
 
+        var fixedColumnsCount = this.grid.getFixedColumnCount();
+        var newX = (firstSelectedCell.x >= fixedColumnsCount) ?
+            firstSelectedCell.x - this.grid.getHScrollValue() :
+            firstSelectedCell.x;
+
         var pointWithHeaders = {
-            x: firstSelectedCell.x - this.grid.getHScrollValue(),
+            x: newX,
             y: firstSelectedCell.y + this.grid.getHeaderRowCount() - this.grid.getVScrollValue()
         };
 
@@ -637,7 +642,6 @@ var Renderer = Base.extend('Renderer', {
 
         var selection = this.grid.selectionModel.getLastSelection();
         if (selection.origin.x === -1) {
-            // no selected area, lets exit
             return;
         }
 
@@ -645,12 +649,12 @@ var Renderer = Base.extend('Renderer', {
             vri = this.visibleRowsByDataRowIndex,
             lastColumn = this.visibleColumns[this.visibleColumns.length - 1], // last column in scrollable section
             lastRow = vri[this.dataWindow.corner.y]; // last row in scrollable data section
+
         if (
-            !lastColumn || !lastRow ||
-            selection.origin.x > lastColumn.columnIndex ||
-            selection.origin.y > lastRow.rowIndex
+            (lastColumn && selection.origin.x > lastColumn.columnIndex) ||
+            (lastRow && selection.origin.y > lastRow.rowIndex)
         ) {
-            // selection area begins to right or below grid
+            console.log('returned');
             return;
         }
 
@@ -658,18 +662,32 @@ var Renderer = Base.extend('Renderer', {
             vcCorner = vci[selection.corner.x],
             vrOrigin = vri[selection.origin.y],
             vrCorner = vri[selection.corner.y];
-        if (
-            !(vcOrigin || vcCorner) || // entire selection scrolled out of view to left of scrollable region
-            !(vrOrigin || vrCorner)    // entire selection scrolled out of view above scrollable region
-        ) {
-            return;
-        }
 
         var gridProps = this.properties;
         vcOrigin = vcOrigin || this.visibleColumns[gridProps.fixedColumnCount];
         vrOrigin = vrOrigin || this.visibleRows[gridProps.fixedRowCount + this.grid.getHeaderRowCount()];
-        vcCorner = vcCorner || (selection.corner.x > lastColumn.columnIndex ? lastColumn : vci[gridProps.fixedColumnCount - 1]);
+
+        if (!lastColumn) {
+            var colOffset = 1;
+            while (!lastColumn) {
+                lastColumn = vci[this.dataWindow.corner.x - colOffset];
+            }
+        }
+        if (!lastRow) {
+            var rowOffser = 1;
+            while (!lastRow) {
+                lastRow = vri[this.dataWindow.corner.y - rowOffser];
+            }
+        }
+        vcCorner = vcCorner || ((lastColumn && selection.corner.x > lastColumn.columnIndex) ? lastColumn : vci[gridProps.fixedColumnCount - 1]);
         vrCorner = vrCorner || (selection.corner.y > lastRow.rowIndex ? lastRow : vri[gridProps.fixedRowCount - 1]);
+
+        if (
+            !(vcOrigin && vcCorner && vrOrigin && vrCorner)
+        ) {
+            // entire selection scrolled out of view above scrollable region
+            return;
+        }
 
         // Render the selection model around the bounds
         var config = {
