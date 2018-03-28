@@ -78,6 +78,14 @@ var defaults = {
     backgroundColor: '#FFFFFF',
 
     /**
+     * Background color for empty space
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    canvasBackgroundColor: '#F3F3F3',
+
+    /**
      * Font style for selected cell(s).
      * @default
      * @type {string}

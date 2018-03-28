@@ -43,6 +43,7 @@ function Canvas(div, component) {
     this.div.appendChild(this.canvas);
 
     this.canvas.style.outline = 'none';
+    this.canvas.style.background = this.component.properties.canvasBackgroundColor;
 
     this.mouseLocation = new rectangular.Point(-1, -1);
     this.dragstart = new rectangular.Point(-1, -1);
