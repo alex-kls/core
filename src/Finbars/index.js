@@ -451,7 +451,7 @@ FinBar.prototype = {
      * @returns {FinBar} Self for chaining.
      * @memberOf FinBar.prototype
      */
-    resize: function(increment, barStyles) {
+    resize: function(increment, barStyles, contentFullWidth) {
         var bar = this.bar;
 
         if (!bar.parentNode) {
@@ -479,6 +479,10 @@ FinBar.prototype = {
                 this._min = 0;
                 this._max = this.contentSize - 1;
             }
+        }
+
+        if (contentFullWidth) {
+            this.contentSize = contentFullWidth;
         }
 
         this.containerSize = containerRect[this.oh.size];
@@ -550,7 +554,6 @@ FinBar.prototype = {
     },
 
     shortenEndByValue: function(whichEnd, shortenValue) {
-        console.log('shortenEndByValue called');
         this._auxStyles = this._auxStyles ? this._auxStyles : {};
         this._auxStyles[whichEnd] = shortenValue + 'px';
         return this;

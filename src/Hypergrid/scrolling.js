@@ -255,8 +255,7 @@ exports.mixin = {
             paging: {
                 up: self.pageLeft.bind(self),
                 down: self.pageRight.bind(self)
-            },
-            containerSize: 1000
+            }
         });
 
         var vertBar = new Scrollbar({
@@ -287,14 +286,17 @@ exports.mixin = {
 
 
         this.synchronizeScrollbarsVisualization();
+        console.log('synchronizeScrollbarsVisualization called from initialization');
     },
 
     synchronizeScrollbarsVisualization: function(){
         this.sbHScroller
             .shortenEndByValue('leading', this.getHScrollbarLeftMargin())
-            .shortenEndByValue('trailing', this.getHScrollbarRightMargin()).resize();
+            .shortenEndByValue('trailing', this.getHScrollbarRightMargin())
+            .resize(null, null, this.getFullContentWidth());
         this.sbVScroller.shortenEndByValue('leading', this.getVScrollbarTopMargin())
-            .shortenEndByValue('trailing', this.getVScrollbarBottomMargin()).resize();
+            .shortenEndByValue('trailing', this.getVScrollbarBottomMargin())
+            .resize(null, null, this.getFullContentHeight());
 
         this.sbHScroller.style = this.properties.scrollbarHStyle;
         this.sbHScroller.thumbStyle = this.properties.scrollbarHThumbStyle;
@@ -358,6 +360,28 @@ exports.mixin = {
         return res;
     },
 
+    getFullContentWidth: function() {
+        var res = 0;
+
+        for (var i = 0; i <= this.getColumnCount(); i++){
+            res += this.getColumnWidth(i);
+        }
+
+        console.log('current columns count', this.getColumnCount());
+        console.log('full content width is ', res);
+        return res;
+    },
+    getFullContentHeight: function() {
+        var res = 0;
+
+        for (var i = 0; i <= this.getRowCount(); i++){
+            res += this.getRowHeight(i);
+        }
+
+        console.log('current rows count', this.getRowCount());
+        console.log('full content height is ', res);
+        return res;
+    },
     /**
      * @memberOf Hypergrid#
      * @desc Scroll values have changed, we've been notified.
@@ -458,6 +482,7 @@ exports.mixin = {
 
         // schedule to happen *after* the repaint
         setTimeout(this.synchronizeScrollbarsVisualization.bind(this));
+        console.log('synchronizeScrollbarsVisualization called from synchronizeScrollingBoundaries');
     },
 
     /**
