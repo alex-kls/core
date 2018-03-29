@@ -607,6 +607,21 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior#
+     * @return {number} The width of the data column area in the hypergrid.
+     */
+    getColumnsWidth: function(toX) {
+        var count = toX === undefined ? this.getActiveColumnCount() : toX,
+            total = 0,
+            i = this.leftMostColIndex;
+
+        for (; i < count; i++) {
+            total += this.getColumnWidth(i);
+        }
+        return total;
+    },
+
+    /**
+     * @memberOf Behavior#
      * @desc This exists to support "floating" columns.
      * @return {number} The total width of the fixed columns area.
      */

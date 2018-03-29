@@ -80,8 +80,9 @@ exports.mixin = {
      */
     scrollVBy: function(offsetY) {
         var max = this.sbVScroller.range.max;
-        var oldValue = this.getVScrollValue();
-        var newValue = Math.min(max, Math.max(0, oldValue + offsetY));
+        var oldValue = this.vScrollValue;
+        var oldOffset = this.getVScrollValue();
+        var newValue = Math.min(max, oldValue + offsetY * this.behavior.getRowHeight(Math.max(0, oldOffset + offsetY)));
         if (newValue !== oldValue) {
             this.setVScrollValue(newValue);
         }
@@ -94,40 +95,41 @@ exports.mixin = {
      */
     scrollHBy: function(offsetX) {
         var max = this.sbHScroller.range.max;
-        var oldValue = this.getHScrollValue();
-        var newValue = Math.min(max, Math.max(0, oldValue + offsetX));
+        var oldValue = this.hScrollValue;
+        var oldOffset = this.getHScrollValue();
+        var newValue = Math.min(max, oldValue + offsetX * this.behavior.getColumnWidth(Math.max(0, oldOffset + offsetX)));
         if (newValue !== oldValue) {
             this.setHScrollValue(newValue);
         }
     },
 
-    scrollToMakeVisible: function(c, r) {
+    scrollToMakeVisible: function(column, row) {
         var delta,
             dw = this.renderer.dataWindow,
             fixedColumnCount = this.properties.fixedColumnCount,
             fixedRowCount = this.properties.fixedRowCount;
 
         // scroll only if target not in fixed columns
-        if (c >= fixedColumnCount) {
+        if (column >= fixedColumnCount) {
             // target is to left of scrollable columns; negative delta scrolls left
-            if ((delta = c - dw.origin.x) < 0) {
+            if ((delta = column - dw.origin.x) < 0) {
                 this.sbHScroller.index += delta;
 
                 // target is to right of scrollable columns; positive delta scrolls right
                 // Note: The +1 forces right-most column to scroll left (just in case it was only partially in view)
-            } else if ((c - dw.corner.x + 1) > 0) {
-                this.sbHScroller.index = this.renderer.getMinimumLeftPositionToShowColumn(c);
+            } else if ((column - dw.corner.x + 1) > 0) {
+                this.sbHScroller.index = this.renderer.getMinimumLeftPositionToShowColumn(column);
             }
         }
 
         if (
-            r >= fixedRowCount && // scroll only if target not in fixed rows
+            row >= fixedRowCount && // scroll only if target not in fixed rows
             (
                 // target is above scrollable rows; negative delta scrolls up
-                (delta = r - dw.origin.y) < 0 ||
+                (delta = row - dw.origin.y) < 0 ||
 
                 // target is below scrollable rows; positive delta scrolls down
-                (delta = r - dw.corner.y) > 0
+                (delta = row - dw.corner.y) > 0
             )
         ) {
             this.sbVScroller.index += delta;
@@ -140,26 +142,51 @@ exports.mixin = {
     },
 
     /**
+     * @summary binary search of cell with needed scroll parameters
+     * @param scrollValue - scroll value in pixels
+     * @param from - first cell index for searching
+     * @param to - last cell index for searching
+     * @param checkFunction - function for checking height of horizontal or certical scroll
+     */
+    findCellByScrollValue: function(scrollValue, from, to, checkFunction) {
+        var search = Math.round((from + to) / 2);
+
+        if (search === from || search === to) {
+            return from;
+        }
+
+        var currentHeight = checkFunction.call(this.behavior, search);
+
+        if (currentHeight > scrollValue) {
+            return this.findCellByScrollValue(scrollValue, from, search, checkFunction);
+        } else {
+            return this.findCellByScrollValue(scrollValue, search, to, checkFunction);
+        }
+    },
+
+    /**
      * @memberOf Hypergrid#
      * @desc Set the vertical scroll value.
      * @param {number} newValue - The new scroll value.
      */
-    setVScrollValue: function(y) {
+    setVScrollValue: function(newValue) {
         var self = this;
-        y = Math.min(this.sbVScroller.range.max, Math.max(0, Math.round(y)));
-        if (y !== this.vScrollValue) {
-            this.behavior.setScrollPositionY(y);
+        newValue = Math.min(this.sbVScroller.range.max, Math.max(0, Math.round(newValue)));
+        if (newValue !== this.vScrollValue) {
+            this.behavior.setScrollPositionY(newValue);
             this.behavior.changed();
             var oldY = this.vScrollValue;
-            this.vScrollValue = y;
-            if (this.sbHScroller) {
-                this.sbVScroller.index = y;
-            }
+
+            this.vScrollValue = newValue;
             this.scrollValueChangedNotification();
             setTimeout(function() {
                 // self.sbVRangeAdapter.subjectChanged();
-                self.fireScrollEvent('fin-scroll-y', oldY, y);
+                self.fireScrollEvent('fin-scroll-y', oldY, newValue);
             });
+        }
+        // update scrollbar
+        if (this.sbVScroller.index !== newValue) {
+            this.sbVScroller.index = newValue;
         }
     },
 
@@ -168,41 +195,46 @@ exports.mixin = {
      * @return {number} The vertical scroll value.
      */
     getVScrollValue: function() {
-        return this.vScrollValue;
+        return this.findCellByScrollValue(this.vScrollValue, 0, this.getRowCount(), this.behavior.getRowsHeight);
     },
 
     /**
      * @memberOf Hypergrid#
      * @desc Set the horizontal scroll value.
-     * @param {number} x - The new scroll value.
+     * @param {number} newValue - The new scroll value.
      */
-    setHScrollValue: function(x) {
+    setHScrollValue: function(newValue) {
         var self = this;
-        x = Math.min(this.sbHScroller.range.max, Math.max(0, Math.round(x)));
-        if (x !== this.hScrollValue) {
-            this.behavior.setScrollPositionX(x);
+        newValue = Math.min(this.sbHScroller.range.max, Math.max(0, Math.round(newValue)));
+        if (newValue !== this.hScrollValue) {
+            this.behavior.setScrollPositionX(newValue);
             this.behavior.changed();
             var oldX = this.hScrollValue;
-            this.hScrollValue = x;
+            this.hScrollValue = newValue;
             this.scrollValueChangedNotification();
+
             if (this.sbHScroller) {
-                this.sbHScroller.index = x;
+                this.sbHScroller.index = newValue;
             }
 
             setTimeout(function() {
                 //self.sbHRangeAdapter.subjectChanged();
-                self.fireScrollEvent('fin-scroll-x', oldX, x);
+                self.fireScrollEvent('fin-scroll-x', oldX, newValue);
                 //self.synchronizeScrollingBoundaries(); // todo: Commented off to prevent the grid from bouncing back, but there may be repercussions...
             });
+        }
+        // update scrollbar
+        if (this.sbHScroller.index !== newValue) {
+            this.sbHScroller.index = newValue;
         }
     },
 
     /**
      * @memberOf Hypergrid#
-     * @returns The vertical scroll value.
+     * @returns The horizontal scroll value.
      */
     getHScrollValue: function() {
-        return this.hScrollValue;
+        return this.findCellByScrollValue(this.hScrollValue, 0, this.getColumnCount(), this.behavior.getColumnsWidth);
     },
 
     /**
@@ -362,8 +394,6 @@ exports.mixin = {
      * Adjust the scrollbar properties as necessary.
      */
     synchronizeScrollingBoundaries: function() {
-        var numFixedColumns = this.getFixedColumnCount();
-
         var numColumns = this.getColumnCount();
         var numRows = this.getRowCount();
 
@@ -398,14 +428,15 @@ exports.mixin = {
 
         // inform scroll bars
         if (this.sbHScroller) {
-            var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
+            var hMax = Math.max(0, this.behavior.getColumnsWidth(this.behavior.getActiveColumnCount() - lastPageColumnCount) - this.behavior.getFixedColumnsWidth());
+            hMax += this.behavior.getColumnWidth(this.behavior.getActiveColumnCount() - 1);
             this.setHScrollbarValues(hMax);
-            this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
+            this.setHScrollValue(Math.min(this.hScrollValue, hMax));
         }
         if (this.sbVScroller) {
-            var vMax = Math.max(0, numRows - this.properties.fixedRowCount - lastPageRowCount);
+            var vMax = Math.max(0, this.behavior.getRowsHeight(this.behavior.getRowCount() - lastPageRowCount) - this.behavior.getFixedRowsHeight());
             this.setVScrollbarValues(vMax);
-            this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
+            this.setVScrollValue(Math.min(this.vScrollValue, vMax));
         }
 
         this.computeCellsBounds();
@@ -421,8 +452,9 @@ exports.mixin = {
      */
     pageUp: function() {
         var rowNum = this.renderer.getPageUpRow();
-        this.setVScrollValue(rowNum);
-        return rowNum;
+        var rowNumPixels = this.behavior.getRowsHeight(rowNum);
+        this.setVScrollValue(rowNumPixels);
+        return rowNumPixels;
     },
 
     /**
@@ -432,8 +464,9 @@ exports.mixin = {
      */
     pageDown: function() {
         var rowNum = this.renderer.getPageDownRow();
-        this.setVScrollValue(rowNum);
-        return rowNum;
+        var rowNumPixels = this.behavior.getRowsHeight(rowNum);
+        this.setVScrollValue(rowNumPixels);
+        return rowNumPixels;
     },
 
     /**
