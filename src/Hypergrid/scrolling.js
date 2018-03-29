@@ -255,7 +255,8 @@ exports.mixin = {
             paging: {
                 up: self.pageLeft.bind(self),
                 down: self.pageRight.bind(self)
-            }
+            },
+            containerSize: 1000
         });
 
         var vertBar = new Scrollbar({
@@ -283,29 +284,23 @@ exports.mixin = {
 
         this.div.appendChild(horzBar.bar);
         this.div.appendChild(vertBar.bar);
-        this.sbHScroller.shortenEndByValue('trailing', this.getHScrollbarLeftMargin());
 
-        this.resizeScrollbars();
+
+        this.synchronizeScrollbarsVisualization();
     },
 
-    resizeScrollbars: function() {
-        this.sbHScroller.resize();
-        //this.sbVScroller.shortenBy(this.sbHScroller);
-        this.sbVScroller.resize();
-        this.sbHScroller.shortenBy(this.sbVScroller).style = {
-            marginLeft: this.getHScrollbarLeftMargin(),
-            marginBottom: -1,
-            marginRight: -1
-        };
+    synchronizeScrollbarsVisualization: function(){
+        this.sbHScroller
+            .shortenEndByValue('leading', this.getHScrollbarLeftMargin())
+            .shortenEndByValue('trailing', this.getHScrollbarRightMargin()).resize();
+        this.sbVScroller.shortenEndByValue('leading', this.getVScrollbarTopMargin())
+            .shortenEndByValue('trailing', this.getVScrollbarBottomMargin()).resize();
 
-        this.sbVScroller.style = {
-            marginTop: this.getVScrollbarTopMargin(),
-            marginBottom: -1,
-            marginRight: 0
-        };
+        this.sbHScroller.style = this.properties.scrollbarHStyle;
+        this.sbHScroller.thumbStyle = this.properties.scrollbarHThumbStyle;
 
-
-        // this.sbHScroller.setStyleDirectly('marginLeft', '50px');
+        this.sbVScroller.style = this.properties.scrollbarVStyle;
+        this.sbVScroller.thumbStyle = this.properties.scrollbarVThumbStyle;
     },
 
     getHScrollbarLeftMargin: function() {
@@ -328,6 +323,16 @@ exports.mixin = {
         return res;
     },
 
+    getHScrollbarRightMargin: function() {
+        var res = -1;
+
+        if (this.properties.scrollbarVStyle && this.properties.scrollbarVStyle.width) {
+            res += this.properties.scrollbarVStyle.width;
+        }
+
+        return res;
+    },
+
     getVScrollbarTopMargin: function() {
         var res, rowIndex = this.properties.fixedRowCount;
 
@@ -339,6 +344,16 @@ exports.mixin = {
 
 
         res += this.properties.fixedRowCount ? this.properties.fixedLinesHWidth : 0;
+
+        return res;
+    },
+
+    getVScrollbarBottomMargin: function() {
+        var res = -1;
+
+        if (this.properties.scrollbarHStyle && this.properties.scrollbarHStyle.height) {
+            res += this.properties.scrollbarHStyle.height;
+        }
 
         return res;
     },
@@ -442,7 +457,7 @@ exports.mixin = {
         this.computeCellsBounds();
 
         // schedule to happen *after* the repaint
-        setTimeout(this.resizeScrollbars.bind(this));
+        setTimeout(this.synchronizeScrollbarsVisualization.bind(this));
     },
 
     /**

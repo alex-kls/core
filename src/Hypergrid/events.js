@@ -532,15 +532,15 @@ var mixin = {
         this.addInternalEventListener('fin-column-resized-event', function(e) {
             grid.delegateColumnResizedEvent(event);
 
-            grid.resizeScrollbars();
+            grid.synchronizeScrollbarsVisualization();
         });
 
         this.addInternalEventListener('fin-fixed-column-count-changed', function(e) {
-            grid.resizeScrollbars();
+            grid.synchronizeScrollbarsVisualization();
         });
 
         this.addInternalEventListener('fin-fixed-row-count-changed', function(e) {
-            grid.resizeScrollbars();
+            grid.synchronizeScrollbarsVisualization();
         });
     },
 

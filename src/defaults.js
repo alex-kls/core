@@ -1493,8 +1493,55 @@ var defaults = {
     rowFixationDraggerHeaderDraggingColor: '#A5C6FE',
     rowFixationDraggerBodyDraggingColor: '#DBE5F7',
     rowFixationPlaceholderHeaderColor: '#659DFC',
-    rowFixationPlaceholderBodyColor: '#AFBBD1'
+    rowFixationPlaceholderBodyColor: '#AFBBD1',
 
+    scrollbarVStyle: {
+        width: 13,
+        border: '1px solid #d9d9d9',
+        background: '#F8F8F8',
+        boxShadow: '0 0 0 #000, 0 0 0 #000, 0 0 0 #000',
+        marginTop: 0,
+        marginBottom: 0,
+        marginRight: 0,
+        borderRadius: 0
+    },
+    scrollbarHStyle: {
+        height: 13,
+        border: '1px solid #d9d9d9',
+        background: '#F8F8F8',
+        boxShadow: '0 0 0 #000, 0 0 0 #000, 0 0 0 #000',
+        marginLeft: 0,
+        marginRight: 0,
+        marginBottom: -1,
+        borderRadius: 0
+    },
+    scrollbarVThumbStyle: {
+        margin: 1,
+        width: 9,
+        right: 0,
+        backgroundColor: '#C7C7C7',
+        boxShadow: '0 0 2px rgba(0, 0, 0, 0.3) inset',
+        opacity: 1,
+        // transition: 'opacity .5s',
+        position: 'absolute',
+        // margin: 2,
+        // opacity: 0.4,
+        // transition: 'opacity .5s',
+        borderRadius: 0
+    },
+    scrollbarHThumbStyle: {
+        margin: 1,
+        height: 9,
+        bottom: 0,
+        backgroundColor: '#C7C7C7',
+        boxShadow: '0 0 2px rgba(0, 0, 0, 0.3) inset',
+        opacity: 1,
+        // transition: 'opacity .5s',
+        // margin: 2,
+        // opacity: 0.4,
+        // transition: 'opacity .5s',
+        borderRadius: 0
+    }
 };
 
 

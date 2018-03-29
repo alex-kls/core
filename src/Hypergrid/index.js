@@ -1379,10 +1379,10 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.div.appendChild(horzBar.bar);
         this.div.appendChild(vertBar.bar);
 
-        this.resizeScrollbars();
+        this.synchronizeScrollbarsVisualization();
     },
 
-    resizeScrollbars: function() {
+    synchronizeScrollbarsVisualization: function() {
         this.sbHScroller.shortenBy(this.sbVScroller).resize();
         //this.sbVScroller.shortenBy(this.sbHScroller);
         this.sbVScroller.resize();

@@ -61,6 +61,7 @@ function FinBar(options) {
      * @type {Element}
      * @memberOf FinBar.prototype
      */
+
     var bar = this.bar = document.createElement('div');
     bar.classList.add('finbar-vertical');
     bar.onmousedown = this._bound.onmousedown;
@@ -306,8 +307,27 @@ FinBar.prototype = {
         }
     },
 
-    setStyleDirectly: function(attrName, value){
-        this.bar.style[attrName] = value;
+    set thumbStyle(styles) {
+        var keys = Object.keys(styles = extend({}, styles));
+
+        if (keys.length) {
+            var thumb = this.thumb;
+
+            // Before applying new styles, revert all styles to values inherited from stylesheets
+            thumb.removeAttribute('style');
+
+            keys.forEach(function(key) {
+                var val = styles[key];
+
+                if (!isNaN(Number(val))) {
+                    val = (val || 0) + 'px';
+                }
+
+                thumb.style[key] = val;
+            });
+        }
+
+        this._setThumbSize();
     },
 
     /**
@@ -369,7 +389,7 @@ FinBar.prototype = {
     set index(idx) {
         idx = Math.min(this._max, Math.max(this._min, idx)); // clamp it
         this._setScroll(idx);
-        // this._setThumbSize();
+        this._setThumbSize();
     },
     get index() {
         return this._index;
@@ -460,13 +480,16 @@ FinBar.prototype = {
                 this._max = this.contentSize - 1;
             }
         }
-        if (this.onchange === this.scrollRealContent) {
-            this.containerSize = containerRect[this.oh.size];
-            this.increment = this.containerSize / (this.contentSize - this.containerSize) * (this._max - this._min);
-        } else {
-            this.containerSize = 1;
-            this.increment = increment || this.increment;
-        }
+
+        this.containerSize = containerRect[this.oh.size];
+        this.increment = this.containerSize / (this.contentSize - this.containerSize) * (this._max - this._min);
+        // if (this.onchange === this.scrollRealContent) {
+        //     this.containerSize = containerRect[this.oh.size];
+        //     this.increment = this.containerSize / (this.contentSize - this.containerSize) * (this._max - this._min);
+        // } else {
+        //     this.containerSize = 1;
+        //     this.increment = increment || this.increment;
+        // }
 
         var index = this.index;
         this.testPanelItem = this.testPanelItem || this._addTestPanelItem();
@@ -522,17 +545,15 @@ FinBar.prototype = {
                 ooh = orientationHashes[otherFinBar.orientation];
             this._auxStyles = {};
             this._auxStyles[whichEnd] = otherStyle[ooh.thickness];
-
-            console.log('shortenEndBy called');
         }
         return this; // for chaining
     },
 
     shortenEndByValue: function(whichEnd, shortenValue) {
         console.log('shortenEndByValue called');
-        this._auxStyles = {};
+        this._auxStyles = this._auxStyles ? this._auxStyles : {};
         this._auxStyles[whichEnd] = shortenValue + 'px';
-        return this; // for chaining
+        return this;
     },
 
     /**
@@ -547,14 +568,8 @@ FinBar.prototype = {
             thumbMarginLeading = parseInt(thumbComp[oh.marginLeading]),
             thumbMarginTrailing = parseInt(thumbComp[oh.marginTrailing]),
             thumbMargins = thumbMarginLeading + thumbMarginTrailing,
-            barComp = window.getComputedStyle(this.bar),
-            barMarginLeading = parseInt(barComp[oh.marginLeading]),
-            barMarginTrailing = parseInt(barComp[oh.marginTrailing]),
-            barMargins = barMarginLeading + barMarginTrailing,
-            barSize = this.bar.getBoundingClientRect()[oh.size] - barMargins - thumbMargins,
+            barSize = this.bar.getBoundingClientRect()[oh.size] - thumbMargins,
             thumbSize = Math.max(20, barSize * this.containerSize / this.contentSize);
-
-        console.log('thumbComp',thumbComp);
 
         if (this.containerSize < this.contentSize) {
             this.bar.style.visibility = 'visible';
