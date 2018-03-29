@@ -222,6 +222,30 @@ var mixin = {
 
     /**
      * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-fixed-column-count-changed` event.
+     */
+    fireSyntheticOnFixedColumnCountChangedEvent: function(oldFixedCount, newFixedCount) {
+        var event = {
+            oldFixedCount: oldFixedCount,
+            newFixedCount: newFixedCount
+        };
+        return dispatchEvent.call(this, 'fin-fixed-column-count-changed', {}, event);
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-fixed-row-count-changed` event.
+     */
+    fireSyntheticOnFixedRowCountChangedEvent: function(oldFixedCount, newFixedCount) {
+        var event = {
+            oldFixedCount: oldFixedCount,
+            newFixedCount: newFixedCount
+        };
+        return dispatchEvent.call(this, 'fin-fixed-row-count-changed', {}, event);
+    },
+
+    /**
+     * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-keydown` event.
      * @param {keyEvent} event - The canvas event.
      */
@@ -507,6 +531,16 @@ var mixin = {
 
         this.addInternalEventListener('fin-column-resized-event', function(e) {
             grid.delegateColumnResizedEvent(event);
+
+            grid.resizeScrollbars();
+        });
+
+        this.addInternalEventListener('fin-fixed-column-count-changed', function(e) {
+            grid.resizeScrollbars();
+        });
+
+        this.addInternalEventListener('fin-fixed-row-count-changed', function(e) {
+            grid.resizeScrollbars();
         });
     },
 

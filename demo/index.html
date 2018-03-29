@@ -247,7 +247,7 @@
         /* both horizontal and vertical scrolls styles */
 
         div.finbar-horizontal, div.finbar-vertical {
-            background-color: rgba(237, 237, 237, 1);
+            background-color: #F8F8F8;
             box-shadow: 0 0 0 #000, 0 0 0 #000, 0 0 0 #000;
         }
 
@@ -257,7 +257,7 @@
             -webkit-box-shadow: 0 0 0 #000, 0 0 0 #000, 0 0 0 #000;
             -moz-box-shadow: 0 0 0 #000, 0 0 0 #000, 0 0 0 #000;
             border-radius: 0;
-            border: 1px solid rgba(132, 132, 132, 1);
+            /*border: 1px solid rgba(132, 132, 132, 1);*/
         }
 
         div.finbar-horizontal > .thumb, div.finbar-vertical > .thumb {
@@ -275,27 +275,44 @@
         /* only vertical bar styles */
 
         div.finbar-vertical {
-            margin: 0 -1px 0 0 !important;
+            /*margin: 0 -1px 0 0 !important;*/
             width: 13px !important;
+
+            border: 1px solid #d9d9d9 !important;
         }
 
         div.finbar-vertical div.thumb {
-            margin: 0 0 17px 0;
-            width: 13px;
+            margin: 1px;
+            width: 9px;
             right: 0;
         }
 
         /* only horizontal bar styles */
 
         div.finbar-horizontal {
-            margin: 0 0 -1px 0 !important;
             height: 13px !important;
+
+            background: #F8F8F8;
+            border: 1px solid #d9d9d9 !important;
         }
 
         div.finbar-horizontal div.thumb {
-            margin: 0;
-            height: 13px;
+            margin: 1px;
+            height: 9px;
             bottom: 0;
+        }
+
+        div.thumb{
+            background-color: rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.3) inset;
+        }
+
+        div.thumb:hover{
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        div.thumb:active {
+            background-color: rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>

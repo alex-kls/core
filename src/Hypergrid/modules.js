@@ -15,6 +15,6 @@
  */
 
 module.exports = {
-    Scrollbar: require('finbars'),
+    Scrollbar: require('../Finbars/index'),
     templater: require('mustache') // interface à la mustache: { render: function(template, context) }
 };

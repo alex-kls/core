@@ -338,15 +338,20 @@ var RowFixation = Feature.extend('RowFixation', {
      * @param {Hypergrid} grid
      */
     performFixation: function(grid) {
+        var currentFixedRowCount = grid.properties.fixedRowCount;
         rowFixationPlaceholder.style.display = 'none';
 
         if (this.currentPlaceholderRowIndex < 0) {
             return;
         }
 
+        var newFixedRowValue = this.currentPlaceholderRowIndex - grid.getHeaderRowCount();
+
         grid.addProperties({
-            fixedRowCount: this.currentPlaceholderRowIndex - grid.getHeaderRowCount()
+            fixedRowCount: newFixedRowValue
         });
+
+        grid.fireSyntheticOnFixedRowCountChangedEvent(currentFixedRowCount, newFixedRowValue);
     },
 
     /**

@@ -152,6 +152,9 @@ exports.mixin = {
             this.behavior.changed();
             var oldY = this.vScrollValue;
             this.vScrollValue = y;
+            if (this.sbHScroller) {
+                this.sbVScroller.index = y;
+            }
             this.scrollValueChangedNotification();
             setTimeout(function() {
                 // self.sbVRangeAdapter.subjectChanged();
@@ -171,7 +174,7 @@ exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @desc Set the horizontal scroll value.
-     * @param {number} newValue - The new scroll value.
+     * @param {number} x - The new scroll value.
      */
     setHScrollValue: function(x) {
         var self = this;
@@ -182,10 +185,14 @@ exports.mixin = {
             var oldX = this.hScrollValue;
             this.hScrollValue = x;
             this.scrollValueChangedNotification();
+            if (this.sbHScroller) {
+                this.sbHScroller.index = x;
+            }
+
             setTimeout(function() {
                 //self.sbHRangeAdapter.subjectChanged();
                 self.fireScrollEvent('fin-scroll-x', oldX, x);
-                //self.synchronizeScrollingBoundries(); // todo: Commented off to prevent the grid from bouncing back, but there may be repercussions...
+                //self.synchronizeScrollingBoundaries(); // todo: Commented off to prevent the grid from bouncing back, but there may be repercussions...
             });
         }
     },
@@ -244,14 +251,64 @@ exports.mixin = {
 
         this.div.appendChild(horzBar.bar);
         this.div.appendChild(vertBar.bar);
+        this.sbHScroller.shortenEndByValue('trailing', this.getHScrollbarLeftMargin());
 
         this.resizeScrollbars();
     },
 
     resizeScrollbars: function() {
-        this.sbHScroller.shortenBy(this.sbVScroller).resize();
+        this.sbHScroller.resize();
         //this.sbVScroller.shortenBy(this.sbHScroller);
         this.sbVScroller.resize();
+        this.sbHScroller.shortenBy(this.sbVScroller).style = {
+            marginLeft: this.getHScrollbarLeftMargin(),
+            marginBottom: -1,
+            marginRight: -1
+        };
+
+        this.sbVScroller.style = {
+            marginTop: this.getVScrollbarTopMargin(),
+            marginBottom: -1,
+            marginRight: 0
+        };
+
+
+        // this.sbHScroller.setStyleDirectly('marginLeft', '50px');
+    },
+
+    getHScrollbarLeftMargin: function() {
+        var res = 0;
+        var visibleColumns = this.renderer.visibleColumns;
+        res += this.properties.gridLinesV ? this.properties.gridLinesVWidth : 0;
+        var neededColumn = visibleColumns[this.behavior.rowColumnIndex];
+        res += this.properties.rowHeaderNumbers && neededColumn
+            ? neededColumn.right
+            : 0;
+
+        for (var i = 0; i < this.properties.fixedColumnCount; i++) {
+            if (i !== this.behavior.rowColumnIndex) {
+                res += this.getColumnWidth(i);
+            }
+        }
+
+        res += this.properties.fixedColumnCount ? this.properties.fixedLinesVWidth : 0;
+
+        return res;
+    },
+
+    getVScrollbarTopMargin: function() {
+        var res, rowIndex = this.properties.fixedRowCount;
+
+        var row = this.renderer.visibleRows[rowIndex];
+        if (!row) {
+            row = this.renderer.visibleRows[0];
+        }
+        res = row ? row.bottom : 0;
+
+
+        res += this.properties.fixedRowCount ? this.properties.fixedLinesHWidth : 0;
+
+        return res;
     },
 
     /**

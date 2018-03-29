@@ -352,11 +352,14 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
      * @param {Hypergrid} grid
      */
     performFixation: function(grid) {
+        var currentFixedColumnCount = grid.properties.fixedColumnCount;
         grid.addProperties({
             fixedColumnCount: this.currentPlaceholderColumnPos
         });
 
         placeholder.style.display = 'none';
+
+        grid.fireSyntheticOnFixedColumnCountChangedEvent(currentFixedColumnCount, this.currentPlaceholderColumnPos);
     },
 
     /**
