@@ -27,6 +27,30 @@ exports.mixin = {
     },
 
     /**
+     * @summary The total height of the "data rows."
+     * @desc The total height of all rows preceding the (scrollable) data subgrid.
+     * @memberOf Behavior#
+     * @return {number} The height in pixels of the data rows area of the hypergrid, the total height of:
+     * 1. All rows of all subgrids preceding the data subgrid.
+     * 2. The visible data rows of the data subgrid.
+     */
+    getRowsHeight: function(toY) {
+        var subgrid, r, R,
+            subgrids = this.subgrids,
+            height = 0;
+
+        for (var i = 0; i < subgrids.length; ++i) {
+            subgrid = subgrids[i];
+            R = toY === undefined ? subgrid.getRowCount() : toY;
+            for (r = 0; r < R; ++r) {
+                height += this.getRowHeight(r, subgrid);
+            }
+        }
+
+        return height;
+    },
+
+    /**
      * @memberOf Behavior#
      * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
      * @param {boolean} [prototype] - Prototype for a new properties object when one does not already exist. If you don't define this and one does not already exist, this call will return `undefined`.

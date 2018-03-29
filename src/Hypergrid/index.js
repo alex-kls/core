@@ -1186,8 +1186,9 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     scrollVBy: function(offsetY) {
         var max = this.sbVScroller.range.max;
-        var oldValue = this.getVScrollValue();
-        var newValue = Math.min(max, Math.max(0, oldValue + offsetY));
+        var oldValue = this.vScrollValue;
+        var oldOffset = this.getVScrollValue();
+        var newValue = Math.min(max, oldValue + offsetY * this.behavior.getRowHeight(Math.max(0, oldOffset + offsetY)));
         if (newValue !== oldValue) {
             this.setVScrollValue(newValue);
         }
@@ -1200,40 +1201,41 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     scrollHBy: function(offsetX) {
         var max = this.sbHScroller.range.max;
-        var oldValue = this.getHScrollValue();
-        var newValue = Math.min(max, Math.max(0, oldValue + offsetX));
+        var oldValue = this.hScrollValue;
+        var oldOffset = this.getHScrollValue();
+        var newValue = Math.min(max, oldValue + offsetX * this.behavior.getColumnWidth(Math.max(0, oldOffset + offsetX)));
         if (newValue !== oldValue) {
             this.setHScrollValue(newValue);
         }
     },
 
-    scrollToMakeVisible: function(c, r) {
+    scrollToMakeVisible: function(column, row) {
         var delta,
             dw = this.renderer.dataWindow,
             fixedColumnCount = this.properties.fixedColumnCount,
             fixedRowCount = this.properties.fixedRowCount;
 
         // scroll only if target not in fixed columns
-        if (c >= fixedColumnCount) {
+        if (column >= fixedColumnCount) {
             // target is to left of scrollable columns; negative delta scrolls left
-            if ((delta = c - dw.origin.x) < 0) {
+            if ((delta = column - dw.origin.x) < 0) {
                 this.sbHScroller.index += delta;
 
                 // target is to right of scrollable columns; positive delta scrolls right
                 // Note: The +1 forces right-most column to scroll left (just in case it was only partially in view)
-            } else if ((c - dw.corner.x + 1) > 0) {
-                this.sbHScroller.index = this.renderer.getMinimumLeftPositionToShowColumn(c);
+            } else if ((column - dw.corner.x + 1) > 0) {
+                this.sbHScroller.index = this.renderer.getMinimumLeftPositionToShowColumn(column);
             }
         }
 
         if (
-            r >= fixedRowCount && // scroll only if target not in fixed rows
+            row >= fixedRowCount && // scroll only if target not in fixed rows
             (
                 // target is above scrollable rows; negative delta scrolls up
-                (delta = r - dw.origin.y) < 0 ||
+                (delta = row - dw.origin.y) < 0 ||
 
                 // target is below scrollable rows; positive delta scrolls down
-                (delta = r - dw.corner.y) > 0
+                (delta = row - dw.corner.y) > 0
             )
         ) {
             this.sbVScroller.index += delta;
