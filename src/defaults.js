@@ -696,7 +696,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    defaultColumnWidth: 100,
+    defaultColumnWidth: 101,
 
     /**
      * @default
@@ -884,7 +884,7 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    showTreeColumn: true,
+    showTreeColumn: false,
 
     /**
      * @default

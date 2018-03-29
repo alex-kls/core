@@ -707,7 +707,12 @@ var handlersToBeBound = {
     },
 
     onwheel: function(evt) {
-        this.index += evt[this.deltaProp];
+        var key = this.deltaProp;
+        // swap coordinates if shift key pressed
+        if (evt.shiftKey) {
+            key = orientationHashes[key === orientationHashes.horizontal.delta ? 'vertical' : 'horizontal'].delta;
+        }
+        this.index += evt[key];
         evt.stopPropagation();
         evt.preventDefault();
     },

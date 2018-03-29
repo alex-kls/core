@@ -467,13 +467,13 @@ exports.mixin = {
 
         // inform scroll bars
         if (this.sbHScroller) {
-            var hMax = Math.max(0, this.behavior.getColumnsWidth(this.behavior.getActiveColumnCount() - lastPageColumnCount) - this.behavior.getFixedColumnsWidth());
-            hMax += this.behavior.getColumnWidth(this.behavior.getActiveColumnCount() - 1);
+            var hMax = Math.max(0, this.behavior.getColumnsWidth(this.behavior.getActiveColumnCount() - lastPageColumnCount + 1) - this.behavior.getFixedColumnsWidth());
+            hMax += this.behavior.getColumnWidth(this.behavior.getActiveColumnCount());
             this.setHScrollbarValues(hMax);
             this.setHScrollValue(Math.min(this.hScrollValue, hMax));
         }
         if (this.sbVScroller) {
-            var vMax = Math.max(0, this.behavior.getRowsHeight(this.behavior.getRowCount() - lastPageRowCount) - this.behavior.getFixedRowsHeight());
+            var vMax = Math.max(0, this.behavior.getRowsHeight(this.behavior.getRowCount() - lastPageRowCount + 1) - this.behavior.getFixedRowsHeight());
             this.setVScrollbarValues(vMax);
             this.setVScrollValue(Math.min(this.vScrollValue, vMax));
         }

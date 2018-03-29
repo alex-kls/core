@@ -33,7 +33,7 @@ function paintCellsByColumnsAndRows(gc) {
         visibleRows = this.visibleRows,
         c, C = visibleColumns.length,
         cLast = C - 1,
-        r, R = visibleRows.length,
+        rowIndex, R = visibleRows.length,
         pool = this.cellEventPool,
         preferredWidth,
         columnClip,
@@ -63,8 +63,8 @@ function paintCellsByColumnsAndRows(gc) {
     rowBundles = this.rowBundles;
     if (rowBundles.length) {
         rowPrefillColors = this.rowPrefillColors;
-        for (r = rowBundles.length; r--;) {
-            rowBundle = rowBundles[r];
+        for (rowIndex = rowBundles.length; rowIndex--;) {
+            rowBundle = rowBundles[rowIndex];
             gc.clearFill(0, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top, rowBundle.backgroundColor);
         }
     } else {
@@ -77,31 +77,31 @@ function paintCellsByColumnsAndRows(gc) {
     // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
 
     // For each column...
-    var p = 0;
-    this.visibleColumns.forEachWithNeg(function(vc, c) {
+    var poolIndex = 0;
+    visibleColumns.forEachWithNeg(function(visibleColumn, columnIndex) {
 
-        cellEvent = pool[p];
-        vc = cellEvent.visibleColumn;
+        cellEvent = pool[poolIndex];
+        visibleColumn = cellEvent.visibleColumn;
 
         if (!rowPrefillColors) {
             prefillColor = cellEvent.column.properties.backgroundColor;
         }
 
         // Optionally clip to visible portion of column to prevent text from overflowing to right.
-        columnClip = vc.column.properties.columnClip;
-        gc.clipSave(columnClip || columnClip === null && c === cLast, 0, 0, vc.right, viewHeight);
+        columnClip = visibleColumn.column.properties.columnClip;
+        gc.clipSave(columnClip || columnClip === null && columnIndex === cLast, 0, 0, visibleColumn.right, viewHeight);
 
         // For each row of each subgrid (of each column)...
-        for (preferredWidth = r = 0; r < R; r++, p++) {
-            // if (!pool[p].disabled) {
+        for (preferredWidth = rowIndex = 0; rowIndex < R; rowIndex++, poolIndex++) {
+            // if (!pool[poolIndex].disabled) {
                 if (rowPrefillColors) {
-                    prefillColor = rowPrefillColors[r];
+                    prefillColor = rowPrefillColors[rowIndex];
                 }
 
                 try {
-                    preferredWidth = Math.max(preferredWidth, this._paintCell(gc, pool[p], prefillColor));
+                    preferredWidth = Math.max(preferredWidth, this._paintCell(gc, pool[poolIndex], prefillColor));
                 } catch (e) {
-                    this.renderErrorCell(e, gc, vc, pool[p].visibleRow);
+                    this.renderErrorCell(e, gc, visibleColumn, pool[poolIndex].visibleRow);
                 }
             // }
         }
@@ -110,6 +110,36 @@ function paintCellsByColumnsAndRows(gc) {
 
         cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
     }.bind(this));
+
+    // fit columns if needed
+    var preferredWidthSum = 0,
+        preferredWidthSumForExpand = 0,
+        columnsForChange = [];
+
+    visibleColumns.forEach(function(vc) {
+        var localWidth = vc.column.properties.preferredWidth || vc.column.properties.width || vc.width;
+        preferredWidthSum += localWidth;
+        if (vc.column.properties.preferredWidth && vc.column.properties.columnAutosizing) {
+            preferredWidthSumForExpand += localWidth;
+            columnsForChange.push(vc);
+        }
+    });
+
+    preferredWidthSumForExpand = Math.max(preferredWidthSumForExpand, viewWidth);
+
+    if (preferredWidthSum < grid.renderer.bounds.width) {
+        var difToExpand = grid.renderer.bounds.width - preferredWidthSum;
+        console.log('grid.renderer.bounds.width', grid.renderer.bounds.width);
+        console.log('preferredWidthSum', preferredWidthSum);
+        console.log('empty space for fill', difToExpand);
+        console.log('compare columns with', preferredWidthSumForExpand);
+        columnsForChange.forEach(function(vc) {
+            console.log('before', vc.column.properties.preferredWidth);
+            vc.column.properties.preferredWidth *= (1.0 + difToExpand / preferredWidthSum);
+            vc.column.properties.preferredWidth = Math.round(vc.column.properties.preferredWidth);
+            console.log('after', vc.column.properties.preferredWidth);
+        });
+    }
 
     // gc.clipRestore(clipToGrid);
 

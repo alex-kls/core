@@ -1291,7 +1291,7 @@ function computeCellsBounds() {
         numOfInternalCols = 0,
         x, X, // horizontal pixel loop index and limit
         y, Y, // vertical pixel loop index and limit
-        c, C, // column loop index and limit
+        columnIndex, columnCount, // column loop index and limit
         currentSubgridIndex, subgridsSize, // subgrid loop index and limit
         r, R, // row loop index and limit
         subrows, // rows in subgrid g
@@ -1342,29 +1342,29 @@ function computeCellsBounds() {
     this.insertionBounds = [];
 
     for (
-        x = 0, c = start, C = grid.getColumnCount(), X = bounds.width || grid.canvas.width;
-        c < C && x <= X;
-        c++
+        x = 0, columnIndex = start, columnCount = grid.getColumnCount(), X = bounds.width || grid.canvas.width;
+        columnIndex < columnCount && x <= X;
+        columnIndex++
     ) {
-        if (noTreeColumn && c === behavior.treeColumnIndex) {
+        if (noTreeColumn && columnIndex === behavior.treeColumnIndex) {
             continue;
         }
 
-        vx = c;
-        if (c >= fixedColumnCount) {
+        vx = columnIndex;
+        if (columnIndex >= fixedColumnCount) {
             lastVX = vx += scrollLeft;
             if (firstVX === undefined) {
                 firstVX = lastVX;
             }
         }
-        if (vx >= C) {
+        if (vx >= columnCount) {
             break; // scrolled beyond last column
         }
 
         width = Math.ceil(behavior.getColumnWidth(vx));
 
         if (x) {
-            if ((gap = hasFixedColumnGap && c === fixedColumnCount)) {
+            if ((gap = hasFixedColumnGap && columnIndex === fixedColumnCount)) {
                 x += fixedWidthV - lineWidthV;
                 this.visibleColumns.gap = {
                     left: vc.right,
@@ -1384,8 +1384,8 @@ function computeCellsBounds() {
         //     column.index = c;
         // }
 
-        this.visibleColumns[c] = this.visibleColumnsByIndex[vx] = vc = {
-            index: c,
+        this.visibleColumns[columnIndex] = this.visibleColumnsByIndex[vx] = vc = {
+            index: columnIndex,
             columnIndex: vx,
             column: column,
             gap: gap,
