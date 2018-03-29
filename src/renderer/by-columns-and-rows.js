@@ -112,34 +112,34 @@ function paintCellsByColumnsAndRows(gc) {
     }.bind(this));
 
     // fit columns if needed
-    var preferredWidthSum = 0,
-        preferredWidthSumForExpand = 0,
-        columnsForChange = [];
-
-    visibleColumns.forEach(function(vc) {
-        var localWidth = vc.column.properties.preferredWidth || vc.column.properties.width || vc.width;
-        preferredWidthSum += localWidth;
-        if (vc.column.properties.preferredWidth && vc.column.properties.columnAutosizing) {
-            preferredWidthSumForExpand += localWidth;
-            columnsForChange.push(vc);
-        }
-    });
-
-    preferredWidthSumForExpand = Math.max(preferredWidthSumForExpand, viewWidth);
-
-    if (preferredWidthSum < grid.renderer.bounds.width) {
-        var difToExpand = grid.renderer.bounds.width - preferredWidthSum;
-        console.log('grid.renderer.bounds.width', grid.renderer.bounds.width);
-        console.log('preferredWidthSum', preferredWidthSum);
-        console.log('empty space for fill', difToExpand);
-        console.log('compare columns with', preferredWidthSumForExpand);
-        columnsForChange.forEach(function(vc) {
-            console.log('before', vc.column.properties.preferredWidth);
-            vc.column.properties.preferredWidth *= (1.0 + difToExpand / preferredWidthSum);
-            vc.column.properties.preferredWidth = Math.round(vc.column.properties.preferredWidth);
-            console.log('after', vc.column.properties.preferredWidth);
-        });
-    }
+    // var preferredWidthSum = 0,
+    //     preferredWidthSumForExpand = 0,
+    //     columnsForChange = [];
+    //
+    // visibleColumns.forEach(function(vc) {
+    //     var localWidth = vc.column.properties.preferredWidth || vc.column.properties.width || vc.width;
+    //     preferredWidthSum += localWidth;
+    //     if (vc.column.properties.preferredWidth && vc.column.properties.columnAutosizing) {
+    //         preferredWidthSumForExpand += localWidth;
+    //         columnsForChange.push(vc);
+    //     }
+    // });
+    //
+    // preferredWidthSumForExpand = Math.max(preferredWidthSumForExpand, viewWidth);
+    //
+    // if (preferredWidthSum < grid.renderer.bounds.width) {
+    //     var difToExpand = grid.renderer.bounds.width - preferredWidthSum;
+    //     console.log('grid.renderer.bounds.width', grid.renderer.bounds.width);
+    //     console.log('preferredWidthSum', preferredWidthSum);
+    //     console.log('empty space for fill', difToExpand);
+    //     console.log('compare columns with', preferredWidthSumForExpand);
+    //     columnsForChange.forEach(function(vc) {
+    //         console.log('before', vc.column.properties.preferredWidth);
+    //         vc.column.properties.preferredWidth *= (1.0 + difToExpand / preferredWidthSum);
+    //         vc.column.properties.preferredWidth = Math.round(vc.column.properties.preferredWidth);
+    //         console.log('after', vc.column.properties.preferredWidth);
+    //     });
+    // }
 
     // gc.clipRestore(clipToGrid);
 
