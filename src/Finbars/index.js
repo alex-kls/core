@@ -72,6 +72,24 @@ function FinBar(options) {
 
     options = options || {};
 
+    /**
+     * @name bar
+     * @summary The generated scrollbar element.
+     * @desc The caller inserts this element into the DOM (typically into the content container) and then calls its {@link FinBar#resize|resize()} method.
+     *
+     * Thus the node tree is typically:
+     * * A **content container** element, which contains:
+     *   * The content element(s)
+     *   * This **scrollbar element**, which in turn contains:
+     *     * The **thumb element**
+     *
+     * @type {Element}
+     * @memberOf FinBar.prototype
+     */
+
+    var mountDiv = this.mountDiv = document.createElement('div');
+    mountDiv.appendChild(bar);
+
     // presets
     this.orientation = 'vertical';
     this._min = this._index = 0;
@@ -305,6 +323,8 @@ FinBar.prototype = {
                 bar.style[key] = val;
             });
         }
+
+        this.restyleMountDiv();
     },
 
     set thumbStyle(styles) {
@@ -328,6 +348,24 @@ FinBar.prototype = {
         }
 
         this._setThumbSize();
+    },
+
+    set mountStyle(styles) {
+        var keys = Object.keys(styles = extend({}, styles));
+
+        if (keys.length) {
+            var mount = this.mountDiv;
+
+            keys.forEach(function(key) {
+                var val = styles[key];
+
+                if (!isNaN(Number(val))) {
+                    val = (val || 0) + 'px';
+                }
+
+                mount.style[key] = val;
+            });
+        }
     },
 
     /**
@@ -499,12 +537,31 @@ FinBar.prototype = {
         this.testPanelItem = this.testPanelItem || this._addTestPanelItem();
         this._setThumbSize();
         this.index = index;
+        this.restyleMountDiv();
 
         if (this.deltaProp !== null) {
             container.addEventListener('wheel', this._bound.onwheel);
         }
 
         return this;
+    },
+
+    restyleMountDiv: function(){
+        var computedStyles = window.getComputedStyle(this.bar);
+
+        if (this.orientation === 'horizontal') {
+            this.mountDiv.style.height = computedStyles.height;
+            this.mountDiv.style.width = '100%';
+            this.mountDiv.style.bottom = '0';
+            // this.mountDiv.style.marginTop = computedStyles.marginTop;
+            // this.mountDiv.style.marginBottom = computedStyles.marginBottom;
+        } else {
+            this.mountDiv.style.height = '100%';
+            this.mountDiv.style.width = computedStyles.width;
+            this.mountDiv.style.right = '0';
+            // this.mountDiv.style.marginRight = computedStyles.marginRight;
+            // this.mountDiv.style.marginLeft= computedStyles.marginLeft;
+        }
     },
 
     /**
@@ -575,10 +632,10 @@ FinBar.prototype = {
             thumbSize = Math.max(20, barSize * this.containerSize / this.contentSize);
 
         if (this.containerSize < this.contentSize) {
-            this.bar.style.visibility = 'visible';
+            this.mountDiv.style.visibility = 'visible';
             this.thumb.style[oh.size] = thumbSize + 'px';
         } else {
-            this.bar.style.visibility = 'hidden';
+            this.mountDiv.style.visibility = 'hidden';
         }
 
         /**

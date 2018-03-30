@@ -1502,7 +1502,7 @@ var defaults = {
         boxShadow: '0 0 0 #000, 0 0 0 #000, 0 0 0 #000',
         marginTop: 0,
         marginBottom: 0,
-        marginRight: 0,
+        marginRight: -1,
         borderRadius: 0
     },
     scrollbarHStyle: {
@@ -1541,6 +1541,16 @@ var defaults = {
         // opacity: 0.4,
         // transition: 'opacity .5s',
         borderRadius: 0
+    },
+    scrollbarHMountStyle: {
+        position: 'absolute',
+        background: '#F8F8F8',
+        border: '1px solid #D9D9D9'
+    },
+    scrollbarVMountStyle: {
+        position: 'absolute',
+        background: '#F8F8F8',
+        border: '1px solid #D9D9D9'
     }
 };
 

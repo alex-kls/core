@@ -1,4 +1,5 @@
 'use strict';
+/* eslint-env browser */
 
 var Scrollbar = require('./modules').Scrollbar;
 
@@ -281,12 +282,10 @@ exports.mixin = {
             this.sbVScroller.classPrefix = vPrefix;
         }
 
-        this.div.appendChild(horzBar.bar);
-        this.div.appendChild(vertBar.bar);
-
+        this.div.appendChild(horzBar.mountDiv);
+        this.div.appendChild(vertBar.mountDiv);
 
         this.synchronizeScrollbarsVisualization();
-        console.log('synchronizeScrollbarsVisualization called from initialization');
     },
 
     synchronizeScrollbarsVisualization: function(){
@@ -300,9 +299,11 @@ exports.mixin = {
 
         this.sbHScroller.style = this.properties.scrollbarHStyle;
         this.sbHScroller.thumbStyle = this.properties.scrollbarHThumbStyle;
+        this.sbHScroller.mountStyle = this.properties.scrollbarHMountStyle;
 
         this.sbVScroller.style = this.properties.scrollbarVStyle;
         this.sbVScroller.thumbStyle = this.properties.scrollbarVThumbStyle;
+        this.sbVScroller.mountStyle = this.properties.scrollbarVMountStyle;
     },
 
     getHScrollbarLeftMargin: function() {
