@@ -389,7 +389,7 @@ FinBar.prototype = {
     set index(idx) {
         idx = Math.min(this._max, Math.max(this._min, idx)); // clamp it
         this._setScroll(idx);
-        this._setThumbSize();
+        // this._setThumbSize();
     },
     get index() {
         return this._index;
@@ -429,7 +429,7 @@ FinBar.prototype = {
             maxScroll = Math.max(0, this.content[sizeProp] - containerRect[sizeProp]),
             //scroll = Math.min(idx, maxScroll);
             scroll = (idx - this._min) / (this._max - this._min) * maxScroll;
-        //console.log('scroll: ' + scroll);
+
         this.content.style[this.oh.leading] = -scroll + 'px';
     },
 
