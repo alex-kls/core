@@ -325,10 +325,10 @@ var Renderer = Base.extend('Renderer', {
             isPseudoRow = false,
             isPseudoCol = false,
             vrs = this.visibleRows,
-            vcs = this.visibleColumns,
-            firstColumn = vcs[this.grid.behavior.leftMostColIndex],
+            visibleColumns = this.visibleColumns,
+            firstColumn = visibleColumns[this.grid.behavior.leftMostColIndex],
             inFirstColumn = x < firstColumn.right,
-            vc = inFirstColumn ? firstColumn : vcs.findWithNeg(function(vc) { return x < vc.right; }),
+            vc = inFirstColumn ? firstColumn : visibleColumns.findWithNeg(function(vc) { return x < vc.right; }),
             vr = vrs.find(function(vr) { return y < vr.bottom; }),
             result = {fake: false};
 
@@ -343,7 +343,7 @@ var Renderer = Base.extend('Renderer', {
         if (vc) {
             isPseudoCol = false;
         } else {
-            vc = vcs[vcs.length - 1];
+            vc = visibleColumns[visibleColumns.length - 1];
             isPseudoCol = true;
         }
 
@@ -618,6 +618,8 @@ var Renderer = Base.extend('Renderer', {
         var newX = (firstSelectedCell.x >= fixedColumnsCount) ?
             firstSelectedCell.x - this.grid.getHScrollValue() :
             firstSelectedCell.x;
+
+        newX = Math.max(0, newX);
 
         var pointWithHeaders = {
             x: newX,
@@ -923,7 +925,7 @@ var Renderer = Base.extend('Renderer', {
                         headerVc = visibleColumns[headerC];
                         headerRight = headerVc.right;
                         if (!headerVc.gap) {
-                            gc.fillRect(headerRight, 0, gridProps.gridLinesVWidth, headerHeight);
+                            gc.fillRect(headerRight, 0, gridProps.gridLinesVWidth, headerHeight +  1);
                         }
                     }
                 }
@@ -1341,8 +1343,22 @@ function computeCellsBounds() {
 
     this.insertionBounds = [];
 
+    var totalSpace = grid.renderer.bounds.width;
+    var totalWidth = behavior.getColumnsWidth();
+    var scrolledWidth = behavior.getColumnsWidth(scrollLeft);
+    var visibleSpace = totalWidth - scrolledWidth + behavior.getColumnWidth(behavior.rowColumnIndex);
+    var freeSpace = totalSpace - visibleSpace;
+    var lastShift = 0;
+
+    while (freeSpace > 0 && scrollLeft > 0) {
+        scrollLeft--;
+        var widthForSub = this.grid.getColumnWidth(scrollLeft);
+        lastShift = widthForSub - freeSpace;
+        freeSpace -= widthForSub;
+    }
+
     for (
-        x = 0, columnIndex = start, columnCount = grid.getColumnCount(), X = bounds.width || grid.canvas.width;
+        x = 0, columnIndex = start, columnCount = grid.getColumnCount(), X = (bounds.width || grid.canvas.width) + lastShift;
         columnIndex < columnCount && x <= X;
         columnIndex++
     ) {
@@ -1380,9 +1396,20 @@ function computeCellsBounds() {
 
         var column = behavior.getActiveColumn(vx);
 
+        if (!column) {
+            continue;
+        }
+
         // if (column.index === undefined) {
         //     column.index = c;
         // }
+
+        // todo probably need to be fixed with fixedColumnCount > 0
+        // resize first column
+        if (columnIndex === fixedColumnCount && lastShift) {
+            widthSpaced -= lastShift;
+            width -= lastShift;
+        }
 
         this.visibleColumns[columnIndex] = this.visibleColumnsByIndex[vx] = vc = {
             index: columnIndex,

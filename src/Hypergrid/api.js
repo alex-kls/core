@@ -33,9 +33,15 @@ function convertColDefs(colDefs, firstRowFont) {
         }
     }
 
-    colDefs.forEach(function(singleColDef, index) {
-        colDefMapper(singleColDef, idOf(az, index));
-    });
+    if (colDefs.length < az.length) {
+        az.forEach(function(singleLetter, index) {
+            colDefMapper(colDefs[index], singleLetter);
+        });
+    } else {
+        colDefs.forEach(function(singleColDef, index) {
+            colDefMapper(singleColDef, idOf(az, index));
+        });
+    }
 
     return { schema: schema, data: data };
 }
