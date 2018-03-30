@@ -785,7 +785,8 @@ var handlersToBeBound = {
         }
 
         // make the thumb glow momentarily
-        this.thumb.classList.add('hover');
+        // 30.03.2017 - disable, cause GoogleDocs scrollbar not hovered
+        // this.thumb.classList.add('hover');
         var self = this;
         this.thumb.addEventListener('transitionend', function waitForIt() {
             this.removeEventListener('transitionend', waitForIt);
@@ -796,11 +797,13 @@ var handlersToBeBound = {
     },
 
     onmouseover: function() {
-        this.thumb.classList.add('hover');
+        // 30.03.2017 - disable, cause GoogleDocs scrollbar not hovered
+        // this.thumb.classList.add('hover');
     },
 
     onmouseout: function() {
-        this.thumb.classList.remove('hover');
+        // 30.03.2017 - disable, cause GoogleDocs scrollbar not hovered
+        // this.thumb.classList.remove('hover');
     },
 
     onmousedown: function(evt) {
