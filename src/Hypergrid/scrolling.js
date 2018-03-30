@@ -515,9 +515,6 @@ exports.mixin = {
         var currentScroll = this.behavior.getScrollPositionX();
         var scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
         var leftPixel = currentScroll - scrollableWidth;
-        console.log('currentScroll', currentScroll);
-        console.log('scrollableWidth', scrollableWidth);
-        console.log('leftPixel', leftPixel);
         this.setHScrollValue(leftPixel);
         return leftPixel;
     },
@@ -532,9 +529,6 @@ exports.mixin = {
         var currentScroll = this.behavior.getScrollPositionX();
         var scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
         var rightPixel = currentScroll + scrollableWidth;
-        console.log('currentScroll', currentScroll);
-        console.log('scrollableWidth', scrollableWidth);
-        console.log('rightPixel', rightPixel);
         this.setHScrollValue(rightPixel);
         return rightPixel;
     }

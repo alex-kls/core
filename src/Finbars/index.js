@@ -73,16 +73,9 @@ function FinBar(options) {
     options = options || {};
 
     /**
-     * @name bar
-     * @summary The generated scrollbar element.
+     * @name mountDiv
+     * @summary The generated scrollbar decorative element that renders behind scrollbar and can be styled.
      * @desc The caller inserts this element into the DOM (typically into the content container) and then calls its {@link FinBar#resize|resize()} method.
-     *
-     * Thus the node tree is typically:
-     * * A **content container** element, which contains:
-     *   * The content element(s)
-     *   * This **scrollbar element**, which in turn contains:
-     *     * The **thumb element**
-     *
      * @type {Element}
      * @memberOf FinBar.prototype
      */
@@ -207,6 +200,45 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     onchange: null,
+
+    /**
+     * @summary flag to detect is mouse was continuously clicked over scrollbar (not thumb)
+     * @type {boolean}
+     * @memberOf FinBar.prototype
+     */
+    isMouseHoldOverBar: false,
+
+    /**
+     * @summary interval which used when mouse hold scroll performed
+     * @desc table will be scrolled on one full page with this interval until mouse hold ends
+     * @type {number}
+     * @memberOf FinBar.prototype
+     */
+    mouseHoldPerformIntervalRate: 200,
+
+    /**
+     * @private
+     * @summary utility field that contains mouseHold processing interval object
+     * @type {object}
+     * @memberOf FinBar.prototype
+     */
+    _mouseHoldPerformInterval: null,
+
+    /**
+     * @private
+     * @summary flag to detect that user clicked over thumb, and scroll need to be performed exactly to that point
+     * @type {boolean}
+     * @memberOf FinBar.prototype
+     */
+    isThumbDragging: true,
+
+    performMouseHoldEnd: function() {
+        this.isMouseHoldOverBar = false;
+        if (this._mouseHoldPerformInterval) {
+            clearInterval(this._mouseHoldPerformInterval);
+            this._mouseHoldPerformInterval = null;
+        }
+    },
 
     /**
      * @summary Add a CSS class name to the bar element's class list.
@@ -774,18 +806,6 @@ var handlersToBeBound = {
     },
 
     onclick: function(evt) {
-        var thumbBox = this.thumb.getBoundingClientRect(),
-            goingUp = evt[this.oh.coordinate] < thumbBox[this.oh.leading];
-
-        if (typeof this.paging === 'object') {
-            this.index = this.paging[goingUp ? 'up' : 'down'](Math.round(this.index));
-        } else {
-            this.index += goingUp ? -this.increment : this.increment;
-        }
-
-        // make the thumb glow momentarily
-        // 30.03.2017 - disable, cause GoogleDocs scrollbar not hovered
-        // this.thumb.classList.add('hover');
         var self = this;
         this.thumb.addEventListener('transitionend', function waitForIt() {
             this.removeEventListener('transitionend', waitForIt);
@@ -803,6 +823,8 @@ var handlersToBeBound = {
     onmouseout: function() {
         // 30.03.2017 - disable, cause GoogleDocs scrollbar not hovered
         // this.thumb.classList.remove('hover');
+
+        this.performMouseHoldEnd();
     },
 
     onmousedown: function(evt) {
@@ -813,35 +835,58 @@ var handlersToBeBound = {
         this._addEvt('mousemove');
         this._addEvt('mouseup');
 
+        var mouseOverThumb = thumbBox.left <= evt.clientX && evt.clientX <= thumbBox.right &&
+            thumbBox.top <= evt.clientY && evt.clientY <= thumbBox.bottom;
+
+        if (!mouseOverThumb) {
+            var goingUp = evt[this.oh.coordinate] < thumbBox[this.oh.leading];
+
+            if (typeof this.paging === 'object') {
+                this.index = this.paging[goingUp ? 'up' : 'down'](Math.round(this.index));
+            } else {
+                this.index += goingUp ? -this.increment : this.increment;
+            }
+
+            this.isMouseHoldOverBar = true;
+            this.isThumbDragging = false;
+            var self = this;
+            this._mouseHoldPerformInterval = setInterval(function() {
+                thumbBox = self.thumb.getBoundingClientRect();
+                mouseOverThumb = thumbBox.left <= evt.clientX && evt.clientX <= thumbBox.right &&
+                    thumbBox.top <= evt.clientY && evt.clientY <= thumbBox.bottom;
+                if (self.isMouseHoldOverBar && !mouseOverThumb) {
+                    var goingUp = evt[self.oh.coordinate] < thumbBox[self.oh.leading];
+                    self.index = self.paging[goingUp ? 'up' : 'down'](Math.round(self.index));
+                }
+            }, this.mouseHoldPerformIntervalRate);
+        } else if(!this.isMouseHoldOverBar){
+            this.isThumbDragging = true;
+        }
+
         evt.stopPropagation();
         evt.preventDefault();
     },
 
     onmousemove: function(evt) {
-        var scaled = Math.min(this._thumbMax, Math.max(0, evt[this.oh.axis] - this.pinOffset));
-        var idx = scaled / this._thumbMax * (this._max - this._min) + this._min;
+        if (this.isThumbDragging) {
+            var scaled = Math.min(this._thumbMax, Math.max(0, evt[this.oh.axis] - this.pinOffset));
+            var idx = scaled / this._thumbMax * (this._max - this._min) + this._min;
 
-        this._setScroll(idx, scaled);
+            this._setScroll(idx, scaled);
+        }
 
         evt.stopPropagation();
         evt.preventDefault();
     },
 
     onmouseup: function(evt) {
+        this.performMouseHoldEnd();
+        this.isThumbDragging = false;
+
         this._removeEvt('mousemove');
         this._removeEvt('mouseup');
 
         document.documentElement.style.cursor = 'auto';
-
-        var thumbBox = this.thumb.getBoundingClientRect();
-        if (
-            thumbBox.left <= evt.clientX && evt.clientX <= thumbBox.right &&
-            thumbBox.top <= evt.clientY && evt.clientY <= thumbBox.bottom
-        ) {
-            this._bound.onmouseover(evt);
-        } else {
-            this._bound.onmouseout(evt);
-        }
 
         evt.stopPropagation();
         evt.preventDefault();
