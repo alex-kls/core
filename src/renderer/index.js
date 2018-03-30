@@ -839,15 +839,15 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer.prototype
      * @returns {number} The row to goto for a page right.
      */
-    getPageRightRow: function() {
-        return this.dataWindow.corner.x - this.properties.fixedColumnCount;
+    getPageRightColumn: function() {
+        return this.dataWindow.corner.x - this.properties.fixedColumnCount + 1;
     },
 
     /**
      * @memberOf Renderer.prototype
      * @returns {number} The row to go to for a page left.
      */
-    getPageLeftRow: function() {
+    getPageLeftColumn: function() {
         console.log(this.dataWindow.origin.x);
         var widthLeft = this.bounds.width;
         var currentColumnToScrollIndex = this.dataWindow.origin.x - 1;

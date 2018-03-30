@@ -333,8 +333,6 @@ FinBar.prototype = {
         if (keys.length) {
             var thumb = this.thumb;
 
-            // Before applying new styles, revert all styles to values inherited from stylesheets
-            thumb.removeAttribute('style');
 
             keys.forEach(function(key) {
                 var val = styles[key];
@@ -427,6 +425,7 @@ FinBar.prototype = {
     set index(idx) {
         idx = Math.min(this._max, Math.max(this._min, idx)); // clamp it
         this._setScroll(idx);
+
         // this._setThumbSize();
     },
     get index() {
@@ -496,7 +495,7 @@ FinBar.prototype = {
             return; // not in DOM yet so nothing to do
         }
 
-        var container = this.container || bar.parentElement,
+        var container = this.container || this.mountDiv.parentElement,
             containerRect = container.getBoundingClientRect();
 
         // shift args if if 1st arg omitted
@@ -665,7 +664,7 @@ FinBar.prototype = {
         this._removeEvt('mousemove');
         this._removeEvt('mouseup');
 
-        (this.container || this.bar.parentElement)._removeEvt('wheel', this._bound.onwheel);
+        (this.container || this.mountDiv.parentElement)._removeEvt('wheel', this._bound.onwheel);
 
         this.bar.onclick =
             this.thumb.onclick =

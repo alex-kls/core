@@ -368,8 +368,6 @@ exports.mixin = {
             res += this.getColumnWidth(i);
         }
 
-        console.log('current columns count', this.getColumnCount());
-        console.log('full content width is ', res);
         return res;
     },
     getFullContentHeight: function() {
@@ -379,8 +377,6 @@ exports.mixin = {
             res += this.getRowHeight(i);
         }
 
-        console.log('current rows count', this.getRowCount());
-        console.log('full content height is ', res);
         return res;
     },
     /**
@@ -483,7 +479,6 @@ exports.mixin = {
 
         // schedule to happen *after* the repaint
         setTimeout(this.synchronizeScrollbarsVisualization.bind(this));
-        console.log('synchronizeScrollbarsVisualization called from synchronizeScrollingBoundaries');
     },
 
     /**
@@ -516,9 +511,15 @@ exports.mixin = {
      * @returns {number}
      */
     pageLeft: function() {
-        var rowNum = this.renderer.getPageLeftRow();
-        this.setHScrollValue(rowNum);
-        return rowNum;
+        var bounds = this.getBounds();
+        var currentScroll = this.behavior.getScrollPositionX();
+        var scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
+        var leftPixel = currentScroll - scrollableWidth;
+        console.log('currentScroll', currentScroll);
+        console.log('scrollableWidth', scrollableWidth);
+        console.log('leftPixel', leftPixel);
+        this.setHScrollValue(leftPixel);
+        return leftPixel;
     },
 
     /**
@@ -527,8 +528,14 @@ exports.mixin = {
      * @returns {number}
      */
     pageRight: function() {
-        var rowNum = this.renderer.getPageRightRow();
-        this.setHScrollValue(rowNum);
-        return rowNum;
+        var bounds = this.getBounds();
+        var currentScroll = this.behavior.getScrollPositionX();
+        var scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
+        var rightPixel = currentScroll + scrollableWidth;
+        console.log('currentScroll', currentScroll);
+        console.log('scrollableWidth', scrollableWidth);
+        console.log('rightPixel', rightPixel);
+        this.setHScrollValue(rightPixel);
+        return rightPixel;
     }
 };
