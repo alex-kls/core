@@ -1050,7 +1050,7 @@ var Renderer = Base.extend('Renderer', {
             format,
             isSelected;
 
-        if (isHandleColumn && cellEvent.gridCell.y !== cellEvent.dataCell.y) {
+        if (isHandleColumn && isDataRow) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
             config.halign = this.properties.columnHeaderHalign;
         } else if (isTreeColumn) {

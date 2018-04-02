@@ -104,8 +104,6 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
             }
         }
 
-        console.log(newSchema);
-
         this.schema = newSchema;
         this.dispatchEvent('data-schema-changed');
     },

@@ -311,8 +311,7 @@ var Behavior = Base.extend('Behavior', {
         if (!column) {
             return this.grid.properties.defaultColumnWidth;
         }
-        var width = column.getWidth();
-        return width;
+        return column.getWidth() + this.grid.properties.gridLinesVWidth;
     },
 
     /**

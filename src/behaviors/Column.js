@@ -166,7 +166,7 @@ Column.prototype = {
     },
 
     getWidth: function() {
-        return this.properties.width || this.behavior.grid.properties.defaultColumnWidth + this.properties.gridLinesVWidth;
+        return this.properties.width || this.properties.defaultColumnWidth;
     },
 
     setWidth: function(width) {

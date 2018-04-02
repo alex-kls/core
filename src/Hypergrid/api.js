@@ -125,9 +125,6 @@ function setColumnDefs(colDefs) {
     });
     this.allowEvents(true);
     this.behavior.dataModel.setSchema(schema.schema);
-
-    var grid = this;
-    grid.behavior.setColumnProperties(grid.behavior.rowColumnIndex, { halign: 'center', width: 50 });
 }
 
 function setRowData(rowData) {

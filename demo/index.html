@@ -28,168 +28,19 @@
                 var loadingSpan = document.querySelector('span#loading');
                 loadingSpan.style.visibility = "hidden";
                 var div = document.querySelector('div#json-example');
-                var inLoad = false;
 
-                var colDef = [{
-                    "colId": "c0",
-                    "field": "c0",
-                    "originalField": "c0",
-                    "headerName": "Field 1",
-                    "suppressSorting": false,
-                    "minWidth": 10,
-                    "maxWidth": 2000,
-                    "suppressMenu": 0,
-                    "suppressMovable": false,
-                    "suppressSizeToFit": false,
-                    "sort": null,
-                    "sortedAt": null,
-                    "columnGroupShow": "open"
-                }, {
-                    "colId": "c1",
-                    "field": "c1",
-                    "originalField": "c1",
-                    "headerName": "Field 2",
-                    "suppressSorting": false,
-                    "minWidth": 10,
-                    "maxWidth": 2000,
-                    "suppressMenu": 0,
-                    "suppressMovable": false,
-                    "suppressSizeToFit": false,
-                    "sort": null,
-                    "sortedAt": null,
-                    "columnGroupShow": "open"
-                }, {
-                    "colId": "c2",
-                    "field": "c2",
-                    "originalField": "c2",
-                    "headerName": "Field 3",
-                    "suppressSorting": false,
-                    "minWidth": 10,
-                    "maxWidth": 2000,
-                    "suppressMenu": 0,
-                    "suppressMovable": false,
-                    "suppressSizeToFit": false,
-                    "sort": null,
-                    "sortedAt": null,
-                    "columnGroupShow": "open"
-                }, {
-                    "colId": "c3",
-                    "field": "c3",
-                    "originalField": "c3",
-                    "headerName": "Field 4",
-                    "suppressSorting": false,
-                    "minWidth": 10,
-                    "maxWidth": 2000,
-                    "suppressMenu": 0,
-                    "suppressMovable": false,
-                    "suppressSizeToFit": false,
-                    "sort": null,
-                    "sortedAt": null,
-                    "columnGroupShow": "open"
-                }, {
-                    "colId": "c4",
-                    "field": "c4",
-                    "originalField": "c4",
-                    "headerName": "Field 5",
-                    "suppressSorting": false,
-                    "minWidth": 10,
-                    "maxWidth": 2000,
-                    "suppressMenu": 0,
-                    "suppressMovable": false,
-                    "suppressSizeToFit": false,
-                    "sort": null,
-                    "sortedAt": null,
-                    "columnGroupShow": "open"
-                }, {
-                    "colId": "c5",
-                    "field": "c5",
-                    "originalField": "c5",
-                    "headerName": "Field 6",
-                    "suppressSorting": false,
-                    "minWidth": 10,
-                    "maxWidth": 2000,
-                    "suppressMenu": 0,
-                    "suppressMovable": false,
-                    "suppressSizeToFit": false,
-                    "sort": null,
-                    "sortedAt": null,
-                    "columnGroupShow": "open"
-                }, {
-                    "colId": "c6",
-                    "field": "c6",
-                    "originalField": "c6",
-                    "headerName": "Field 7",
-                    "suppressSorting": false,
-                    "minWidth": 10,
-                    "maxWidth": 2000,
-                    "suppressMenu": 0,
-                    "suppressMovable": false,
-                    "suppressSizeToFit": false,
-                    "sort": null,
-                    "sortedAt": null,
-                    "columnGroupShow": "open"
-                }, {
-                    "colId": "c7",
-                    "field": "c7",
-                    "originalField": "c7",
-                    "headerName": "Field 8",
-                    "suppressSorting": false,
-                    "minWidth": 10,
-                    "maxWidth": 2000,
-                    "suppressMenu": 0,
-                    "suppressMovable": false,
-                    "suppressSizeToFit": false,
-                    "sort": null,
-                    "sortedAt": null,
-                    "columnGroupShow": "open"
-                }, {
-                    "colId": "c8",
-                    "field": "c8",
-                    "originalField": "c8",
-                    "headerName": "Field 9",
-                    "suppressSorting": false,
-                    "minWidth": 10,
-                    "maxWidth": 2000,
-                    "suppressMenu": 0,
-                    "suppressMovable": false,
-                    "suppressSizeToFit": false,
-                    "sort": null,
-                    "sortedAt": null,
-                    "columnGroupShow": "open"
-                }, {
-                    "colId": "c9",
-                    "field": "c9",
-                    "originalField": "c9",
-                    "headerName": "Field 10",
-                    "suppressSorting": false,
-                    "minWidth": 10,
-                    "maxWidth": 2000,
-                    "suppressMenu": 0,
-                    "suppressMovable": false,
-                    "suppressSizeToFit": false,
-                    "sort": null,
-                    "sortedAt": null,
-                    "columnGroupShow": "open"
-                }, {
-                    "colId": "c10",
-                    "field": "c10",
-                    "originalField": "c10",
-                    "headerName": "Field 11",
-                    "suppressSorting": false,
-                    "minWidth": 10,
-                    "maxWidth": 2000,
-                    "suppressMenu": 0,
-                    "suppressMovable": false,
-                    "suppressSizeToFit": false,
-                    "sort": null,
-                    "sortedAt": null,
-                    "columnGroupShow": "open"
-                }];
+                var colDef = [{"colId":"c0","field":"c0","originalField":"c0","headerName":"Company permalink","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open","pinned":"left"},{"colId":"c1","field":"c1","originalField":"c1","headerName":"Company name","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c2","field":"c2","originalField":"c2","headerName":"Company category list","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c3","field":"c3","originalField":"c3","headerName":"Company country code","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c4","field":"c4","originalField":"c4","headerName":"Company state code","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c5","field":"c5","originalField":"c5","headerName":"Company region","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c6","field":"c6","originalField":"c6","headerName":"Company city","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c7","field":"c7","originalField":"c7","headerName":"Investor permalink","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c8","field":"c8","originalField":"c8","headerName":"Investor name","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c9","field":"c9","originalField":"c9","headerName":"Investor country code","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c10","field":"c10","originalField":"c10","headerName":"Investor state code","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c11","field":"c11","originalField":"c11","headerName":"Investor region","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c12","field":"c12","originalField":"c12","headerName":"Investor city","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c13","field":"c13","originalField":"c13","headerName":"Funding round permalink","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c14","field":"c14","originalField":"c14","headerName":"Funding round type","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c15","field":"c15","originalField":"c15","headerName":"Funding round code","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c16","field":"c16","originalField":"c16","headerName":"Funded at","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"},{"colId":"c17","field":"c17","originalField":"c17","headerName":"Raised amount usd","suppressSorting":false,"minWidth":10,"maxWidth":2000,"suppressMenu":0,"suppressMovable":false,"suppressSizeToFit":false,"sort":null,"sortedAt":null,"columnGroupShow":"open"}];
 
                 function prepareData(result) {
                     var res = [];
                     result.data.children.forEach(function(c) {
-                        res.push(c.data);
+                        var forPush = {};
+                        var keys = Object.keys(c.data);
+
+                        keys.forEach(function(d) {
+                            return forPush[d] = c.data[keys[Math.floor(Math.random() * keys.length)]];
+                        });
+                        res.push(forPush);
                     });
                     return res;
                 }
@@ -213,18 +64,11 @@
 
                 grid.api.setColumnDefs(colDef);
 
-                setTimeout(function() {
+                (function appendData() {
                     window.grid.api.setColumnDefs(colDef);
                     window.grid.api.setRowData(prepareData(result));
-
-                    setTimeout(function() {
-                        window.grid.api.setColumnDefs(colDef);
-
-                        setTimeout(function() {
-                            window.grid.api.setRowData(prepareData(result));
-                        }, 1000);
-                    }, 1000);
-                }, 1000);
+                    setTimeout(appendData, 3000);
+                })();
             });
         };
     </script>

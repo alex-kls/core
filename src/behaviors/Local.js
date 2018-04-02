@@ -26,14 +26,31 @@ var Local = Behavior.extend('Local', {
     },
 
     createColumns: function() {
+        var oldColumns = this.columns;
+        var oldAllColumns = this.allColumns;
+
         Behavior.prototype.createColumns.call(this);
 
         this.schema.forEach(function(columnSchema, index) {
-            this.addColumn({
-                index: index,
-                header: columnSchema.header,
-                calculator: columnSchema.calculator
-            });
+            var findFunction = function(c) {
+                return c.properties.index === index && c.properties.header === columnSchema.header;
+            };
+            var oldColumn = oldAllColumns.find(findFunction) || oldColumns.find(findFunction);
+            if (oldColumn) {
+                var newColumn = this.addColumn(oldColumn.properties);
+                var props = newColumn.properties;
+
+                // disable resizing for old resized columns
+                if (props.width === props.preferredWidth && props.columnAutosizing && props.columnAutosized) {
+                    props.columnAutosizing = false;
+                }
+            } else {
+                this.addColumn({
+                    index: index,
+                    header: columnSchema.header,
+                    calculator: columnSchema.calculator
+                });
+            }
         }, this);
     },
 
