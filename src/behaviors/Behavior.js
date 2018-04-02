@@ -642,7 +642,7 @@ var Behavior = Base.extend('Behavior', {
             total = 0,
             i = this.leftMostColIndex;
 
-        for (; i <= count; i++) {
+        for (; i < count; i++) {
             total += this.getColumnWidth(i);
         }
         return total;
