@@ -56,6 +56,15 @@ var Local = Behavior.extend('Local', {
         }, this);
     },
 
+    fixColumns: function() {
+        this.allColumns.forEach(function(column) {
+            var props = column.properties;
+            if (props.width === props.preferredWidth && props.columnAutosizing && props.columnAutosized) {
+                props.columnAutosizing = false;
+            }
+        });
+    },
+
     /**
      * @memberOf Local#
      * @description Set the header labels.

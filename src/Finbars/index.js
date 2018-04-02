@@ -666,7 +666,7 @@ FinBar.prototype = {
             this.mountDiv.style.visibility = 'visible';
             this.thumb.style[oh.size] = thumbSize + 'px';
 
-            console.log(this.orientation + ' scroll width was set to ', this.containerSize);
+            // console.log(this.orientation + ' scroll width was set to ', this.containerSize);
         } else {
             this.mountDiv.style.visibility = 'hidden';
         }

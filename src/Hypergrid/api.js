@@ -138,6 +138,19 @@ function setRowData(rowData) {
 function sizeColumnsToFit() {
     console.log('sizeColumnsToFit');
     this.behavior.autosizeAllColumns();
+
+    this.api.needColumnsToFit = true;
+    if (!this.api.drawListener) {
+        var self = this;
+        this.api.drawListener = function(e) {
+            if (self.api.needColumnsToFit) {
+                self.behavior.fixColumns();
+                self.api.needColumnsToFit = false;
+            }
+        };
+
+        this.addInternalEventListener('fin-grid-rendered', this.api.drawListener);
+    }
 }
 
 function destroy() {
