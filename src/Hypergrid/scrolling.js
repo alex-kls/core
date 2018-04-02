@@ -108,32 +108,82 @@ exports.mixin = {
         var delta,
             dw = this.renderer.dataWindow,
             fixedColumnCount = this.properties.fixedColumnCount,
-            fixedRowCount = this.properties.fixedRowCount;
+            fixedRowCount = this.properties.fixedRowCount,
+            pxDelta = 0;
 
         // scroll only if target not in fixed columns
         if (column >= fixedColumnCount) {
+            delta = column - dw.origin.x;
             // target is to left of scrollable columns; negative delta scrolls left
-            if ((delta = column - dw.origin.x) < 0) {
-                this.sbHScroller.index += delta;
+            if (delta < 0) {
+                pxDelta = 0;
+                for (var ic = 0; ic <= Math.abs(delta); ic++) {
+                    pxDelta += this.getColumnWidth(dw.origin.x - ic);
+
+                    if (this.properties.gridLinesV) {
+                        pxDelta += this.properties.gridLinesVWidth * 2;
+                    }
+                }
+
+                this.sbHScroller.index -= pxDelta;
 
                 // target is to right of scrollable columns; positive delta scrolls right
                 // Note: The +1 forces right-most column to scroll left (just in case it was only partially in view)
-            } else if ((column - dw.corner.x + 1) > 0) {
-                this.sbHScroller.index = this.renderer.getMinimumLeftPositionToShowColumn(column);
+            }
+            delta = column - dw.corner.x;
+            if (delta >= 0) {
+                pxDelta = 0;
+                for (var jc = 0; jc <= Math.abs(delta); jc++) {
+                    pxDelta += this.getColumnWidth(dw.corner.x - jc);
+
+                    if (this.properties.gridLinesV) {
+                        pxDelta += this.properties.gridLinesVWidth * 2;
+                    }
+                }
+
+                this.sbHScroller.index += pxDelta;
             }
         }
 
-        if (
-            row >= fixedRowCount && // scroll only if target not in fixed rows
-            (
-                // target is above scrollable rows; negative delta scrolls up
-                (delta = row - dw.origin.y) < 0 ||
+        if (this.sbHScroller.index <= this.getColumnWidth(0)) {
+            this.sbHScroller.index = 0;
+        }
 
-                // target is below scrollable rows; positive delta scrolls down
-                (delta = row - dw.corner.y) > 0
-            )
-        ) {
-            this.sbVScroller.index += delta;
+        // scroll only if target not in fixed rows
+        if (row >= fixedRowCount) {
+            delta = row - dw.origin.y;
+            // target is above scrollable rows; negative delta scrolls up
+            if (delta < 0) {
+                pxDelta = 0;
+                for (var i = 0; i < Math.abs(delta) + 1; i++) {
+                    pxDelta += this.getRowHeight(dw.origin.y - i);
+
+                    if (this.properties.gridLinesH) {
+                        pxDelta += this.properties.gridLinesHWidth * 2;
+                    }
+                }
+                pxDelta += 20;
+                this.sbVScroller.index -= pxDelta;
+            }
+
+            delta = row - dw.corner.y;
+            // or target is below scrollable rows; positive delta scrolls down
+            if (delta >= 0) {
+                pxDelta = 0;
+                for (var j = 0; j < Math.abs(delta) + 1; j++) {
+                    pxDelta += this.getRowHeight(dw.corner.y + j);
+
+                    if (this.properties.gridLinesH) {
+                        pxDelta += this.properties.gridLinesHWidth * 2;
+                    }
+                }
+                pxDelta += 20;
+                this.sbVScroller.index += pxDelta;
+            }
+        }
+
+        if (this.sbVScroller.index <= this.getRowHeight(0)) {
+            this.sbVScroller.index = 0;
         }
     },
 

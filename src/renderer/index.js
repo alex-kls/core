@@ -616,7 +616,7 @@ var Renderer = Base.extend('Renderer', {
 
         var fixedColumnsCount = this.grid.getFixedColumnCount();
         var newX = (firstSelectedCell.x >= fixedColumnsCount) ?
-            firstSelectedCell.x - this.grid.getHScrollValue() :
+            firstSelectedCell.x - this.dataWindow.origin.x :
             firstSelectedCell.x;
 
         newX = Math.max(0, newX);
@@ -656,7 +656,6 @@ var Renderer = Base.extend('Renderer', {
             (lastColumn && selection.origin.x > lastColumn.columnIndex) ||
             (lastRow && selection.origin.y > lastRow.rowIndex)
         ) {
-            console.log('returned');
             return;
         }
 
@@ -850,7 +849,6 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The row to go to for a page left.
      */
     getPageLeftColumn: function() {
-        console.log(this.dataWindow.origin.x);
         var widthLeft = this.bounds.width;
         var currentColumnToScrollIndex = this.dataWindow.origin.x - 1;
 
