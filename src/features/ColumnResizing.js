@@ -37,14 +37,30 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
     /**
      * @memberOf ColumnResizing.prototype
      * @desc returns the index of which divider I'm over
-     * @returns {number}
+     * @returns {boolean}
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     overAreaDivider: function(grid, event) {
         var leftMostColumnIndex = grid.behavior.leftMostColIndex;
-        return event.gridCell.x !== leftMostColumnIndex && event.mousePoint.x <= 3 ||
-            event.mousePoint.x >= event.bounds.width - 3;
+
+        // near left border of column
+        if (event.gridCell.x !== leftMostColumnIndex && event.mousePoint.x <= 3) {
+            var leftColumn = grid.behavior.getColumnShifted(event.gridCell.x, false);
+            if (leftColumn && !leftColumn.properties.fixed) {
+                return true;
+            }
+        }
+
+        // near right border of column
+        if (event.mousePoint.x >= event.bounds.width - 3) {
+            var column = grid.behavior.getColumn(event.gridCell.x);
+            if (column && !column.properties.fixed) {
+                return true;
+            }
+        }
+
+        return false;
     },
 
     /**

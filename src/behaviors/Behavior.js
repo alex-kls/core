@@ -237,6 +237,9 @@ var Behavior = Base.extend('Behavior', {
             header: ''
         };
 
+        var treeColumnOld = (this.allColumns && this.allColumns[treeColumnIndex]) || (this.columns && this.columns[treeColumnIndex]);
+        var rowColumnOld = (this.allColumns && this.allColumns[rowColumnIndex]) || (this.columns && this.columns[rowColumnIndex]);
+
         /**
          * @type {Column[]}
          * @memberOf Behavior#
@@ -249,19 +252,21 @@ var Behavior = Base.extend('Behavior', {
          */
         this.allColumns = [];
 
-        this.allColumns[treeColumnIndex] = this.columns[treeColumnIndex] = this.newColumn({
+        this.allColumns[treeColumnIndex] = this.columns[treeColumnIndex] = this.newColumn(treeColumnOld && treeColumnOld.properties ? treeColumnOld.properties : {
             index: treeColumnIndex,
             header: schema[treeColumnIndex].header,
             name: schema[treeColumnIndex].name
         });
-        this.allColumns[rowColumnIndex] = this.columns[rowColumnIndex] = this.newColumn({
+        this.allColumns[rowColumnIndex] = this.columns[rowColumnIndex] = this.newColumn(rowColumnOld && rowColumnOld.properties ? rowColumnOld.properties : {
             index: rowColumnIndex,
             header: schema[rowColumnIndex].header,
-            name: schema[rowColumnIndex].name
+            name: schema[rowColumnIndex].name,
+            columnAutosizing: false,
+            minWidth: this.grid.properties.columnHeaderInitWidth,
+            fixed: true
         });
 
         this.columns[treeColumnIndex].properties.propClassLayers = this.columns[rowColumnIndex].properties.propClassLayers = [propClassEnum.COLUMNS];
-        Object.assign(this.columns[rowColumnIndex].properties, { columnAutosizing: false, minWidth: this.grid.properties.columnHeaderInitWidth });
 
         // Signal the renderer to size the now-reset handle column before next render
         this.grid.renderer.resetRowHeaderColumnWidth();
@@ -288,6 +293,30 @@ var Behavior = Base.extend('Behavior', {
 
     getColumn: function(x) {
         return this.allColumns[x];
+    },
+
+    /**
+     * @default get nearest column to X
+     * @param x - index of base column
+     * @param rigthShift - boolean direction for near column getting. `true` - is direction to the right
+     * @returns {Column|undefined}
+     */
+    getColumnShifted: function(x, rigthShift) {
+        if (rigthShift) {
+            ++x;
+        } else {
+            --x;
+        }
+
+        if (x === this.treeColumnIndex && !this.grid.properties.showTreeColumn) {
+            return this.getColumnShifted(x, rigthShift);
+        }
+
+        if (x === this.rowColumnIndex && !this.grid.properties.rowHeaderNumbers) {
+            return this.getColumnShifted(x, rigthShift);
+        }
+
+        return this.getColumn(x);
     },
 
     newColumn: function(options) {

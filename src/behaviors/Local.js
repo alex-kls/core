@@ -33,7 +33,9 @@ var Local = Behavior.extend('Local', {
 
         this.schema.forEach(function(columnSchema, index) {
             var findFunction = function(c) {
-                return c.properties.index === index && c.properties.header === columnSchema.header;
+                return c.properties.index === index &&
+                    c.properties.header === columnSchema.header &&
+                    c.properties.calculator === columnSchema.calculator;
             };
             var oldColumn = oldAllColumns.find(findFunction) || oldColumns.find(findFunction);
             if (oldColumn) {
