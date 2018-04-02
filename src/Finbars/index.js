@@ -332,7 +332,7 @@ FinBar.prototype = {
                 oh = this.oh;
 
             // Before applying new styles, revert all styles to values inherited from stylesheets
-            bar.removeAttribute('style');
+            // bar.removeAttribute('style');
 
             keys.forEach(function(key) {
                 var val = styles[key];
@@ -665,6 +665,8 @@ FinBar.prototype = {
         if (this.containerSize < this.contentSize) {
             this.mountDiv.style.visibility = 'visible';
             this.thumb.style[oh.size] = thumbSize + 'px';
+
+            console.log(this.orientation + ' scroll width was set to ', this.containerSize);
         } else {
             this.mountDiv.style.visibility = 'hidden';
         }
