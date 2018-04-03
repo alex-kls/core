@@ -66,6 +66,7 @@
                 grid.api.setColumnDefs(colDef);
 
                 (function appendData() {
+                    window.grid.api.destroy();
                     window.grid.api.setColumnDefs(colDef);
                     window.grid.api.setRowData(prepareData(result));
                     window.grid.api.sizeColumnsToFit();

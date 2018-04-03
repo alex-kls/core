@@ -675,9 +675,9 @@ var Renderer = Base.extend('Renderer', {
             }
         }
         if (!lastRow) {
-            var rowOffser = 1;
+            var rowOffset = 1;
             while (!lastRow) {
-                lastRow = vri[this.dataWindow.corner.y - rowOffser];
+                lastRow = vri[this.dataWindow.corner.y - rowOffset];
             }
         }
         vcCorner = vcCorner || ((lastColumn && selection.corner.x > lastColumn.columnIndex) ? lastColumn : vci[gridProps.fixedColumnCount - 1]);

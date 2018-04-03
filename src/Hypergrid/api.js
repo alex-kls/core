@@ -76,7 +76,11 @@ var gridPanel = {
     }
 };
 
-var columnController = {};
+var columnController = {
+    getAllGridColumns: function() {
+        return [];
+    }
+};
 
 var floatingRowModel = {
     floatingTopRows: [],
@@ -113,6 +117,7 @@ function setColumnDefs(colDefs) {
     // create first row from headers
     if (!data || data.length === 0) {
         data = [firstRowData];
+        this.api.needColumnsToFit = true;
     } else if (data && !equal(data[0], firstRowData)) {
         data.splice(0, 0, firstRowData);
     }
@@ -137,19 +142,10 @@ function setRowData(rowData) {
 
 function sizeColumnsToFit() {
     console.log('sizeColumnsToFit');
-    this.behavior.autosizeAllColumns();
 
-    this.api.needColumnsToFit = true;
-    if (!this.api.drawListener) {
-        var self = this;
-        this.api.drawListener = function(e) {
-            if (self.api.needColumnsToFit) {
-                self.behavior.fixColumns();
-                self.api.needColumnsToFit = false;
-            }
-        };
-
-        this.addInternalEventListener('fin-grid-rendered', this.api.drawListener);
+    if (this.api.needColumnsToFit) {
+        this.behavior.fixColumns();
+        this.api.needColumnsToFit = false;
     }
 }
 
@@ -159,18 +155,16 @@ function destroy() {
 
     this.sbPrevVScrollValue = null;
     this.sbPrevHScrollValue = null;
-
     this.hoverCell = null;
     this.scrollingNow = false;
 
     this.behavior.reset();
-
+    this.selectionModel.reset();
     this.renderer.reset();
+
     this.canvas.resize();
     this.behaviorChanged();
-
     this.refreshProperties();
-
     this.initialize(this.div);
 }
 

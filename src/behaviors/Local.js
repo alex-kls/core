@@ -57,9 +57,30 @@ var Local = Behavior.extend('Local', {
     },
 
     fixColumns: function() {
+        var data = this.getData();
+        var gc = this.grid.canvas.gc;
+        var self = this;
+
         this.allColumns.forEach(function(column) {
+            var width = 0;
+            var key = column.properties.field;
             var props = column.properties;
-            if (props.width === props.preferredWidth && props.columnAutosizing && props.columnAutosized) {
+
+            data.forEach(function(d, i) {
+                if (d[key]) {
+                    var oldFont = gc.cache.font;
+                    gc.cache.font = (self.getRowProperties(i) || props).font;
+                    var textWidth = gc.getTextWidth(d[key]) + props.cellPaddingLeft + props.cellPaddingRight;
+                    gc.cache.font = oldFont;
+                    if (textWidth > width) {
+                        width = textWidth;
+                    }
+                }
+
+            });
+
+            if (width > 0) {
+                props.width = props.preferredWidth = width;
                 props.columnAutosizing = false;
             }
         });
