@@ -1,4 +1,5 @@
 'use strict';
+/* eslint-env browser */
 
 var equal = require('deep-equal');
 
@@ -281,6 +282,16 @@ function refreshInMemoryRowModel() {
     console.log('refreshInMemoryRowModel');
 }
 
+function attachLinkToDataCell(x, y, link) {
+    this.behavior.setCellProperty(x, y, 'link', getOpenLinkFunc(link));
+}
+
+function getOpenLinkFunc(link) {
+    return function() {
+        window.open(link, '_blank');
+    };
+}
+
 module.exports = {
     // fields
     rowModel: rowModel,
@@ -314,5 +325,7 @@ module.exports = {
     onGroupExpandedOrCollapsed: onGroupExpandedOrCollapsed,
     getSortModel: getSortModel,
     doLayout: doLayout,
-    refreshInMemoryRowModel: refreshInMemoryRowModel
+    refreshInMemoryRowModel: refreshInMemoryRowModel,
+    attachLinkToDataCell: attachLinkToDataCell
 };
+

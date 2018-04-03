@@ -1232,7 +1232,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    linkOnHover: false,
+    linkOnHover: true,
 
     /** @summary Color for link.
      * @desc Falsy means defer to foreground color.
@@ -1240,7 +1240,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    linkColor: 'blue',
+    linkColor: '#337ab7',
 
     /** @summary Color for visited link.
      * @desc Falsy means defer to foreground color.
@@ -1248,7 +1248,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    linkVisitedColor: 'purple',
+    linkVisitedColor: '#337ab7',
 
     /** @summary Color link on hover only.
      * @type {boolean}

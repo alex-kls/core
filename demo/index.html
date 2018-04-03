@@ -25,6 +25,7 @@
 
         window.onload = function() {
             get('data/datadoc.json', function(result) {
+                console.log('result', result);
                 var loadingSpan = document.querySelector('span#loading');
                 loadingSpan.style.visibility = "hidden";
                 var div = document.querySelector('div#json-example');
@@ -66,11 +67,14 @@
                 grid.api.setColumnDefs(colDef);
 
                 (function appendData() {
-                    window.grid.api.destroy();
+                    // window.grid.api.destroy();
                     window.grid.api.setColumnDefs(colDef);
                     window.grid.api.setRowData(prepareData(result));
                     window.grid.api.sizeColumnsToFit();
-                    setTimeout(appendData, 5000);
+
+                    window.grid.api.attachLinkToDataCell(1, 1, 'https://google.com');
+                    window.grid.api.attachLinkToDataCell(1, 2, 'https://google.com');
+                    // setTimeout(appendData, 5000);
                 })();
             });
         };
