@@ -670,18 +670,20 @@ var Renderer = Base.extend('Renderer', {
 
         if (!lastColumn) {
             var colOffset = 1;
-            while (!lastColumn) {
+            while (!lastColumn && this.dataWindow.corner.x > 0) {
                 lastColumn = vci[this.dataWindow.corner.x - colOffset];
+                colOffset++;
             }
         }
         if (!lastRow) {
             var rowOffset = 1;
-            while (!lastRow) {
+            while (!lastRow && this.dataWindow.corner.y > 0) {
                 lastRow = vri[this.dataWindow.corner.y - rowOffset];
+                rowOffset++;
             }
         }
         vcCorner = vcCorner || ((lastColumn && selection.corner.x > lastColumn.columnIndex) ? lastColumn : vci[gridProps.fixedColumnCount - 1]);
-        vrCorner = vrCorner || (selection.corner.y > lastRow.rowIndex ? lastRow : vri[gridProps.fixedRowCount - 1]);
+        vrCorner = vrCorner || ((lastRow && selection.corner.y > lastRow.rowIndex) ? lastRow : vri[gridProps.fixedRowCount - 1]);
 
         if (
             !(vcOrigin && vcCorner && vrOrigin && vrCorner)

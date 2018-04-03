@@ -214,15 +214,23 @@ FinBar.prototype = {
      * @type {number}
      * @memberOf FinBar.prototype
      */
-    mouseHoldPerformIntervalRate: 200,
+    mouseHoldPerformIntervalRate: 50,
 
     /**
      * @private
-     * @summary utility field that contains mouseHold processing interval object
-     * @type {object}
+     * @summary utility field that contains mouseHold processing interval id
+     * @type {number}
      * @memberOf FinBar.prototype
      */
-    _mouseHoldPerformInterval: null,
+    _mouseHoldPerformInterval: 0,
+
+    /**
+     * @private
+     * @summary utility field that contains timeout id, which used when moseHold processing starts
+     * @type {number}
+     * @memberOf FinBar.prototype
+     */
+    _mouseHoldPerformTimeout: 0,
 
     /**
      * @private
@@ -232,11 +240,33 @@ FinBar.prototype = {
      */
     isThumbDragging: true,
 
+    /**
+     * @private
+     * @summary utility method to unify logic when user stops holding mouse on empty scroll bar space
+     * @return {void}
+     * @memberOf FinBar.prototype
+     */
     performMouseHoldEnd: function() {
         this.isMouseHoldOverBar = false;
         if (this._mouseHoldPerformInterval) {
             clearInterval(this._mouseHoldPerformInterval);
-            this._mouseHoldPerformInterval = null;
+            this._mouseHoldPerformInterval = 0;
+        }
+
+        this.clearMouseHoldTimeout();
+    },
+
+    /**
+     * @private
+     * @summary utility method to perform clearing of an mouseHold timeout,
+     * if user stops holding mouse before timeout function fork
+     * @return {void}
+     * @memberOf FinBar.prototype
+     */
+    clearMouseHoldTimeout: function() {
+        if (this._mouseHoldPerformTimeout) {
+            clearTimeout(this._mouseHoldPerformTimeout);
+            this._mouseHoldPerformTimeout = 0;
         }
     },
 
@@ -365,7 +395,6 @@ FinBar.prototype = {
         if (keys.length) {
             var thumb = this.thumb;
 
-
             keys.forEach(function(key) {
                 var val = styles[key];
 
@@ -376,6 +405,8 @@ FinBar.prototype = {
                 thumb.style[key] = val;
             });
         }
+
+        thumb.style.opacity = '1.0';
 
         this._setThumbSize();
     },
@@ -555,7 +586,8 @@ FinBar.prototype = {
         }
 
         this.containerSize = containerRect[this.oh.size];
-        this.increment = this.containerSize / (this.contentSize - this.containerSize) * (this._max - this._min);
+        // this.increment = this.containerSize / (this.contentSize - this.containerSize) * (this._max - this._min);
+        this.increment = this.containerSize / 3;
         // if (this.onchange === this.scrollRealContent) {
         //     this.containerSize = containerRect[this.oh.size];
         //     this.increment = this.containerSize / (this.contentSize - this.containerSize) * (this._max - this._min);
@@ -665,8 +697,6 @@ FinBar.prototype = {
         if (this.containerSize < this.contentSize) {
             this.mountDiv.style.visibility = 'visible';
             this.thumb.style[oh.size] = thumbSize + 'px';
-
-            // console.log(this.orientation + ' scroll width was set to ', this.containerSize);
         } else {
             this.mountDiv.style.visibility = 'hidden';
         }
@@ -838,29 +868,60 @@ var handlersToBeBound = {
         this._addEvt('mouseup');
 
         var mouseOverThumb = thumbBox.left <= evt.clientX && evt.clientX <= thumbBox.right &&
-            thumbBox.top <= evt.clientY && evt.clientY <= thumbBox.bottom;
+            thumbBox.top <= evt.clientY && evt.clientY <= thumbBox.bottom,
+            mouseOverThumbCenter = false,
+            goingUp = false,
+            incrementValue = 0;
 
         if (!mouseOverThumb) {
-            var goingUp = evt[this.oh.coordinate] < thumbBox[this.oh.leading];
+            goingUp = evt[this.oh.coordinate] < thumbBox[this.oh.leading];
 
+            // this.index += goingUp ? -this.increment : this.increment;
             if (typeof this.paging === 'object') {
                 this.index = this.paging[goingUp ? 'up' : 'down'](Math.round(this.index));
             } else {
                 this.index += goingUp ? -this.increment : this.increment;
             }
 
-            this.isMouseHoldOverBar = true;
-            this.isThumbDragging = false;
             var self = this;
-            this._mouseHoldPerformInterval = setInterval(function() {
-                thumbBox = self.thumb.getBoundingClientRect();
-                mouseOverThumb = thumbBox.left <= evt.clientX && evt.clientX <= thumbBox.right &&
-                    thumbBox.top <= evt.clientY && evt.clientY <= thumbBox.bottom;
-                if (self.isMouseHoldOverBar && !mouseOverThumb) {
-                    var goingUp = evt[self.oh.coordinate] < thumbBox[self.oh.leading];
-                    self.index = self.paging[goingUp ? 'up' : 'down'](Math.round(self.index));
-                }
-            }, this.mouseHoldPerformIntervalRate);
+
+            this.clearMouseHoldTimeout();
+            this._mouseHoldPerformTimeout = setTimeout(function() {
+                self.isMouseHoldOverBar = true;
+                self.isThumbDragging = false;
+
+                self._mouseHoldPerformInterval = setInterval(function() {
+                    thumbBox = self.thumb.getBoundingClientRect();
+                    mouseOverThumb = thumbBox.left <= evt.clientX && evt.clientX <= thumbBox.right &&
+                        thumbBox.top <= evt.clientY && evt.clientY <= thumbBox.bottom;
+
+                    var thumbCenterLeadingSide = (thumbBox[self.oh.leading] + thumbBox[self.oh.size]/3);
+                    var thumbCenterTrailingSide = (thumbBox[self.oh.trailing] - thumbBox[self.oh.size]/3);
+                    mouseOverThumbCenter = mouseOverThumb
+                        && (thumbCenterLeadingSide <= evt[self.oh.coordinate])
+                        && (thumbCenterTrailingSide >= evt[self.oh.coordinate]);
+
+                    // goingUp value changed only if thumb not in cursor yet.
+                    // Otherwise we can think, that scroll continuous and goingUp don't need to be changed
+                    if (!mouseOverThumb) {
+                        goingUp = evt[self.oh.coordinate] < thumbBox[self.oh.leading];
+                    }
+
+                    incrementValue = goingUp ? -self.increment : self.increment;
+
+                    if (self.isMouseHoldOverBar && !mouseOverThumbCenter) {
+                        if (goingUp && (evt[self.oh.coordinate] <= thumbCenterLeadingSide)
+                            && ((self.index + incrementValue) <= 0)) {
+                            self.index = 0;
+                        } else {
+                            self.index += incrementValue;
+                        }
+
+                        // self.paging[goingUp ? 'up' : 'down'](Math.round(self.index));
+                        // self.index = self.paging[goingUp ? 'up' : 'down'](Math.round(self.index));
+                    }
+                }, this.mouseHoldPerformIntervalRate);
+            }, 200);
         } else if(!this.isMouseHoldOverBar){
             this.isThumbDragging = true;
         }

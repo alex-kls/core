@@ -301,6 +301,7 @@ exports.mixin = {
 
         var horzBar = new Scrollbar({
             orientation: 'horizontal',
+            gridPropertiesObject: this.properties,
             onchange: self.setHScrollValue.bind(self),
             cssStylesheetReferenceElement: this.div,
             paging: {
@@ -311,6 +312,7 @@ exports.mixin = {
 
         var vertBar = new Scrollbar({
             orientation: 'vertical',
+            gridPropertiesObject: this.properties,
             onchange: self.setVScrollValue.bind(self),
             paging: {
                 up: self.pageUp.bind(self),
@@ -359,7 +361,7 @@ exports.mixin = {
     getHScrollbarLeftMargin: function() {
         var res = 0;
         var visibleColumns = this.renderer.visibleColumns;
-        res += this.properties.gridLinesV ? this.properties.gridLinesVWidth : 0;
+        res -= this.properties.gridLinesV ? this.properties.gridLinesVWidth : 0;
         var neededColumn = visibleColumns[this.behavior.rowColumnIndex];
         res += this.properties.rowHeaderNumbers && neededColumn
             ? neededColumn.right
@@ -395,6 +397,7 @@ exports.mixin = {
         }
         res = row ? row.bottom : 0;
 
+        res -= this.properties.gridLinesH ? this.properties.gridLinesHWidth : 0;
 
         res += this.properties.fixedRowCount ? this.properties.fixedLinesHWidth : 0;
 
