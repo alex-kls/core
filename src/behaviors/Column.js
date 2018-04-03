@@ -173,6 +173,7 @@ Column.prototype = {
         width = Math.max(this.properties.minimumColumnWidth, width);
         if (width !== this.properties.width) {
             this.properties.width = width;
+            this.schema.width = width;
             this.properties.columnAutosizing = false;
         }
     },

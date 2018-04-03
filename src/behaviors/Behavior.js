@@ -133,6 +133,8 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     reset: function(options) {
+        this.schemaOld = this.schema;
+
         var dataModelChanged = this.resetDataModel(options);
 
         if (dataModelChanged) {

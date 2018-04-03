@@ -47,6 +47,12 @@ function convertColDefs(colDefs, firstRowFont) {
     return { schema: schema, data: data };
 }
 
+function getOpenLinkFunc(link) {
+    return function() {
+        window.open(link, '_blank');
+    };
+}
+
 // api methods
 
 var rowModel = {
@@ -174,7 +180,7 @@ function getRangeSelections() {
 }
 
 function copySelectedRangeToClipboard(includeHeaders) {
-    console.log(includeHeaders);
+    console.log('copySelectedRangeToClipboard', includeHeaders);
 }
 
 function getSelectedColumns() {
@@ -211,7 +217,7 @@ function clearRangeSelection() {
 
 function clearFocusedCell() {
     console.log('clearFocusedCell');
-    this.clearSelections();
+    this.clearMostRecentSelection();
 }
 
 function getFloatingTopRowData() {
@@ -284,12 +290,6 @@ function refreshInMemoryRowModel() {
 
 function attachLinkToDataCell(x, y, link) {
     this.behavior.setCellProperty(x, y, 'link', getOpenLinkFunc(link));
-}
-
-function getOpenLinkFunc(link) {
-    return function() {
-        window.open(link, '_blank');
-    };
 }
 
 module.exports = {

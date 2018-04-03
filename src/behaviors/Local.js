@@ -43,15 +43,26 @@ var Local = Behavior.extend('Local', {
                 var props = newColumn.properties;
 
                 // disable resizing for old resized columns
+                // when data was added to existed array of data
                 if (props.width === props.preferredWidth && props.columnAutosizing && props.columnAutosized) {
                     props.columnAutosizing = false;
                 }
             } else {
-                this.addColumn({
+                newColumn = this.addColumn({
                     index: index,
                     header: columnSchema.header,
                     calculator: columnSchema.calculator
                 });
+
+                // restore width from previous schema when data just refreshed.
+                // this is needed because of almost total refresh of grid
+                if (columnSchema.width) {
+                    Object.assign(newColumn.properties, {
+                        width: columnSchema.width,
+                        preferredWidth: columnSchema.width,
+                        columnAutosizing: false
+                    });
+                }
             }
         }, this);
     },
@@ -59,31 +70,34 @@ var Local = Behavior.extend('Local', {
     fixColumns: function() {
         var data = this.getData();
         var gc = this.grid.canvas.gc;
+        var oldFont = gc.cache.font;
         var self = this;
 
         this.allColumns.forEach(function(column) {
-            var width = 0;
-            var key = column.properties.field;
             var props = column.properties;
+            if (props.columnAutosizing) {
+                var width = props.defaultColumnWidth;
+                var key = column.properties.field;
 
-            data.forEach(function(d, i) {
-                if (d[key]) {
-                    var oldFont = gc.cache.font;
-                    gc.cache.font = (self.getRowProperties(i) || props).font;
-                    var textWidth = gc.getTextWidth(d[key]) + props.cellPaddingLeft + props.cellPaddingRight;
-                    gc.cache.font = oldFont;
-                    if (textWidth > width) {
-                        width = textWidth;
+                // get max width based of
+                data.forEach(function(d, i) {
+                    if (d[key]) {
+                        gc.cache.font = (self.getRowProperties(i) || props).font;
+                        var textWidth = gc.getTextWidth(d[key]) + props.cellPaddingLeft + props.cellPaddingRight;
+                        if (textWidth > width) {
+                            width = textWidth;
+                        }
                     }
+                });
+
+                if (width > 0) {
+                    props.width = props.preferredWidth = width;
+                    props.columnAutosizing = false;
                 }
-
-            });
-
-            if (width > 0) {
-                props.width = props.preferredWidth = width;
-                props.columnAutosizing = false;
             }
         });
+
+        gc.cache.font = oldFont;
     },
 
     /**
@@ -153,6 +167,16 @@ var Local = Behavior.extend('Local', {
             schema = this.unwrap(options.schema), // *always* define a new schema on reset
             schemaChanged = schema || !this.subgrids.lookup.data.getColumnCount(), // schema will change if a new schema was provided OR data model has an empty schema now, which triggers schema generation on setData below
             reindex = options.apply === undefined || options.apply; // defaults to true
+
+        // copy widths from old schema
+        if (schemaChanged && this.schemaOld) {
+            var schemaOld = this.schemaOld;
+            schema.forEach(function(columnSchema, index) {
+                if (index === schemaOld[index].index && columnSchema.name === schemaOld[index].name && schemaOld[index].width) {
+                    columnSchema.width = schemaOld[index].width;
+                }
+            });
+        }
 
         // Inform interested data models of data.
         this.subgrids.forEach(function(dataModel) {
@@ -313,7 +337,7 @@ var Local = Behavior.extend('Local', {
      * @memberOf Local#
      */
     get schema() {
-        return this.dataModel.getSchema();
+        return this.dataModel && this.dataModel.getSchema();
     },
     set schema(newSchema) {
         this.dataModel.setSchema(newSchema);
