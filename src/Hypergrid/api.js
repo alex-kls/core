@@ -24,9 +24,11 @@ function convertColDefs(colDefs, firstRowFont) {
 
     function colDefMapper(singleColDef, letters) {
         var originalField = singleColDef && singleColDef.originalField;
+        var width = singleColDef && singleColDef.width;
         schema.push({
             header: letters || '',
-            name: originalField || letters
+            name: originalField || letters,
+            width: width || undefined
         });
 
         if (originalField) {
@@ -145,6 +147,8 @@ function setRowData(rowData) {
     [].push.apply(this.data, rowData);
 
     this.addData({ data: rowData });
+
+    this.canvas.resize();
 }
 
 function sizeColumnsToFit() {

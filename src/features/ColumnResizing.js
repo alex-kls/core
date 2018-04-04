@@ -125,6 +125,10 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      */
     handleMouseUp: function(grid, event) {
         if (this.dragColumn) {
+            if (grid.onColumnResized) {
+                grid.onColumnResized(this.dragColumn);
+            }
+
             this.cursor = null;
             this.dragColumn = false;
 

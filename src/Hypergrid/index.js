@@ -166,6 +166,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.data = options.data || [];
         this.rowData = options.rowData || [];
         this.paginationPageSize = options.paginationPageSize || 1000;
+        this.onColumnResized = options.onColumnResized;
 
         /**
          * @name plugins
