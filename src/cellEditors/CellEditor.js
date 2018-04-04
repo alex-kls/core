@@ -196,6 +196,14 @@ var CellEditor = Base.extend('CellEditor', {
         }
     },
 
+    showReadonlyEdit: function() {
+        if (this.grid.fireRequestCellEdit(this.event, this.initialValue)) {
+            this.checkEditorPositionFlag = true;
+            this.checkEditor(false);
+            this.el.readOnly = true;
+        }
+    },
+
     /**
      * @summary Put the value into our editor.
      * @desc Formats the value and displays it.
@@ -215,7 +223,9 @@ var CellEditor = Base.extend('CellEditor', {
      * @desc display the editor
      */
     showEditor: function() {
+        var rowFont = this.event.rowProperties.font ? this.event.rowProperties.font : this.event.properties.font;
         this.el.style.display = 'inline';
+        this.el.style.font = rowFont;
     },
 
     /**
@@ -438,9 +448,11 @@ var CellEditor = Base.extend('CellEditor', {
 
     /**
      * @desc check that the editor is in the correct location, and is showing/hidden appropriately
+     * @param {boolean?} takeFocusNeeded
      * @memberOf CellEditor.prototype
      */
-    checkEditor: function() {
+    checkEditor: function(takeFocusNeeded) {
+        takeFocusNeeded = takeFocusNeeded === undefined ? true : takeFocusNeeded;
         if (this.checkEditorPositionFlag) {
             this.checkEditorPositionFlag = false;
             if (this.event.isCellVisible) {
@@ -448,7 +460,9 @@ var CellEditor = Base.extend('CellEditor', {
                 this.attachEditor();
                 this.moveEditor();
                 this.showEditor();
-                this.takeFocus();
+                if (takeFocusNeeded) {
+                    this.takeFocus();
+                }
             } else {
                 this.hideEditor();
             }

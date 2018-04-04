@@ -989,7 +989,7 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    editable: true,
+    editable: false,
 
     /**
      * Edit cell on double-click rather than single-click.
@@ -1733,15 +1733,7 @@ var defaults = {
         position: 'absolute',
         background: '#F8F8F8',
         border: '1px solid #D9D9D9'
-    },
-
-    /**
-     * @desc if true, editing of all rows, except first (headers) will be disabled
-     * @default
-     * @type {boolean}
-     * @memberOf module:defaults
-     */
-    disableDataCellsEditing: true
+    }
 };
 
 

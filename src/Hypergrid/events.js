@@ -371,6 +371,21 @@ var mixin = {
         }, cellEvent);
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @returns {Renderer} sub-component
+     * @param {Point} cell - The x,y coordinates.
+     * @param {Object} oldValue - The old value.
+     * @param {Object} newValue - The new value.
+     */
+    fireAfterHeaderCellEdit: function(cellEvent, oldValue, newValue, control) {
+        return dispatchEvent.call(this, 'fin-after-header-cell-edit', {
+            newValue: newValue,
+            oldValue: oldValue,
+            input: control
+        }, cellEvent);
+    },
+
     delegateCanvasEvents: function() {
         var grid = this;
 
@@ -541,6 +556,21 @@ var mixin = {
 
         this.addInternalEventListener('fin-fixed-row-count-changed', function(e) {
             grid.synchronizeScrollbarsVisualization();
+        });
+
+        this.addInternalEventListener('fin-after-cell-edit', function(e) {
+            // ellEvent, oldValue, newValue, control
+            var headerRowY = grid.properties.showHeaderRow ? 1 : 0;
+            if (e.detail.primitiveEvent.y === headerRowY) {
+                grid.fireAfterHeaderCellEdit(e.detail.primitiveEvent, e.detail.oldValue, e.detail.newValue, e.detail.input);
+            }
+        });
+
+        this.addInternalEventListener('fin-after-header-cell-edit', function(e) {
+            var column = grid.behavior.getActiveColumn(e.detail.primitiveEvent.x);
+            if (column) {
+                grid.onUpdateColumnName(column, e.detail.newValue);
+            }
         });
     },
 

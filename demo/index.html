@@ -8,7 +8,7 @@
 
         var HTTP_STATE_DONE = 4,
             HTTP_STATUS_OK = 200,
-            LOCAL_STORAGE_EDITED_CELLS = 'edited_cells_cache';
+            LOCAL_STORAGE_COLUMNS_DEF = 'colDef';
 
         function get(url, callback) {
             var httpRequest = new XMLHttpRequest();
@@ -74,17 +74,26 @@
 
                         if (singleColDef) {
                             singleColDef.width = column.getWidth();
-                            localStorage.setItem('colDef', JSON.stringify(colDef));
+                            localStorage.setItem(LOCAL_STORAGE_COLUMNS_DEF, JSON.stringify(colDef));
                         } else {
                             console.error('no coldDef', colDef, column);
+                        }
+                    },
+                    onUpdateColumnName: function(col, renameTo) {
+                        var singleColDef = colDef.find(function (cd) {
+                            return cd.colId === col.name;
+                        });
+
+                        if (singleColDef) {
+                            singleColDef.headerName = renameTo;
+                            localStorage.setItem(LOCAL_STORAGE_COLUMNS_DEF, JSON.stringify(colDef));
+                        } else {
+                            console.error('no coldDef', colDef, col);
                         }
                     }
                 };
                 window.grid = window.grid || new fin.Hypergrid(div, options);
 
-                window.grid.api.registerCellEditedEventListener(function(e){
-                    saveEditedCellValue(e.detail.primitiveEvent.x, e.detail.primitiveEvent.y, e.detail.newValue);
-                });
                 // grid.api.setColumnDefs(colDef);
 
                 (function appendData() {
@@ -95,48 +104,13 @@
                     window.grid.api.setRowData(prepareData(result));
                     window.grid.api.sizeColumnsToFit();
 
-                    setTimeout(function() {
-                        console.log(window.grid.getValue(1, 1));
-                        applyEditedCellsCache(window.grid);
-                    }, 1);
-
                     // window.grid.setValue(1, 1, '234324');
 
                     window.grid.api.attachLinkToDataCell(1, 1, 'https://google.com');
                     window.grid.api.attachLinkToDataCell(1, 2, 'https://google.com');
-                    // setTimeout(appendData, 5000);
                 })();
             });
         };
-
-        function saveEditedCellValue(x, y, value) {
-            var editedCellsCache = localStorage.getItem(LOCAL_STORAGE_EDITED_CELLS);
-            var editedCellsCacheObject = editedCellsCache ? JSON.parse(editedCellsCache) : {};
-
-            editedCellsCacheObject[x + '/' + y] = {
-                x: x,
-                y: y,
-                value: value
-            };
-
-            console.log('current edited cells cache', editedCellsCacheObject);
-
-            localStorage.setItem(LOCAL_STORAGE_EDITED_CELLS, JSON.stringify(editedCellsCacheObject));
-
-            return editedCellsCacheObject;
-        }
-
-        function applyEditedCellsCache(grid) {
-            var editedCellsCache = localStorage.getItem(LOCAL_STORAGE_EDITED_CELLS);
-
-            if (editedCellsCache) {
-                var editedCellsCacheObject = JSON.parse(editedCellsCache);
-                Object.keys(editedCellsCacheObject).forEach(function (key) {
-                    var cacheCell = editedCellsCacheObject[key];
-                    grid.setValue(cacheCell.x, cacheCell.y, cacheCell.value);
-                });
-            }
-        }
     </script>
     <style>
         body * {

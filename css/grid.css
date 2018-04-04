@@ -27,7 +27,9 @@
     /*background-color: ivory;*/
     box-sizing: border-box;
     margin: 0;
-    padding: 0 5px;
+    padding-right: 5px;
+    padding-left: 5px;
+    padding-bottom: 1px;
     border: 1px #5292f7 solid;
     /*border: 0; */
     /*border: 1px solid #777;*/

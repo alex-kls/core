@@ -167,6 +167,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.rowData = options.rowData || [];
         this.paginationPageSize = options.paginationPageSize || 1000;
         this.onColumnResized = options.onColumnResized;
+        this.onUpdateColumnName = options.onUpdateColumnName;
 
         /**
          * @name plugins
@@ -1091,11 +1092,18 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         if (
             event.isDataColumn &&
-            event.properties[event.isDataRow ? 'editable' : 'filterable'] &&
-            (this.properties.disableDataCellsEditing && event.dataCell.y === 0) &&
             (cellEditor = this.getCellEditorAt(event))
         ) {
-            cellEditor.beginEditing();
+            var neededVisibilityProp = event.isDataRow ? 'editable' : 'filterable';
+            var isEditable = event.rowProperties[neededVisibilityProp] ?
+                event.rowProperties[neededVisibilityProp] :
+                event.properties[neededVisibilityProp];
+
+            if (isEditable) {
+                cellEditor.beginEditing();
+            } else {
+                cellEditor.showReadonlyEdit();
+            }
         }
 
         return cellEditor;

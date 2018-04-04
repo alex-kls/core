@@ -19,7 +19,7 @@ function idOf(range, i) {
 
 function convertColDefs(colDefs, firstRowFont) {
     var schema = [];
-    var data = { __META: { __ROW: { font: firstRowFont, foregroundSelectionFont: firstRowFont } } }; // set bold font for title row
+    var data = { __META: { __ROW: { font: firstRowFont, foregroundSelectionFont: firstRowFont, editable: true } } }; // set bold font for title row
     var az = range('A', 'Z');
 
     function colDefMapper(singleColDef, letters) {
