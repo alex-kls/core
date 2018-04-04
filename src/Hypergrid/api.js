@@ -292,6 +292,10 @@ function attachLinkToDataCell(x, y, link) {
     this.behavior.setCellProperty(x, y, 'link', getOpenLinkFunc(link));
 }
 
+function registerCellEditedEventListener(callback){
+    this.addInternalEventListener('fin-after-cell-edit', callback);
+}
+
 module.exports = {
     // fields
     rowModel: rowModel,
@@ -326,6 +330,7 @@ module.exports = {
     getSortModel: getSortModel,
     doLayout: doLayout,
     refreshInMemoryRowModel: refreshInMemoryRowModel,
-    attachLinkToDataCell: attachLinkToDataCell
+    attachLinkToDataCell: attachLinkToDataCell,
+    registerCellEditedEventListener: registerCellEditedEventListener
 };
 

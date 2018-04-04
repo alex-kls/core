@@ -1427,8 +1427,22 @@ var defaults = {
      */
     showCellContextMenu: true,
 
+    /**
+     * @desc if true, context menu will be styled used next params (contextMenuHolderStyle, contextMenuListStyle,
+     * contextMenuListOptionStyle, contextMenuListOptionHoverStyle, contextMenuListOptionIconStyle,
+     * contextMenuListOptionTextStyle, contextMenuListOptionShortcutStyle, contextMenuListOptionPopupPointerStyle)
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
     applyContextMenuStyling: true,
 
+    /**
+     * @desc style object for div, that renders when contextMenu called. This div contains contextMenuList as a child
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     contextMenuHolderStyle: {
         position: 'fixed',
         border: 'none',
@@ -1437,6 +1451,13 @@ var defaults = {
         margin: '0 0 0 0',
         fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif'
     },
+
+    /**
+     * @desc style object for div, that represents list of an context menu items
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     contextMenuListStyle: {
         padding: '5px 0',
         maxHeight: '290px',
@@ -1449,6 +1470,13 @@ var defaults = {
         marginTop: '-1px',
         borderCollapse: 'collapse'
     },
+
+    /**
+     * @desc style object for div, that represents single list item of context menu
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     contextMenuListOptionStyle: {
         height: '27px',
         fontSize: '13px',
@@ -1457,44 +1485,167 @@ var defaults = {
         alignItems: 'center',
         backgroundColor: '#fff'
     },
+
+    /**
+     * @desc style object for menu list item div, when in hovered state
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     contextMenuListOptionHoverStyle: {
         backgroundColor: '#eee'
     },
+
+    /**
+     * @desc style object for part of menu list item, that contains an icon
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     contextMenuListOptionIconStyle: {
         width: '30px',
         padding: '2px 4px',
         verticalAlign: 'middle'
     },
+
+    /**
+     * @desc style object for part of menu list item, that contains main text
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     contextMenuListOptionTextStyle: {
         padding: '2px 4px',
         verticalAlign: 'middle',
         flexGrow: '1'
     },
+
+    /**
+     * @desc style object for part of menu list item, that contains an shortcut
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     contextMenuListOptionShortcutStyle: {
         padding: '2px 2px 2px 20px',
         verticalAlign: 'middle',
         Width: '0'
     },
+
+    /**
+     * @desc style object for part of menu list item, that contains an popup pointer
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     contextMenuListOptionPopupPointerStyle: {
         padding: '2px 4px',
         verticalAlign: 'middle',
         width: '30px'
     },
 
+    /**
+     * @desc header part color of an column fixation dragger, when dragger state is inactive
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
     columnFixationDraggerHeaderInactiveColor: '#BCBCBC',
+
+    /**
+     * @desc header part color of an column fixation dragger, when dragger state is hovered
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
     columnFixationDraggerHeaderHoveredColor: '#A5C6FE',
+
+    /**
+     * @desc header part color of an column fixation dragger, when dragger state is dragging
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
     columnFixationDraggerHeaderDraggingColor: '#A5C6FE',
+
+    /**
+     * @desc body part color of an column fixation dragger, when dragger state is dragging
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
     columnFixationDraggerBodyDraggingColor: '#DBE5F7',
+
+    /**
+     * @desc header part color of an column fixation placeholder
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
     columnFixationPlaceholderHeaderColor: '#659DFC',
+
+    /**
+     * @desc body part color of an column fixation placeholder
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
     columnFixationPlaceholderBodyColor: '#AFBBD1',
 
+    /**
+     * @desc header part color of an row fixation dragger, when dragger state is inactive
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
     rowFixationDraggerHeaderInactiveColor: '#BCBCBC',
+
+    /**
+     * @desc header part color of an row fixation dragger, when dragger state is hovered
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
     rowFixationDraggerHeaderHoveredColor: '#A5C6FE',
+
+    /**
+     * @desc header part color of an row fixation dragger, when dragger state is dragging
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
     rowFixationDraggerHeaderDraggingColor: '#A5C6FE',
+
+    /**
+     * @desc body part color of an row fixation dragger, when dragger state is dragging
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
     rowFixationDraggerBodyDraggingColor: '#DBE5F7',
+
+    /**
+     * @desc header part color of an row fixation placeholder
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
     rowFixationPlaceholderHeaderColor: '#659DFC',
+
+    /**
+     * @desc body part color of an row fixation placeholder
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
     rowFixationPlaceholderBodyColor: '#AFBBD1',
 
+    /**
+     * @desc style object of an vertical scrollbar bar
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     scrollbarVStyle: {
         width: 13,
         border: '1px solid #d9d9d9',
@@ -1505,6 +1656,13 @@ var defaults = {
         marginRight: -1,
         borderRadius: 0
     },
+
+    /**
+     * @desc style object of an horizontal scrollbar bar
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     scrollbarHStyle: {
         height: 13,
         border: '1px solid #d9d9d9',
@@ -1515,6 +1673,13 @@ var defaults = {
         marginBottom: -1,
         borderRadius: 0
     },
+
+    /**
+     * @desc style object of an vertical scrollbar thumb
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     scrollbarVThumbStyle: {
         margin: 1,
         width: 9,
@@ -1527,6 +1692,13 @@ var defaults = {
         // transition: 'opacity .5s',
         borderRadius: 0
     },
+
+    /**
+     * @desc style object of an horizontal scrollbar thumb
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     scrollbarHThumbStyle: {
         margin: 1,
         height: 9,
@@ -1538,16 +1710,38 @@ var defaults = {
         // transition: 'opacity .5s',
         borderRadius: 0
     },
+
+    /**
+     * @desc style object of an horizontal scrollbar underlying div
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     scrollbarHMountStyle: {
         position: 'absolute',
         background: '#F8F8F8',
         border: '1px solid #D9D9D9'
     },
+
+    /**
+     * @desc style object of an vertical scrollbar underlying div
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
     scrollbarVMountStyle: {
         position: 'absolute',
         background: '#F8F8F8',
         border: '1px solid #D9D9D9'
-    }
+    },
+
+    /**
+     * @desc if true, editing of all rows, except first (headers) will be disabled
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    disableDataCellsEditing: true
 };
 
 

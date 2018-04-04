@@ -1091,6 +1091,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         if (
             event.isDataColumn &&
             event.properties[event.isDataRow ? 'editable' : 'filterable'] &&
+            (this.properties.disableDataCellsEditing && event.dataCell.y === 0) &&
             (cellEditor = this.getCellEditorAt(event))
         ) {
             cellEditor.beginEditing();
