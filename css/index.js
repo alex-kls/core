@@ -32,7 +32,7 @@ exports.grid = [
 '	margin: 0;',
 '	padding-right: 5px;',
 '	padding-left: 5px;',
-'	padding-bottom: 1px;',
+'	padding-bottom: 2px;',
 '	border: 1px #5292f7 solid;',
 '	/*border: 0; */',
 '	/*border: 1px solid #777;*/',
@@ -41,6 +41,11 @@ exports.grid = [
 '	-moz-box-shadow: 0 2px 5px rgba(0,0,0,0.4);',
 '	box-shadow: 0 2px 5px rgba(0,0,0,0.4);',
 '}',
+'',
+'.fin-link-details-div > a:hover {',
+'	text-decoration: underline !important;',
+'}',
+'',
 '',
 ''
 ].join('\n');

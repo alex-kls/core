@@ -49,11 +49,11 @@ function convertColDefs(colDefs, firstRowFont) {
     return { schema: schema, data: data };
 }
 
-function getOpenLinkFunc(link) {
-    return function() {
-        window.open(link, '_blank');
-    };
-}
+// function getOpenLinkFunc(link) {
+//     return function() {
+//         window.open(link, '_blank');
+//     };
+// }
 
 // api methods
 
@@ -293,7 +293,7 @@ function refreshInMemoryRowModel() {
 }
 
 function attachLinkToDataCell(x, y, link) {
-    this.behavior.setCellProperty(x, y, 'link', getOpenLinkFunc(link));
+    this.behavior.setCellProperty(x, y, 'link', link);
 }
 
 function registerCellEditedEventListener(callback){

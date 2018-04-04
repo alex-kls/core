@@ -30,6 +30,7 @@ var Features = Registry.extend('Features', {
         this.add(Features.ContextMenu);
         this.add(Features.ColumnFixation);
         this.add(Features.RowFixation);
+        this.add(Features.LinkDetails);
     }
 
 });
@@ -55,5 +56,6 @@ Features.ThumbwheelScrolling = require('./ThumbwheelScrolling');
 Features.ContextMenu = require('./ContextMenu');
 Features.ColumnFixation = require('./ColumnFixation');
 Features.RowFixation = require('./RowFixation');
+Features.LinkDetails = require('./LinkDetails');
 
 module.exports = new Features;

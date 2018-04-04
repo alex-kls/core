@@ -1232,7 +1232,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    linkOnHover: true,
+    linkOnHover: false,
 
     /** @summary Color for link.
      * @desc Falsy means defer to foreground color.
@@ -1359,7 +1359,8 @@ var defaults = {
         'columnsorting',
         'cellclick',
         'cellediting',
-        'onhover'
+        'onhover',
+        'linkdetails'
     ],
 
     /** @summary How to truncate text.
@@ -1733,6 +1734,36 @@ var defaults = {
         position: 'absolute',
         background: '#F8F8F8',
         border: '1px solid #D9D9D9'
+    },
+
+    /**
+     * @desc style object of an div, that contains link info
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
+    linkDetailsStyle: {
+        cursor: 'default',
+        display: 'flex',
+        flexFlow: 'column',
+        position: 'absolute',
+        background: '#fcfcfc',
+        boxShadow: '0 0 2px 0 rgba(0,0,0,.15), 0 1px 2px 0 rgba(0,0,0,.4)',
+        borderRadius: '1px',
+        padding: '5px 7px',
+        zIndex: 10,
+        fontSize: '14px'
+    },
+
+    /**
+     * @desc style object of an link info anchor tag
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
+    linkDetailsAnchorStyle: {
+        color: '#337ab7',
+        textDecoration: 'none'
     }
 };
 
