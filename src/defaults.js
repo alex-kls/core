@@ -705,6 +705,13 @@ var defaults = {
      */
     minimumColumnWidth: 30,
 
+
+    /**
+     * @summary minimal count of rows should be shown
+     * @type {number}
+     */
+    minimumRowCount: 50,
+
     //for immediate painting, set these values to 0, true respectively
 
     /**
@@ -1384,42 +1391,41 @@ var defaults = {
     combineColors: false,
 
     /**
-     * @desc If true, colors will be combined on render.
+     * @desc List of context menu items, just title and callback
      * @default
      * @memberOf module:defaults
      */
-    cellContextMenu: {
-        items:[
-            {
-                title: '<b>Filter</b> to value',
-                callbackFn: function(clickEvent, gridEvent) {
-                    console.log('first callback works fine');
-                    console.log('grid event', gridEvent);
-                }
-            },
-            {
-                title: '<b>Exclude</b> this value',
-                callbackFn: function(clickEvent, gridEvent) {
-                    console.log('second callback works fine');
-                    console.log('grid event', gridEvent);
-                }
-            },
-            {
-                title: 'Copy',
-                callbackFn: function(clickEvent, gridEvent) {
-                    console.log('third callback works fine');
-                    console.log('grid event', gridEvent);
-                }
-            },
-            {
-                title: 'Copy With Headers',
-                callbackFn: function(clickEvent, gridEvent) {
-                    console.log('fourth callback works fine');
-                    console.log('grid event', gridEvent);
-                }
-            },
-        ]
-    },
+    cellContextMenu: [
+        {
+            name: '<b>Filter</b> to value',
+            action: function(clickEvent, gridEvent) {
+                console.log('first callback works fine');
+                console.log('grid event', gridEvent);
+            }
+        },
+        {
+            name: '<b>Exclude</b> this value',
+            action: function(clickEvent, gridEvent) {
+                console.log('second callback works fine');
+                console.log('grid event', gridEvent);
+            }
+        },
+        {
+            name: 'Copy',
+            action: function(clickEvent, gridEvent) {
+                console.log('third callback works fine');
+                console.log('grid event', gridEvent);
+            }
+        },
+        {
+            name: 'Copy With Headers',
+            action: function(clickEvent, gridEvent) {
+                console.log('fourth callback works fine');
+                console.log('grid event', gridEvent);
+            }
+        }
+    ],
+
     /**
      * @desc if true, data cell context menu can be triggered.
      * @default

@@ -165,9 +165,10 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.columnDefs = options.columnDefs || [];
         this.data = options.data || [];
         this.rowData = options.rowData || [];
-        this.paginationPageSize = options.paginationPageSize || 1000;
-        this.onColumnResized = options.onColumnResized;
-        this.onUpdateColumnName = options.onUpdateColumnName;
+        this.paginationPageSize = options.paginationPageSize || this.paginationPageSize || 1000;
+        this.onColumnResized = options.onColumnResized || this.onColumnResized;
+        this.onUpdateColumnName = options.onUpdateColumnName || this.onUpdateColumnName;
+        this.onRemoveColumn = options.onRemoveColumn || this.onRemoveColumn;
 
         /**
          * @name plugins

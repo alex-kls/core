@@ -17,9 +17,53 @@ function idOf(range, i) {
     return (i >= 26 ? idOf(range, (i / 26 >> 0) - 1) : '') + range[i % 26 >> 0];
 }
 
-function convertColDefs(colDefs, firstRowFont) {
+function convertColDefs(colDefs) {
     var schema = [];
-    var data = { __META: { __ROW: { font: firstRowFont, foregroundSelectionFont: firstRowFont, editable: true } } }; // set bold font for title row
+
+    var headersFont = this.properties.columnHeaderFontBold;
+    var menu = [
+        {
+            name: 'Rename',
+            action: function(clickEvent, cellEvent) {
+                console.log('rename selected', clickEvent, cellEvent);
+                cellEvent.grid.onEditorActivate(cellEvent);
+            }
+        },
+        {
+            name: 'Remove',
+            action: function(clickEvent, cellEvent) {
+                console.log('remove selected', clickEvent, cellEvent);
+                var grid = cellEvent.grid;
+                var colDef = grid.columnDefs;
+                var column = cellEvent.column;
+                if (grid.onRemoveColumn) {
+                    grid.onRemoveColumn(column);
+                }
+
+                var singleColDef = colDef.find(function(cd) {
+                    return cd.colId === column.name;
+                });
+
+                // remove if it isn't removed in 'onRemoveColumn' callback
+                if (singleColDef) {
+                    colDef.splice(colDef.indexOf(singleColDef), 1);
+                }
+                grid.api.setColumnDefs(colDef);
+            }
+        }
+    ];
+
+    var data = {
+        __META: {
+            __ROW: {
+                headerRow: true, // used for preventing duplicates
+                font: headersFont, // set bold font for title row
+                foregroundSelectionFont: headersFont, // set bold font for title row
+                editable: true, // allow edit content
+                cellContextMenu: menu // set context menu items with callbacks
+            }
+        }
+    };
     var az = range('A', 'Z');
 
     function colDefMapper(singleColDef, letters) {
@@ -119,7 +163,7 @@ function setColumnDefs(colDefs) {
 
     this.columnDefs = colDefs;
 
-    var schema = convertColDefs(colDefs, this.properties.columnHeaderFontBold);
+    var schema = convertColDefs.bind(this)(colDefs);
     var firstRowData = schema.data;
     var data = this.behavior.getData();
 
@@ -128,7 +172,11 @@ function setColumnDefs(colDefs) {
         data = [firstRowData];
         this.api.needColumnsToFit = true;
     } else if (data && !equal(data[0], firstRowData)) {
-        data.splice(0, 0, firstRowData);
+        if (this.behavior.getRowProperties(0).headerRow) {
+            data[0] = firstRowData;
+        } else {
+            data.splice(0, 0, firstRowData);
+        }
     }
 
     console.log(data);
@@ -148,7 +196,8 @@ function setRowData(rowData) {
 
     this.addData({ data: rowData });
 
-    this.canvas.resize();
+    // this.behavior.fixColumns();
+    // this.api.needColumnsToFit = false;
 }
 
 function sizeColumnsToFit() {
@@ -156,12 +205,18 @@ function sizeColumnsToFit() {
 
     if (this.api.needColumnsToFit) {
         this.behavior.fixColumns();
-        this.api.needColumnsToFit = false;
+        this.addEventListener('fin-grid-rendered', function() {
+            if (this.api.needColumnsToFit) {
+                this.canvas.resizeNotification();
+                this.api.needColumnsToFit = false;
+            }
+        }.bind(this));
     }
 }
 
 function destroy() {
     console.log('destroy');
+
     this.cancelEditing();
 
     this.sbPrevVScrollValue = null;
@@ -296,7 +351,7 @@ function attachLinkToDataCell(x, y, link) {
     this.behavior.setCellProperty(x, y, 'link', link);
 }
 
-function registerCellEditedEventListener(callback){
+function registerCellEditedEventListener(callback) {
     this.addInternalEventListener('fin-after-cell-edit', callback);
 }
 

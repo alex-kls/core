@@ -172,7 +172,7 @@ var Local = Behavior.extend('Local', {
         if (schemaChanged && this.schemaOld) {
             var schemaOld = this.schemaOld;
             schema.forEach(function(columnSchema, index) {
-                if (index === schemaOld[index].index && columnSchema.name === schemaOld[index].name && schemaOld[index].width) {
+                if (schemaOld[index] && index === schemaOld[index].index && columnSchema.name === schemaOld[index].name && schemaOld[index].width) {
                     columnSchema.width = schemaOld[index].width;
                 }
             });

@@ -61,11 +61,11 @@ var ContextMenu = Feature.extend('ContextMenu', {
      * @param {CellEvent} event - the event details
      */
     handleContextMenu: function(grid, event) {
-        var contextMenu = grid.properties.cellContextMenu;
+        var contextMenu = grid.behavior.getRowProperties(event).cellContextMenu || grid.properties.cellContextMenu;
         this.paintContextMenu(menuDiv,
             grid,
             event,
-            contextMenu.items,
+            contextMenu,
             event.primitiveEvent.detail.mouse.x + grid.canvas.size.left,
             event.primitiveEvent.detail.mouse.y + grid.canvas.size.top + 25);
         if (this.next) {
@@ -126,6 +126,8 @@ var ContextMenu = Feature.extend('ContextMenu', {
             }
         }
 
+        var self = this;
+
         var menuOption = document.createElement('div');
         menuOption.style.display = 'block';
 
@@ -139,7 +141,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
         var menuOptionNameSpan = document.createElement('span');
         menuOptionNameSpan.setAttribute('class', 'ag-menu-option-text');
         menuOptionNameSpan.setAttribute('id', 'eName');
-        menuOptionNameSpan.innerHTML = item.title;
+        menuOptionNameSpan.innerHTML = item.title || item.name;
         menuOption.appendChild(menuOptionNameSpan);
 
         var menuOptionShortcutSpan = document.createElement('span');
@@ -157,8 +159,11 @@ var ContextMenu = Feature.extend('ContextMenu', {
 
         menuOption.appendChild(menuOptionPopupPointerSpan);
 
-        menuOption.addEventListener('click', function(clickEvent){
-            item.callbackFn(clickEvent, event);
+        menuOption.addEventListener('click', function(clickEvent) {
+            if (item.action) {
+                item.action(clickEvent, event);
+            }
+            self.hideContextMenu(menuHolderDiv);
         });
 
         if (grid.properties.applyContextMenuStyling){
@@ -184,8 +189,6 @@ var ContextMenu = Feature.extend('ContextMenu', {
         }
 
         menuListHolderDiv.appendChild(menuOption);
-
-        var self = this;
 
         menuOption.addEventListener('mouseenter', function(event){
             if (item.children &&
