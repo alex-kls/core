@@ -131,6 +131,8 @@ var Hypergrid = Base.extend('Hypergrid', {
             this.setData(options.data, options); // if no behavior has yet been set, `setData` sets a default behavior
         } else if (options.Behavior || options.dataModel || options.DataModel) {
             this.setBehavior(options); // also sets options.data
+        } else {
+            this.initScrollbars();
         }
 
         if (options.state) {
@@ -169,6 +171,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.onColumnResized = options.onColumnResized || this.onColumnResized;
         this.onUpdateColumnName = options.onUpdateColumnName || this.onUpdateColumnName;
         this.onRemoveColumn = options.onRemoveColumn || this.onRemoveColumn;
+        this.onColumnsMoved = options.onColumnsMoved || this.onColumnsMoved;
 
         /**
          * @name plugins

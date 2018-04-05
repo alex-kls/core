@@ -745,7 +745,10 @@ FinBar.prototype = {
         this._removeEvt('mousemove');
         this._removeEvt('mouseup');
 
-        (this.container || this.mountDiv.parentElement)._removeEvt('wheel', this._bound.onwheel);
+        var container = (this.container || this.mountDiv.parentElement);
+        if (container._removeEvt) {
+            container._removeEvt('wheel', this._bound.onwheel);
+        }
 
         this.bar.onclick =
             this.thumb.onclick =

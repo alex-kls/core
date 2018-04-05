@@ -195,9 +195,6 @@ function setRowData(rowData) {
     [].push.apply(this.data, rowData);
 
     this.addData({ data: rowData });
-
-    // this.behavior.fixColumns();
-    // this.api.needColumnsToFit = false;
 }
 
 function sizeColumnsToFit() {
@@ -214,7 +211,7 @@ function sizeColumnsToFit() {
     }
 }
 
-function destroy() {
+function destroy(total) {
     console.log('destroy');
 
     this.cancelEditing();
@@ -228,10 +225,14 @@ function destroy() {
     this.selectionModel.reset();
     this.renderer.reset();
 
-    this.canvas.resize();
-    this.behaviorChanged();
-    this.refreshProperties();
-    this.initialize(this.div);
+    if (total) {
+        this.destroyScrollbars();
+    } else {
+        this.canvas.resize();
+        this.behaviorChanged();
+        this.refreshProperties();
+        this.initialize(this.div);
+    }
 }
 
 function getRangeSelections() {

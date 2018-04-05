@@ -31,14 +31,14 @@
                 loadingSpan.style.visibility = "hidden";
                 var div = document.querySelector('div#json-example');
 
-                function geColDef() {
+                function getColDef() {
                     var colDef = localStorage.getItem(LOCAL_STORAGE_COLUMNS_DEF);
                     if (!colDef || colDef.length <= 2) {
                         colDef = "[{\"colId\":\"c0\",\"field\":\"c0\",\"originalField\":\"c0\",\"headerName\":\"Field 1\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"pinned\":\"left\"},{\"colId\":\"c1\",\"field\":\"c1\",\"originalField\":\"c1\",\"headerName\":\"Field 2\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\"},{\"colId\":\"c2\",\"field\":\"c2\",\"originalField\":\"c2\",\"headerName\":\"Field 3\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\"},{\"colId\":\"c3\",\"field\":\"c3\",\"originalField\":\"c3\",\"headerName\":\"Field 4\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\"},{\"colId\":\"c4\",\"field\":\"c4\",\"originalField\":\"c4\",\"headerName\":\"Field 5\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\"},{\"colId\":\"c5\",\"field\":\"c5\",\"originalField\":\"c5\",\"headerName\":\"Field 6\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\"},{\"colId\":\"c6\",\"field\":\"c6\",\"originalField\":\"c6\",\"headerName\":\"Field 7\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\"},{\"colId\":\"c7\",\"field\":\"c7\",\"originalField\":\"c7\",\"headerName\":\"Field 8\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\"},{\"colId\":\"c8\",\"field\":\"c8\",\"originalField\":\"c8\",\"headerName\":\"Field 9\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\"},{\"colId\":\"c9\",\"field\":\"c9\",\"originalField\":\"c9\",\"headerName\":\"Field 10\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\"},{\"colId\":\"c10\",\"field\":\"c10\",\"originalField\":\"c10\",\"headerName\":\"Field 11\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\"}]";
                     }
                     return JSON.parse(colDef);
                 }
-                var colDef = geColDef();
+                var colDef = getColDef();
 
                 function prepareData(result) {
                     var res = [];
@@ -81,6 +81,22 @@
                         } else {
                             console.error('no coldDef', colDef, column);
                         }
+                    },
+                    onColumnsMoved: function(columns, toIndex) {
+                        console.log('onColumnsMoved', columns, toIndex);
+                        columns.forEach(function(column) {
+                            var colDefsLocal = getColDef();
+                            var singleColDef = colDefsLocal.find(function(cd) {
+                                return cd.colId === column.name;
+                            });
+
+                            if (singleColDef) {
+                                colDefsLocal.splice(toIndex, 0, colDefsLocal.splice(colDefsLocal.indexOf(singleColDef), 1)[0]);
+                                localStorage.setItem(LOCAL_STORAGE_COLUMNS_DEF, JSON.stringify(colDefsLocal));
+                            } else {
+                                console.error('no coldDef', colDef, column);
+                            }
+                        });
                     },
                     onUpdateColumnName: function(column, renameTo) {
                         console.log('onUpdateColumnName', column, renameTo);
@@ -140,8 +156,7 @@
                     window.grid.api.clearFocusedCell();
                     window.grid.api.clearRangeSelection();
                     window.grid.api.destroy();
-                    window.grid.canvas.resizeNotification();
-                    window.grid.api.setColumnDefs(geColDef());
+                    window.grid.api.setColumnDefs(getColDef());
                     window.grid.api.setRowData(prepareData(result));
                     window.grid.api.sizeColumnsToFit();
 

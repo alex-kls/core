@@ -350,6 +350,17 @@ exports.mixin = {
         this.synchronizeScrollbarsVisualization();
     },
 
+    destroyScrollbars: function() {
+        if (this.sbHScroller) {
+            this.sbHScroller.remove();
+            delete this.sbHScroller;
+        }
+        if (this.sbVScroller) {
+            this.sbVScroller.remove();
+            delete this.sbVScroller;
+        }
+    },
+
     synchronizeScrollbarsVisualization: function(){
         this.sbHScroller
             .shortenEndByValue('leading', this.getHScrollbarLeftMargin())
@@ -414,7 +425,7 @@ exports.mixin = {
         res += this.properties.fixedRowCount ? this.properties.fixedLinesHWidth : 0;
 
         // to fully implement google sheets style
-        res += 3;
+        res += 1;
 
         return res;
     },

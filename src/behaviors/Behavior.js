@@ -1109,6 +1109,9 @@ var Behavior = Base.extend('Behavior', {
 
     moveColumns: function(from, len, target) {
         var columns = this.columns;
+        if (this.grid.onColumnsMoved) {
+            this.grid.onColumnsMoved(columns.slice(from, from + len), target);
+        }
         columns.move(from, len, target);
         this.changed();
     },

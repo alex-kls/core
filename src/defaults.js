@@ -1667,7 +1667,7 @@ var defaults = {
         borderRadius: 0,
         borderStyle: 'solid',
         borderColor: '#d9d9d9',
-        borderWidth: '0 1px 1px 1px'
+        borderWidth: '1px 1px 1px 1px'
     },
 
     /**
