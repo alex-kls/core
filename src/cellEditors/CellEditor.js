@@ -215,6 +215,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     setEditorValue: function(value) {
+        value = typeof value !== 'undefined' ? value : '';
         this.input.value = this.localizer.format(value);
     },
 

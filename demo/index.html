@@ -92,7 +92,26 @@
                             singleColDef.headerName = renameTo;
                             localStorage.setItem(LOCAL_STORAGE_COLUMNS_DEF, JSON.stringify(colDef));
                         } else {
-                            console.error('no coldDef', colDef, column);
+                            console.log('column', column);
+                            var colDefLength = colDef.length + 1;
+                            colDef.push({
+                                colId:"c" + colDefLength,
+                                field:"c" + colDefLength,
+                                originalField:"c" + colDefLength,
+                                headerName:renameTo,
+                                suppressSorting:false,
+                                minWidth:10,
+                                maxWidth:2000,
+                                suppressMenu:0,
+                                suppressMovable:false,
+                                suppressSizeToFit:false,
+                                sort:null,
+                                sortedAt:null,
+                                columnGroupShow:"open",
+                                pinned:"left"
+                            });
+
+                            localStorage.setItem(LOCAL_STORAGE_COLUMNS_DEF, JSON.stringify(colDef));
                         }
                     },
                     onRemoveColumn: function(column) {
@@ -110,7 +129,14 @@
                 };
                 window.grid = window.grid || new fin.Hypergrid(div, options);
 
+                var iteration = 0;
                 (function appendData() {
+                    iteration++;
+                    if (iteration === 1){
+                        if(result.data.children.length === 1000)
+                            result.data.children = result.data.children.slice(0,999);
+                    }
+
                     window.grid.api.clearFocusedCell();
                     window.grid.api.clearRangeSelection();
                     window.grid.api.destroy();

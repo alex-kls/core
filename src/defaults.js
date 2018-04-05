@@ -891,7 +891,7 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    showTreeColumn: false,
+    showTreeColumn: true,
 
     /**
      * @default
@@ -1776,7 +1776,10 @@ var defaults = {
     linkDetailsAnchorStyle: {
         color: '#337ab7',
         textDecoration: 'none'
-    }
+    },
+
+    canvasWidthOffset: 15,
+    canvasHeightOffset: 15
 };
 
 

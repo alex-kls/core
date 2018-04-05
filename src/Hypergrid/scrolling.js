@@ -301,7 +301,12 @@ exports.mixin = {
 
         var horzBar = new Scrollbar({
             orientation: 'horizontal',
-            gridPropertiesObject: this.properties,
+            onBarVisibilityChanged: function(isVisible) {
+                self.properties.canvasHeightOffset = isVisible
+                    ? Number(window.getComputedStyle(this.mountDiv).height.replace('px', ''))
+                    : 0;
+                self.canvas.resize(false);
+            },
             onchange: self.setHScrollValue.bind(self),
             cssStylesheetReferenceElement: this.div,
             paging: {
@@ -312,7 +317,12 @@ exports.mixin = {
 
         var vertBar = new Scrollbar({
             orientation: 'vertical',
-            gridPropertiesObject: this.properties,
+            onBarVisibilityChanged: function(isVisible) {
+                self.properties.canvasWidthOffset = isVisible
+                    ? Number(window.getComputedStyle(this.mountDiv).width.replace('px', ''))
+                    : 0;
+                self.canvas.resize(false);
+            },
             onchange: self.setVScrollValue.bind(self),
             paging: {
                 up: self.pageUp.bind(self),

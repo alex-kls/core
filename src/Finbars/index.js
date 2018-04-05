@@ -105,6 +105,10 @@ function FinBar(options) {
                     this.contentSize = option.max - option.min + 1;
                     break;
 
+                case 'onBarVisibilityChanged':
+                    this.onBarVisibilityChanged = option;
+                    break;
+
                 default:
                     if (
                         key.charAt(0) !== '_' &&
@@ -269,6 +273,8 @@ FinBar.prototype = {
             this._mouseHoldPerformTimeout = 0;
         }
     },
+
+    onBarVisibilityChanged: function() {},
 
     /**
      * @summary Add a CSS class name to the bar element's class list.
@@ -687,6 +693,7 @@ FinBar.prototype = {
      */
     _setThumbSize: function() {
         var oh = this.oh,
+            mountDivComp = window.getComputedStyle(this.mountDiv),
             thumbComp = window.getComputedStyle(this.thumb),
             thumbMarginLeading = parseInt(thumbComp[oh.marginLeading]),
             thumbMarginTrailing = parseInt(thumbComp[oh.marginTrailing]),
@@ -694,12 +701,22 @@ FinBar.prototype = {
             barSize = this.bar.getBoundingClientRect()[oh.size] - thumbMargins,
             thumbSize = Math.max(20, barSize * this.containerSize / this.contentSize);
 
+        var oldVisibility = this.mountDiv.style.visibility;
+        var isVisibleNow = false;
         if (this.containerSize < this.contentSize) {
             this.mountDiv.style.visibility = 'visible';
             this.thumb.style[oh.size] = thumbSize + 'px';
+            isVisibleNow = true;
         } else {
             this.mountDiv.style.visibility = 'hidden';
+            isVisibleNow = false;
         }
+
+        if(oldVisibility !== this.mountDiv.style.visibility) {
+            this.onBarVisibilityChanged(isVisibleNow);
+        }
+
+        // console.log('this.gridPropertiesObject.' + oh.gridOffsetProperty, this.gridPropertiesObject[oh.gridOffsetProperty])
 
         /**
          * @private
@@ -968,7 +985,8 @@ var orientationHashes = {
         marginLeading: 'marginTop',
         marginTrailing: 'marginBottom',
         thickness: 'width',
-        delta: 'deltaY'
+        delta: 'deltaY',
+        // gridOffsetProperty: 'canvasWidthOffset'
     },
     horizontal: {
         coordinate: 'clientX',
@@ -981,7 +999,8 @@ var orientationHashes = {
         marginLeading: 'marginLeft',
         marginTrailing: 'marginRight',
         thickness: 'height',
-        delta: 'deltaX'
+        delta: 'deltaX',
+        // gridOffsetProperty: 'canvasHeightOffset'
     }
 };
 
