@@ -596,7 +596,7 @@ var defaults = {
      * @type {boolean|string}
      * @memberOf module:defaults
      */
-    gridBorderLeft: false,
+    gridBorderLeft: true,
 
     /**
      * Set canvas's right CSS border to this string.
@@ -606,7 +606,7 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    gridBorderRight: false,
+    gridBorderRight: true,
 
     /**
      * Set canvas's top CSS border to this string.
@@ -616,7 +616,7 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    gridBorderTop: false,
+    gridBorderTop: true,
 
     /**
      * Set canvas's bottom CSS border to this string.
@@ -626,7 +626,7 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    gridBorderBottom: false,
+    gridBorderBottom: true,
 
     /**
      * Define this property to style rule lines between fixed & scolling rows differently from `lineWidth`.
@@ -1655,13 +1655,15 @@ var defaults = {
      */
     scrollbarVStyle: {
         width: 13,
-        border: '1px solid #d9d9d9',
         background: '#F8F8F8',
         boxShadow: '0 0 0 #000, 0 0 0 #000, 0 0 0 #000',
         marginTop: 0,
         marginBottom: 0,
         marginRight: -1,
-        borderRadius: 0
+        borderRadius: 0,
+        borderStyle: 'solid',
+        borderColor: '#d9d9d9',
+        borderWidth: '0 1px 1px 1px'
     },
 
     /**

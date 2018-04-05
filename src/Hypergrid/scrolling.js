@@ -362,6 +362,8 @@ exports.mixin = {
         var res = 0;
         var visibleColumns = this.renderer.visibleColumns;
         res -= this.properties.gridLinesV ? this.properties.gridLinesVWidth : 0;
+        res += this.properties.gridBorderLeft ? this.properties.gridLinesVWidth : 0;
+
         var neededColumn = visibleColumns[this.behavior.rowColumnIndex];
         res += this.properties.rowHeaderNumbers && neededColumn
             ? neededColumn.right
@@ -400,6 +402,9 @@ exports.mixin = {
         res -= this.properties.gridLinesH ? this.properties.gridLinesHWidth : 0;
 
         res += this.properties.fixedRowCount ? this.properties.fixedLinesHWidth : 0;
+
+        // to fully implement google sheets style
+        res += 3;
 
         return res;
     },
