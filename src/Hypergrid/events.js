@@ -158,6 +158,10 @@ var mixin = {
         return dispatchEvent.call(this, 'fin-row-selection-changed', this.selectionDetailGetters);
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-column-selection-changed` event.
+     */
     fireSyntheticColumnSelectionChangedEvent: function() {
         return dispatchEvent.call(this, 'fin-column-selection-changed', this.selectionDetailGetters);
     },

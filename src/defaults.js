@@ -1392,6 +1392,10 @@ var defaults = {
 
     /**
      * @desc List of context menu items, just title and callback
+     * Params, that can be passed to each item declaration:
+     * title | name (HTML string) - title of an menu item
+     * action (function) - callback function, that will be called on click
+     * isShown (boolean | function) - if passed, each item check this param, before it will be rendered
      * @default
      * @memberOf module:defaults
      */
