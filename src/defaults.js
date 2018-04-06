@@ -719,7 +719,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    repaintIntervalRate: 60,
+    repaintIntervalRate: 40,
 
     /**
      * @default
