@@ -1684,11 +1684,8 @@ var defaults = {
      * @memberOf module:defaults
      */
     scrollbarHStyle: {
-        height: 12,
-        borderStyle: 'solid',
-        borderColor: '#d9d9d9',
-        borderWidth: '0 1px 1px 1px',
-        // border: '1px solid #d9d9d9',
+        height: 13,
+        border: '1px solid #d9d9d9',
         background: '#F8F8F8',
         boxShadow: '0 0 0 #000, 0 0 0 #000, 0 0 0 #000',
         marginLeft: 0,
@@ -1743,8 +1740,7 @@ var defaults = {
     scrollbarHMountStyle: {
         position: 'absolute',
         background: '#F8F8F8',
-        border: '1px solid #D9D9D9',
-        borderTopWidth: '0'
+        border: '1px solid #D9D9D9'
     },
 
     /**
@@ -1791,8 +1787,8 @@ var defaults = {
         textDecoration: 'none'
     },
 
-    canvasWidthOffset: 15,
-    canvasHeightOffset: 15
+    canvasWidthOffset: 16,
+    canvasHeightOffset: 16
 };
 
 

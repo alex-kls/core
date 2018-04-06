@@ -60,7 +60,8 @@ function convertColDefs(colDefs) {
                 font: headersFont, // set bold font for title row
                 foregroundSelectionFont: headersFont, // set bold font for title row
                 editable: true, // allow edit content
-                cellContextMenu: menu // set context menu items with callbacks
+                cellContextMenu: menu, // set context menu items with callbacks
+                halign: 'left'
             }
         }
     };
@@ -195,8 +196,6 @@ function setRowData(rowData) {
     [].push.apply(this.data, rowData);
 
     this.addData({ data: rowData });
-
-    this.canvas.resize(false);
 }
 
 function sizeColumnsToFit() {
@@ -204,6 +203,7 @@ function sizeColumnsToFit() {
 
     if (this.api.needColumnsToFit) {
         this.behavior.fixColumns();
+        this.canvas.resize(false);
         this.addEventListener('fin-grid-rendered', function() {
             if (this.api.needColumnsToFit) {
                 this.canvas.resizeNotification();

@@ -65,7 +65,7 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
             placeholder.style.position = 'fixed';
 
             document.body.appendChild(placeholder);
-            placeholderCTX = placeholder.getContext('2d');
+            placeholderCTX = placeholder.getContext('2d', { alpha: false });
         }
     },
 
@@ -217,7 +217,7 @@ var ColumnFixation = Feature.extend('ColumnFixation', {
 
         if (!dragger) {
             dragger = document.createElement('canvas');
-            draggerCTX = dragger.getContext('2d');
+            draggerCTX = dragger.getContext('2d', { alpha: false });
             document.body.appendChild(dragger);
         }
 

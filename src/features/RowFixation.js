@@ -65,7 +65,7 @@ var RowFixation = Feature.extend('RowFixation', {
             rowFixationPlaceholder.style.position = 'absolute';
 
             document.body.appendChild(rowFixationPlaceholder);
-            rowFixationPlaceholderCTX = rowFixationPlaceholder.getContext('2d');
+            rowFixationPlaceholderCTX = rowFixationPlaceholder.getContext('2d', { alpha: false });
         }
     },
 
@@ -205,7 +205,7 @@ var RowFixation = Feature.extend('RowFixation', {
 
         if (!rowFixationDragger) {
             rowFixationDragger = document.createElement('canvas');
-            rowFixationDraggerCTX = rowFixationDragger.getContext('2d');
+            rowFixationDraggerCTX = rowFixationDragger.getContext('2d', { alpha: false });
             document.body.appendChild(rowFixationDragger);
         }
 

@@ -273,9 +273,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         y = config.bounds.y,
         width = config.bounds.width,
         halignOffset = leftPadding,
-        halign = config.isRowHeaderCell
-            ? config.rowHeaderHalign
-            : (config.columnHalign ? config.columnHalign : config.halign),
+        halign = config.halign,
         minWidth,
         metrics;
 

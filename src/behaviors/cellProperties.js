@@ -60,7 +60,8 @@ exports.behaviorMixin = {
             key = y;
             return xOrCellEvent.properties[key];
         } else {
-            return this.getColumn(xOrCellEvent).getCellProperty(y, key, dataModel);
+            var column = this.getColumn(xOrCellEvent);
+            return column && column.getCellProperty(y, key, dataModel);
         }
     },
 

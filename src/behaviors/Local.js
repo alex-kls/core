@@ -63,6 +63,12 @@ var Local = Behavior.extend('Local', {
                         columnAutosizing: false
                     });
                 }
+
+                if (columnSchema.halign) {
+                    Object.assign(newColumn.properties, {
+                        halign: columnSchema.halign
+                    });
+                }
             }
         }, this);
     },

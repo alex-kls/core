@@ -94,7 +94,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             dragger.style.position = 'fixed';
 
             document.body.appendChild(dragger);
-            draggerCTX = dragger.getContext('2d');
+            draggerCTX = dragger.getContext('2d', { alpha: false });
         }
         if (!placeholder) {
             placeholder = document.createElement('canvas');
@@ -103,7 +103,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             placeholder.style.position = 'fixed';
 
             document.body.appendChild(placeholder);
-            placeholderCTX = placeholder.getContext('2d');
+            placeholderCTX = placeholder.getContext('2d', { alpha: false });
         }
 
     },

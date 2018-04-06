@@ -300,22 +300,22 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @default get nearest column to X
      * @param x - index of base column
-     * @param rigthShift - boolean direction for near column getting. `true` - is direction to the right
+     * @param rightShift - boolean direction for near column getting. `true` - is direction to the right
      * @returns {Column|undefined}
      */
-    getColumnShifted: function(x, rigthShift) {
-        if (rigthShift) {
+    getColumnShifted: function(x, rightShift) {
+        if (rightShift) {
             ++x;
         } else {
             --x;
         }
 
         if (x === this.treeColumnIndex && !this.grid.properties.showTreeColumn) {
-            return this.getColumnShifted(x, rigthShift);
+            return this.getColumnShifted(x, rightShift);
         }
 
         if (x === this.rowColumnIndex && !this.grid.properties.rowHeaderNumbers) {
-            return this.getColumnShifted(x, rigthShift);
+            return this.getColumnShifted(x, rightShift);
         }
 
         return this.getColumn(x);

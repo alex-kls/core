@@ -272,7 +272,8 @@ Canvas.prototype = {
         this.buffer.height = this.canvas.height = this.height * ratio;
 
         this.canvas.style.width = this.buffer.style.width = this.width + 'px';
-        this.canvas.style.height = this.buffer.style.height = this.height + 'px';
+        // +1 because of some text render artifacts (sometimes not only text)
+        this.canvas.style.height = this.buffer.style.height = this.height + 1 + 'px';
 
         this.bc.scale(ratio, ratio);
         if (isHIDPI && !this.component.properties.useBitBlit) {
@@ -777,7 +778,7 @@ function makeCharMap() {
 }
 
 function getCachedContext(canvasElement, type) {
-    var gc = canvasElement.getContext(type || '2d'),
+    var gc = canvasElement.getContext(type || '2d', { alpha: false }),
         props = {},
         values = {};
 

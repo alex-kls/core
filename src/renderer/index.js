@@ -885,6 +885,25 @@ var Renderer = Base.extend('Renderer', {
         gc.cache.restore(); // discard clipping region
     },
 
+    drawLine: function(gc, x1, y1, width, height) {
+        gc.fillRect(x1, y1, width, height);
+        // if (width <= 1) {
+        //     gc.lineWidth = width / 2;
+        //     gc.beginPath();
+        //     gc.moveTo(x1, y1);
+        //     gc.lineTo(x1, y1 + height);
+        //     gc.stroke();
+        // } else if (height <= 1) {
+        //     gc.lineWidth = height / 2;
+        //     gc.beginPath();
+        //     gc.moveTo(x1, y1);
+        //     gc.lineTo(x1 + width, y1);
+        //     gc.stroke();
+        // } else {
+        //     gc.fillRect(x1, y1, width, height);
+        // }
+    },
+
     /**
      * @memberOf Renderer.prototype
      * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw grid lines here.
@@ -903,13 +922,13 @@ var Renderer = Base.extend('Renderer', {
             var headerRowsCount = this.grid.getHeaderRowCount();
 
             if (gridProps.gridLinesV) {
-                gc.cache.fillStyle = gridProps.gridLinesVColor;
+                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesVColor;
 
                 for (var right, vc = visibleColumns[0], c = 0; c < columnsLength; c++) {
                     vc = visibleColumns[c];
                     right = vc.right;
                     if (!vc.gap) {
-                        gc.fillRect(right, 0, gridProps.gridLinesVWidth, viewHeight);
+                        this.drawLine(gc, right, 0, gridProps.gridLinesVWidth, viewHeight);
                     }
                 }
 
@@ -920,32 +939,32 @@ var Renderer = Base.extend('Renderer', {
                         headerHeight += this.grid.getRowHeight(i);
                     }
 
-                    gc.cache.fillStyle = gridProps.gridLinesVHeaderColor;
+                    gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesVHeaderColor;
                     for (var headerRight, headerVc = visibleColumns[0], headerC = 0; headerC < columnsLength; headerC++) {
                         headerVc = visibleColumns[headerC];
                         headerRight = headerVc.right;
                         if (!headerVc.gap) {
-                            gc.fillRect(headerRight, 0, gridProps.gridLinesVWidth, headerHeight +  1);
+                            this.drawLine(gc, headerRight, 0, gridProps.gridLinesVWidth, headerHeight);
                         }
                     }
                 }
 
                 if (this.grid.properties.rowHeaderNumbers) {
                     right = visibleColumns[this.grid.behavior.rowColumnIndex].right;
-                    gc.cache.fillStyle = gridProps.gridLinesVHeaderColor ?
+                    gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesVHeaderColor ?
                         gridProps.gridLinesVHeaderColor :
                         gridProps.gridLinesVColor;
-                    gc.fillRect(right, 0, gridProps.gridLinesVWidth, viewHeight);
+                    this.drawLine(gc, right, 0, gridProps.gridLinesVWidth, viewHeight);
                 }
             }
 
             if (gridProps.gridLinesH) {
-                gc.cache.fillStyle = gridProps.gridLinesHColor;
+                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesHColor;
                 for (var bottom, vr = visibleRows[0], r = 0; r < rowsLength; r++) {
                     vr = visibleRows[r];
                     bottom = vr.bottom;
                     if (!vr.gap) {
-                        gc.fillRect(0, bottom, viewWidth, gridProps.gridLinesHWidth);
+                        this.drawLine(gc, 0, bottom, viewWidth, gridProps.gridLinesHWidth);
                     }
                 }
 
@@ -956,15 +975,15 @@ var Renderer = Base.extend('Renderer', {
                         ? visibleColumns[this.grid.behavior.rowColumnIndex].right + additionalWidth
                         : 0;
 
-                    gc.cache.fillStyle = gridProps.gridLinesHHeaderColor;
+                    gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesHHeaderColor;
                     for (var headerBottom, headerVr = visibleRows[0], headerR = 0; headerR < rowsLength; headerR++) {
                         headerVr = visibleRows[headerR];
                         headerBottom = headerVr.bottom;
                         if (!vr.gap) {
                             if (headerR < headerRowsCount) {
-                                gc.fillRect(0, headerBottom, viewWidth, gridProps.gridLinesHWidth);
+                                this.drawLine(gc, 0, headerBottom, viewWidth, gridProps.gridLinesHWidth);
                             } else {
-                                gc.fillRect(0, headerBottom, firstRowWidth, gridProps.gridLinesHWidth);
+                                this.drawLine(gc, 0, headerBottom, firstRowWidth, gridProps.gridLinesHWidth);
                             }
                         }
                     }
@@ -974,25 +993,25 @@ var Renderer = Base.extend('Renderer', {
             var edgeWidth;
             var gap = visibleRows.gap;
             if (gap) {
-                gc.cache.fillStyle = gridProps.fixedLinesHColor || gridProps.gridLinesHColor;
+                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.fixedLinesHColor || gridProps.gridLinesHColor;
                 edgeWidth = gridProps.fixedLinesHEdge;
                 if (edgeWidth) {
-                    gc.fillRect(0, gap.top, viewWidth, edgeWidth);
-                    gc.fillRect(0, gap.bottom - edgeWidth, viewWidth, edgeWidth);
+                    this.drawLine(gc, 0, gap.top, viewWidth, edgeWidth);
+                    this.drawLine(gc, 0, gap.bottom - edgeWidth, viewWidth, edgeWidth);
                 } else if (gridProps.fixedRowCount > 0) {
-                    gc.fillRect(0, gap.top, viewWidth, gap.bottom - gap.top);
+                    this.drawLine(gc, 0, gap.top, viewWidth, gap.bottom - gap.top);
                 }
             }
 
             gap = visibleColumns.gap;
             if (gap) {
-                gc.cache.fillStyle = gridProps.fixedLinesVColor || gridProps.gridLinesVColor;
+                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.fixedLinesVColor || gridProps.gridLinesVColor;
                 edgeWidth = gridProps.fixedLinesVEdge;
                 if (edgeWidth) {
-                    gc.fillRect(gap.left, 0, edgeWidth, viewHeight);
-                    gc.fillRect(gap.right - edgeWidth, 0, edgeWidth, viewHeight);
+                    this.drawLine(gc, gap.left, 0, edgeWidth, viewHeight);
+                    this.drawLine(gc, gap.right - edgeWidth, 0, edgeWidth, viewHeight);
                 } else {
-                    gc.fillRect(gap.left, 0, gap.right - gap.left, viewHeight);
+                    this.drawLine(gc, gap.left, 0, gap.right - gap.left, viewHeight);
                 }
             }
         }
@@ -1111,10 +1130,7 @@ var Renderer = Base.extend('Renderer', {
         config.prefillColor = prefillColor;
         config.buttonCells = this.buttonCells; // allow the renderer to identify itself if it's a button
         config.subrow = 0;
-        config.isRowHeaderCell = cellEvent.isDataRow && !cellEvent.isDataColumn;
-        config.columnHalign = (cellEvent.column && cellEvent.column.schema)
-            ? cellEvent.column.schema.halign
-            : undefined;
+        config.halign = isHeaderRow ? config.rowHeaderHalign : behavior.getCellProperty('halign') || config.halign;
 
         if (grid.mouseDownState) {
             config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
