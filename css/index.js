@@ -3,7 +3,7 @@
 exports.grid = [
 '.hypergrid-container {',
 '	position: relative;',
-'	height: 500px;',
+'	height: 510px;',
 '}',
 '.hypergrid-container > div:first-child {',
 '	position: absolute;',

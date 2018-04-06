@@ -101,8 +101,9 @@ function Canvas(div, component) {
 
     this.resize();
 
-    this.beginResizing();
-    this.beginPainting();
+    this.start();
+    // this.beginResizing();
+    // this.beginPainting();
 }
 
 Canvas.prototype = {

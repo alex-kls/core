@@ -67,7 +67,6 @@ function convertColDefs(colDefs) {
     var az = range('A', 'Z');
 
     function colDefMapper(singleColDef, letters) {
-        console.log('singleColDef', singleColDef);
         var originalField = singleColDef && singleColDef.originalField;
         var width = singleColDef && singleColDef.width;
         var halign = singleColDef && singleColDef.halign;
@@ -162,8 +161,6 @@ var virtualPageRowModel = {
 };
 
 function setColumnDefs(colDefs) {
-    console.log('setColumnDefs', colDefs);
-
     this.columnDefs = colDefs;
 
     var schema = convertColDefs.bind(this)(colDefs);
@@ -198,6 +195,8 @@ function setRowData(rowData) {
     [].push.apply(this.data, rowData);
 
     this.addData({ data: rowData });
+
+    this.canvas.resize(false);
 }
 
 function sizeColumnsToFit() {

@@ -125,6 +125,10 @@ function FinBar(options) {
     }
 
     cssInjector(cssFinBars, 'finbar-base', options.cssStylesheetReferenceElement);
+
+    if (this.onBarVisibilityChanged) {
+        this.onBarVisibilityChanged(true);
+    }
 }
 
 FinBar.prototype = {
@@ -622,14 +626,10 @@ FinBar.prototype = {
             this.mountDiv.style.height = computedStyles.height;
             this.mountDiv.style.width = '100%';
             this.mountDiv.style.bottom = '0';
-            // this.mountDiv.style.marginTop = computedStyles.marginTop;
-            // this.mountDiv.style.marginBottom = computedStyles.marginBottom;
         } else {
             this.mountDiv.style.height = '100%';
             this.mountDiv.style.width = computedStyles.width;
             this.mountDiv.style.right = '0';
-            // this.mountDiv.style.marginRight = computedStyles.marginRight;
-            // this.mountDiv.style.marginLeft= computedStyles.marginLeft;
         }
     },
 
@@ -702,18 +702,15 @@ FinBar.prototype = {
             thumbSize = Math.max(20, barSize * this.containerSize / this.contentSize);
 
         var oldVisibility = this.mountDiv.style.visibility;
-        var isVisibleNow = false;
         if (this.containerSize < this.contentSize) {
             this.mountDiv.style.visibility = 'visible';
             this.thumb.style[oh.size] = thumbSize + 'px';
-            isVisibleNow = true;
         } else {
             this.mountDiv.style.visibility = 'hidden';
-            isVisibleNow = false;
         }
 
-        if(oldVisibility !== this.mountDiv.style.visibility) {
-            this.onBarVisibilityChanged(isVisibleNow);
+        if(oldVisibility !== this.mountDiv.style.visibility && this.onBarVisibilityChanged) {
+            this.onBarVisibilityChanged(this.mountDiv.style.visibility === 'visible');
         }
 
         // console.log('this.gridPropertiesObject.' + oh.gridOffsetProperty, this.gridPropertiesObject[oh.gridOffsetProperty])
