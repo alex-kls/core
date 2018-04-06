@@ -1083,7 +1083,7 @@ var Renderer = Base.extend('Renderer', {
             if (isDataRow) {
                 // row handle for a data row
                 if (config.rowHeaderNumbers) {
-                    value = r + 1; // row number is 1-based
+                    value = r + config.rowHeaderStartDisplayedIndex; // row number is 1-based
                 }
             } else if (isHeaderRow) {
                 // row handle for header row: gets "master" checkbox

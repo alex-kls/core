@@ -616,7 +616,7 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    gridBorderTop: true,
+    gridBorderTop: false,
 
     /**
      * Set canvas's bottom CSS border to this string.
@@ -885,6 +885,13 @@ var defaults = {
      * @see {@link module:dynamicPropertyDescriptors.showRowNumbers}
      */
     rowHeaderCheckboxes: false,
+
+    /**
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    rowHeaderStartDisplayedIndex: 0,
 
     /**
      * @default
@@ -1678,7 +1685,10 @@ var defaults = {
      */
     scrollbarHStyle: {
         height: 13,
-        border: '1px solid #d9d9d9',
+        borderStyle: 'solid',
+        borderColor: '#d9d9d9',
+        borderWidth: '0 1px 1px 1px',
+        // border: '1px solid #d9d9d9',
         background: '#F8F8F8',
         boxShadow: '0 0 0 #000, 0 0 0 #000, 0 0 0 #000',
         marginLeft: 0,

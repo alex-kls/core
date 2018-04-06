@@ -145,14 +145,7 @@
                 };
                 window.grid = window.grid || new fin.Hypergrid(div, options);
 
-                var iteration = 0;
                 (function appendData() {
-                    iteration++;
-                    if (iteration === 1){
-                        if(result.data.children.length === 1000)
-                            result.data.children = result.data.children.slice(0,999);
-                    }
-
                     window.grid.api.clearFocusedCell();
                     window.grid.api.clearRangeSelection();
                     window.grid.api.destroy();
