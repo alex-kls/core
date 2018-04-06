@@ -67,12 +67,15 @@ function convertColDefs(colDefs) {
     var az = range('A', 'Z');
 
     function colDefMapper(singleColDef, letters) {
+        console.log('singleColDef', singleColDef);
         var originalField = singleColDef && singleColDef.originalField;
         var width = singleColDef && singleColDef.width;
+        var halign = singleColDef && singleColDef.halign;
         schema.push({
             header: letters || '',
             name: originalField || letters,
-            width: width || undefined
+            width: width || undefined,
+            halign: halign || undefined
         });
 
         if (originalField) {

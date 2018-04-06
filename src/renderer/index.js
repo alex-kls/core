@@ -1112,6 +1112,9 @@ var Renderer = Base.extend('Renderer', {
         config.buttonCells = this.buttonCells; // allow the renderer to identify itself if it's a button
         config.subrow = 0;
         config.isRowHeaderCell = cellEvent.isDataRow && !cellEvent.isDataColumn;
+        config.columnHalign = (cellEvent.column && cellEvent.column.schema)
+            ? cellEvent.column.schema.halign
+            : undefined;
 
         if (grid.mouseDownState) {
             config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
