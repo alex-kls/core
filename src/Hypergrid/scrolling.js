@@ -424,6 +424,8 @@ exports.mixin = {
 
         res += this.properties.fixedRowCount ? this.properties.fixedLinesHWidth : 0;
 
+        res += this.properties.gridBorderTop ? this.properties.fixedLinesHWidth : 0;
+
         // to fully implement google sheets style
         res += 1;
 

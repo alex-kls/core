@@ -1665,7 +1665,7 @@ var defaults = {
      * @memberOf module:defaults
      */
     scrollbarVStyle: {
-        width: 13,
+        width: 12,
         background: '#F8F8F8',
         boxShadow: '0 0 0 #000, 0 0 0 #000, 0 0 0 #000',
         marginTop: 0,
@@ -1674,7 +1674,7 @@ var defaults = {
         borderRadius: 0,
         borderStyle: 'solid',
         borderColor: '#d9d9d9',
-        borderWidth: '1px 1px 1px 1px'
+        borderWidth: '1px 1px 1px 0'
     },
 
     /**
@@ -1684,7 +1684,7 @@ var defaults = {
      * @memberOf module:defaults
      */
     scrollbarHStyle: {
-        height: 13,
+        height: 12,
         borderStyle: 'solid',
         borderColor: '#d9d9d9',
         borderWidth: '0 1px 1px 1px',
@@ -1743,7 +1743,8 @@ var defaults = {
     scrollbarHMountStyle: {
         position: 'absolute',
         background: '#F8F8F8',
-        border: '1px solid #D9D9D9'
+        border: '1px solid #D9D9D9',
+        borderTopWidth: '0'
     },
 
     /**
@@ -1755,7 +1756,9 @@ var defaults = {
     scrollbarVMountStyle: {
         position: 'absolute',
         background: '#F8F8F8',
-        border: '1px solid #D9D9D9'
+        border: '1px solid #D9D9D9',
+        borderLeftWidth: '0',
+        borderTopWidth: '0'
     },
 
     /**
