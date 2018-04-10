@@ -271,8 +271,8 @@ Canvas.prototype = {
         this.buffer.width = this.canvas.width = this.width * ratio;
         this.buffer.height = this.canvas.height = this.height * ratio;
 
-        this.canvas.style.width = this.buffer.style.width = this.width + 'px';
-        // +1 because of some text render artifacts (sometimes not only text)
+        // +2 and +1 because of some text render artifacts (sometimes not only text) (some vertical/horizontal broken lines)
+        this.canvas.style.width = this.buffer.style.width = this.width + 2 + 'px';
         this.canvas.style.height = this.buffer.style.height = this.height + 1 + 'px';
 
         this.bc.scale(ratio, ratio);

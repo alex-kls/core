@@ -674,14 +674,14 @@ FinBar.prototype = {
             var otherStyle = window.getComputedStyle(otherFinBar.bar),
                 ooh = orientationHashes[otherFinBar.orientation];
             this._auxStyles = {};
-            this._auxStyles[whichEnd] = otherStyle[ooh.thickness];
+            this._auxStyles[whichEnd] = otherStyle[ooh.thickness] - 1;
         }
         return this; // for chaining
     },
 
     shortenEndByValue: function(whichEnd, shortenValue) {
         this._auxStyles = this._auxStyles ? this._auxStyles : {};
-        this._auxStyles[whichEnd] = shortenValue + 'px';
+        this._auxStyles[whichEnd] = shortenValue - 1 + 'px';
         return this;
     },
 

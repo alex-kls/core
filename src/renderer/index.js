@@ -934,9 +934,11 @@ var Renderer = Base.extend('Renderer', {
 
                 if (gridProps.gridLinesVHeaderColor && (gridProps.gridLinesVHeaderColor !== gridProps.gridLinesVColor)) {
 
-                    var headerHeight = 0;
-                    for (var i = 0; i < headerRowsCount; i++) {
-                        headerHeight += this.grid.getRowHeight(i);
+                    var headerHeight = headerRowsCount * this.properties.defaultHeaderRowHeight;
+                    if (!headerHeight) {
+                        for (var i = 0; i < headerRowsCount; i++) {
+                            headerHeight += this.grid.getRowHeight(i);
+                        }
                     }
 
                     gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesVHeaderColor;
@@ -951,9 +953,7 @@ var Renderer = Base.extend('Renderer', {
 
                 if (this.grid.properties.rowHeaderNumbers) {
                     right = visibleColumns[this.grid.behavior.rowColumnIndex].right;
-                    gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesVHeaderColor ?
-                        gridProps.gridLinesVHeaderColor :
-                        gridProps.gridLinesVColor;
+                    gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesVHeaderColor || gridProps.gridLinesVColor;
                     this.drawLine(gc, right, 0, gridProps.gridLinesVWidth, viewHeight);
                 }
             }
