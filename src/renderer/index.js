@@ -114,6 +114,18 @@ var Renderer = Base.extend('Renderer', {
 
     viewHeight: 0,
 
+    /**
+     * @summary Contains vertical view free space
+     * @desc If visible rows not holds all the grid space, this variable will contain missing pixels count
+     */
+    bottomFreeSpace: 0,
+
+    /**
+     * @summary Count of rows, that was rendered partly
+     * @desc used, when rendered on last page, and first row must be partly hidden, to avoid empty space on end
+     */
+    renderedCuttedRowsCount: 0,
+
     reset: function() {
         this.bounds = {
             width: 0,
@@ -329,8 +341,22 @@ var Renderer = Base.extend('Renderer', {
             firstColumn = visibleColumns[this.grid.behavior.leftMostColIndex],
             inFirstColumn = x < firstColumn.right,
             vc = inFirstColumn ? firstColumn : visibleColumns.findWithNeg(function(vc) { return x < vc.right; }),
-            vr = vrs.find(function(vr) { return y < vr.bottom; }),
             result = {fake: false};
+
+        // if (this.renderedCuttedRowsCount > 0) {
+        //     var filtered = vrs
+        //         .filter(function(vr) { return y <= vr.bottom && y >= vr.top; })
+        //         .sort(function(vr1, vr2) { return vr1.rowIndex - vr2.rowIndex; });
+        //     vr = filtered[filtered.length - 1];
+        //     console.log('filtered', filtered);
+        //     console.log('x: ' + x + ' y: ' + y);
+        // } else {
+        //     vr = vrs.filter(function(vr) { return y <= vr.bottom && y >= vr.top; });
+        // }
+        var filtered = vrs
+            .filter(function(vr) { return y <= vr.bottom && y >= vr.top; })
+            .sort(function(vr1, vr2) { return vr2.rowIndex - vr1.rowIndex; });
+        var vr = filtered[filtered.length - 1];
 
         //default to last row and col
         if (vr) {
@@ -359,6 +385,8 @@ var Renderer = Base.extend('Renderer', {
             result.fake = true;
             this.grid.beCursor(null);
         }
+
+        // console.log('cellEvent.dataCell', result.cellEvent.dataCell);
 
         return result;
     },
@@ -596,9 +624,11 @@ var Renderer = Base.extend('Renderer', {
         this.gridRenderer.paintCells.call(this, gc);
 
         // this.renderOverrides(gc);
-
         this.renderLastSelection(gc);
         this.renderFirstSelectedCell(gc);
+
+        //render header cells after all to avoid overlapping
+        this.gridRenderers['by-columns-and-rows-headers'].paintCells.call(this, gc);
 
         gc.closePath();
     },
@@ -623,7 +653,7 @@ var Renderer = Base.extend('Renderer', {
 
         var pointWithHeaders = {
             x: newX,
-            y: firstSelectedCell.y + this.grid.getHeaderRowCount() - this.grid.getVScrollValue()
+            y: firstSelectedCell.y + this.grid.getHeaderRowCount() - this.grid.getVScrollValue() + this.renderedCuttedRowsCount
         };
 
         var cellBounds = this.grid.getBoundsOfCell(pointWithHeaders);
@@ -1535,17 +1565,60 @@ function computeCellsBounds() {
         }
 
         if (y < Y) {
-            var grayLineSpace = Y - y;
-            if (grayLineSpace <= gridProps.defaultRowHeight) {
-                this.visibleRows[behavior.getHeaderRowCount()].height += grayLineSpace;
-                this.visibleRows[behavior.getHeaderRowCount()].bottom += grayLineSpace;
+            this.bottomFreeSpace = Y - y;
+            if (this.bottomFreeSpace <= gridProps.defaultRowHeight) {
+                console.log(this.bottomFreeSpace);
+                var headerRowsCount = behavior.getHeaderRowCount();
+                var previousFirstRow = this.visibleRows[headerRowsCount];
 
-                for (var i = behavior.getHeaderRowCount() + 1; i < this.visibleRows.length; i++) {
-                    this.visibleRows[i].top += grayLineSpace;
-                    this.visibleRows[i].bottom += grayLineSpace;
+                var skippedTopSpace = gridProps.defaultRowHeight - this.bottomFreeSpace;
+                var top = previousFirstRow.top - skippedTopSpace + lineWidthH;
+                var halfSizedRow = {
+                    index: headerRowsCount,
+                    subgrid: previousFirstRow.subgrid,
+                    gap: false,
+                    rowIndex: previousFirstRow.rowIndex - 1,
+                    top: top,
+                    height: gridProps.defaultRowHeight,
+                    bottom: top + gridProps.defaultRowHeight,
+                    skippedTopSpace: skippedTopSpace
+                };
+
+                for (var i = headerRowsCount; i < this.visibleRows.length; i++) {
+                    this.visibleRows[i].top += this.bottomFreeSpace;
+                    this.visibleRows[i].index += 1;
+                    this.visibleRows[i].bottom += this.bottomFreeSpace;
                 }
+                this.visibleRows.splice(headerRowsCount, 0, halfSizedRow);
 
+                // this.visibleRows.unshift(halfSizedRow);
+                this.renderedCuttedRowsCount = 1;
+            } else {
+                this.renderedCuttedRowsCount = 0;
             }
+
+            // this.bottomFreeSpace = Y - y;
+            // if (this.bottomFreeSpace <= gridProps.defaultRowHeight) {
+            //     var rowToExtend = behavior.getHeaderRowCount();
+            //     // this.visibleRows[rowToExtend].height += this.bottomFreeSpace;
+            //     // this.visibleRows[rowToExtend].bottom += this.bottomFreeSpace;
+            //     var singleRowAdditionalHeight = this.bottomFreeSpace / (this.visibleRows.length - 1);
+            //     var addedHeight = 0;
+            //
+            //     for (var i = rowToExtend; i < this.visibleRows.length; i++) {
+            //         this.visibleRows[i].top += addedHeight;
+            //         this.visibleRows[i].height += singleRowAdditionalHeight;
+            //         addedHeight += singleRowAdditionalHeight;
+            //         this.visibleRows[i].bottom += addedHeight;
+            //     }
+            // }
+            //
+            // if (this.visibleRows[1]) {
+            //     this.visibleRows[1].top -= 10;
+            //     this.visibleRows[1].bottom -= 10;
+            // }
+        } else {
+            this.renderedCuttedRowsCount = 0;
         }
     }
 
@@ -1620,6 +1693,7 @@ registerGridRenderer(require('./by-cells'));
 registerGridRenderer(require('./by-columns'));
 registerGridRenderer(require('./by-columns-discrete'));
 registerGridRenderer(require('./by-columns-and-rows'));
+registerGridRenderer(require('./by-columns-and-rows-headers'));
 registerGridRenderer(require('./by-rows'));
 
 Renderer.registerGridRenderer = registerGridRenderer;
