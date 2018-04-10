@@ -1376,6 +1376,8 @@ function computeCellsBounds() {
         freeSpace -= widthForSub;
     }
 
+    lastShift = Math.round(lastShift);
+
     for (
         x = 0, columnIndex = start, columnCount = grid.getColumnCount(), X = (bounds.width || grid.canvas.width) + lastShift;
         columnIndex < columnCount && x <= X;
