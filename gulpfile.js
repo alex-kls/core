@@ -4,6 +4,7 @@ var pkgjson = require('./package.json'),
     gulp = require('gulp'),
     $$ = require('gulp-load-plugins')(),
     browserify = require('browserify'),
+    babel = require('babelify'),
     source = require('vinyl-source-stream'),
     buffer = require('vinyl-buffer'),
     runSequence = require('run-sequence'),
@@ -99,6 +100,7 @@ function bundleUp(destName, srcDir, buildDir) {
     };
 
     return browserify(options)
+        .transform(babel, { presets: ["es2015", "es2016"] })
         .bundle()
         .pipe(source(options.entries)).on('error', $$.util.log)
         .pipe(buffer())

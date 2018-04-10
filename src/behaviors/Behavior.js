@@ -1112,7 +1112,14 @@ var Behavior = Base.extend('Behavior', {
         if (this.grid.onColumnsMoved) {
             this.grid.onColumnsMoved(columns.slice(from, from + len), target);
         }
+        let headers = [];
+        if (this.grid.properties.onlyDataReorder) {
+            headers = columns.map(c => c.header);
+        }
         columns.move(from, len, target);
+        if (this.grid.properties.onlyDataReorder) {
+            columns.forEach((c, i) => c.header = headers[i]);
+        }
         this.changed();
     },
 

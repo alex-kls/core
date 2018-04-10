@@ -1306,6 +1306,11 @@ var defaults = {
      */
     columnsReorderable: true,
 
+    /**
+     * @summary keep headers as is, only data columns moving
+     */
+    onlyDataReorder: true,
+
     /** @summary Column grab within this number of pixels from top of cell.
      * @type {number}
      * @default
