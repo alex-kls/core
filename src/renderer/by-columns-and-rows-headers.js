@@ -1,12 +1,7 @@
 'use strict';
-//
-// var bundleColumns = require('./bundle-columns');
-// var bundleRows = require('./bundle-rows');
 
-/** @summary Render the grid with consolidated row OR column rects.
- * @desc Paints all the cells of a grid, one column at a time.
- *
- * First, a background rect is drawn using the grid background color.
+/** @summary Render the grid headers. Useful when need to avoid overlapping
+ * @desc Paints all the header cells of a grid, one column at a time.
  *
  * Then, if there are any rows with their own background color _that differs from the grid background color,_ these are consolidated and the consolidated groups of row backgrounds are all drawn before iterating through cells. These row backgrounds get priority over column backgrounds.
  *
@@ -26,8 +21,6 @@
 function paintCellsByColumnsAndRowsHeaders(gc) {
     var prefillColor, rowPrefillColors,
         cellEvent,
-        // rowBundle, rowBundles,
-        // columnBundle, columnBundles,
         visibleColumns = this.visibleColumns,
         visibleRows = this.visibleRows,
         C = visibleColumns.length,
@@ -35,43 +28,8 @@ function paintCellsByColumnsAndRowsHeaders(gc) {
         rowIndex, R = visibleRows.length,
         pool = this.cellEventPool,
         preferredWidth;
-        // columnClip;
-        // clipToGrid,
-        // viewWidth = C ? visibleColumns[C - 1].right : 0,
-        // viewHeight = R ? visibleRows[R - 1].bottom : 0;
-
-    // gc.clearRect(0, 0, this.bounds.width, this.bounds.height);
 
     if (!C || !R) { return; }
-
-    // if (gc.alpha(gridPrefillColor) > 0) {
-    //     gc.cache.fillStyle = gridPrefillColor;
-    //     gc.fillRect(0, 0, viewWidth, viewHeight);
-    // }
-
-    // if (this.gridRenderer.reset) {
-    //     this.resetAllGridRenderers();
-    //     this.gridRenderer.reset = false;
-    //     bundleRows.call(this, false);
-    //     bundleColumns.call(this, true);
-    // } else if (this.gridRenderer.rebundle) {
-    //     this.gridRenderer.rebundle = false;
-    //     bundleColumns.call(this);
-    // }
-    //
-    // rowBundles = this.rowBundles;
-    // if (rowBundles.length) {
-    //     rowPrefillColors = this.rowPrefillColors;
-    //     for (rowIndex = rowBundles.length; rowIndex--;) {
-    //         rowBundle = rowBundles[rowIndex];
-    //         gc.clearFill(0, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top, rowBundle.backgroundColor);
-    //     }
-    // } else {
-    //     for (columnBundles = this.columnBundles, c = columnBundles.length; c--;) {
-    //         columnBundle = columnBundles[c];
-    //         gc.clearFill(columnBundle.left, 0, columnBundle.right - columnBundle.left, viewHeight, columnBundle.backgroundColor);
-    //     }
-    // }
 
     // For each column...
     var poolIndex = 0;
@@ -84,13 +42,8 @@ function paintCellsByColumnsAndRowsHeaders(gc) {
             prefillColor = cellEvent.column.properties.backgroundColor;
         }
 
-        // Optionally clip to visible portion of column to prevent text from overflowing to right.
-        // columnClip = visibleColumn.column.properties.columnClip;
-        // gc.clipSave(columnClip || columnClip === null && columnIndex === cLast, 0, 0, visibleColumn.right, viewHeight);
-
         // For each row of each subgrid (of each column)...
         for (preferredWidth = rowIndex = 0; rowIndex < R; rowIndex++, poolIndex++) {
-            // if (!pool[poolIndex].disabled) {
                 if (rowPrefillColors) {
                     prefillColor = rowPrefillColors[rowIndex];
                 }
@@ -103,18 +56,13 @@ function paintCellsByColumnsAndRowsHeaders(gc) {
                 } catch (e) {
                     this.renderErrorCell(e, gc, visibleColumn, pool[poolIndex].visibleRow);
                 }
-            // }
         }
-
-        // gc.clipRestore(columnClip);
 
         cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
     }.bind(this));
-
-    // this.paintGridlines(gc);
 }
 
 paintCellsByColumnsAndRowsHeaders.key = 'by-columns-and-rows-headers';
-paintCellsByColumnsAndRowsHeaders.rebundle = true; // see rebundleGridRenderers
+paintCellsByColumnsAndRowsHeaders.rebundle = true;
 
 module.exports = paintCellsByColumnsAndRowsHeaders;
