@@ -165,6 +165,7 @@ var virtualPageRowModel = {
 };
 
 function setColumnDefs(colDefs) {
+    console.log('setColumnDefs', colDefs);
     this.columnDefs = colDefs;
 
     var schema = convertColDefs.bind(this)(colDefs);

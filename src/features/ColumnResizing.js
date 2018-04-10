@@ -173,6 +173,9 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
             });
             setTimeout(function() { // do after next render, which measures text now that auto-sizing is on
                 grid.autosizeColumn(column);
+                if (grid.onColumnResized) {
+                    grid.onColumnResized(column);
+                }
             });
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
