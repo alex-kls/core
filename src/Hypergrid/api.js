@@ -71,11 +71,14 @@ function convertColDefs(colDefs) {
         var originalField = singleColDef && singleColDef.originalField;
         var width = singleColDef && singleColDef.width;
         var halign = singleColDef && singleColDef.halign;
+        var maxWidth = singleColDef && singleColDef.maxWidth;
+
         schema.push({
             header: letters || '',
             name: originalField || letters,
             width: width || undefined,
-            halign: halign || undefined
+            halign: halign || undefined,
+            maxWidth: maxWidth || 2000
         });
 
         if (originalField) {

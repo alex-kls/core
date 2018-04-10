@@ -171,6 +171,11 @@ Column.prototype = {
 
     setWidth: function(width) {
         width = Math.max(this.properties.minimumColumnWidth, width);
+
+        if (this.properties.maxWidth && width > this.properties.maxWidth) {
+            width = this.properties.maxWidth;
+        }
+
         if (width !== this.properties.width) {
             this.properties.width = width;
             this.schema.width = width;

@@ -64,11 +64,11 @@ var Local = Behavior.extend('Local', {
                     });
                 }
 
-                if (columnSchema.halign) {
-                    Object.assign(newColumn.properties, {
-                        halign: columnSchema.halign
-                    });
-                }
+                ['halign', 'maxWidth'].forEach(function(key) {
+                    if (columnSchema[key]) {
+                        newColumn.properties[key] = columnSchema[key];
+                    }
+                });
             }
         }, this);
     },
