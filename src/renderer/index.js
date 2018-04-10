@@ -1472,8 +1472,14 @@ function computeCellsBounds() {
         topR = r;
 
         // For each row of each subgrid...
+        var minVisibleRow = 0;
         for (R = r + subrows; r < R && y < Y; r++) {
             vy = r;
+
+            if (minVisibleRow > vy && vy !== 0) {
+                minVisibleRow = vy;
+            }
+
             if (scrollableSubgrid) {
                 if ((gap = hasFixedRowGap && r === fixedRowCount && r !== 1)) {
                     y += fixedWidthH - lineWidthH;
@@ -1526,6 +1532,20 @@ function computeCellsBounds() {
         if (scrollableSubgrid) {
             subrows = r - topR;
             Y += footerHeight;
+        }
+
+        if (y < Y) {
+            var grayLineSpace = Y - y;
+            if (grayLineSpace <= gridProps.defaultRowHeight) {
+                this.visibleRows[behavior.getHeaderRowCount()].height += grayLineSpace;
+                this.visibleRows[behavior.getHeaderRowCount()].bottom += grayLineSpace;
+
+                for (var i = behavior.getHeaderRowCount() + 1; i < this.visibleRows.length; i++) {
+                    this.visibleRows[i].top += grayLineSpace;
+                    this.visibleRows[i].bottom += grayLineSpace;
+                }
+
+            }
         }
     }
 
