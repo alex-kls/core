@@ -681,7 +681,7 @@ FinBar.prototype = {
 
     shortenEndByValue: function(whichEnd, shortenValue) {
         this._auxStyles = this._auxStyles ? this._auxStyles : {};
-        this._auxStyles[whichEnd] = shortenValue - 1 + 'px';
+        this._auxStyles[whichEnd] = shortenValue + 'px';
         return this;
     },
 

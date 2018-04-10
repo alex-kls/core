@@ -59,7 +59,6 @@ var Local = Behavior.extend('Local', {
                 if (columnSchema.width) {
                     Object.assign(newColumn.properties, {
                         width: columnSchema.width,
-                        preferredWidth: columnSchema.width,
                         columnAutosizing: false
                     });
                 }
@@ -73,36 +72,45 @@ var Local = Behavior.extend('Local', {
         }, this);
     },
 
-    fixColumns: function() {
+    fixColumn: function(xOrColumn) {
+        if (typeof xOrColumn !== 'object') {
+            xOrColumn = this.grid.behavior.getColumn(xOrColumn);
+        }
+
+        var column = xOrColumn;
         var data = this.getData();
         var gc = this.grid.canvas.gc;
-        var oldFont = gc.cache.font;
-        var self = this;
 
-        this.allColumns.forEach(function(column) {
-            var props = column.properties;
-            if (props.columnAutosizing) {
-                var width = props.defaultColumnWidth;
-                var key = column.properties.field;
+        var props = column.properties;
 
-                // get max width based of
-                data.forEach(function(d, i) {
-                    if (d[key]) {
-                        gc.cache.font = (self.getRowProperties(i) || props).font;
-                        var textWidth = gc.getTextWidth(d[key]) + props.cellPaddingLeft + props.cellPaddingRight;
-                        if (textWidth > width) {
-                            width = textWidth;
-                        }
-                    }
-                });
+        var width = props.defaultColumnWidth;
+        var key = column.properties.field;
 
-                if (width > 0) {
-                    props.width = props.preferredWidth = width;
-                    props.columnAutosizing = false;
+        // get max width based of
+        data.forEach(function(d, i) {
+            if (d[key]) {
+                gc.cache.font = (this.getRowProperties(i) || props).font;
+                var textWidth = gc.getTextWidth(d[key]) + props.cellPaddingLeft + props.cellPaddingRight;
+                if (textWidth > width) {
+                    width = textWidth;
                 }
             }
-        });
+        }.bind(this));
 
+        props.preferredWidth = width;
+
+        if (props.columnAutosizing) {
+            if (width > 0) {
+                props.width = props.preferredWidth;
+                props.columnAutosizing = false;
+            }
+        }
+    },
+
+    fixColumns: function() {
+        var gc = this.grid.canvas.gc;
+        var oldFont = gc.cache.font;
+        this.allColumns.forEach(this.fixColumn.bind(this));
         gc.cache.font = oldFont;
     },
 
