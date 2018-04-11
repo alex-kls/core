@@ -145,7 +145,7 @@
                 };
                 window.grid = window.grid || new fin.Hypergrid(div, options);
 
-                (function appendData() {
+                function appendData() {
                     window.grid.api.clearFocusedCell();
                     window.grid.api.clearRangeSelection();
                     window.grid.api.destroy();
@@ -155,8 +155,9 @@
 
                     window.grid.api.attachLinkToDataCell(1, 1, 'https://google.com');
                     window.grid.api.attachLinkToDataCell(1, 2, 'https://google.com');
-                    // setTimeout(appendData, 5000);
-                })();
+                }
+                appendData();
+                setTimeout(appendData, 100);
             });
         };
     </script>

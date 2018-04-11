@@ -1791,8 +1791,8 @@ var defaults = {
         textDecoration: 'none'
     },
 
-    canvasWidthOffset: 16,
-    canvasHeightOffset: 16
+    canvasWidthOffset: 14,
+    canvasHeightOffset: 13
 };
 
 
