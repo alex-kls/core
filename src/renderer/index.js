@@ -1638,16 +1638,16 @@ function computeCellsBounds() {
                 var headerRowsCount = behavior.getHeaderRowCount();
                 var previousFirstRow = this.visibleRows[headerRowsCount];
 
-                this.skippedTopSpace = gridProps.defaultRowHeight - this.bottomFreeSpace;
-                var top = previousFirstRow.top - this.skippedTopSpace + lineWidthH;
+                this.skippedTopSpace = gridProps.defaultRowHeight - this.bottomFreeSpace + lineWidthH;
+                var top = previousFirstRow.top - this.skippedTopSpace;
                 var halfSizedRow = {
                     index: headerRowsCount,
                     subgrid: previousFirstRow.subgrid,
                     gap: false,
                     rowIndex: previousFirstRow.rowIndex - 1,
                     top: top,
-                    height: gridProps.defaultRowHeight,
-                    bottom: top + gridProps.defaultRowHeight,
+                    height: gridProps.defaultRowHeight + lineWidthH,
+                    bottom: top + gridProps.defaultRowHeight + lineWidthH,
                     skippedTopSpace: this.skippedTopSpace
                 };
 
