@@ -571,10 +571,13 @@ var mixin = {
         });
 
         this.addInternalEventListener('fin-after-header-cell-edit', function(e) {
-            if (e.detail.newValue !== e.detail.oldValue && grid.onUpdateColumnName) {
-                var column = grid.behavior.getActiveColumn(e.detail.primitiveEvent.x);
-                if (column) {
-                    grid.onUpdateColumnName(column, e.detail.newValue);
+            if (e.detail.newValue !== e.detail.oldValue) {
+                const column = grid.behavior.getActiveColumn(e.detail.primitiveEvent.x);
+                grid.behavior.fixColumn(column); // recalculate preferredWidth for column
+                if (grid.onUpdateColumnName) {
+                    if (column) {
+                        grid.onUpdateColumnName(column, e.detail.newValue);
+                    }
                 }
             }
         });

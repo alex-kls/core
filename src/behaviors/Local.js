@@ -67,7 +67,7 @@ var Local = Behavior.extend('Local', {
                     newColumn.properties.format = newColumn.name;
                     const options = {
                         name: newColumn.name,
-                        format: (value, config) => config.headerRow ? value : columnSchema.formatter(value, config.dataRow), // called for render view
+                        format: (value, config) => (config === undefined || config.headerRow) ? value : columnSchema.formatter(value, config.dataRow), // called for render view
                         parse: value => value, // called for render value in editor
                         locale: 'en'
                     };
