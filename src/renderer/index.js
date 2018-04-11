@@ -126,6 +126,12 @@ var Renderer = Base.extend('Renderer', {
      */
     renderedCuttedRowsCount: 0,
 
+    /**
+     * @summary Number of pixels that was skipped on render to cut first row
+     * @desc used, when rendered on last page, and first row must be partly hidden, to avoid empty space on end
+     */
+    skippedTopSpace: 0,
+
     reset: function() {
         this.bounds = {
             width: 0,
@@ -622,18 +628,11 @@ var Renderer = Base.extend('Renderer', {
         }
 
         this.gridRenderer.paintCells.call(this, gc);
-        if (this.renderedCuttedRowsCount === 0) {
-            this.gridRenderers['by-columns-and-rows-headers'].paintCells.call(this, gc);
-        }
+        //render header cells after all another cells to avoid overlapping
+        this.gridRenderers['by-columns-and-rows-headers'].paintCells.call(this, gc);
 
-        // this.renderOverrides(gc);
         this.renderLastSelection(gc);
         this.renderFirstSelectedCell(gc);
-
-        //render header cells after all to avoid overlapping
-        if (this.renderedCuttedRowsCount > 0) {
-            this.gridRenderers['by-columns-and-rows-headers'].paintCells.call(this, gc);
-        }
 
         gc.closePath();
     },
@@ -663,8 +662,26 @@ var Renderer = Base.extend('Renderer', {
 
         var cellBounds = this.grid.getBoundsOfCell(pointWithHeaders);
 
+        var headerRowsCount = this.grid.getHeaderRowCount();
+        var headerHeight = headerRowsCount * this.properties.defaultHeaderRowHeight;
+        if (!headerHeight) {
+            for (var i = 0; i < headerRowsCount; i++) {
+                headerHeight += this.grid.getRowHeight(i);
+            }
+        }
+
+        var startX = cellBounds.left,
+            startY = cellBounds.top,
+            selectionWidth = cellBounds.width,
+            selectionHeight = cellBounds.height;
+
+        if (startY < headerHeight) {
+            startY = headerHeight;
+            selectionHeight -= this.skippedTopSpace;
+        }
+
         gc.beginPath();
-        gc.rect(cellBounds.left, cellBounds.top, cellBounds.width, cellBounds.height);
+        gc.rect(startX, startY, selectionWidth, selectionHeight);
         gc.cache.lineWidth = 2;
         gc.cache.strokeStyle = this.grid.properties.selectionRegionOutlineColor;
         gc.stroke();
@@ -717,23 +734,46 @@ var Renderer = Base.extend('Renderer', {
                 rowOffset++;
             }
         }
-        vcCorner = vcCorner || ((lastColumn && selection.corner.x > lastColumn.columnIndex) ? lastColumn : vci[gridProps.fixedColumnCount - 1]);
-        vrCorner = vrCorner || ((lastRow && selection.corner.y > lastRow.rowIndex) ? lastRow : vri[gridProps.fixedRowCount - 1]);
+        vcCorner = vcCorner || ((lastColumn && selection.corner.x > lastColumn.columnIndex) ? lastColumn : vci[this.grid.getFixedColumnCount()]);
+        vrCorner = vrCorner || ((lastRow && selection.corner.y > lastRow.rowIndex) ? lastRow : vri[this.grid.getFixedColumnCount()]);
 
         if (
             !(vcOrigin && vcCorner && vrOrigin && vrCorner)
         ) {
+            console.log('vri', vri);
+            console.log('vcOrigin', vcOrigin);
+            console.log('vcCorner', vcCorner);
+            console.log('vrOrigin', vrOrigin);
+            console.log('vrCorner', vrCorner);
             // entire selection scrolled out of view above scrollable region
+            console.log('returned because of 3');
             return;
+        }
+
+        var headerRowsCount = this.grid.getHeaderRowCount();
+        var headerHeight = headerRowsCount * this.properties.defaultHeaderRowHeight;
+        if (!headerHeight) {
+            for (var i = 0; i < headerRowsCount; i++) {
+                headerHeight += this.grid.getRowHeight(i);
+            }
+        }
+
+        var startX = vcOrigin.left,
+            startY = vrOrigin.top,
+            width = vcCorner.right - vcOrigin.left,
+            height = vrCorner.bottom - vrOrigin.top;
+        if (startY < headerHeight) {
+            startY = headerHeight;
+            height -= this.skippedTopSpace;
         }
 
         // Render the selection model around the bounds
         var config = {
             bounds: {
-                x: vcOrigin.left,
-                y: vrOrigin.top,
-                width: vcCorner.right - vcOrigin.left,
-                height: vrCorner.bottom - vrOrigin.top
+                x: startX,
+                y: startY,
+                width: width,
+                height: height
             },
             selectionRegionOverlayColor: this.gridRenderer.paintCells.partial ? 'transparent' : gridProps.selectionRegionOverlayColor,
             selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor,
@@ -1018,7 +1058,8 @@ var Renderer = Base.extend('Renderer', {
 
         if (columnsLength && rowsLength) {
             var gridProps = this.properties,
-                viewWidth = visibleColumns[columnsLength - 1].right;
+                viewWidth = visibleColumns[columnsLength - 1].right,
+                viewHeight = visibleRows[rowsLength - 1].bottom;
             var headerRowsCount = this.grid.getHeaderRowCount();
 
             if (gridProps.gridLinesV || gridProps.gridLinesVHeaderColor) {
@@ -1038,6 +1079,12 @@ var Renderer = Base.extend('Renderer', {
                     if (!headerVc.gap) {
                         this.drawLine(gc, headerRight, 0, gridProps.gridLinesVWidth, headerHeight);
                     }
+                }
+
+                if (this.grid.properties.rowHeaderNumbers) {
+                    var right = visibleColumns[this.grid.behavior.rowColumnIndex].right;
+                    gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesVHeaderColor || gridProps.gridLinesVColor;
+                    this.drawLine(gc, right, 0, gridProps.gridLinesVWidth, viewHeight);
                 }
             }
 
@@ -1591,8 +1638,8 @@ function computeCellsBounds() {
                 var headerRowsCount = behavior.getHeaderRowCount();
                 var previousFirstRow = this.visibleRows[headerRowsCount];
 
-                var skippedTopSpace = gridProps.defaultRowHeight - this.bottomFreeSpace;
-                var top = previousFirstRow.top - skippedTopSpace + lineWidthH;
+                this.skippedTopSpace = gridProps.defaultRowHeight - this.bottomFreeSpace;
+                var top = previousFirstRow.top - this.skippedTopSpace + lineWidthH;
                 var halfSizedRow = {
                     index: headerRowsCount,
                     subgrid: previousFirstRow.subgrid,
@@ -1601,7 +1648,7 @@ function computeCellsBounds() {
                     top: top,
                     height: gridProps.defaultRowHeight,
                     bottom: top + gridProps.defaultRowHeight,
-                    skippedTopSpace: skippedTopSpace
+                    skippedTopSpace: this.skippedTopSpace
                 };
 
                 for (var i = headerRowsCount; i < this.visibleRows.length; i++) {
@@ -1611,34 +1658,19 @@ function computeCellsBounds() {
                 }
                 this.visibleRows.splice(headerRowsCount, 0, halfSizedRow);
 
+                if (scrollableSubgrid) {
+                    this.visibleRowsByDataRowIndex[halfSizedRow.rowIndex] = halfSizedRow;
+                }
+
                 // this.visibleRows.unshift(halfSizedRow);
                 this.renderedCuttedRowsCount = 1;
             } else {
                 this.renderedCuttedRowsCount = 0;
+                this.skippedTopSpace = 0;
             }
-
-            // this.bottomFreeSpace = Y - y;
-            // if (this.bottomFreeSpace <= gridProps.defaultRowHeight) {
-            //     var rowToExtend = behavior.getHeaderRowCount();
-            //     // this.visibleRows[rowToExtend].height += this.bottomFreeSpace;
-            //     // this.visibleRows[rowToExtend].bottom += this.bottomFreeSpace;
-            //     var singleRowAdditionalHeight = this.bottomFreeSpace / (this.visibleRows.length - 1);
-            //     var addedHeight = 0;
-            //
-            //     for (var i = rowToExtend; i < this.visibleRows.length; i++) {
-            //         this.visibleRows[i].top += addedHeight;
-            //         this.visibleRows[i].height += singleRowAdditionalHeight;
-            //         addedHeight += singleRowAdditionalHeight;
-            //         this.visibleRows[i].bottom += addedHeight;
-            //     }
-            // }
-            //
-            // if (this.visibleRows[1]) {
-            //     this.visibleRows[1].top -= 10;
-            //     this.visibleRows[1].bottom -= 10;
-            // }
         } else {
             this.renderedCuttedRowsCount = 0;
+            this.skippedTopSpace = 0;
         }
     }
 
