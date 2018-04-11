@@ -1652,9 +1652,9 @@ function computeCellsBounds() {
                 };
 
                 for (var i = headerRowsCount; i < this.visibleRows.length; i++) {
-                    this.visibleRows[i].top += this.bottomFreeSpace;
+                    this.visibleRows[i].top += this.bottomFreeSpace + lineWidthH;
                     this.visibleRows[i].index += 1;
-                    this.visibleRows[i].bottom += this.bottomFreeSpace;
+                    this.visibleRows[i].bottom += this.bottomFreeSpace + lineWidthH;
                 }
                 this.visibleRows.splice(headerRowsCount, 0, halfSizedRow);
 
