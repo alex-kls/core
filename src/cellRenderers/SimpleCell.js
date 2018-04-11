@@ -153,7 +153,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
         var textRightPadding = rightPadding;
         if (config.showCellContextMenuIcon) {
-            textRightPadding += config.contextMenuIconMarginRight + 20;
+            textRightPadding += config.contextMenuIconMarginRight + 15;
         }
 
         if (renderValue) {
