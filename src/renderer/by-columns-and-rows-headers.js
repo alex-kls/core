@@ -60,6 +60,8 @@ function paintCellsByColumnsAndRowsHeaders(gc) {
 
         cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
     }.bind(this));
+
+    this.paintHeaderGridlines(gc);
 }
 
 paintCellsByColumnsAndRowsHeaders.key = 'by-columns-and-rows-headers';

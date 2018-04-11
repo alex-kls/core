@@ -622,13 +622,18 @@ var Renderer = Base.extend('Renderer', {
         }
 
         this.gridRenderer.paintCells.call(this, gc);
+        if (this.renderedCuttedRowsCount === 0) {
+            this.gridRenderers['by-columns-and-rows-headers'].paintCells.call(this, gc);
+        }
 
         // this.renderOverrides(gc);
         this.renderLastSelection(gc);
         this.renderFirstSelectedCell(gc);
 
         //render header cells after all to avoid overlapping
-        this.gridRenderers['by-columns-and-rows-headers'].paintCells.call(this, gc);
+        if (this.renderedCuttedRowsCount > 0) {
+            this.gridRenderers['by-columns-and-rows-headers'].paintCells.call(this, gc);
+        }
 
         gc.closePath();
     },
@@ -949,7 +954,6 @@ var Renderer = Base.extend('Renderer', {
             var gridProps = this.properties,
                 viewWidth = visibleColumns[columnsLength - 1].right,
                 viewHeight = visibleRows[rowsLength - 1].bottom;
-            var headerRowsCount = this.grid.getHeaderRowCount();
 
             if (gridProps.gridLinesV) {
                 gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesVColor;
@@ -961,31 +965,6 @@ var Renderer = Base.extend('Renderer', {
                         this.drawLine(gc, right, 0, gridProps.gridLinesVWidth, viewHeight);
                     }
                 }
-
-                if (gridProps.gridLinesVHeaderColor && (gridProps.gridLinesVHeaderColor !== gridProps.gridLinesVColor)) {
-
-                    var headerHeight = headerRowsCount * this.properties.defaultHeaderRowHeight;
-                    if (!headerHeight) {
-                        for (var i = 0; i < headerRowsCount; i++) {
-                            headerHeight += this.grid.getRowHeight(i);
-                        }
-                    }
-
-                    gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesVHeaderColor;
-                    for (var headerRight, headerVc = visibleColumns[0], headerC = 0; headerC < columnsLength; headerC++) {
-                        headerVc = visibleColumns[headerC];
-                        headerRight = headerVc.right;
-                        if (!headerVc.gap) {
-                            this.drawLine(gc, headerRight, 0, gridProps.gridLinesVWidth, headerHeight);
-                        }
-                    }
-                }
-
-                if (this.grid.properties.rowHeaderNumbers) {
-                    right = visibleColumns[this.grid.behavior.rowColumnIndex].right;
-                    gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesVHeaderColor || gridProps.gridLinesVColor;
-                    this.drawLine(gc, right, 0, gridProps.gridLinesVWidth, viewHeight);
-                }
             }
 
             if (gridProps.gridLinesH) {
@@ -995,27 +974,6 @@ var Renderer = Base.extend('Renderer', {
                     bottom = vr.bottom;
                     if (!vr.gap) {
                         this.drawLine(gc, 0, bottom, viewWidth, gridProps.gridLinesHWidth);
-                    }
-                }
-
-                if (gridProps.gridLinesHHeaderColor &&
-                    (gridProps.gridLinesHHeaderColor !== gridProps.gridLinesHColor)) {
-                    var additionalWidth = gridProps.gridLinesV ? gridProps.gridLinesVWidth : 0;
-                    var firstRowWidth = this.grid.properties.rowHeaderNumbers
-                        ? visibleColumns[this.grid.behavior.rowColumnIndex].right + additionalWidth
-                        : 0;
-
-                    gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesHHeaderColor;
-                    for (var headerBottom, headerVr = visibleRows[0], headerR = 0; headerR < rowsLength; headerR++) {
-                        headerVr = visibleRows[headerR];
-                        headerBottom = headerVr.bottom;
-                        if (!vr.gap) {
-                            if (headerR < headerRowsCount) {
-                                this.drawLine(gc, 0, headerBottom, viewWidth, gridProps.gridLinesHWidth);
-                            } else {
-                                this.drawLine(gc, 0, headerBottom, firstRowWidth, gridProps.gridLinesHWidth);
-                            }
-                        }
                     }
                 }
             }
@@ -1042,6 +1000,68 @@ var Renderer = Base.extend('Renderer', {
                     this.drawLine(gc, gap.right - edgeWidth, 0, edgeWidth, viewHeight);
                 } else {
                     this.drawLine(gc, gap.left, 0, gap.right - gap.left, viewHeight);
+                }
+            }
+        }
+    },
+
+    /**
+     * @memberOf Renderer.prototype
+     * @desc function to render header grid lines separately
+     * @param {CanvasRenderingContext2D} gc
+     */
+    paintHeaderGridlines: function(gc) {
+        var visibleColumns = this.visibleColumns,
+            columnsLength = visibleColumns.length,
+            visibleRows = this.visibleRows,
+            rowsLength = visibleRows.length;
+
+        if (columnsLength && rowsLength) {
+            var gridProps = this.properties,
+                viewWidth = visibleColumns[columnsLength - 1].right;
+            var headerRowsCount = this.grid.getHeaderRowCount();
+
+            if (gridProps.gridLinesV || gridProps.gridLinesVHeaderColor) {
+                var headerHeight = headerRowsCount * this.properties.defaultHeaderRowHeight;
+                if (!headerHeight) {
+                    for (var i = 0; i < headerRowsCount; i++) {
+                        headerHeight += this.grid.getRowHeight(i);
+                    }
+                }
+
+                gc.cache.fillStyle
+                    = gc.cache.strokeStyle
+                    = gridProps.gridLinesVHeaderColor ? gridProps.gridLinesVHeaderColor : gridProps.gridLinesVColor;
+                for (var headerRight, headerVc = visibleColumns[0], headerC = 0; headerC < columnsLength; headerC++) {
+                    headerVc = visibleColumns[headerC];
+                    headerRight = headerVc.right;
+                    if (!headerVc.gap) {
+                        this.drawLine(gc, headerRight, 0, gridProps.gridLinesVWidth, headerHeight);
+                    }
+                }
+            }
+
+            if (gridProps.gridLinesH || gridProps.gridLinesHHeaderColor) {
+                gc.cache.fillStyle
+                    = gc.cache.strokeStyle
+                    = gridProps.gridLinesHHeaderColor ? gridProps.gridLinesHHeaderColor : gridProps.gridLinesHColor;
+
+                var additionalWidth = gridProps.gridLinesV ? gridProps.gridLinesVWidth : 0;
+                var firstRowWidth = this.grid.properties.rowHeaderNumbers
+                    ? visibleColumns[this.grid.behavior.rowColumnIndex].right + additionalWidth
+                    : 0;
+
+                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesHHeaderColor;
+                for (var headerBottom, headerVr = visibleRows[0], headerR = 0; headerR < rowsLength; headerR++) {
+                    headerVr = visibleRows[headerR];
+                    headerBottom = headerVr.bottom;
+                    if (!headerVr.gap) {
+                        if (headerR < headerRowsCount) {
+                            this.drawLine(gc, 0, headerBottom, viewWidth, gridProps.gridLinesHWidth);
+                        } else {
+                            this.drawLine(gc, 0, headerBottom, firstRowWidth, gridProps.gridLinesHWidth);
+                        }
+                    }
                 }
             }
         }
