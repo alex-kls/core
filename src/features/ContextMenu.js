@@ -52,8 +52,12 @@ var ContextMenu = Feature.extend('ContextMenu', {
     handleClick: function(grid, event) {
         this.hideContextMenu(menuDiv);
 
-        var isCursorOverContextMenuIcon = this.overContextMenuCell(grid, event);
-
+        let isCursorOverContextMenuIcon = this.overContextMenuCell(grid, event);
+        let contextMenuIconRightX = event.bounds.x
+            + event.bounds.width
+            - grid.properties.cellPaddingRight
+            - grid.properties.contextMenuIconMarginRight
+            - 5;
         if (isCursorOverContextMenuIcon) {
             console.log('234234324');
             var contextMenu = grid.behavior.getRowProperties(event).cellContextMenu || grid.properties.cellContextMenu;
@@ -61,8 +65,8 @@ var ContextMenu = Feature.extend('ContextMenu', {
                 grid,
                 event,
                 contextMenu,
-                event.primitiveEvent.detail.mouse.x + grid.canvas.size.left,
-                event.primitiveEvent.detail.mouse.y + grid.canvas.size.top + 25);
+                contextMenuIconRightX,
+                event.bounds.y + event.bounds.height + grid.canvas.size.top);
         }
 
         if (this.next) {
@@ -76,7 +80,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
      * @param {CellEvent} event - the event details
      */
     handleContextMenu: function(grid, event) {
-        var contextMenu = grid.behavior.getRowProperties(event).cellContextMenu || grid.properties.cellContextMenu;
+        let contextMenu = grid.behavior.getRowProperties(event).cellContextMenu || grid.properties.cellContextMenu;
         this.paintContextMenu(menuDiv,
             grid,
             event,
@@ -89,9 +93,9 @@ var ContextMenu = Feature.extend('ContextMenu', {
     },
 
     handleMouseMove: function(grid, event) {
-        var stateChanged = false;
-        var isCursorOverContextMenuIcon = this.overContextMenuCell(grid, event);
-        var isPreviousCellEventExist = !!previousHoveredCellEvent;
+        let stateChanged = false;
+        let isCursorOverContextMenuIcon = this.overContextMenuCell(grid, event);
+        let isPreviousCellEventExist = !!previousHoveredCellEvent;
 
         if (isCursorOverContextMenuIcon) {
             event.setCellProperty('contextMenuIconIsHovered', true);
@@ -116,12 +120,12 @@ var ContextMenu = Feature.extend('ContextMenu', {
     },
 
     overContextMenuCell: function(grid, event) {
-        var cellHasContextMenuItem = event.properties.showCellContextMenuIcon
+        let cellHasContextMenuItem = event.properties.showCellContextMenuIcon
             || (event.rowProperties && event.rowProperties.showCellContextMenuIcon)
             || (event.cellOwnProperties && event.cellOwnProperties.showCellContextMenuIcon);
-        var eventCellRightX = event.bounds.width;
-        var contextMenuIconRightX = eventCellRightX - grid.properties.cellPaddingRight - grid.properties.contextMenuIconMarginRight - 5;
-        var contextMenuIconLeftX = eventCellRightX - grid.properties.cellPaddingRight;
+        let eventCellRightX = event.bounds.width;
+        let contextMenuIconRightX = eventCellRightX - grid.properties.cellPaddingRight - grid.properties.contextMenuIconMarginRight - 5;
+        let contextMenuIconLeftX = eventCellRightX - grid.properties.cellPaddingRight;
 
         return cellHasContextMenuItem
             && event.mousePoint.x >= contextMenuIconRightX
