@@ -392,8 +392,6 @@ var Renderer = Base.extend('Renderer', {
             this.grid.beCursor(null);
         }
 
-        // console.log('cellEvent.dataCell', result.cellEvent.dataCell);
-
         return result;
     },
 
@@ -740,13 +738,6 @@ var Renderer = Base.extend('Renderer', {
         if (
             !(vcOrigin && vcCorner && vrOrigin && vrCorner)
         ) {
-            console.log('vri', vri);
-            console.log('vcOrigin', vcOrigin);
-            console.log('vcCorner', vcCorner);
-            console.log('vrOrigin', vrOrigin);
-            console.log('vrCorner', vrCorner);
-            // entire selection scrolled out of view above scrollable region
-            console.log('returned because of 3');
             return;
         }
 

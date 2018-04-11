@@ -151,19 +151,51 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         leftPadding = leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPaddingLeft;
         rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPaddingRight;
 
+        var textRightPadding = rightPadding;
+        if (config.showCellContextMenuIcon) {
+            textRightPadding += config.contextMenuIconMarginRight + 5;
+        }
+
         if (renderValue) {
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
 
             valWidth = config.isHeaderRow && config.headerTextWrapping
-                ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
-                : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
+                ? renderMultiLineText(gc, config, val, leftPadding, textRightPadding)
+                : renderSingleLineText(gc, config, val, leftPadding, textRightPadding);
         } else if (centerIcon) {            // Measure & draw center icon
             iyoffset = Math.round((height - centerIcon.height) / 2);
             ixoffset = Math.round((width - centerIcon.width) / 2);
             gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
             valWidth = iconPadding + centerIcon.width + iconPadding;
+        }
+
+        if (config.showCellContextMenuIcon) {
+            // gc.cache.fillStyle = textColor;
+            var prevFontState = gc.cache.font,
+                prevFillStyleState = gc.cache.fillStyle;
+
+            gc.cache.font = config.contextMenuIconFont;
+
+            if (config.contextMenuIconIsHovered) {
+                gc.cache.fillStyle = config.contextMenuIconHoveredColor;
+            } else {
+                gc.cache.fillStyle = config.contextMenuIconColor;
+            }
+
+            var configClone = {};
+            Object.assign(configClone, config);
+            configClone.halign = 'right';
+
+            renderSingleLineText(gc,
+                configClone,
+                config.contextMenuIconUnicodeChar,
+                leftPadding,
+                rightPadding + config.contextMenuIconMarginRight);
+
+            gc.cache.font = prevFontState;
+            gc.cache.fillStyle = prevFillStyleState;
         }
 
         if (leftIcon) {

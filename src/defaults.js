@@ -1792,7 +1792,15 @@ var defaults = {
     },
 
     canvasWidthOffset: 14,
-    canvasHeightOffset: 13
+    canvasHeightOffset: 13,
+
+    showCellContextMenuIcon: false,
+    contextMenuIconFont: '100 16px FontAwesome',
+    contextMenuIconIsHovered: false,
+    contextMenuIconHoveredColor: '#595959',
+    contextMenuIconColor: '#E5E5E5',
+    contextMenuIconUnicodeChar: '\uf150',
+    contextMenuIconMarginRight: 10
 };
 
 

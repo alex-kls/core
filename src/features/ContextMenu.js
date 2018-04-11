@@ -5,6 +5,8 @@ var Feature = require('./Feature');
 
 var menuDiv;
 
+var previousHoveredCellEvent;
+
 /**
  * @constructor
  * @extends Feature
@@ -50,6 +52,19 @@ var ContextMenu = Feature.extend('ContextMenu', {
     handleClick: function(grid, event) {
         this.hideContextMenu(menuDiv);
 
+        var isCursorOverContextMenuIcon = this.overContextMenuCell(grid, event);
+
+        if (isCursorOverContextMenuIcon) {
+            console.log('234234324');
+            var contextMenu = grid.behavior.getRowProperties(event).cellContextMenu || grid.properties.cellContextMenu;
+            this.paintContextMenu(menuDiv,
+                grid,
+                event,
+                contextMenu,
+                event.primitiveEvent.detail.mouse.x + grid.canvas.size.left,
+                event.primitiveEvent.detail.mouse.y + grid.canvas.size.top + 25);
+        }
+
         if (this.next) {
             this.next.handleClick(grid, event);
         }
@@ -71,6 +86,48 @@ var ContextMenu = Feature.extend('ContextMenu', {
         if (this.next) {
             this.next.handleContextMenu(grid, event);
         }
+    },
+
+    handleMouseMove: function(grid, event) {
+        var stateChanged = false;
+        var isCursorOverContextMenuIcon = this.overContextMenuCell(grid, event);
+        var isPreviousCellEventExist = !!previousHoveredCellEvent;
+
+        if (isCursorOverContextMenuIcon) {
+            event.setCellProperty('contextMenuIconIsHovered', true);
+            stateChanged = true;
+            previousHoveredCellEvent = event;
+            this.cursor = 'pointer';
+        } else {
+            if (isPreviousCellEventExist) {
+                previousHoveredCellEvent.setCellProperty('contextMenuIconIsHovered', false);
+                stateChanged = true;
+            }
+            this.cursor = null;
+        }
+
+        if (stateChanged) {
+            grid.paintNow();
+        }
+
+        if (this.next) {
+            this.next.handleMouseMove(grid, event);
+        }
+    },
+
+    overContextMenuCell: function(grid, event) {
+        var cellHasContextMenuItem = event.properties.showCellContextMenuIcon
+            || (event.rowProperties && event.rowProperties.showCellContextMenuIcon)
+            || (event.cellOwnProperties && event.cellOwnProperties.showCellContextMenuIcon);
+        var eventCellRightX = event.bounds.width;
+        var contextMenuIconRightX = eventCellRightX - grid.properties.cellPaddingRight - grid.properties.contextMenuIconMarginRight - 5;
+        var contextMenuIconLeftX = eventCellRightX - grid.properties.cellPaddingRight;
+
+        return cellHasContextMenuItem
+            && event.mousePoint.x >= contextMenuIconRightX
+            && event.mousePoint.x <= contextMenuIconLeftX
+            && event.mousePoint.y <= event.bounds.height
+            && event.mousePoint.y >= 0;
     },
 
     /**
