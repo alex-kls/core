@@ -138,7 +138,7 @@
         ],
         "camelcase": 2,
         "comma-spacing": 2,
-        "new-cap": 2,
+        "new-cap": 1,
         "new-parens": 0,
         "no-array-constructor": 2,
         "no-mixed-spaces-and-tabs": [

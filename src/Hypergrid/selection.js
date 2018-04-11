@@ -542,10 +542,40 @@ exports.mixin = {
         // Project the cell selection into the columns
         this.selectColumnsFromCells();
 
+        // change api data for selected columns
+        this.selectColDefsForApi();
+
         var selectionEvent = new CustomEvent('fin-selection-changed', {
             detail: this.selectionDetailGetters
         });
         this.canvas.dispatchEvent(selectionEvent);
+
+    },
+
+    selectColDefsForApi: function() {
+        if (this.columnDefs) {
+            const selections = this.getSelections();
+            let from;
+            let to;
+            if (selections.length) {
+                selections.forEach(s => {
+                    if (!from || s.left < from) {
+                        from = s.left;
+                    }
+                    if (!to || s.right > to) {
+                        to = s.right;
+                    }
+                });
+            }
+
+            if (from !== undefined && to !== undefined) {
+                this.api.rangeController.selectedCols = this.columnDefs.slice(from, to + 1).map(colDef => ({ colDef }));
+            } else {
+                this.api.rangeController.selectedCols = [];
+            }
+        } else {
+            this.api.rangeController.selectedCols = [];
+        }
     },
 
     isColumnOrRowSelected: function() {

@@ -1,13 +1,13 @@
 'use strict';
 /* eslint-env browser */
 
-var equal = require('deep-equal');
+const equal = require('deep-equal');
 
 // helper methods
 
 function range(start, stop) {
-    var result = [];
-    for (var idx = start.charCodeAt(0), end = stop.charCodeAt(0); idx <= end; ++idx) {
+    const result = [];
+    for (let idx = start.charCodeAt(0), end = stop.charCodeAt(0); idx <= end; ++idx) {
         result.push(String.fromCharCode(idx));
     }
     return result;
@@ -17,11 +17,8 @@ function idOf(range, i) {
     return (i >= 26 ? idOf(range, (i / 26 >> 0) - 1) : '') + range[i % 26 >> 0];
 }
 
-function convertColDefs(colDefs) {
-    var schema = [];
-
-    var headersFont = this.properties.columnHeaderFontBold;
-    var menu = [
+function getHeaderMenu() {
+    return [
         {
             name: 'Rename',
             action: function(clickEvent, cellEvent) {
@@ -33,16 +30,14 @@ function convertColDefs(colDefs) {
             name: 'Remove',
             action: function(clickEvent, cellEvent) {
                 console.log('remove selected', clickEvent, cellEvent);
-                var grid = cellEvent.grid;
-                var colDef = grid.columnDefs;
-                var column = cellEvent.column;
+                const grid = cellEvent.grid;
+                const colDef = grid.columnDefs;
+                const column = cellEvent.column;
                 if (grid.onRemoveColumn) {
                     grid.onRemoveColumn(column);
                 }
 
-                var singleColDef = colDef.find(function(cd) {
-                    return cd.colId === column.name;
-                });
+                const singleColDef = colDef.find(cd => cd.colId === column.name);
 
                 // remove if it isn't removed in 'onRemoveColumn' callback
                 if (singleColDef) {
@@ -52,33 +47,46 @@ function convertColDefs(colDefs) {
             }
         }
     ];
+}
 
-    var data = {
+function convertColDefs(colDefs) {
+    const schema = [];
+
+    const headersFont = this.properties.columnHeaderFontBold;
+
+    const data = {
         __META: {
             __ROW: {
                 headerRow: true, // used for preventing duplicates
                 font: headersFont, // set bold font for title row
                 foregroundSelectionFont: headersFont, // set bold font for title row
                 editable: true, // allow edit content
-                cellContextMenu: menu, // set context menu items with callbacks
+                cellContextMenu: getHeaderMenu(), // set context menu items with callbacks
                 halign: 'left'
             }
         }
     };
-    var az = range('A', 'Z');
+    const az = range('A', 'Z');
 
     function colDefMapper(singleColDef, letters) {
-        var originalField = singleColDef && singleColDef.originalField;
-        var width = singleColDef && singleColDef.width;
-        var halign = singleColDef && singleColDef.halign;
-        var maxWidth = singleColDef && singleColDef.maxWidth;
+        const originalField = singleColDef && singleColDef.originalField;
+        const width = singleColDef && singleColDef.width;
+        const halign = singleColDef && singleColDef.halign;
+        const maxWidth = singleColDef && singleColDef.maxWidth;
+
+        let formatter = singleColDef && singleColDef.cellRenderer;
+        if (formatter) {
+            const update = (new formatter()).update;
+            formatter = (value, row) => update({ colDef: singleColDef, value, data: row });
+        }
 
         schema.push({
             header: letters || '',
             name: originalField || letters,
             width: width || undefined,
             halign: halign || undefined,
-            maxWidth: maxWidth || 2000
+            maxWidth: maxWidth || 2000,
+            formatter: formatter || undefined
         });
 
         if (originalField) {
@@ -107,7 +115,7 @@ function convertColDefs(colDefs) {
 
 // api methods
 
-var rowModel = {
+const rowModel = {
     virtualPageCache: {
         updateHeightForAllRows: function() {
 
@@ -118,7 +126,7 @@ var rowModel = {
     }
 };
 
-var rangeController = {
+const rangeController = {
     allRowsSelected: false,
     selectedCols: [],
     refreshBorders: function() {
@@ -129,19 +137,19 @@ var rangeController = {
     }
 };
 
-var gridPanel = {
+const gridPanel = {
     resetVerticalScrollPosition: function() {
 
     }
 };
 
-var columnController = {
+const columnController = {
     getAllGridColumns: function() {
         return [];
     }
 };
 
-var floatingRowModel = {
+const floatingRowModel = {
     floatingTopRows: [],
     flattenStage: {
         execute: function(rootNode) {
@@ -153,7 +161,7 @@ var floatingRowModel = {
     }
 };
 
-var virtualPageRowModel = {
+const virtualPageRowModel = {
     virtualPageCache: {
         updateAllRowTopFromIndexes: function() {
 
@@ -168,9 +176,9 @@ function setColumnDefs(colDefs) {
     console.log('setColumnDefs', colDefs);
     this.columnDefs = colDefs;
 
-    var schema = convertColDefs.bind(this)(colDefs);
-    var firstRowData = schema.data;
-    var data = this.behavior.getData();
+    const schema = convertColDefs.bind(this)(colDefs);
+    const firstRowData = schema.data;
+    let data = this.behavior.getData();
 
     // create first row from headers
     if (!data || data.length === 0) {
@@ -265,6 +273,7 @@ function getModel() {
 
 function refreshView() {
     console.log('refreshView');
+    this.repaint();
 }
 
 function removeItems(rowNodes) {
@@ -314,12 +323,12 @@ function setDatasource(datasource) {
     console.log('setDatasource', datasource);
     this.api.datasource = datasource;
 
-    var setRowData = this.api.setRowData;
+    const setRowData = this.api.setRowData;
 
-    var startRow = this.data.length;
+    const startRow = this.data.length;
 
     if (startRow < datasource.totalSize) {
-        var params = {
+        const params = {
             startRow: startRow, // replace with correct getter
             endRow: startRow + this.paginationPageSize, // replace with correct getter
             successCallback: function(rows, lastRowIndex) {

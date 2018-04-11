@@ -354,6 +354,7 @@ SelectionModel.prototype = {
      */
     selectColumn: function(x1, x2) {
         this.columnSelectionModel.select(x1, x2);
+        this.grid.selectColDefsForApi();
         this.setLastSelectionType('column');
     },
 

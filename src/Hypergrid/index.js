@@ -154,7 +154,7 @@ var Hypergrid = Base.extend('Hypergrid', {
                 if (from.hasOwnProperty(k)) {
                     if (typeof from[k] === 'function') {
                         to[k] = from[k].bind(context);
-                    } else {
+                    } else if (typeof from === 'object') {
                         to[k] = from[k];
                         bindAllFunctions(to[k], from[k], context);
                     }

@@ -361,22 +361,27 @@ exports.mixin = {
         }
     },
 
-    synchronizeScrollbarsVisualization: function(){
-        this.sbHScroller
-            .shortenEndByValue('leading', this.getHScrollbarLeftMargin())
-            .shortenEndByValue('trailing', this.getHScrollbarRightMargin() - 1)
-            .resize(null, null, this.getFullContentWidth());
-        this.sbVScroller.shortenEndByValue('leading', this.getVScrollbarTopMargin())
-            .shortenEndByValue('trailing', this.getVScrollbarBottomMargin() - 1)
-            .resize(null, null, this.getFullContentHeight());
+    synchronizeScrollbarsVisualization: function() {
+        if (this.sbHScroller) {
+            this.sbHScroller
+                .shortenEndByValue('leading', this.getHScrollbarLeftMargin())
+                .shortenEndByValue('trailing', this.getHScrollbarRightMargin() - 1)
+                .resize(null, null, this.getFullContentWidth());
 
-        this.sbHScroller.style = this.properties.scrollbarHStyle;
-        this.sbHScroller.thumbStyle = this.properties.scrollbarHThumbStyle;
-        this.sbHScroller.mountStyle = this.properties.scrollbarHMountStyle;
+            this.sbHScroller.style = this.properties.scrollbarHStyle;
+            this.sbHScroller.thumbStyle = this.properties.scrollbarHThumbStyle;
+            this.sbHScroller.mountStyle = this.properties.scrollbarHMountStyle;
+        }
+        if (this.sbVScroller) {
+            this.sbVScroller
+                .shortenEndByValue('leading', this.getVScrollbarTopMargin())
+                .shortenEndByValue('trailing', this.getVScrollbarBottomMargin() - 1)
+                .resize(null, null, this.getFullContentHeight());
 
-        this.sbVScroller.style = this.properties.scrollbarVStyle;
-        this.sbVScroller.thumbStyle = this.properties.scrollbarVThumbStyle;
-        this.sbVScroller.mountStyle = this.properties.scrollbarVMountStyle;
+            this.sbVScroller.style = this.properties.scrollbarVStyle;
+            this.sbVScroller.thumbStyle = this.properties.scrollbarVThumbStyle;
+            this.sbVScroller.mountStyle = this.properties.scrollbarVMountStyle;
+        }
     },
 
     getHScrollbarLeftMargin: function() {

@@ -63,6 +63,17 @@ var Local = Behavior.extend('Local', {
                     });
                 }
 
+                if (columnSchema.formatter) {
+                    newColumn.properties.format = newColumn.name;
+                    const options = {
+                        name: newColumn.name,
+                        format: (value, config) => config.headerRow ? value : columnSchema.formatter(value, config.dataRow), // called for render view
+                        parse: value => value, // called for render value in editor
+                        locale: 'en'
+                    };
+                    this.grid.localization.add(newColumn.name, options);
+                }
+
                 ['halign', 'maxWidth'].forEach(function(key) {
                     if (columnSchema[key]) {
                         newColumn.properties[key] = columnSchema[key];
@@ -87,15 +98,15 @@ var Local = Behavior.extend('Local', {
         var key = column.properties.field;
 
         // get max width based of
-        data.forEach(function(d, i) {
+        data.forEach((d, i) => {
             if (d[key]) {
                 gc.cache.font = (this.getRowProperties(i) || props).font;
-                var textWidth = gc.getTextWidth(d[key]) + props.cellPaddingLeft + props.cellPaddingRight;
+                const textWidth = gc.getTextWidth(d[key]) + props.cellPaddingLeft + props.cellPaddingRight;
                 if (textWidth > width) {
                     width = textWidth;
                 }
             }
-        }.bind(this));
+        });
 
         props.preferredWidth = width;
 

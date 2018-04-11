@@ -26,10 +26,11 @@ function paintCellsByColumnsAndRowsHeaders(gc) {
         C = visibleColumns.length,
         // cLast = C - 1,
         rowIndex, R = visibleRows.length,
-        pool = this.cellEventPool,
-        preferredWidth;
+        pool = this.cellEventPool;
 
-    if (!C || !R) { return; }
+    if (!C || !R) {
+        return;
+    }
 
     // For each column...
     var poolIndex = 0;
@@ -43,22 +44,20 @@ function paintCellsByColumnsAndRowsHeaders(gc) {
         }
 
         // For each row of each subgrid (of each column)...
-        for (preferredWidth = rowIndex = 0; rowIndex < R; rowIndex++, poolIndex++) {
-                if (rowPrefillColors) {
-                    prefillColor = rowPrefillColors[rowIndex];
-                }
+        for (rowIndex = 0; rowIndex < R; rowIndex++, poolIndex++) {
+            if (rowPrefillColors) {
+                prefillColor = rowPrefillColors[rowIndex];
+            }
 
-                try {
-                    var poolItem = pool[poolIndex];
-                    if (poolItem.isHeaderRow) {
-                        preferredWidth = Math.max(preferredWidth, this._paintCell(gc, poolItem, prefillColor));
-                    }
-                } catch (e) {
-                    this.renderErrorCell(e, gc, visibleColumn, pool[poolIndex].visibleRow);
+            try {
+                var poolItem = pool[poolIndex];
+                if (poolItem.isHeaderRow) {
+                    this._paintCell(gc, poolItem, prefillColor);
                 }
+            } catch (e) {
+                this.renderErrorCell(e, gc, visibleColumn, pool[poolIndex].visibleRow);
+            }
         }
-
-        cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
     }.bind(this));
 
     this.paintHeaderGridlines(gc);
