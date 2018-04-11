@@ -88,20 +88,26 @@ var Local = Behavior.extend('Local', {
             xOrColumn = this.grid.behavior.getColumn(xOrColumn);
         }
 
-        var column = xOrColumn;
-        var data = this.getData();
-        var gc = this.grid.canvas.gc;
+        const column = xOrColumn;
+        const data = this.getData();
+        const gc = this.grid.canvas.gc;
 
-        var props = column.properties;
+        const props = column.properties;
 
-        var width = props.defaultColumnWidth;
-        var key = column.properties.field;
+        let width = props.defaultColumnWidth;
+        const key = column.properties.field;
+        const formatter = this.grid.getFormatter(column.name);
 
         // get max width based of
         data.forEach((d, i) => {
             if (d[key]) {
-                gc.cache.font = (this.getRowProperties(i) || props).font;
-                const textWidth = gc.getTextWidth(d[key]) + props.cellPaddingLeft + props.cellPaddingRight;
+                const dataProps = this.getRowProperties(i) || props;
+                gc.cache.font = dataProps.font;
+                let textWidth = gc.getTextWidth(formatter(d[key], dataProps)) + props.cellPaddingLeft + props.cellPaddingRight;
+                if (dataProps.showCellContextMenuIcon) {
+                    gc.cache.font = props.contextMenuIconFont;
+                    textWidth += gc.getTextWidth(props.contextMenuIconUnicodeChar) + props.contextMenuIconMarginRight + 5;
+                }
                 if (textWidth > width) {
                     width = textWidth;
                 }

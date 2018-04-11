@@ -184,8 +184,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
                 gc.cache.fillStyle = config.contextMenuIconColor;
             }
 
-            var configClone = {};
-            Object.assign(configClone, config);
+            var configClone = Object.assign({}, config);
             configClone.halign = 'right';
 
             renderSingleLineText(gc,

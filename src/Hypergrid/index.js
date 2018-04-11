@@ -1730,6 +1730,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     autosizeColumn: function(columnOrIndex) {
         var column = columnOrIndex >= -2 ? this.behavior.getActiveColumn(columnOrIndex) : columnOrIndex;
+        this.behavior.fixColumn(column);
         column.checkColumnAutosizing(true);
         this.computeCellsBounds();
     },

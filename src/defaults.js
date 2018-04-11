@@ -1795,11 +1795,11 @@ var defaults = {
     canvasHeightOffset: 13,
 
     showCellContextMenuIcon: false,
-    contextMenuIconFont: '100 16px FontAwesome',
+    contextMenuIconFont: 'normal normal lighter 16px fontAwesome',
     contextMenuIconIsHovered: false,
     contextMenuIconHoveredColor: '#595959',
     contextMenuIconColor: '#E5E5E5',
-    contextMenuIconUnicodeChar: '\uf150',
+    contextMenuIconUnicodeChar: unescape('\uf150'),
     contextMenuIconMarginRight: 10
 };
 

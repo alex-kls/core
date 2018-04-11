@@ -85,7 +85,7 @@
                     },
                     onColumnsMoved: function(columns, toIndex) {
                         console.log('onColumnsMoved', columns, toIndex);
-                        columns.forEach(function(column) {
+                        columns.reverse().forEach(function(column) {
                             var colDefsLocal = getColDef();
                             var singleColDef = colDefsLocal.find(function(cd) {
                                 return cd.colId === column.name;
@@ -181,6 +181,6 @@
 </head>
 <body>
 <p> Fin-HyperGrid example using AJAX. <span id="loading">Loading... </span></p>
-<div id="json-example" style="position:relative; width:1140px; height: 319px"></div>
+<div id="json-example" style="position:relative; width:100%; height: 100%"></div>
 </body>
 </html>

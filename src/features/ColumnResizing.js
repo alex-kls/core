@@ -167,12 +167,12 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
             var column = event.mousePoint.x <= 3
                 ? grid.behavior.getActiveColumn(event.gridCell.x - 1)
                 : event.column;
+            grid.autosizeColumn(column);
             column.addProperties({
                 columnAutosizing: true,
                 columnAutosized: false // todo: columnAutosizing should be a setter that automatically resets columnAutosized on state change to true
             });
             setTimeout(function() { // do after next render, which measures text now that auto-sizing is on
-                grid.autosizeColumn(column);
                 if (grid.onColumnResized) {
                     grid.onColumnResized(column);
                 }

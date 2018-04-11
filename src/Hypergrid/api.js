@@ -62,7 +62,7 @@ function convertColDefs(colDefs) {
                 foregroundSelectionFont: headersFont, // set bold font for title row
                 editable: true, // allow edit content
                 cellContextMenu: getHeaderMenu(), // set context menu items with callbacks
-                hhalign: 'left',
+                halign: 'left',
                 showCellContextMenuIcon: true
             }
         }
