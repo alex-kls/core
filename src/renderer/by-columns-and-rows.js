@@ -41,6 +41,8 @@ function paintCellsByColumnsAndRows(gc) {
         viewHeight = R ? visibleRows[R - 1].bottom : 0;
 
     gc.clearRect(0, 0, this.bounds.width, this.bounds.height);
+    gc.fillStyle = gridProps.canvasBackgroundColor;
+    gc.fillRect(0, 0, this.bounds.width, this.bounds.height);
 
     if (!C || !R) { return; }
 
