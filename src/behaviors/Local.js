@@ -39,7 +39,6 @@ var Local = Behavior.extend('Local', {
             };
             var oldColumn = oldAllColumns.find(findFunction) || oldColumns.find(findFunction);
             if (oldColumn) {
-                console.log('oldColumn copied');
                 var newColumn = this.addColumn(oldColumn.properties);
                 var props = newColumn.properties;
 

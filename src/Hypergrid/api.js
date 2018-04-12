@@ -43,7 +43,7 @@ function convertColDefs(colDefs) {
     const az = range('A', 'Z');
 
     function colDefMapper(singleColDef, letters) {
-        const originalField = singleColDef && singleColDef.originalField;
+        const originalField = singleColDef && (singleColDef.originalField || singleColDef.field);
         const width = singleColDef && singleColDef.width;
         const halign = singleColDef && singleColDef.halign;
         const displayedTypeSign = singleColDef && singleColDef.displayedTypeSign;
@@ -118,7 +118,28 @@ const rangeController = {
 
 const gridPanel = {
     resetVerticalScrollPosition: function() {
-
+        console.log('resetVerticalScrollPosition');
+        this.vScrollValue = 0;
+    },
+    setVerticalScrollPosition: function(value) {
+        console.log('setVerticalScrollPosition');
+        this.vScrollValue = value;
+    },
+    getVerticalScrollPosition: function() {
+        console.log('getVerticalScrollPosition');
+        return this.vScrollValue;
+    },
+    resetHorizontalScrollPosition: function() {
+        console.log('resetHorizontalScrollPosition');
+        this.hScrollValue = 0;
+    },
+    setHorizontalScrollPosition: function(value) {
+        console.log('setHorizontalScrollPosition');
+        this.hScrollValue = value;
+    },
+    getHorizontalScrollPosition: function() {
+        console.log('getHorizontalScrollPosition');
+        return this.hScrollValue;
     }
 };
 
@@ -188,9 +209,9 @@ function setColumnDefs(colDefs) {
 function setRowData(rowData) {
     console.log('setRowData', rowData);
 
-    [].push.apply(this.data, rowData);
+    this.data = rowData;
 
-    this.addData({ data: rowData });
+    this.setData({ data: rowData });
 }
 
 function sizeColumnsToFit() {

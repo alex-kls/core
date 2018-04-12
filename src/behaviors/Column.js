@@ -91,6 +91,14 @@ Column.prototype = {
     },
 
     /**
+     * @summary alias to name
+     * @returns {string|undefined} Returns `undefined` if the column is not in the schema (such as for handle column).
+     */
+    get colId() { // read-only (no setter)
+        return this.schema.name;
+    },
+
+    /**
      * @summary Get or set the text of the column's header.
      * @desc The _header_ is the label at the top of the column.
      *
