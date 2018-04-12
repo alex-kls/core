@@ -1921,7 +1921,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    columnTitlePrefixColor: '#888888'
+    columnTitlePrefixColor: '#818181'
 };
 
 
