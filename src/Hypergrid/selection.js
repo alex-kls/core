@@ -557,8 +557,8 @@ exports.mixin = {
             const selections = this.getSelections();
             const selectedColumns = this.getSelectedColumns();
             const columns = [...selections.map(s => s.left), ...selections.map(s => s.right), ...selectedColumns];
-            let from = Math.min(...columns, -1); // -Ifinity if empty
-            let to = Math.max(...columns, -1); // -Ifinity if empty
+            let from = Math.min(...columns); // -Ifinity if empty
+            let to = Math.max(...columns); // -Ifinity if empty
 
             if (from >= 0 && to >= 0) {
                 this.api.rangeController.selectedCols = this.columnDefs.slice(from, to + 1).map(colDef => ({ colDef }));
