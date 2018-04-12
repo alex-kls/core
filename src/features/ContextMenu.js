@@ -60,7 +60,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
             - grid.properties.contextMenuIconPreferedWidth
             + grid.canvas.size.left;
         if (isCursorOverContextMenuIcon) {
-            let contextMenu = grid.behavior.getRowProperties(event).cellContextMenu || grid.properties.cellContextMenu;
+            let contextMenu = grid.behavior.getCellProperties(event).cellContextMenu || grid.properties.cellContextMenu;
             this.paintContextMenu(menuDiv,
                 grid,
                 event,
@@ -80,7 +80,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
      * @param {CellEvent} event - the event details
      */
     handleContextMenu: function(grid, event) {
-        let contextMenu = grid.behavior.getRowProperties(event).cellContextMenu || grid.properties.cellContextMenu;
+        let contextMenu = grid.behavior.getCellProperties(event).cellContextMenu || grid.properties.cellContextMenu;
         this.paintContextMenu(menuDiv,
             grid,
             event,
@@ -155,7 +155,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
      * @param {object} menuHolderDiv - object with Html element and related elements
      * @param {Hypergrid} grid
      * @param {CellEvent} event
-     * @param {[]} items - menu items
+     * @param {[]|function} items - menu items
      * @param {number} x - defines horizontal point of menu start
      * @param {number} y - defines vertical point of menu start
      * @param {boolean} rightToLeft - if true, menu will be displayed that way when it horizontally ends on X point
@@ -167,6 +167,11 @@ var ContextMenu = Feature.extend('ContextMenu', {
         var menuListHolderDiv = document.createElement('div');
 
         menuHolderDiv.element.appendChild(menuListHolderDiv);
+
+        if (typeof items === 'function') {
+            const colDef = grid.columnDefs.find(cd => cd.colId === event.column.name);
+            items = items({ column: { colDef, colId: colDef.colId }, node: { data: event.dataRow }, value: event.value });
+        }
 
         items.forEach(function(item){
             self.makeContextMenuItem(grid, event, menuHolderDiv, menuListHolderDiv, item);

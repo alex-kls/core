@@ -38,7 +38,7 @@ exports.behaviorMixin = {
     getCellProperties: function(xOrCellEvent, y, dataModel) {
         if (arguments.length === 1) {
             // xOrCellEvent is cellEvent
-            return xOrCellEvent.properties;
+            return Object.assign({}, xOrCellEvent.properties || {}, xOrCellEvent.rowOwnProperties || {});
         } else {
             // xOrCellEvent is x
             return this.getColumn(xOrCellEvent).getCellProperties(y, dataModel);

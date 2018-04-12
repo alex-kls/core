@@ -1450,6 +1450,45 @@ var defaults = {
     ],
 
     /**
+     * @desc List of header row context menu items, just title and callback
+     * Params, that can be passed to each item declaration:
+     * title | name (HTML string) - title of an menu item
+     * action (function) - callback function, that will be called on click
+     * isShown (boolean | function) - if passed, each item check this param, before it will be rendered
+     * @default
+     * @memberOf module:defaults
+     */
+    headerContextMenu: [
+        {
+            name: 'Rename',
+            action: function(clickEvent, cellEvent) {
+                console.log('rename selected', clickEvent, cellEvent);
+                cellEvent.grid.onEditorActivate(cellEvent);
+            }
+        },
+        {
+            name: 'Remove',
+            action: function(clickEvent, cellEvent) {
+                console.log('remove selected', clickEvent, cellEvent);
+                const grid = cellEvent.grid;
+                const colDef = grid.columnDefs;
+                const column = cellEvent.column;
+                if (grid.onRemoveColumn) {
+                    grid.onRemoveColumn(column);
+                }
+
+                const singleColDef = colDef.find(cd => cd.colId === column.name);
+
+                // remove if it isn't removed in 'onRemoveColumn' callback
+                if (singleColDef) {
+                    colDef.splice(colDef.indexOf(singleColDef), 1);
+                }
+                grid.api.setColumnDefs(colDef);
+            }
+        }
+    ],
+
+    /**
      * @desc if true, data cell context menu can be triggered.
      * @default
      * @type {boolean}

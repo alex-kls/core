@@ -17,43 +17,13 @@ function idOf(range, i) {
     return (i >= 26 ? idOf(range, (i / 26 >> 0) - 1) : '') + range[i % 26 >> 0];
 }
 
-function getHeaderMenu() {
-    return [
-        {
-            name: 'Rename',
-            action: function(clickEvent, cellEvent) {
-                console.log('rename selected', clickEvent, cellEvent);
-                cellEvent.grid.onEditorActivate(cellEvent);
-            }
-        },
-        {
-            name: 'Remove',
-            action: function(clickEvent, cellEvent) {
-                console.log('remove selected', clickEvent, cellEvent);
-                const grid = cellEvent.grid;
-                const colDef = grid.columnDefs;
-                const column = cellEvent.column;
-                if (grid.onRemoveColumn) {
-                    grid.onRemoveColumn(column);
-                }
-
-                const singleColDef = colDef.find(cd => cd.colId === column.name);
-
-                // remove if it isn't removed in 'onRemoveColumn' callback
-                if (singleColDef) {
-                    colDef.splice(colDef.indexOf(singleColDef), 1);
-                }
-                grid.api.setColumnDefs(colDef);
-            }
-        }
-    ];
-}
-
 function convertColDefs(colDefs) {
     const schema = [];
 
     const headersFont = this.properties.columnHeaderFontBold;
     const maximumColumnWidth = this.properties.maximumColumnWidth;
+
+    const getContextMenuItems = this.getContextMenuItems;
 
     const data = {
         __META: {
@@ -62,7 +32,7 @@ function convertColDefs(colDefs) {
                 font: headersFont, // set bold font for title row
                 foregroundSelectionFont: headersFont, // set bold font for title row
                 editable: true, // allow edit content
-                cellContextMenu: getHeaderMenu(), // set context menu items with callbacks
+                cellContextMenu: this.getMainMenuItems ? this.getMainMenuItems : this.properties.headerContextMenu, // set context menu items with callbacks
                 halign: 'left',
                 // ToDo: 12.04.18 don't forget to disable before publish
                 showCellContextMenuIcon: false,
@@ -94,7 +64,8 @@ function convertColDefs(colDefs) {
             displayedTypeSign: displayedTypeSign || undefined,
             maxWidth: maxWidth && maxWidth < maximumColumnWidth ? maxWidth : maximumColumnWidth,
             formatter: formatter || undefined,
-            headerPrefix: headerPrefix || undefined
+            headerPrefix: headerPrefix || undefined,
+            cellContextMenu: getContextMenuItems
         });
 
         if (originalField) {
@@ -263,6 +234,7 @@ function destroy(total) {
 
 function getRangeSelections() {
     console.log('getRangeSelections');
+    return this.getSelections().map(s => ({ start: { rowIndex: s.left, column: s.top }, end: { rowIndex: s.right, column: s.bottom } }));
 }
 
 function copySelectedRangeToClipboard(includeHeaders) {
@@ -271,6 +243,7 @@ function copySelectedRangeToClipboard(includeHeaders) {
 
 function getSelectedColumns() {
     console.log('getSelectedColumns');
+    return this.api.rangeController.selectedCols;
 }
 
 function getModel() {

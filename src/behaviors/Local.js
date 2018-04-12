@@ -75,7 +75,7 @@ var Local = Behavior.extend('Local', {
                     this.grid.localization.add(newColumn.name, options);
                 }
 
-                ['halign', 'maxWidth'].forEach(function(key) {
+                ['halign', 'maxWidth', 'cellContextMenu'].forEach(function(key) {
                     if (columnSchema[key]) {
                         newColumn.properties[key] = columnSchema[key];
                     }

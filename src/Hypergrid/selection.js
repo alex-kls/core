@@ -561,7 +561,7 @@ exports.mixin = {
             let to = Math.max(...columns); // -Ifinity if empty
 
             if (from >= 0 && to >= 0) {
-                this.api.rangeController.selectedCols = this.columnDefs.slice(from, to + 1).map(colDef => ({ colDef }));
+                this.api.rangeController.selectedCols = this.columnDefs.slice(from, to + 1).map(colDef => ({ colDef, colId: colDef.colId }));
             } else {
                 this.api.rangeController.selectedCols = [];
             }

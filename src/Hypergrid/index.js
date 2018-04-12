@@ -172,6 +172,8 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.onUpdateColumnName = options.onUpdateColumnName || this.onUpdateColumnName;
         this.onRemoveColumn = options.onRemoveColumn || this.onRemoveColumn;
         this.onColumnsMoved = options.onColumnsMoved || this.onColumnsMoved;
+        this.getMainMenuItems = options.getMainMenuItems || this.getMainMenuItems;
+        this.getContextMenuItems = options.getContextMenuItems || this.getContextMenuItems;
 
         /**
          * @name plugins
