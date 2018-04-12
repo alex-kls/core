@@ -1791,16 +1791,114 @@ var defaults = {
         textDecoration: 'none'
     },
 
+    /**
+     * @desc pixels count that will be used as canvas right padding on render
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
     canvasWidthOffset: 14,
+
+    /**
+     * @desc pixels count that will be used as canvas bottom padding on render
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
     canvasHeightOffset: 13,
 
+    /**
+     * @desc if true, context menu icon will be shown on every table cell
+     * Best use of this parameter is set it on column or row
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
     showCellContextMenuIcon: false,
+
+    /**
+     * @desc font of context menu icon
+     * Best use of this parameter is set font family on one of connected icon-pack's, to render needed icon
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
     contextMenuIconFont: 'normal normal lighter 16px fontAwesome',
+
+    /**
+     * @desc if true, context menu icon style will be set to hovered
+     * (Utility prop. You don't need to set this param in most cases)
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
     contextMenuIconIsHovered: false,
-    contextMenuIconHoveredColor: '#595959',
+
+    /**
+     * @desc Color of context menu icon, when not hovered
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
     contextMenuIconColor: '#E5E5E5',
+
+    /**
+     * @desc Color of context menu icon, when hovered
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    contextMenuIconHoveredColor: '#595959',
+
+    /**
+     * @desc String, that will be displayed as context menu icon
+     * Best way to use this parameter is set it's value on such unicode char, provided by your icons pack
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
     contextMenuIconUnicodeChar: unescape('\uf150'),
-    contextMenuIconMarginRight: 10
+
+    /**
+     * @desc Space from right border of the cell to context menu icon
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    contextMenuIconMarginRight: 7,
+
+    /**
+     * @desc Prefered width of icon
+     * (Utility prop. You don't need to set this param in most cases)
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    contextMenuIconPreferedWidth: 5,
+
+    /**
+     * @desc Space from context menu icon to main text of cell
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    contextMenuLeftSpaceToCutText: 5,
+
+    /**
+     * @desc Font of column type sign
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    columnTypeSignFont: '700 10px "Helvetica Neue",Helvetica,Arial,sans-serif',
+
+    /**
+     * @desc Color of column type sign
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    columnTypeSignColor: '#888888'
 };
 
 

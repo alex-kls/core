@@ -63,7 +63,9 @@ function convertColDefs(colDefs) {
                 editable: true, // allow edit content
                 cellContextMenu: getHeaderMenu(), // set context menu items with callbacks
                 halign: 'left',
-                showCellContextMenuIcon: true
+                // ToDo: 12.04.18 don't forget to disable before publish
+                showCellContextMenuIcon: false,
+                showColumnType: false
             }
         }
     };
@@ -73,6 +75,7 @@ function convertColDefs(colDefs) {
         const originalField = singleColDef && singleColDef.originalField;
         const width = singleColDef && singleColDef.width;
         const halign = singleColDef && singleColDef.halign;
+        const displayedTypeSign = singleColDef && singleColDef.displayedTypeSign;
         const maxWidth = singleColDef && singleColDef.maxWidth;
 
         let formatter = singleColDef && singleColDef.cellRenderer;
@@ -86,6 +89,7 @@ function convertColDefs(colDefs) {
             name: originalField || letters,
             width: width || undefined,
             halign: halign || undefined,
+            displayedTypeSign: displayedTypeSign || undefined,
             maxWidth: maxWidth || 2000,
             formatter: formatter || undefined
         });

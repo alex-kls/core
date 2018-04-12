@@ -151,9 +151,51 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         leftPadding = leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPaddingLeft;
         rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPaddingRight;
 
-        var textRightPadding = rightPadding;
+        let textRightPadding = rightPadding;
         if (config.showCellContextMenuIcon) {
-            textRightPadding += config.contextMenuIconMarginRight + 15;
+            textRightPadding += config.contextMenuLeftSpaceToCutText;
+        }
+
+        if (config.showCellContextMenuIcon) {
+            // gc.cache.fillStyle = textColor;
+            let prevFontState = gc.cache.font,
+                prevFillStyleState = gc.cache.fillStyle;
+
+            gc.cache.font = config.contextMenuIconFont;
+
+            if (config.contextMenuIconIsHovered) {
+                gc.cache.fillStyle = config.contextMenuIconHoveredColor;
+            } else {
+                gc.cache.fillStyle = config.contextMenuIconColor;
+            }
+
+            let configClone = Object.assign({}, config);
+            configClone.halign = 'right';
+
+            textRightPadding += renderSingleLineText(gc,
+                configClone,
+                config.contextMenuIconUnicodeChar,
+                leftPadding,
+                rightPadding + config.contextMenuIconMarginRight);
+
+            gc.cache.font = prevFontState;
+            gc.cache.fillStyle = prevFillStyleState;
+        }
+
+        if (config.showColumnType && config.displayedTypeSign) {
+            let prevFontState = gc.cache.font,
+                prevFillStyleState = gc.cache.fillStyle;
+
+            gc.cache.font = config.columnTypeSignFont;
+            gc.cache.fillStyle = config.columnTypeSignColor;
+
+            let configClone = Object.assign({}, config);
+            configClone.halign = 'right';
+
+            textRightPadding += renderSingleLineText(gc, configClone, config.displayedTypeSign, leftPadding, textRightPadding);
+
+            gc.cache.font = prevFontState;
+            gc.cache.fillStyle = prevFillStyleState;
         }
 
         if (renderValue) {
@@ -169,32 +211,6 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             ixoffset = Math.round((width - centerIcon.width) / 2);
             gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
             valWidth = iconPadding + centerIcon.width + iconPadding;
-        }
-
-        if (config.showCellContextMenuIcon) {
-            // gc.cache.fillStyle = textColor;
-            var prevFontState = gc.cache.font,
-                prevFillStyleState = gc.cache.fillStyle;
-
-            gc.cache.font = config.contextMenuIconFont;
-
-            if (config.contextMenuIconIsHovered) {
-                gc.cache.fillStyle = config.contextMenuIconHoveredColor;
-            } else {
-                gc.cache.fillStyle = config.contextMenuIconColor;
-            }
-
-            var configClone = Object.assign({}, config);
-            configClone.halign = 'right';
-
-            renderSingleLineText(gc,
-                configClone,
-                config.contextMenuIconUnicodeChar,
-                leftPadding,
-                rightPadding + config.contextMenuIconMarginRight);
-
-            gc.cache.font = prevFontState;
-            gc.cache.fillStyle = prevFillStyleState;
         }
 
         if (leftIcon) {

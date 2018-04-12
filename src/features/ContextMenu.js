@@ -57,10 +57,10 @@ var ContextMenu = Feature.extend('ContextMenu', {
             + event.bounds.width
             - grid.properties.cellPaddingRight
             - grid.properties.contextMenuIconMarginRight
-            - 5;
+            - grid.properties.contextMenuIconPreferedWidth
+            + grid.canvas.size.left;
         if (isCursorOverContextMenuIcon) {
-            console.log('234234324');
-            var contextMenu = grid.behavior.getRowProperties(event).cellContextMenu || grid.properties.cellContextMenu;
+            let contextMenu = grid.behavior.getRowProperties(event).cellContextMenu || grid.properties.cellContextMenu;
             this.paintContextMenu(menuDiv,
                 grid,
                 event,
@@ -98,20 +98,32 @@ var ContextMenu = Feature.extend('ContextMenu', {
         let isPreviousCellEventExist = !!previousHoveredCellEvent;
 
         if (isCursorOverContextMenuIcon) {
-            event.setCellProperty('contextMenuIconIsHovered', true);
-            stateChanged = true;
-            previousHoveredCellEvent = event;
-            this.cursor = 'pointer';
+            if (!previousHoveredCellEvent || event.bounds.x !== previousHoveredCellEvent.bounds.x
+                || event.bounds.y !== previousHoveredCellEvent.bounds.y) {
+
+                // CAUTION! If call setCellProperty method of cellEvent, renderer properties cache will not be
+                // changed (so hover state of icon not be displayed before cell properties cache change)
+                grid.behavior.setCellProperty(event.dataCell.x, event.dataCell.y, 'contextMenuIconIsHovered', true);
+                event.contextMenuIconIsHovered = true;
+                stateChanged = true;
+                previousHoveredCellEvent = event;
+                this.cursor = 'pointer';
+            }
         } else {
             if (isPreviousCellEventExist) {
-                previousHoveredCellEvent.setCellProperty('contextMenuIconIsHovered', false);
+
+                // CAUTION! If call setCellProperty method of cellEvent, renderer properties cache will not be
+                // changed (so hover state of icon not be displayed before cell properties cache change)
+                grid.behavior.setCellProperty(previousHoveredCellEvent.dataCell.x, previousHoveredCellEvent.dataCell.y, 'contextMenuIconIsHovered', false);
+                event.contextMenuIconIsHovered = false;
+                previousHoveredCellEvent = null;
                 stateChanged = true;
             }
             this.cursor = null;
         }
 
         if (stateChanged) {
-            grid.paintNow();
+            grid.repaint();
         }
 
         if (this.next) {
@@ -124,7 +136,10 @@ var ContextMenu = Feature.extend('ContextMenu', {
             || (event.rowProperties && event.rowProperties.showCellContextMenuIcon)
             || (event.cellOwnProperties && event.cellOwnProperties.showCellContextMenuIcon);
         let eventCellRightX = event.bounds.width;
-        let contextMenuIconRightX = eventCellRightX - grid.properties.cellPaddingRight - grid.properties.contextMenuIconMarginRight - 5;
+        let contextMenuIconRightX = eventCellRightX
+            - grid.properties.cellPaddingRight
+            - grid.properties.contextMenuIconMarginRight
+            - grid.properties.contextMenuIconPreferedWidth;
         let contextMenuIconLeftX = eventCellRightX - grid.properties.cellPaddingRight;
 
         return cellHasContextMenuItem
