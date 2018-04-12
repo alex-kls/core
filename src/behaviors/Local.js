@@ -39,6 +39,7 @@ var Local = Behavior.extend('Local', {
             };
             var oldColumn = oldAllColumns.find(findFunction) || oldColumns.find(findFunction);
             if (oldColumn) {
+                console.log('oldColumn copied');
                 var newColumn = this.addColumn(oldColumn.properties);
                 var props = newColumn.properties;
 
@@ -83,7 +84,7 @@ var Local = Behavior.extend('Local', {
         }, this);
     },
 
-    fixColumn: function(xOrColumn) {
+    fitColumn: function(xOrColumn, force) {
         if (typeof xOrColumn !== 'object') {
             xOrColumn = this.grid.behavior.getColumn(xOrColumn);
         }
@@ -114,20 +115,21 @@ var Local = Behavior.extend('Local', {
             }
         });
 
+        width = Math.ceil(width);
+
         props.preferredWidth = width;
 
-        if (props.columnAutosizing) {
+        if (force || props.columnAutosizing) {
             if (width > 0) {
-                props.width = props.preferredWidth;
-                props.columnAutosizing = false;
+                column.setWidth(props.preferredWidth);
             }
         }
     },
 
-    fixColumns: function() {
+    fitColumns: function() {
         var gc = this.grid.canvas.gc;
         var oldFont = gc.cache.font;
-        this.allColumns.forEach(this.fixColumn.bind(this));
+        this.allColumns.forEach(c => this.fitColumn.bind(this)(c));
         gc.cache.font = oldFont;
     },
 

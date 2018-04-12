@@ -555,20 +555,12 @@ exports.mixin = {
     selectColDefsForApi: function() {
         if (this.columnDefs) {
             const selections = this.getSelections();
-            let from;
-            let to;
-            if (selections.length) {
-                selections.forEach(s => {
-                    if (!from || s.left < from) {
-                        from = s.left;
-                    }
-                    if (!to || s.right > to) {
-                        to = s.right;
-                    }
-                });
-            }
+            const selectedColumns = this.getSelectedColumns();
+            const columns = [...selections.map(s => s.left), ...selections.map(s => s.right), ...selectedColumns];
+            let from = Math.min(...columns, -1); // -Ifinity if empty
+            let to = Math.max(...columns, -1); // -Ifinity if empty
 
-            if (from !== undefined && to !== undefined) {
+            if (from >= 0 && to >= 0) {
                 this.api.rangeController.selectedCols = this.columnDefs.slice(from, to + 1).map(colDef => ({ colDef }));
             } else {
                 this.api.rangeController.selectedCols = [];

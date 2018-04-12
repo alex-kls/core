@@ -125,9 +125,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      */
     handleMouseUp: function(grid, event) {
         if (this.dragColumn) {
-            if (grid.onColumnResized) {
-                grid.onColumnResized(this.dragColumn);
-            }
+            this.callCallbackIfNeeded(grid, this.dragColumn);
 
             this.cursor = null;
             this.dragColumn = false;
@@ -172,13 +170,16 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
                 columnAutosizing: true,
                 columnAutosized: false // todo: columnAutosizing should be a setter that automatically resets columnAutosized on state change to true
             });
-            setTimeout(function() { // do after next render, which measures text now that auto-sizing is on
-                if (grid.onColumnResized) {
-                    grid.onColumnResized(column);
-                }
-            });
+            this.callCallbackIfNeeded(grid, column);
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
+        }
+    },
+
+
+    callCallbackIfNeeded: function(grid, column) {
+        if (grid.onColumnResized && this.dragStartWidth !== Math.round(column.getWidth())) {
+            grid.onColumnResized(column);
         }
     }
 

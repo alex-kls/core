@@ -705,6 +705,13 @@ var defaults = {
      */
     minimumColumnWidth: 30,
 
+    /**
+     * @summary global max width of column
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    maximumColumnWidth: 650,
 
     /**
      * @summary minimal count of rows should be shown

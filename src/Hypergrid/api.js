@@ -53,6 +53,7 @@ function convertColDefs(colDefs) {
     const schema = [];
 
     const headersFont = this.properties.columnHeaderFontBold;
+    const maximumColumnWidth = this.properties.maximumColumnWidth;
 
     const data = {
         __META: {
@@ -79,7 +80,7 @@ function convertColDefs(colDefs) {
         const maxWidth = singleColDef && singleColDef.maxWidth;
 
         let formatter = singleColDef && singleColDef.cellRenderer;
-        if (formatter) {
+        if (formatter && typeof formatter !== 'string') {
             const update = (new formatter()).update;
             formatter = (value, row) => update({ colDef: singleColDef, value, data: row });
         }
@@ -90,7 +91,7 @@ function convertColDefs(colDefs) {
             width: width || undefined,
             halign: halign || undefined,
             displayedTypeSign: displayedTypeSign || undefined,
-            maxWidth: maxWidth || 2000,
+            maxWidth: maxWidth && maxWidth < maximumColumnWidth ? maxWidth : maximumColumnWidth,
             formatter: formatter || undefined
         });
 
@@ -150,7 +151,11 @@ const gridPanel = {
 
 const columnController = {
     getAllGridColumns: function() {
+        console.log('getAllGridColumns');
         return [];
+    },
+    updateDisplayedColumns: function() {
+        console.log('updateDisplayedColumns');
     }
 };
 
@@ -219,7 +224,7 @@ function sizeColumnsToFit() {
     console.log('sizeColumnsToFit');
 
     if (this.api.needColumnsToFit) {
-        this.behavior.fixColumns();
+        this.behavior.fitColumns();
         this.canvas.resize(false);
         this.addEventListener('fin-grid-rendered', function() {
             if (this.api.needColumnsToFit) {
@@ -293,11 +298,13 @@ function insertItemsAtIndex(index, items) {
 function clearRangeSelection() {
     console.log('clearRangeSelection');
     this.clearSelections();
+    this.repaint();
 }
 
 function clearFocusedCell() {
     console.log('clearFocusedCell');
     this.clearMostRecentSelection();
+    this.repaint();
 }
 
 function getFloatingTopRowData() {

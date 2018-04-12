@@ -257,7 +257,8 @@ var Behavior = Base.extend('Behavior', {
         this.allColumns[treeColumnIndex] = this.columns[treeColumnIndex] = this.newColumn(treeColumnOld && treeColumnOld.properties ? treeColumnOld.properties : {
             index: treeColumnIndex,
             header: schema[treeColumnIndex].header,
-            name: schema[treeColumnIndex].name
+            name: schema[treeColumnIndex].name,
+            fixed: true
         });
         this.allColumns[rowColumnIndex] = this.columns[rowColumnIndex] = this.newColumn(rowColumnOld && rowColumnOld.properties ? rowColumnOld.properties : {
             index: rowColumnIndex,
