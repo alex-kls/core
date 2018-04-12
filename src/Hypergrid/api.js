@@ -78,6 +78,7 @@ function convertColDefs(colDefs) {
         const halign = singleColDef && singleColDef.halign;
         const displayedTypeSign = singleColDef && singleColDef.displayedTypeSign;
         const maxWidth = singleColDef && singleColDef.maxWidth;
+        const headerPrefix = singleColDef && singleColDef.headerPrefix;
 
         let formatter = singleColDef && singleColDef.cellRenderer;
         if (formatter && typeof formatter !== 'string') {
@@ -92,7 +93,8 @@ function convertColDefs(colDefs) {
             halign: halign || undefined,
             displayedTypeSign: displayedTypeSign || undefined,
             maxWidth: maxWidth && maxWidth < maximumColumnWidth ? maxWidth : maximumColumnWidth,
-            formatter: formatter || undefined
+            formatter: formatter || undefined,
+            headerPrefix: headerPrefix || undefined
         });
 
         if (originalField) {

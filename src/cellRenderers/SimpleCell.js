@@ -198,6 +198,20 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.cache.fillStyle = prevFillStyleState;
         }
 
+        if (config.headerPrefix && config.headerRow) {
+            let prevFontState = gc.cache.font,
+                prevFillStyleState = gc.cache.fillStyle;
+
+            gc.cache.font = config.columnTitlePrefixFont;
+            gc.cache.fillStyle = config.columnTitlePrefixColor;
+
+            leftPadding += renderSingleLineText(gc, config, config.headerPrefix, leftPadding, textRightPadding);
+            leftPadding += gc.measureText(config.headerPrefix).width;
+
+            gc.cache.font = prevFontState;
+            gc.cache.fillStyle = prevFillStyleState;
+        }
+
         if (renderValue) {
             // draw text
             gc.cache.fillStyle = textColor;

@@ -1220,9 +1220,14 @@ var Renderer = Base.extend('Renderer', {
         config.subrow = 0;
         config.halign = isHeaderRow ? config.rowHeaderHalign : behavior.getCellProperty('halign') || config.halign;
 
+        if (!config.headerPrefix) {
+            config.headerPrefix = cellEvent.column.schema ? cellEvent.column.schema.headerPrefix : undefined;
+        }
+
         if (!config.displayedTypeSign) {
             config.displayedTypeSign = cellEvent.column.schema ? cellEvent.column.schema.displayedTypeSign : undefined;
         }
+
         if (grid.mouseDownState) {
             config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
         }

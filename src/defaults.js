@@ -1905,7 +1905,23 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    columnTypeSignColor: '#888888'
+    columnTypeSignColor: '#888888',
+
+    /**
+     * @desc Font of column title prefix
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    columnTitlePrefixFont: '800 12px "Helvetica Neue",Helvetica,Arial,sans-serif',
+
+    /**
+     * @desc Color of column title prefix
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    columnTitlePrefixColor: '#888888'
 };
 
 
