@@ -25,6 +25,8 @@ function convertColDefs(colDefs) {
 
     const getContextMenuItems = this.getContextMenuItems;
 
+    const showAdditionalInfo = this.properties.showAdditionalInfo;
+
     const data = {
         __META: {
             __ROW: {
@@ -35,8 +37,8 @@ function convertColDefs(colDefs) {
                 cellContextMenu: this.getMainMenuItems ? this.getMainMenuItems : this.properties.headerContextMenu, // set context menu items with callbacks
                 halign: 'left',
                 // ToDo: 12.04.18 don't forget to disable before publish
-                showCellContextMenuIcon: false,
-                showColumnType: false
+                showCellContextMenuIcon: showAdditionalInfo,
+                showColumnType: showAdditionalInfo
             }
         }
     };

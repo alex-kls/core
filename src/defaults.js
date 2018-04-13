@@ -496,6 +496,11 @@ var defaults = {
     rightIcon: undefined,
 
     /**
+     * @summary showCellContextMenuIcon and showColumnType trigger
+     */
+    showAdditionalInfo: false,
+
+    /**
      * Set to `true` to render `0` and `false`. Otherwise these value appear as blank cells.
      * @default
      * @type {boolean}

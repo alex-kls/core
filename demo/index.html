@@ -70,6 +70,9 @@
                     api: {
                         onScrollEndLimitTrigger: 200
                     },
+                    theme: {
+                        showAdditionalInfo: true
+                    },
                     onColumnResized: function(column) {
                         console.log('onColumnResized', column);
                         localStorage.setItem(LOCAL_STORAGE_COLUMNS_DEF, JSON.stringify(colDef));

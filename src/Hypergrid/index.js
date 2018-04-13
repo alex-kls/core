@@ -139,6 +139,10 @@ var Hypergrid = Base.extend('Hypergrid', {
             this.loadState(options.state);
         }
 
+        if (options.theme) {
+            this.applyTheme(options.theme);
+        }
+
         /**
          * @name api
          * @summary api for using with datadocs like ag-grid
