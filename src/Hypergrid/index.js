@@ -858,6 +858,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.behavior.addData(dataRows, options);
         this.setInfo(this.behavior.dataModel.getData().length ? '' : this.properties.noDataMessage);
         this.behavior.changed();
+        this.fireSyntheticGridDataAddedEvent(dataRows);
     },
 
     setInfo: function(messages) {

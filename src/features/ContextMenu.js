@@ -131,6 +131,22 @@ var ContextMenu = Feature.extend('ContextMenu', {
         }
     },
 
+    /**
+     * @memberOf Feature.prototype
+     * @desc handle grid data added event
+     * @param {Hypergrid} grid
+     * @param {object} event
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
+     */
+    handleDataAdded: function(grid, event) {
+        this.hideContextMenu(menuDiv);
+
+        if (this.next) {
+            this.next.handleDataAdded(grid, event);
+        }
+    },
+
     overContextMenuCell: function(grid, event) {
         let cellHasContextMenuItem = event.properties.showCellContextMenuIcon
             || (event.rowProperties && event.rowProperties.showCellContextMenuIcon)

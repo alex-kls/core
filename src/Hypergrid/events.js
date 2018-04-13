@@ -168,6 +168,17 @@ var mixin = {
 
     /**
      * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-grid-data-added` event.
+     * @param {array} dataRows - added data rows
+     */
+    fireSyntheticGridDataAddedEvent: function(dataRows) {
+        return dispatchEvent.call(this, 'fin-grid-data-added', true, {
+            dataRows: dataRows
+        });
+    },
+
+    /**
+     * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-context-menu` event
      * @param {keyEvent} event - The canvas event.
      */
@@ -581,6 +592,10 @@ var mixin = {
                 }
             }
         });
+
+        this.addInternalEventListener('fin-grid-data-added', function(e) {
+            grid.delegateGridDataAdded(e);
+        });
     },
 
     /**
@@ -696,6 +711,16 @@ var mixin = {
     delegateKeyUp: function(event) {
         this.behavior.onKeyUp(this, event);
     },
+
+    /**
+     * @memberOf Hypergrid#
+     * @summary Generate a function name and call it on self.
+     * @desc This should also be delegated through Behavior keeping the default implementation here though.
+     * @param {event} event - The pertinent event.
+     */
+    delegateGridDataAdded: function(event) {
+        this.behavior.onDataAdded(this, event);
+    }
 };
 
 var details = [

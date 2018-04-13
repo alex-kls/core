@@ -795,6 +795,18 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior#
+     * @desc delegate handling of grid data added event
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     */
+    onDataAdded: function(grid, event) {
+        if (this.featureChain) {
+            this.featureChain.handleDataAdded(grid, event);
+        }
+    },
+
+    /**
+     * @memberOf Behavior#
      * @desc delegate handling double click to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details

@@ -88,6 +88,20 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
+     * @desc handle grid data added event
+     * @param {Hypergrid} grid
+     * @param {object} event
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
+     */
+    handleDataAdded: function(grid, event) {
+        if (this.next) {
+            this.next.handleDataAdded(grid, event);
+        }
+    },
+
+    /**
+     * @memberOf Feature.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      * @private
