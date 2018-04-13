@@ -153,11 +153,12 @@
                     // window.grid.api.clearRangeSelection();
                     // window.grid.api.destroy();
                     window.grid.api.setColumnDefs(getColDef());
-                    window.grid.api.setRowData(prepareData(result));
+                    window.grid.api.setDatasource({ totalSize: 2000000000, sortModel: [], getRows: (p) => p.successCallback(prepareData(result)) });
                     window.grid.api.sizeColumnsToFit();
 
                     window.grid.api.attachLinkToDataCell(1, 1, 'https://google.com');
                     window.grid.api.attachLinkToDataCell(1, 2, 'https://google.com');
+                    setTimeout(appendData, 5000);
                 }
                 appendData();
                 // setTimeout(appendData, 100);
