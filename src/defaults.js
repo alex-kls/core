@@ -1631,6 +1631,16 @@ var defaults = {
     },
 
     /**
+     * @desc html string, that will be displayed, if menu item has child menu.
+     * Property contain whole html tag (not just class) because come iconpacks may use "span"(or any another)
+     * tag instead of "i"
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    contextMenuChildMenuArrowIconTag: '<i class="fa fa-caret-right"></i>',
+
+    /**
      * @desc header part color of an column fixation dragger, when dragger state is inactive
      * @default
      * @type {cssColor}
@@ -1923,21 +1933,13 @@ var defaults = {
     contextMenuIconUnicodeChar: decodeURI('\uf0d7'),
 
     /**
-     * @desc Space from right border of the cell to context menu icon
+     * @desc Prefered width of button
+     * (Utility prop. You don't need to set this param in most cases. Used in context menu feature)
      * @default
      * @type {number}
      * @memberOf module:defaults
      */
-    contextMenuIconMarginRight: 7,
-
-    /**
-     * @desc Prefered width of icon
-     * (Utility prop. You don't need to set this param in most cases)
-     * @default
-     * @type {number}
-     * @memberOf module:defaults
-     */
-    contextMenuIconPreferedWidth: 5,
+    contextMenuButtonPreferedWidth: 5,
 
     /**
      * @desc space between cell right border and button

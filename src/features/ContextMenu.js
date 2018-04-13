@@ -54,20 +54,28 @@ var ContextMenu = Feature.extend('ContextMenu', {
         this.hideContextMenu(menuDiv);
 
         let isCursorOverContextMenuIcon = this.overContextMenuCell(grid, event);
+
         let contextMenuIconRightX = event.bounds.x
             + event.bounds.width
-            - grid.properties.cellPaddingRight
-            - grid.properties.contextMenuIconMarginRight
-            - grid.properties.contextMenuIconPreferedWidth
-            + grid.canvas.size.left;
+            - grid.properties.contextMenuButtonRightMargin;
+        let contextMenuIconLeftX = contextMenuIconRightX
+            - grid.properties.contextMenuButtonPreferedWidth
+            - (grid.properties.contextMenuButtonPadding * 2);
+
+
         if (isCursorOverContextMenuIcon) {
             let contextMenu = grid.behavior.getCellProperties(event).cellContextMenu || grid.properties.cellContextMenu;
+            let rightToLeft = event.primitiveEvent.detail.mouse.x + 200 >= window.innerWidth;
+            let startX = rightToLeft ? contextMenuIconRightX : contextMenuIconLeftX;
+            startX += grid.canvas.size.left;
+
             this.paintContextMenu(menuDiv,
                 grid,
                 event,
                 contextMenu,
-                contextMenuIconRightX,
-                event.bounds.y + event.bounds.height + grid.canvas.size.top);
+                startX,
+                event.bounds.y + event.bounds.height + grid.canvas.size.top,
+                rightToLeft);
         }
 
         if (this.next) {
@@ -82,18 +90,22 @@ var ContextMenu = Feature.extend('ContextMenu', {
      */
     handleContextMenu: function(grid, event) {
         let contextMenu = grid.behavior.getCellProperties(event).cellContextMenu || grid.properties.cellContextMenu;
+        let rightToLeft = event.primitiveEvent.detail.mouse.x + 200 >= window.innerWidth;
         this.paintContextMenu(menuDiv,
             grid,
             event,
             contextMenu,
             event.primitiveEvent.detail.mouse.x + grid.canvas.size.left,
-            event.primitiveEvent.detail.mouse.y + grid.canvas.size.top + 25);
+            event.primitiveEvent.detail.mouse.y + grid.canvas.size.top + 25,
+            rightToLeft);
         if (this.next) {
             this.next.handleContextMenu(grid, event);
         }
     },
 
     handleMouseMove: function(grid, event) {
+        // this.closeAllChilds(menuDiv);
+
         let stateChanged = false;
         let isCursorOverContextMenuIcon = this.overContextMenuCell(grid, event);
         let isPreviousCellEventExist = !!previousHoveredCellEvent;
@@ -156,7 +168,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
         let contextMenuIconRightX = eventCellRightX
             - grid.properties.contextMenuButtonRightMargin;
         let contextMenuIconLeftX = contextMenuIconRightX
-            - grid.properties.contextMenuIconPreferedWidth
+            - grid.properties.contextMenuButtonPreferedWidth
             - (grid.properties.contextMenuButtonPadding * 2);
 
         let contextMenuIconTopY = event.bounds.height / 2 - grid.properties.contextMenuButtonHeight / 2;
@@ -260,7 +272,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
             menuOptionPopupPointerSpan.setAttribute('id', 'ePopupPointer');
 
             if (item.childMenu && item.childMenu.length) {
-                menuOptionPopupPointerSpan.innerHTML = '<i class="fa fa-caret-right"></i>';
+                menuOptionPopupPointerSpan.innerHTML = grid.properties.contextMenuChildMenuArrowIconTag;
             }
 
             menuOption.appendChild(menuOptionPopupPointerSpan);
@@ -295,6 +307,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
             }
 
             menuOption.addEventListener('mouseenter', function(event){
+                self.closeAllChilds(menuHolderDiv);
                 if (item.childMenu &&
                     item.childMenu.length &&
                     !item.childMenuDiv) {
@@ -354,6 +367,10 @@ var ContextMenu = Feature.extend('ContextMenu', {
         while (menuHolderDiv.element.firstChild) {
             menuHolderDiv.element.removeChild(menuHolderDiv.element.firstChild);
         }
+        this.closeAllChilds(menuHolderDiv);
+    },
+
+    closeAllChilds: function(menuHolderDiv) {
         while (menuHolderDiv.related.length) {
             this.hideContextMenu(menuHolderDiv.related[0]);
             menuHolderDiv.related.shift();
