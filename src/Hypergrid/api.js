@@ -17,6 +17,31 @@ function idOf(range, i) {
     return (i >= 26 ? idOf(range, (i / 26 >> 0) - 1) : '') + range[i % 26 >> 0];
 }
 
+function getFormatter(colDef) {
+    const formatterMapper = (f) => {
+        let formatter = f;
+        if (formatter && typeof formatter !== 'string') {
+            const update = formatter.prototype.update ? formatter.prototype.update : formatter;
+            formatter = (value, row) => update({ colDef, value, data: row, column: colDef });
+        }
+        return formatter;
+    };
+
+    let dataFormatter = formatterMapper(colDef && colDef.cellRenderer);
+    let headerFormatter = formatterMapper(colDef && colDef.headerCellRenderer);
+
+    const checker = (func, ...args) => {
+        return (func && typeof func === 'function') ? func(...args) : args[0];
+    };
+
+    return (value, row) => {
+        if (row && row.__META && row.__META.__ROW && row.__META.__ROW.headerRow) {
+            return checker(headerFormatter, value, row);
+        }
+        return checker(dataFormatter, value, row);
+    };
+}
+
 function convertColDefs(colDefs) {
     const schema = [];
 
@@ -36,7 +61,6 @@ function convertColDefs(colDefs) {
                 editable: true, // allow edit content
                 cellContextMenu: this.getMainMenuItems ? this.getMainMenuItems : this.properties.headerContextMenu, // set context menu items with callbacks
                 halign: 'left',
-                // ToDo: 12.04.18 don't forget to disable before publish
                 showCellContextMenuIcon: showAdditionalInfo,
                 showColumnType: showAdditionalInfo
             }
@@ -48,24 +72,18 @@ function convertColDefs(colDefs) {
         const originalField = singleColDef && (singleColDef.originalField || singleColDef.field);
         const width = singleColDef && singleColDef.width;
         const halign = singleColDef && singleColDef.halign;
-        const displayedTypeSign = singleColDef && singleColDef.displayedTypeSign;
+        const colTypeSign = singleColDef && singleColDef.colTypeSign;
         const maxWidth = singleColDef && singleColDef.maxWidth;
         const headerPrefix = singleColDef && singleColDef.headerPrefix;
-
-        let formatter = singleColDef && singleColDef.cellRenderer;
-        if (formatter && typeof formatter !== 'string') {
-            const update = (new formatter()).update;
-            formatter = (value, row) => update({ colDef: singleColDef, value, data: row });
-        }
 
         schema.push({
             header: letters || '',
             name: originalField || letters,
             width: width || undefined,
             halign: halign || undefined,
-            displayedTypeSign: displayedTypeSign || undefined,
+            colTypeSign: colTypeSign || undefined,
             maxWidth: maxWidth && maxWidth < maximumColumnWidth ? maxWidth : maximumColumnWidth,
-            formatter: formatter || undefined,
+            formatter: getFormatter(singleColDef) || undefined,
             headerPrefix: headerPrefix || undefined,
             cellContextMenu: getContextMenuItems
         });
@@ -197,8 +215,6 @@ function setColumnDefs(colDefs) {
             data.splice(0, 0, firstRowData);
         }
     }
-
-    console.log(data);
 
     this.behavior.setData({
         data: data,

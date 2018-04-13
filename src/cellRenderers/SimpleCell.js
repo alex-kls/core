@@ -156,7 +156,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             textRightPadding += config.contextMenuLeftSpaceToCutText;
         }
 
-        if (config.showCellContextMenuIcon && config.isCellHovered && renderValue) {
+        if (config.showCellContextMenuIcon && renderValue) {
             if (config.contextMenuIconIsHovered) {
                 gc.cache.strokeStyle = '#C6C6C6';
                 gc.cache.fillStyle = '#F8F8F8';
@@ -205,7 +205,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             textRightPadding += buttonContentWidth;
         }
 
-        if (config.showColumnType && config.displayedTypeSign) {
+        if (config.showColumnType && config.colTypeSign) {
             let prevFontState = gc.cache.font,
                 prevFillStyleState = gc.cache.fillStyle;
 
@@ -215,7 +215,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             let configClone = Object.assign({}, config);
             configClone.halign = 'right';
 
-            textRightPadding += renderSingleLineText(gc, configClone, config.displayedTypeSign, leftPadding, textRightPadding);
+            textRightPadding += renderSingleLineText(gc, configClone, config.colTypeSign, leftPadding, textRightPadding);
 
             gc.cache.font = prevFontState;
             gc.cache.fillStyle = prevFillStyleState;

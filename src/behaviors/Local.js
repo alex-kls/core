@@ -34,7 +34,7 @@ var Local = Behavior.extend('Local', {
         this.schema.forEach(function(columnSchema, index) {
             var findFunction = function(c) {
                 return c.properties.index === index &&
-                    c.properties.header === columnSchema.header &&
+                    c.properties.name === columnSchema.name &&
                     c.properties.calculator === columnSchema.calculator;
             };
             var oldColumn = oldAllColumns.find(findFunction) || oldColumns.find(findFunction);
@@ -67,7 +67,7 @@ var Local = Behavior.extend('Local', {
                     newColumn.properties.format = newColumn.name;
                     const options = {
                         name: newColumn.name,
-                        format: (value, config) => (config === undefined || config.headerRow) ? value : columnSchema.formatter(value, config.dataRow), // called for render view
+                        format: (value, config) => (config === undefined) ? value : columnSchema.formatter(value, config.dataRow), // called for render view
                         parse: value => value, // called for render value in editor
                         locale: 'en'
                     };
@@ -104,10 +104,21 @@ var Local = Behavior.extend('Local', {
                 const dataProps = this.getRowProperties(i) || props;
                 gc.cache.font = dataProps.font;
                 let textWidth = gc.getTextWidth(formatter(d[key], dataProps)) + props.cellPaddingLeft + props.cellPaddingRight;
+
                 if (dataProps.showCellContextMenuIcon) {
                     gc.cache.font = props.contextMenuIconFont;
-                    textWidth += gc.getTextWidth(props.contextMenuIconUnicodeChar) + props.contextMenuIconMarginRight + 5;
+                    const additional = gc.measureText(props.contextMenuIconUnicodeChar).width + 2 * props.contextMenuButtonPadding;
+                    console.log(props.contextMenuIconUnicodeChar, additional);
+                    textWidth += additional + 3;
                 }
+
+                if (dataProps.showColumnType && column.schema.colTypeSign) {
+                    gc.cache.font = props.columnTypeSignFont;
+                    const additional = gc.getTextWidth(column.schema.colTypeSign);
+                    console.log(props.colTypeSign, additional);
+                    textWidth += additional + 3;
+                }
+
                 if (textWidth > width) {
                     width = textWidth;
                 }

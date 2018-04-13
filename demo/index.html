@@ -33,23 +33,25 @@
                 var div = document.querySelector('div#json-example');
 
                 function getColDef() {
-                    var colDef = localStorage.getItem(LOCAL_STORAGE_COLUMNS_DEF);
+                    var colDef = undefined;//localStorage.getItem(LOCAL_STORAGE_COLUMNS_DEF);
                     if (!colDef || colDef.length <= 2) {
-                        colDef = "[{\"colId\":\"$$aggregation\",\"headerName\":\"Aggregation: Book.Genre \",\"rawHeaderName\":\"Aggregation: Book.Genre \",\"field\":\"$$aggregation\",\"minWidth\":10,\"maxWidth\":2000,\"minFitWidth\":150,\"suppressMenu\":true,\"suppressMovable\":true,\"cellRenderer\":\"group\",\"cellRendererParams\":{},\"headerTooltip\":\"Aggregation: Book.Genre \",\"groupPadding\":17,\"lastNonGroupChildMinusPadding\":6,\"suppressDefaultTitle\":true,\"pinned\":\"left\",\"sort\":\"asc\",\"sortingOrder\":[\"asc\",\"desc\"]},{\"colId\":\"VALUE_c0\",\"field\":\"VALUE_c0\",\"originalField\":\"VALUE_c0\",\"headerName\":\"Book[ID]\",\"headerPrefix\":\"Value\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"left\"},{\"colId\":\"VALUE_c1\",\"field\":\"VALUE_c1\",\"originalField\":\"VALUE_c1\",\"headerName\":\"Book.Author\",\"headerPrefix\":\"Value\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"left\"},{\"colId\":\"VALUE_c2\",\"field\":\"VALUE_c2\",\"originalField\":\"VALUE_c2\",\"headerName\":\"Book.Title\",\"headerPrefix\":\"Value\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"width\":529,\"suppressSizeToFit\":true,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"left\"},{\"colId\":\"VALUE_c3\",\"field\":\"VALUE_c3\",\"originalField\":\"VALUE_c3\",\"headerName\":\"Book.Genre\",\"headerPrefix\":\"Value\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"left\"},{\"colId\":\"VALUE_c4\",\"field\":\"VALUE_c4\",\"originalField\":\"VALUE_c4\",\"headerName\":\"Book.Price\",\"headerPrefix\":\"Value\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"right\"},{\"colId\":\"VALUE_c5\",\"field\":\"VALUE_c5\",\"originalField\":\"VALUE_c5\",\"headerName\":\"Book.Publish date\",\"headerPrefix\":\"Value\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"right\"},{\"colId\":\"VALUE_c6\",\"field\":\"VALUE_c6\",\"originalField\":\"VALUE_c6\",\"headerName\":\"Book.Description\",\"headerPrefix\":\"Value\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"left\"},{\"colId\":\"COUNT_c1\",\"field\":\"COUNT_c1\",\"originalField\":\"COUNT_c1\",\"headerName\":\"Book.Author\",\"headerPrefix\":\"Count\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"right\"},{\"colId\":\"COUNT_c0\",\"field\":\"COUNT_c0\",\"originalField\":\"COUNT_c0\",\"headerName\":\"Book[ID]\",\"headerPrefix\":\"Count\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"right\"},{\"colId\":\"COUNT_c2\",\"field\":\"COUNT_c2\",\"originalField\":\"COUNT_c2\",\"headerName\":\"Book.Title\",\"headerPrefix\":\"Count\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"right\"},{\"colId\":\"COUNT_c3\",\"field\":\"COUNT_c3\",\"originalField\":\"COUNT_c3\",\"headerName\":\"Book.Genre\",\"headerPrefix\":\"Count\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"right\"},{\"colId\":\"COUNT_c4\",\"field\":\"COUNT_c4\",\"originalField\":\"COUNT_c4\",\"headerName\":\"Book.Price\",\"headerPrefix\":\"Count\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"right\"},{\"colId\":\"SUM_c4\",\"field\":\"SUM_c4\",\"originalField\":\"SUM_c4\",\"headerName\":\"Book.Price\",\"headerPrefix\":\"Sum\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"right\"},{\"colId\":\"AVG_c4\",\"field\":\"AVG_c4\",\"originalField\":\"AVG_c4\",\"headerName\":\"Book.Price\",\"headerPrefix\":\"Avg\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"right\"},{\"colId\":\"MIN_c4\",\"field\":\"MIN_c4\",\"originalField\":\"MIN_c4\",\"headerName\":\"Book.Price\",\"headerPrefix\":\"Min\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"right\"},{\"colId\":\"MAX_c4\",\"field\":\"MAX_c4\",\"originalField\":\"MAX_c4\",\"headerName\":\"Book.Price\",\"headerPrefix\":\"Max\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"right\"},{\"colId\":\"COUNT_c6\",\"field\":\"COUNT_c6\",\"originalField\":\"COUNT_c6\",\"headerName\":\"Book.Description\",\"headerPrefix\":\"Count\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"right\"},{\"colId\":\"COUNT_c5\",\"field\":\"COUNT_c5\",\"originalField\":\"COUNT_c5\",\"headerName\":\"Book.Publish date\",\"headerPrefix\":\"Count\",\"suppressSorting\":false,\"minWidth\":10,\"maxWidth\":2000,\"suppressMenu\":0,\"suppressMovable\":false,\"suppressSizeToFit\":false,\"sort\":null,\"sortedAt\":null,\"columnGroupShow\":\"open\",\"halign\":\"right\"}]";
+                        colDef = "[{\"colId\":\"28\",\"field\":\"{\\\"type\\\":\\\"n\\\",\\\"columnName\\\":\\\"book[id]\\\"}\",\"headerName\":\"book[id]\",\"hide\":false,\"suppressSorting\":true,\"errorCount\":0,\"firstError\":null,\"colType\":\"STRING\",\"colTypeSign\":\"ABC\",\"isList\":false,\"suppressSizeToFit\":true,\"minWidth\":10,\"maxWidth\":2000,\"halign\":\"left\"},{\"colId\":\"30\",\"field\":\"{\\\"type\\\":\\\"n\\\",\\\"columnName\\\":\\\"book.author\\\"}\",\"headerName\":\"book.author\",\"hide\":false,\"suppressSorting\":true,\"errorCount\":0,\"firstError\":null,\"colType\":\"STRING\",\"colTypeSign\":\"ABC\",\"isList\":false,\"suppressSizeToFit\":true,\"minWidth\":10,\"maxWidth\":2000,\"halign\":\"left\"},{\"colId\":\"32\",\"field\":\"{\\\"type\\\":\\\"n\\\",\\\"columnName\\\":\\\"book.title\\\"}\",\"headerName\":\"book.title\",\"hide\":false,\"suppressSorting\":true,\"errorCount\":0,\"firstError\":null,\"colType\":\"STRING\",\"colTypeSign\":\"ABC\",\"isList\":false,\"suppressSizeToFit\":true,\"minWidth\":10,\"maxWidth\":2000,\"halign\":\"left\"},{\"colId\":\"34\",\"field\":\"{\\\"type\\\":\\\"n\\\",\\\"columnName\\\":\\\"book.genre\\\"}\",\"headerName\":\"book.genre\",\"hide\":false,\"suppressSorting\":true,\"errorCount\":0,\"firstError\":null,\"colType\":\"STRING\",\"colTypeSign\":\"ABC\",\"isList\":false,\"suppressSizeToFit\":true,\"minWidth\":10,\"maxWidth\":2000,\"halign\":\"left\"},{\"colId\":\"36\",\"field\":\"{\\\"type\\\":\\\"n\\\",\\\"columnName\\\":\\\"book.price\\\"}\",\"headerName\":\"book.price\",\"hide\":false,\"suppressSorting\":true,\"errorCount\":0,\"firstError\":null,\"colType\":\"DECIMAL\",\"colTypeSign\":\"123\",\"isList\":false,\"suppressSizeToFit\":true,\"minWidth\":10,\"maxWidth\":2000,\"halign\":\"right\"},{\"colId\":\"38\",\"field\":\"{\\\"type\\\":\\\"n\\\",\\\"columnName\\\":\\\"book.publish_date\\\"}\",\"headerName\":\"book.publish_date\",\"hide\":false,\"suppressSorting\":true,\"errorCount\":0,\"firstError\":null,\"colType\":\"DATE\",\"colTypeSign\":\"Jan\",\"isList\":false,\"suppressSizeToFit\":true,\"minWidth\":10,\"maxWidth\":2000,\"halign\":\"right\"},{\"colId\":\"40\",\"field\":\"{\\\"type\\\":\\\"n\\\",\\\"columnName\\\":\\\"book.description\\\"}\",\"headerName\":\"book.description\",\"hide\":false,\"suppressSorting\":true,\"errorCount\":0,\"firstError\":null,\"colType\":\"STRING\",\"colTypeSign\":\"ABC\",\"isList\":false,\"suppressSizeToFit\":true,\"minWidth\":10,\"maxWidth\":2000,\"halign\":\"left\"}]";
                     }
                     return JSON.parse(colDef);
                 }
+
                 var colDef = getColDef();
 
                 function prepareData(result) {
                     var res = [];
-                    result.data.children.forEach(function(c) {
+                    (result.data.children || result.data).forEach(function(c) {
                         var forPush = {};
-                        var keys = Object.keys(c.data);
+                        var data = c.data || c;
+                        var keys = Object.keys(data);
 
                         keys.forEach(function(d) {
                             // return forPush[d] = c.data[keys[Math.floor(Math.random() * keys.length)]];
-                            return forPush[d] = c.data[d];
+                            return forPush[d] = data[d];
                         });
                         res.push(forPush);
                     });
@@ -58,7 +60,7 @@
 
                 function prepareSchema(result) {
                     var res = [];
-                    result.headers.children.forEach(function(h) {
+                    (result.headers && result.headers.children || result.descriptor && result.descriptor.columns).forEach(function(h) {
                         res.push({ header: h.key, name: h.key });
                     });
                     return res;
@@ -106,7 +108,7 @@
                     },
                     onUpdateColumnName: function(column, renameTo) {
                         console.log('onUpdateColumnName', column, renameTo);
-                        var singleColDef = colDef.find(function (cd) {
+                        var singleColDef = colDef.find(function(cd) {
                             return cd.colId === column.name;
                         });
 
@@ -117,27 +119,27 @@
                             console.log('column', column);
                             var colDefLength = colDef.length + 1;
                             colDef.push({
-                                colId:"c" + colDefLength,
-                                field:"c" + colDefLength,
-                                originalField:"c" + colDefLength,
-                                headerName:renameTo,
-                                suppressSorting:false,
-                                minWidth:10,
-                                maxWidth:2000,
-                                suppressMenu:0,
-                                suppressMovable:false,
-                                suppressSizeToFit:false,
-                                sort:null,
-                                sortedAt:null,
-                                columnGroupShow:"open",
-                                pinned:"left"
+                                colId: "c" + colDefLength,
+                                field: "c" + colDefLength,
+                                originalField: "c" + colDefLength,
+                                headerName: renameTo,
+                                suppressSorting: false,
+                                minWidth: 10,
+                                maxWidth: 2000,
+                                suppressMenu: 0,
+                                suppressMovable: false,
+                                suppressSizeToFit: false,
+                                sort: null,
+                                sortedAt: null,
+                                columnGroupShow: "open",
+                                pinned: "left"
                             });
 
                             localStorage.setItem(LOCAL_STORAGE_COLUMNS_DEF, JSON.stringify(colDef));
                         }
                     },
                     onRemoveColumn: function(column) {
-                        var singleColDef = colDef.find(function (cd) {
+                        var singleColDef = colDef.find(function(cd) {
                             return cd.colId === column.name;
                         });
 
@@ -147,7 +149,85 @@
                         } else {
                             console.error('no coldDef', colDef, column);
                         }
-                    }
+                    },
+                    getMainMenuItems: (params) => [
+                        {
+                            "name": "Data Type: <span class=\"ag-grid-selected-type \">Text </span>",
+                            "childMenu": [
+                                {
+                                    "name": "<span class=\"capitalized-text\">Text</span>",
+                                    "icon": "<i class=\"fa fa-fw fa-check\"></i>"
+                                },
+                                {
+                                    "name": "<span class=\"capitalized-text\">Number</span>",
+                                    "icon": "<i class=\"fa fa-fw\"></i>"
+                                },
+                                {
+                                    "name": "<span class=\"capitalized-text\">Date/Time</span>",
+                                    "icon": "<i class=\"fa fa-fw\"></i>"
+                                },
+                                "separator",
+                                {
+                                    "name": "<span class=\"capitalized-text disabled\">List field: no</span>",
+                                    "childMenu": [
+                                        {
+                                            "name": "Not a list field",
+                                            "icon": "<i class=\"fa fa-fw fa-check\"></i>"
+                                        },
+                                        {
+                                            "name": "\n                        <span class=\"split-character\">,</span>\n                        <span class=\"split-character-description\">(comma)</span>\n                        ",
+                                            "icon": "<i class=\"fa fa-fw \"></i>"
+                                        },
+                                        {
+                                            "name": "\n                        <span class=\"split-character\">:</span>\n                        <span class=\"split-character-description\">(colon)</span>\n                        ",
+                                            "icon": "<i class=\"fa fa-fw \"></i>"
+                                        },
+                                        {
+                                            "name": "\n                        <span class=\"split-character\">;</span>\n                        <span class=\"split-character-description\">(semi-color)</span>\n                        ",
+                                            "icon": "<i class=\"fa fa-fw \"></i>"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        "separator",
+                        {
+                            "name": "Search Type: <span class=\"ag-grid-selected-type\"><span class=\"hl\">edge</span> search</span>",
+                            "childMenu": [
+                                {
+                                    "name": "off",
+                                    "icon": "<i class=\"fa fa-fw\"></i>"
+                                },
+                                {
+                                    "name": "<span class=\"hl\">exact match</span>",
+                                    "icon": "<i class=\"fa fa-fw\"></i>"
+                                },
+                                {
+                                    "name": "<span class=\"hl\">edge</span> search",
+                                    "icon": "<i class=\"fa fa-fw fa-check\"></i>"
+                                },
+                                {
+                                    "name": "full in<span class=\"hl\">ner</span> search",
+                                    "icon": "<i class=\"fa fa-fw\"></i>"
+                                }
+                            ]
+                        },
+                        "separator",
+                        {
+                            "name": "Rename"
+                        },
+                        {
+                            "name": "Remove"
+                        }
+                    ],
+                    getContextMenuItems: (params) => [
+                        {
+                            "name": "Copy"
+                        },
+                        {
+                            "name": "Copy With Headers"
+                        }
+                    ]
                 };
                 window.grid = window.grid || new fin.Hypergrid(div, options);
 
@@ -161,8 +241,9 @@
 
                     window.grid.api.attachLinkToDataCell(1, 1, 'https://google.com');
                     window.grid.api.attachLinkToDataCell(1, 2, 'https://google.com');
-                    setTimeout(appendData, 5000);
+                    // setTimeout(appendData, 5000);
                 }
+
                 appendData();
                 // setTimeout(appendData, 100);
             });

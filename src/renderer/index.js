@@ -1276,8 +1276,8 @@ var Renderer = Base.extend('Renderer', {
             config.headerPrefix = cellEvent.column.schema ? cellEvent.column.schema.headerPrefix : undefined;
         }
 
-        if (!config.displayedTypeSign) {
-            config.displayedTypeSign = cellEvent.column.schema ? cellEvent.column.schema.displayedTypeSign : undefined;
+        if (!config.colTypeSign) {
+            config.colTypeSign = cellEvent.column.schema ? cellEvent.column.schema.colTypeSign : undefined;
         }
 
         if (grid.mouseDownState) {
