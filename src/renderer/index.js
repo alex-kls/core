@@ -971,25 +971,77 @@ var Renderer = Base.extend('Renderer', {
     },
 
     /**
+     * Draws a rounded rectangle using the current state of the canvas.
+     * If you omit the last three params, it will draw a rectangle
+     * outline with a 5 pixel border radius
+     * @param {CanvasRenderingContext2D} gc
+     * @param {Number} x The top left x coordinate
+     * @param {Number} y The top left y coordinate
+     * @param {Number} width The width of the rectangle
+     * @param {Number} height The height of the rectangle
+     * @param {Number} [radius = 5] The corner radius; It can also be an object
+     *                 to specify different radii for corners
+     * @param {Number} [radius.tl = 0] Top left
+     * @param {Number} [radius.tr = 0] Top right
+     * @param {Number} [radius.br = 0] Bottom right
+     * @param {Number} [radius.bl = 0] Bottom left
+     * @param {Boolean} [fill = false] Whether to fill the rectangle.
+     * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
+    */
+    renderRoundRect: function(gc, x, y, width, height, radius, fill, stroke) {
+        if (typeof stroke === 'undefined') {
+            stroke = true;
+        }
+        if (typeof radius === 'undefined') {
+            radius = 5;
+        }
+        if (typeof radius === 'number') {
+            radius = {tl: radius, tr: radius, br: radius, bl: radius};
+        } else {
+            let defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+            for (let side in defaultRadius) {
+                radius[side] = radius[side] || defaultRadius[side];
+            }
+        }
+        gc.beginPath();
+        gc.moveTo(x + radius.tl, y);
+        gc.lineTo(x + width - radius.tr, y);
+        gc.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+        gc.lineTo(x + width, y + height - radius.br);
+        gc.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+        gc.lineTo(x + radius.bl, y + height);
+        gc.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+        gc.lineTo(x, y + radius.tl);
+        gc.quadraticCurveTo(x, y, x + radius.tl, y);
+        gc.closePath();
+        if (fill) {
+            gc.fill();
+        }
+        if (stroke) {
+            gc.stroke();
+        }
+    },
+
+    /**
      * @memberOf Renderer.prototype
      * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw grid lines here.
      * @param {CanvasRenderingContext2D} gc
      */
     paintGridlines: function(gc) {
-        var visibleColumns = this.visibleColumns,
+        const visibleColumns = this.visibleColumns,
             columnsLength = visibleColumns.length,
             visibleRows = this.visibleRows,
             rowsLength = visibleRows.length;
 
         if (columnsLength && rowsLength) {
-            var gridProps = this.properties,
+            const gridProps = this.properties,
                 viewWidth = visibleColumns[columnsLength - 1].right,
                 viewHeight = visibleRows[rowsLength - 1].bottom;
 
             if (gridProps.gridLinesV) {
                 gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesVColor;
 
-                for (var right, vc = visibleColumns[0], c = 0; c < columnsLength; c++) {
+                for (let right, vc = visibleColumns[0], c = 0; c < columnsLength; c++) {
                     vc = visibleColumns[c];
                     right = vc.right;
                     if (!vc.gap) {
@@ -1000,7 +1052,7 @@ var Renderer = Base.extend('Renderer', {
 
             if (gridProps.gridLinesH) {
                 gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesHColor;
-                for (var bottom, vr = visibleRows[0], r = 0; r < rowsLength; r++) {
+                for (let bottom, vr = visibleRows[0], r = 0; r < rowsLength; r++) {
                     vr = visibleRows[r];
                     bottom = vr.bottom;
                     if (!vr.gap) {
@@ -1009,8 +1061,8 @@ var Renderer = Base.extend('Renderer', {
                 }
             }
 
-            var edgeWidth;
-            var gap = visibleRows.gap;
+            let edgeWidth;
+            let gap = visibleRows.gap;
             if (gap) {
                 gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.fixedLinesHColor || gridProps.gridLinesHColor;
                 edgeWidth = gridProps.fixedLinesHEdge;

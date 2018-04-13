@@ -156,8 +156,28 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             textRightPadding += config.contextMenuLeftSpaceToCutText;
         }
 
-        if (config.showCellContextMenuIcon) {
-            // gc.cache.fillStyle = textColor;
+        if (config.showCellContextMenuIcon && config.isCellHovered && renderValue) {
+            if (config.contextMenuIconIsHovered) {
+                gc.cache.strokeStyle = '#C6C6C6';
+                gc.cache.fillStyle = '#F8F8F8';
+            } else {
+                gc.cache.strokeStyle = '#E5E5E5';
+                gc.cache.fillStyle = '#F8F8F8';
+            }
+
+            let buttonStartY = y + (height / 2 - config.contextMenuButtonHeight / 2);
+            let buttonContentWidth = gc.measureText(config.contextMenuIconUnicodeChar).width
+                + 2 * config.contextMenuButtonPadding;
+
+            let buttonStartX = x + width - config.contextMenuButtonRightMargin - buttonContentWidth;
+            this.roundRect(gc,
+                buttonStartX,
+                buttonStartY,
+                buttonContentWidth,
+                config.contextMenuButtonHeight,
+                1,
+                true);
+
             let prevFontState = gc.cache.font,
                 prevFillStyleState = gc.cache.fillStyle;
 
@@ -172,14 +192,17 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             let configClone = Object.assign({}, config);
             configClone.halign = 'right';
 
-            textRightPadding += renderSingleLineText(gc,
+            let iconRightPadding = x + width - (buttonStartX + buttonContentWidth) + config.contextMenuButtonPadding / 2;
+            renderSingleLineText(gc,
                 configClone,
                 config.contextMenuIconUnicodeChar,
                 leftPadding,
-                rightPadding + config.contextMenuIconMarginRight);
+                iconRightPadding);
 
             gc.cache.font = prevFontState;
             gc.cache.fillStyle = prevFillStyleState;
+
+            textRightPadding += buttonContentWidth;
         }
 
         if (config.showColumnType && config.displayedTypeSign) {
@@ -205,8 +228,8 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.cache.font = config.columnTitlePrefixFont;
             gc.cache.fillStyle = config.columnTitlePrefixColor;
 
-            leftPadding += renderSingleLineText(gc, config, config.headerPrefix, leftPadding, textRightPadding);
-            leftPadding += gc.measureText(config.headerPrefix).width;
+            renderSingleLineText(gc, config, config.headerPrefix, leftPadding, textRightPadding);
+            leftPadding += gc.measureText(config.headerPrefix).width + config.columnTitlePrefixRightSpace;
 
             gc.cache.font = prevFontState;
             gc.cache.fillStyle = prevFillStyleState;

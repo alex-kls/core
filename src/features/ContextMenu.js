@@ -137,16 +137,19 @@ var ContextMenu = Feature.extend('ContextMenu', {
             || (event.cellOwnProperties && event.cellOwnProperties.showCellContextMenuIcon);
         let eventCellRightX = event.bounds.width;
         let contextMenuIconRightX = eventCellRightX
-            - grid.properties.cellPaddingRight
-            - grid.properties.contextMenuIconMarginRight
-            - grid.properties.contextMenuIconPreferedWidth;
-        let contextMenuIconLeftX = eventCellRightX - grid.properties.cellPaddingRight;
+            - grid.properties.contextMenuButtonRightMargin;
+        let contextMenuIconLeftX = contextMenuIconRightX
+            - grid.properties.contextMenuIconPreferedWidth
+            - (grid.properties.contextMenuButtonPadding * 2);
+
+        let contextMenuIconTopY = event.bounds.height / 2 - grid.properties.contextMenuButtonHeight / 2;
+        let contextMenuIconBottomY = contextMenuIconTopY + grid.properties.contextMenuButtonHeight;
 
         return cellHasContextMenuItem
-            && event.mousePoint.x >= contextMenuIconRightX
-            && event.mousePoint.x <= contextMenuIconLeftX
-            && event.mousePoint.y <= event.bounds.height
-            && event.mousePoint.y >= 0;
+            && event.mousePoint.x <= contextMenuIconRightX
+            && event.mousePoint.x >= contextMenuIconLeftX
+            && event.mousePoint.y <= contextMenuIconBottomY
+            && event.mousePoint.y >= contextMenuIconTopY;
     },
 
     /**

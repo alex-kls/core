@@ -903,7 +903,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    rowHeaderStartDisplayedIndex: 0,
+    rowHeaderStartDisplayedIndex: 1,
 
     /**
      * @default
@@ -1874,7 +1874,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    contextMenuIconFont: 'normal normal lighter 16px fontAwesome',
+    contextMenuIconFont: 'normal normal lighter 14px fontAwesome',
 
     /**
      * @desc if true, context menu icon style will be set to hovered
@@ -1891,7 +1891,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    contextMenuIconColor: '#E5E5E5',
+    contextMenuIconColor: '#BDBDBD',
 
     /**
      * @desc Color of context menu icon, when hovered
@@ -1899,7 +1899,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    contextMenuIconHoveredColor: '#595959',
+    contextMenuIconHoveredColor: '#616161',
 
     /**
      * @desc String, that will be displayed as context menu icon
@@ -1908,7 +1908,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    contextMenuIconUnicodeChar: unescape('\uf150'),
+    contextMenuIconUnicodeChar: decodeURI('\uf0d7'),
 
     /**
      * @desc Space from right border of the cell to context menu icon
@@ -1926,6 +1926,30 @@ var defaults = {
      * @memberOf module:defaults
      */
     contextMenuIconPreferedWidth: 5,
+
+    /**
+     * @desc space between cell right border and button
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    contextMenuButtonRightMargin: 5,
+
+    /**
+     * @desc context menu button height
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    contextMenuButtonHeight: 12,
+
+    /**
+     * @desc space between context menu button content and border
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    contextMenuButtonPadding: 3,
 
     /**
      * @desc Space from context menu icon to main text of cell
@@ -1965,7 +1989,15 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    columnTitlePrefixColor: '#818181'
+    columnTitlePrefixColor: '#818181',
+
+    /**
+     * @desc Space from context menu icon to main text of cell
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    columnTitlePrefixRightSpace: 3,
 };
 
 
