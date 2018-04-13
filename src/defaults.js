@@ -1619,6 +1619,18 @@ var defaults = {
     },
 
     /**
+     * @desc style object horizontal line (separator) that used to separate one items group from another
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
+    contextMenuSeparatorStyle: {
+        display: 'block',
+        borderTop: '1px solid #E5E5E5',
+        margin: '5px 0'
+    },
+
+    /**
      * @desc header part color of an column fixation dragger, when dragger state is inactive
      * @default
      * @type {cssColor}

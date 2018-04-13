@@ -225,105 +225,121 @@ var ContextMenu = Feature.extend('ContextMenu', {
             }
         }
 
-        var self = this;
+        const self = this;
 
-        var menuOption = document.createElement('div');
+        const menuOption = document.createElement('div');
         menuOption.style.display = 'block';
 
         menuOption.setAttribute('class', 'ag-menu-option');
 
-        var menuOptionIconSpan = document.createElement('span');
-        menuOptionIconSpan.setAttribute('class', 'ag-menu-option-icon');
-        menuOptionIconSpan.setAttribute('id', 'eIcon');
-        menuOption.appendChild(menuOptionIconSpan);
-
-        var menuOptionNameSpan = document.createElement('span');
-        menuOptionNameSpan.setAttribute('class', 'ag-menu-option-text');
-        menuOptionNameSpan.setAttribute('id', 'eName');
-        menuOptionNameSpan.innerHTML = item.title || item.name;
-        menuOption.appendChild(menuOptionNameSpan);
-
-        var menuOptionShortcutSpan = document.createElement('span');
-        menuOptionShortcutSpan.setAttribute('class', 'context-menu-option-shortcut');
-        menuOptionShortcutSpan.setAttribute('id', 'eShortcut');
-        menuOption.appendChild(menuOptionShortcutSpan);
-
-        var menuOptionPopupPointerSpan = document.createElement('span');
-        menuOptionPopupPointerSpan.setAttribute('class', 'context-menu-option-popup-pointer');
-        menuOptionPopupPointerSpan.setAttribute('id', 'ePopupPointer');
-
-        if (item.childMenu && item.childMenu.length) {
-            menuOptionPopupPointerSpan.innerHTML = '->';
-        }
-
-        menuOption.appendChild(menuOptionPopupPointerSpan);
-
-        menuOption.addEventListener('click', function(clickEvent) {
-            if (item.action) {
-                item.action(clickEvent, event);
-            }
-            self.hideContextMenu(menuHolderDiv);
-        });
-
-        if (grid.properties.applyContextMenuStyling){
-            if (grid.properties.contextMenuListOptionStyle) {
-                Object.assign(menuOption.style, grid.properties.contextMenuListOptionStyle);
+        if (typeof item === 'object') {
+            const menuOptionIconSpan = document.createElement('span');
+            menuOptionIconSpan.setAttribute('class', 'ag-menu-option-icon');
+            menuOptionIconSpan.setAttribute('id', 'eIcon');
+            menuOption.appendChild(menuOptionIconSpan);
+            if (item.icon) {
+                menuOptionIconSpan.innerHTML = item.icon;
             }
 
-            if (grid.properties.contextMenuListOptionIconStyle) {
-                Object.assign(menuOptionIconSpan.style, grid.properties.contextMenuListOptionIconStyle);
+            const menuOptionNameSpan = document.createElement('span');
+            menuOptionNameSpan.setAttribute('class', 'ag-menu-option-text');
+            menuOptionNameSpan.setAttribute('id', 'eName');
+            menuOptionNameSpan.innerHTML = item.title || item.name;
+            menuOption.appendChild(menuOptionNameSpan);
+
+            const menuOptionShortcutSpan = document.createElement('span');
+            menuOptionShortcutSpan.setAttribute('class', 'context-menu-option-shortcut');
+            menuOptionShortcutSpan.setAttribute('id', 'eShortcut');
+            menuOption.appendChild(menuOptionShortcutSpan);
+
+            const menuOptionPopupPointerSpan = document.createElement('span');
+            menuOptionPopupPointerSpan.setAttribute('class', 'context-menu-option-popup-pointer');
+            menuOptionPopupPointerSpan.setAttribute('id', 'ePopupPointer');
+
+            if (item.childMenu && item.childMenu.length) {
+                menuOptionPopupPointerSpan.innerHTML = '<i class="fa fa-caret-right"></i>';
             }
 
-            if (grid.properties.contextMenuListOptionTextStyle) {
-                Object.assign(menuOptionNameSpan.style, grid.properties.contextMenuListOptionTextStyle);
+            menuOption.appendChild(menuOptionPopupPointerSpan);
+
+            menuOption.addEventListener('click', function(clickEvent) {
+                if (item.action) {
+                    item.action(clickEvent, event);
+                }
+                self.hideContextMenu(menuDiv);
+            });
+
+            if (grid.properties.applyContextMenuStyling){
+                if (grid.properties.contextMenuListOptionStyle) {
+                    Object.assign(menuOption.style, grid.properties.contextMenuListOptionStyle);
+                }
+
+                if (grid.properties.contextMenuListOptionIconStyle) {
+                    Object.assign(menuOptionIconSpan.style, grid.properties.contextMenuListOptionIconStyle);
+                }
+
+                if (grid.properties.contextMenuListOptionTextStyle) {
+                    Object.assign(menuOptionNameSpan.style, grid.properties.contextMenuListOptionTextStyle);
+                }
+
+                if (grid.properties.contextMenuListOptionShortcutStyle) {
+                    Object.assign(menuOptionShortcutSpan.style, grid.properties.contextMenuListOptionShortcutStyle);
+                }
+
+                if (grid.properties.contextMenuListOptionPopupPointerStyle) {
+                    Object.assign(menuOptionPopupPointerSpan.style, grid.properties.contextMenuListOptionPopupPointerStyle);
+                }
             }
 
-            if (grid.properties.contextMenuListOptionShortcutStyle) {
-                Object.assign(menuOptionShortcutSpan.style, grid.properties.contextMenuListOptionShortcutStyle);
-            }
+            menuOption.addEventListener('mouseenter', function(event){
+                if (item.childMenu &&
+                    item.childMenu.length &&
+                    !item.childMenuDiv) {
+                    item.childMenuDiv = self.initializeContextMenuDiv();
 
-            if (grid.properties.contextMenuListOptionPopupPointerStyle) {
-                Object.assign(menuOptionPopupPointerSpan.style, grid.properties.contextMenuListOptionPopupPointerStyle);
+                    menuHolderDiv.related.push(item.childMenuDiv);
+
+                    const rectangle = menuOption.getBoundingClientRect();
+                    const rightBorderX = rectangle.right;
+                    if ((rightBorderX + 200) > window.innerWidth) {
+                        self.paintContextMenu(item.childMenuDiv, grid, event, item.childMenu, rectangle.left, rectangle.top, true);
+                    } else {
+                        self.paintContextMenu(item.childMenuDiv, grid, event, item.childMenu, rightBorderX, rectangle.top);
+                    }
+                }
+            });
+
+            menuOption.addEventListener('mouseover', function(event){
+                if (grid.properties.applyContextMenuStyling && grid.properties.contextMenuListOptionHoverStyle){
+                    Object.assign(menuOption.style, grid.properties.contextMenuListOptionHoverStyle);
+                }
+            });
+
+            menuOption.addEventListener('mouseleave', function(event){
+                if (grid.properties.applyContextMenuStyling && grid.properties.contextMenuListOptionStyle){
+                    Object.assign(menuOption.style, grid.properties.contextMenuListOptionStyle);
+                }
+
+                if (item.childMenuDiv && !self.isElementContainsChild(item.childMenuDiv.element, event.relatedTarget)) {
+                    self.hideContextMenu(item.childMenuDiv);
+                    self.removeDOMElement(item.childMenuDiv.element);
+                    item.childMenuDiv = null;
+                }
+            });
+        } else if (item === 'separator') {
+            menuOption.className = 'ag-menu-separator';
+
+            let hrElement = document.createElement('hr');
+            menuOption.appendChild(hrElement);
+
+            if (grid.properties.applyContextMenuStyling) {
+                if (grid.properties.contextMenuSeparatorStyle) {
+                    Object.assign(hrElement.style, grid.properties.contextMenuSeparatorStyle);
+                }
             }
         }
 
         menuListHolderDiv.appendChild(menuOption);
-
-        menuOption.addEventListener('mouseenter', function(event){
-            if (item.childMenu &&
-                item.childMenu.length &&
-                !item.childMenuDiv) {
-                item.childMenuDiv = self.initializeContextMenuDiv();
-
-                menuHolderDiv.related.push(item.childMenuDiv);
-
-                var rectangle = menuOption.getBoundingClientRect();
-                var rightBorderX = rectangle.right;
-                if ((rightBorderX + 200) > window.innerWidth) {
-                    self.paintContextMenu(item.childMenuDiv, grid, event, item.childMenu, rectangle.left, rectangle.top, true);
-                } else {
-                    self.paintContextMenu(item.childMenuDiv, grid, event, item.childMenu, rightBorderX, rectangle.top);
-                }
-            }
-        });
-
-        menuOption.addEventListener('mouseover', function(event){
-            if (grid.properties.applyContextMenuStyling && grid.properties.contextMenuListOptionHoverStyle){
-                Object.assign(menuOption.style, grid.properties.contextMenuListOptionHoverStyle);
-            }
-        });
-
-        menuOption.addEventListener('mouseleave', function(event){
-            if (grid.properties.applyContextMenuStyling && grid.properties.contextMenuListOptionStyle){
-                Object.assign(menuOption.style, grid.properties.contextMenuListOptionStyle);
-            }
-
-            if (item.childMenuDiv && !self.isElementContainsChild(item.childMenuDiv.element, event.relatedTarget)) {
-                self.hideContextMenu(item.childMenuDiv);
-                self.removeDOMElement(item.childMenuDiv.element);
-                item.childMenuDiv = null;
-            }
-        });
     },
 
     /**
