@@ -103,20 +103,16 @@ var Local = Behavior.extend('Local', {
             if (d[key]) {
                 const dataProps = this.getRowProperties(i) || props;
                 gc.cache.font = dataProps.font;
-                let textWidth = gc.getTextWidth(formatter(d[key], dataProps)) + props.cellPaddingLeft + props.cellPaddingRight;
+                let textWidth = gc.getTextWidth(formatter(d[key], Object.assign({}, dataProps, { dataRow: d }))) + props.cellPaddingLeft + props.cellPaddingRight;
 
                 if (dataProps.showCellContextMenuIcon) {
                     gc.cache.font = props.contextMenuIconFont;
-                    const additional = gc.measureText(props.contextMenuIconUnicodeChar).width + 2 * props.contextMenuButtonPadding;
-                    console.log(props.contextMenuIconUnicodeChar, additional);
-                    textWidth += additional + 3;
+                    textWidth += gc.getTextWidth(props.contextMenuIconUnicodeChar) + 2 * props.contextMenuButtonPadding + props.contextMenuLeftSpaceToCutText;
                 }
 
                 if (dataProps.showColumnType && column.schema.colTypeSign) {
                     gc.cache.font = props.columnTypeSignFont;
-                    const additional = gc.getTextWidth(column.schema.colTypeSign);
-                    console.log(props.colTypeSign, additional);
-                    textWidth += additional + 3;
+                    textWidth += gc.getTextWidth(column.schema.colTypeSign) + props.cellPaddingRight;
                 }
 
                 if (textWidth > width) {

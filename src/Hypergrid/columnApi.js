@@ -43,7 +43,7 @@ function changePinnedRange(countToPin) {
 
 function getAllColumns() {
     console.log('getAllColumns');
-    return this.getActiveColumns();
+    return this.getActiveColumns().filter(c => c.colDef);
 }
 
 function resetColumnState() {

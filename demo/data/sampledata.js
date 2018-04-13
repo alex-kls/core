@@ -50,7 +50,7 @@
         };
         person.squareOfIncome = function() {
             return Math.sqrt(person.income);
-        }
+        };
         // person.squareOfIncome1 = function() {
         //     return Math.sqrt(person.income);
         // }
@@ -59,7 +59,7 @@
 
     var data1 = [];
     var data2 = [];
-    for (var i = 0; i < numRows/2; i++) {
+    for (var i = 0; i < numRows / 2; i++) {
         data1.push(randomPerson());
     }
     for (var i = 0; i < numRows; i++) {

@@ -98,6 +98,10 @@ Column.prototype = {
         return this.schema.name;
     },
 
+    get colDef() {
+        return this.behavior.grid.getColDef(this.name);
+    },
+
     /**
      * @summary Get or set the text of the column's header.
      * @desc The _header_ is the label at the top of the column.

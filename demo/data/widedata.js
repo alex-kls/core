@@ -12,9 +12,9 @@
     var randomFunc = Math.random;
     //var randomFunc = rnd;
 
-    var rnd = function (max) {
+    var rnd = function(max) {
         return Math.floor(randomFunc() * max);
-    }
+    };
 
     var randomPerson = function() {
         var firstName = Math.round((firstNames.length - 1) * randomFunc());
@@ -33,7 +33,7 @@
         var employed = Math.round(randomFunc());
 
         //Use this to test Sparkline or Sparkbar
-        var sparkData =  (function () {
+        var sparkData =  (function() {
             var barRandomOffsets = [];
             //for (var i = 0; i < 20; i++) {
             //    barRandomOffsets.push([]);
@@ -42,8 +42,8 @@
                     barRandomOffsets.push(10 - rnd(20));
                 }
             //}
-            return barRandomOffsets
-        })()
+            return barRandomOffsets;
+        })();
         var sliderData = Math.round(randomFunc() * 11);
         var person = {
             last_name: lastNames[lastName], //jshint ignore:line
@@ -165,7 +165,7 @@
         };
         person.squareOfIncome = function() {
             return Math.sqrt(person.income);
-        }
+        };
         return person;
     };
 
@@ -175,7 +175,7 @@
     }
     window.people2 = data;
     data = [];
-    for (var i = 0; i < numRows/2; i++) {
+    for (var i = 0; i < numRows / 2; i++) {
         data.push(randomPerson());
     }
     window.people1 = data;

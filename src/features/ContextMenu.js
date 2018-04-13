@@ -35,6 +35,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
 
         menuHolderDiv.style.display = 'none';
         menuHolderDiv.style.position = 'fixed';
+        menuHolderDiv.setAttribute('class', 'ag-custom');
 
         document.body.appendChild(menuHolderDiv);
 
@@ -183,6 +184,8 @@ var ContextMenu = Feature.extend('ContextMenu', {
         this.hideContextMenu(menuHolderDiv);
 
         var menuListHolderDiv = document.createElement('div');
+
+        menuListHolderDiv.setAttribute('class', 'ag-menu');
 
         menuHolderDiv.element.appendChild(menuListHolderDiv);
 

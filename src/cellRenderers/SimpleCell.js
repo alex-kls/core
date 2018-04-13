@@ -192,7 +192,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             let configClone = Object.assign({}, config);
             configClone.halign = 'right';
 
-            let iconRightPadding = x + width - (buttonStartX + buttonContentWidth) + config.contextMenuButtonPadding / 2;
+            let iconRightPadding = x + width - (buttonStartX + buttonContentWidth) + config.contextMenuButtonPadding / 2 + 1;
             renderSingleLineText(gc,
                 configClone,
                 config.contextMenuIconUnicodeChar,
