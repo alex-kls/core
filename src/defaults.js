@@ -1477,7 +1477,7 @@ var defaults = {
                     grid.onRemoveColumn(column);
                 }
 
-                const singleColDef = colDef.find(cd => cd.colId === column.name);
+                const singleColDef = grid.getColDef(column.name);
 
                 // remove if it isn't removed in 'onRemoveColumn' callback
                 if (singleColDef) {

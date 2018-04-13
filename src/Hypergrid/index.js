@@ -1911,6 +1911,13 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     get charMap() {
         return this.behavior.charMap;
+    },
+
+    getColDef: function(name) {
+        if (!this.columnDefs) {
+            return;
+        }
+        return this.columnDefs.find(cd => cd.field === name);
     }
 });
 

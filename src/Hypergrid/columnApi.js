@@ -10,7 +10,7 @@ function setColumnVisible(key, visible) {
     const colDef = this.columnDefs;
 
     if (!visible) {
-        const singleColDef = colDef.find(cd => cd.colId === key);
+        const singleColDef = this.getColDef(key);
 
         // remove if it isn't removed in 'onRemoveColumn' callback
         if (singleColDef) {
@@ -23,11 +23,9 @@ function setColumnVisible(key, visible) {
 function setColumnsVisible(keys, visible) {
     console.log('setColumnsVisible', keys, visible);
     var colDef = this.columnDefs;
-    keys.forEach(function(key) {
+    keys.forEach((key) => {
         if (!visible) {
-            var singleColDef = colDef.find(function(cd) {
-                return cd.colId === key;
-            });
+            var singleColDef = this.getColDef(key);
 
             // remove if it isn't removed in 'onRemoveColumn' callback
             if (singleColDef) {

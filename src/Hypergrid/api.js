@@ -331,19 +331,20 @@ function setDatasource(datasource) {
     console.log('setDatasource', datasource);
     this.api.datasource = datasource;
 
-    const setRowData = this.api.setRowData;
-
     const startRow = this.data.length;
 
     if (startRow < datasource.totalSize) {
         const params = {
             startRow: startRow, // replace with correct getter
             endRow: startRow + this.paginationPageSize, // replace with correct getter
-            successCallback: function(rows, lastRowIndex) {
-                setRowData(rows, lastRowIndex);
+            successCallback: (rows, lastRowIndex) => {
+                console.log('successCallback', rows, lastRowIndex);
+                [].push.apply(this.data, rows);
+                this.addData({ data: rows });
             },
             failCallback: function() {
-                setRowData([]);
+                console.log('failCallback');
+                this.addData({ data: [] });
             },
             sortModel: datasource.sortModel,
             filterModel: {},
