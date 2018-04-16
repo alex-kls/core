@@ -293,31 +293,32 @@ exports.mixin = {
     },
 
     getSelectionMatrix: function() {
-        var behavior = this.behavior,
-            dataModel = behavior.dataModel,
-            selections = this.getSelections(),
-            rects = new Array(selections.length);
+        const behavior = this.behavior;
+        const dataModel = behavior.dataModel;
+        const selections = this.getSelections();
+        const rects = new Array(selections.length);
 
-        selections.forEach(getRect);
+        selections.forEach((selectionRect, i) => {
+            const rect = normalizeRect(selectionRect);
+            const colCount = rect.extent.x + 1;
+            const rowCount = rect.extent.y + 1;
+            const rows = [];
 
-        function getRect(selectionRect, i) {
-            var rect = normalizeRect(selectionRect),
-                colCount = rect.extent.x + 1,
-                rowCount = rect.extent.y + 1,
-                rows = [];
+            for (let c = 0, x = rect.origin.x; c < colCount; c++, x++) {
+                const values = rows[c] = new Array(rowCount);
+                const column = behavior.getActiveColumn(x);
 
-            for (var c = 0, x = rect.origin.x; c < colCount; c++, x++) {
-                var values = rows[c] = new Array(rowCount),
-                    column = behavior.getActiveColumn(x);
-
-                for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
-                    var dataRow = dataModel.getRow(y);
+                for (let r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
+                    const dataRow = dataModel.getRow(y);
                     values[r] = valOrFunc(dataRow, column);
+                }
+                if (this.copyIncludeHeaders) {
+                    values.unshift(column.colDef.headerName);
                 }
             }
 
             rects[i] = rows;
-        }
+        });
 
         return rects;
     },
@@ -561,7 +562,11 @@ exports.mixin = {
             let to = Math.max(...columns); // -Ifinity if empty
 
             if (from >= 0 && to >= 0) {
-                this.api.rangeController.selectedCols = this.columnDefs.slice(from, to + 1).map(colDef => ({ colDef, colId: colDef.colId }));
+                this.api.rangeController.selectedCols = this.columnDefs.slice(from, to + 1).map(colDef => ({
+                    colDef,
+                    colId: colDef.colId,
+                    id: colDef.colId
+                }));
             } else {
                 this.api.rangeController.selectedCols = [];
             }

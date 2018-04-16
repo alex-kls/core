@@ -230,6 +230,7 @@ function setColumnDefs(colDefs) {
     });
     this.allowEvents(true);
     this.behavior.dataModel.setSchema(schema.schema);
+    this.clearSelections();
 }
 
 function setRowData(rowData) {
@@ -256,7 +257,7 @@ function sizeColumnsToFit() {
 }
 
 function destroy(total) {
-    console.log('destroy');
+    console.log('destroy', total);
 
     this.cancelEditing();
 
@@ -286,6 +287,9 @@ function getRangeSelections() {
 
 function copySelectedRangeToClipboard(includeHeaders) {
     console.log('copySelectedRangeToClipboard', includeHeaders);
+    this.copyIncludeHeaders = includeHeaders;
+    document.execCommand('copy');
+    delete this.copyIncludeHeaders;
 }
 
 function getSelectedColumns() {

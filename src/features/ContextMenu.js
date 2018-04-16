@@ -50,6 +50,18 @@ var ContextMenu = Feature.extend('ContextMenu', {
      * @param {Hypergrid} grid
      * @param {CellEvent} event
      */
+    handleMouseDown: function(grid, event) {
+        this.hideContextMenu(menuDiv);
+        if (this.next) {
+            this.next.handleMouseDown(grid, event);
+        }
+    },
+
+    /**
+     * @memberOf ContextMenu.prototype
+     * @param {Hypergrid} grid
+     * @param {CellEvent} event
+     */
     handleClick: function(grid, event) {
         this.hideContextMenu(menuDiv);
 
@@ -309,7 +321,9 @@ var ContextMenu = Feature.extend('ContextMenu', {
 
             menuOption.addEventListener('click', function(clickEvent) {
                 if (item.action) {
+                    grid.menuClick = true;
                     item.action(clickEvent, event);
+                    delete grid.menuClick;
                 }
                 self.hideContextMenu(menuDiv);
             });
@@ -319,7 +333,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
                     Object.assign(menuOption.style, grid.properties.contextMenuListOptionStyle);
                 }
 
-                if (grid.properties.contextMenuListOptionIconStyle) {
+                if (grid.properties.contextMenuListOptionIconStyle){
                     Object.assign(menuOptionIconSpan.style, grid.properties.contextMenuListOptionIconStyle);
                 }
 

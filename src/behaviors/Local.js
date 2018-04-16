@@ -35,7 +35,8 @@ var Local = Behavior.extend('Local', {
             var findFunction = function(c) {
                 return c.properties.index === index &&
                     c.properties.name === columnSchema.name &&
-                    c.properties.calculator === columnSchema.calculator;
+                    c.properties.calculator === columnSchema.calculator &&
+                    c.colDef === columnSchema.colDef;
             };
             var oldColumn = oldAllColumns.find(findFunction) || oldColumns.find(findFunction);
             if (oldColumn) {
@@ -221,7 +222,7 @@ var Local = Behavior.extend('Local', {
             reindex = options.apply === undefined || options.apply; // defaults to true
 
         // copy widths from old schema
-        if (schemaChanged && this.schemaOld) {
+        if (schemaChanged && this.schemaOld && schema) {
             var schemaOld = this.schemaOld;
             schema.forEach(function(columnSchema, index) {
                 if (schemaOld[index] && index === schemaOld[index].index && columnSchema.name === schemaOld[index].name && schemaOld[index].width) {

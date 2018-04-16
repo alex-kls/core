@@ -31,7 +31,6 @@ function setColumnsVisible(keys, visible) {
             if (singleColDef) {
                 colDef.splice(colDef.indexOf(singleColDef), 1);
             }
-
         }
     });
     this.api.setColumnDefs(colDef);

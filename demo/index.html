@@ -83,19 +83,7 @@
                     },
                     onColumnsMoved: function(columns, toIndex) {
                         console.log('onColumnsMoved', columns, toIndex);
-                        columns.reverse().forEach(function(column) {
-                            var colDefsLocal = getColDef();
-                            var singleColDef = colDefsLocal.find(function(cd) {
-                                return cd.colId === column.name;
-                            });
-
-                            if (singleColDef) {
-                                colDefsLocal.splice(toIndex, 0, colDefsLocal.splice(colDefsLocal.indexOf(singleColDef), 1)[0]);
-                                localStorage.setItem(LOCAL_STORAGE_COLUMNS_DEF, JSON.stringify(colDefsLocal));
-                            } else {
-                                console.error('no coldDef', colDef, column);
-                            }
-                        });
+                        localStorage.setItem(LOCAL_STORAGE_COLUMNS_DEF, JSON.stringify(window.grid.columnDefs));
                     },
                     onUpdateColumnName: function(column, renameTo) {
                         console.log('onUpdateColumnName', column, renameTo);

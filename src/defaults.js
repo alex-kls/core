@@ -1096,7 +1096,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    maxSortColumns : 3,
+    maxSortColumns: 3,
 
     /**
      * **This is a standard property definition for sort plug-in use.
@@ -1530,7 +1530,9 @@ var defaults = {
         fontSize: '14px',
         zIndex: 2,
         margin: '0 0 0 0',
-        fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif'
+        fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
+        width: 'auto',
+        'white-space': 'nowrap',
     },
 
     /**
@@ -1549,7 +1551,8 @@ var defaults = {
         display: 'flex',
         flexDirection: 'column',
         marginTop: '-1px',
-        borderCollapse: 'collapse'
+        borderCollapse: 'collapse',
+        position: 'relative'
     },
 
     /**
@@ -2124,6 +2127,7 @@ function columnOnlyError() {
 /** @typedef {string} cssColor
  * @see https://developer.mozilla.org/docs/Web/CSS/color_value
  */
+
 /** @typedef {string} cssFont
  * @see https://developer.mozilla.org/docs/Web/CSS/font
  */

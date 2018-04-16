@@ -769,7 +769,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {event} event - The copy system event.
      */
     checkClipboardCopy: function(event) {
-        if (this.hasFocus()) {
+        if (this.hasFocus() || this.menuClick) {
             event.preventDefault();
             var csvData = this.getSelectionAsTSV();
             event.clipboardData.setData('text/plain', csvData);
@@ -1923,7 +1923,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         if (!this.columnDefs) {
             return;
         }
-        return this.columnDefs.find(cd => cd.field === name);
+        return this.columnDefs.find(cd => cd.field === name || cd.colId === name);
     },
 
     getColumnByName: function(name) {

@@ -1121,10 +1121,8 @@ var Behavior = Base.extend('Behavior', {
     },
 
     moveColumns: function(from, len, target) {
-        var columns = this.columns;
-        if (this.grid.onColumnsMoved) {
-            this.grid.onColumnsMoved(columns.slice(from, from + len), target);
-        }
+        const columns = this.columns;
+
         let headers = [];
         if (this.grid.properties.onlyDataReorder) {
             headers = columns.map(c => c.header);
@@ -1133,6 +1131,22 @@ var Behavior = Base.extend('Behavior', {
         if (this.grid.properties.onlyDataReorder) {
             columns.forEach((c, i) => c.header = headers[i]);
         }
+
+        const columnToMove = columns.slice(from, from + len);
+
+        columnToMove.reverse().forEach((column) => {
+            const colDefs = this.grid.columnDefs;
+            const singleColDef = column.colDef;
+
+            if (singleColDef) {
+                colDefs.splice(target, 0, colDefs.splice(colDefs.indexOf(singleColDef), 1)[0]);
+            }
+        });
+
+        if (this.grid.onColumnsMoved) {
+            this.grid.onColumnsMoved(columnToMove, target);
+        }
+
         this.changed();
     },
 
