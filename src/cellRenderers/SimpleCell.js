@@ -228,7 +228,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.cache.fillStyle = config.columnTitlePrefixColor;
 
             renderSingleLineText(gc, config, config.headerPrefix, leftPadding, textRightPadding);
-            leftPadding += gc.measureText(config.headerPrefix).width + config.columnTitlePrefixRightSpace;
+            leftPadding += gc.getTextWidth(config.headerPrefix) + config.columnTitlePrefixRightSpace;
 
             gc.cache.font = prevFontState;
             gc.cache.fillStyle = prevFillStyleState;
@@ -237,8 +237,6 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         if (config.backgroundText) {
             gc.cache.fillStyle = config.backgroundTextColor;
             gc.cache.font = config.backgroundTextFont;
-
-            console.log(gc, config, config.backgroundText, leftPadding, textRightPadding);
 
             renderSingleLineText(gc, config, config.backgroundText, leftPadding, textRightPadding);
         }

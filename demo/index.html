@@ -58,16 +58,7 @@
                     return res;
                 }
 
-                function prepareSchema(result) {
-                    var res = [];
-                    (result.headers && result.headers.children || result.descriptor && result.descriptor.columns).forEach(function(h) {
-                        res.push({ header: h.key, name: h.key });
-                    });
-                    return res;
-                }
-
                 var options = {
-                    schema: prepareSchema(result),
                     data: [],
                     api: {
                         onScrollEndLimitTrigger: 200

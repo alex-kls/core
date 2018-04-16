@@ -104,12 +104,15 @@ var Local = Behavior.extend('Local', {
         data.forEach((d, i) => {
             if (d[key]) {
                 const dataProps = this.getRowProperties(i) || props;
-                gc.cache.font = dataProps.font;
-                let textWidth = gc.getTextWidth(formatter(d[key], Object.assign({}, dataProps, { dataRow: d }))) + props.cellPaddingLeft + props.cellPaddingRight;
+                let textWidth = props.cellPaddingRight;
 
                 if (dataProps.showCellContextMenuIcon) {
                     gc.cache.font = props.contextMenuIconFont;
-                    textWidth += gc.getTextWidth(props.contextMenuIconUnicodeChar) + 2 * props.contextMenuButtonPadding + props.contextMenuLeftSpaceToCutText;
+                    textWidth += props.contextMenuButtonIconPreferedWidth + 2 * props.contextMenuButtonPadding + props.contextMenuLeftSpaceToCutText;
+                }
+
+                if (dataProps.showColumnType && column.schema.colTypeSign) {
+                    textWidth += textWidth;
                 }
 
                 if (column.schema && column.schema.headerPrefix) {
@@ -117,15 +120,13 @@ var Local = Behavior.extend('Local', {
                     textWidth += gc.getTextWidth(props.contextMenuIconUnicodeChar) + props.columnTitlePrefixRightSpace;
                 }
 
-                if (column.hasError) {
+                if (column.hasError && dataProps.headerRow) {
                     gc.cache.font = props.errorIconFont;
                     textWidth += gc.getTextWidth(props.errorIconUnicodeChar) + props.columnTitlePrefixRightSpace;
                 }
 
-                if (dataProps.showColumnType && column.schema.colTypeSign) {
-                    gc.cache.font = props.columnTypeSignFont;
-                    textWidth += gc.getTextWidth(column.schema.colTypeSign) + props.cellPaddingRight;
-                }
+                gc.cache.font = dataProps.font;
+                textWidth += gc.getTextWidth(formatter(d[key], Object.assign({}, dataProps, { dataRow: d }))) + props.cellPaddingLeft;
 
                 if (textWidth > width) {
                     width = textWidth;
