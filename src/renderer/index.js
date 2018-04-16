@@ -335,7 +335,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {Point} Cell coordinates
      */
     getGridCellFromMousePoint: function(point) {
-        if (!this.visibleColumns.length){
+        if (!this.visibleColumns.length) {
             return null;
         }
         var x = point.x,
@@ -346,8 +346,10 @@ var Renderer = Base.extend('Renderer', {
             visibleColumns = this.visibleColumns,
             firstColumn = visibleColumns[this.grid.behavior.leftMostColIndex],
             inFirstColumn = x < firstColumn.right,
-            vc = inFirstColumn ? firstColumn : visibleColumns.findWithNeg(function(vc) { return x < vc.right; }),
-            result = {fake: false};
+            vc = inFirstColumn ? firstColumn : visibleColumns.findWithNeg(function(vc) {
+                return x < vc.right;
+            }),
+            result = { fake: false };
 
         // if (this.renderedCuttedRowsCount > 0) {
         //     var filtered = vrs
@@ -360,8 +362,12 @@ var Renderer = Base.extend('Renderer', {
         //     vr = vrs.filter(function(vr) { return y <= vr.bottom && y >= vr.top; });
         // }
         var filtered = vrs
-            .filter(function(vr) { return y <= vr.bottom && y >= vr.top; })
-            .sort(function(vr1, vr2) { return vr2.rowIndex - vr1.rowIndex; });
+            .filter(function(vr) {
+                return y <= vr.bottom && y >= vr.top;
+            })
+            .sort(function(vr1, vr2) {
+                return vr2.rowIndex - vr1.rowIndex;
+            });
         var vr = filtered[filtered.length - 1];
 
         //default to last row and col
@@ -385,7 +391,7 @@ var Renderer = Base.extend('Renderer', {
         // cellEvent.visibleColumn = vc;
         // cellEvent.visibleRow = vr;
 
-        result.cellEvent = Object.defineProperty(cellEvent, 'mousePoint', {value: mousePoint});
+        result.cellEvent = Object.defineProperty(cellEvent, 'mousePoint', { value: mousePoint });
 
         if (isPseudoCol || isPseudoRow) {
             result.fake = true;
@@ -402,7 +408,9 @@ var Renderer = Base.extend('Renderer', {
     getVisibleCellMatrix: function() {
         var rows = Array(this.visibleRows.length);
         var adjust = this.grid.behavior.hasTreeColumn() ? 1 : 0;
-        for (var y = 0; y < rows.length; ++y) { rows[y] = Array(this.visibleColumns.length); }
+        for (var y = 0; y < rows.length; ++y) {
+            rows[y] = Array(this.visibleColumns.length);
+        }
         this.cellEventPool.map(function(cell) {
             var x = cell.gridCell.x + adjust;
             if (x >= 0) {
@@ -834,7 +842,9 @@ var Renderer = Base.extend('Renderer', {
      */
     isLastColumnVisible: function() {
         var lastColumnIndex = this.grid.getColumnCount() - 1;
-        return !!this.visibleColumns.findWithNeg(function(vc) { return vc.columnIndex === lastColumnIndex; });
+        return !!this.visibleColumns.findWithNeg(function(vc) {
+            return vc.columnIndex === lastColumnIndex;
+        });
     },
 
     /**
@@ -920,7 +930,7 @@ var Renderer = Base.extend('Renderer', {
         var widthLeft = this.bounds.width;
         var currentColumnToScrollIndex = this.dataWindow.origin.x - 1;
 
-        while (currentColumnToScrollIndex >= 0){
+        while (currentColumnToScrollIndex >= 0) {
             widthLeft -= this.grid.getColumnWidth(currentColumnToScrollIndex);
 
             if (widthLeft < 0) {
@@ -987,7 +997,7 @@ var Renderer = Base.extend('Renderer', {
      * @param {Number} [radius.bl = 0] Bottom left
      * @param {Boolean} [fill = false] Whether to fill the rectangle.
      * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
-    */
+     */
     renderRoundRect: function(gc, x, y, width, height, radius, fill, stroke) {
         if (typeof stroke === 'undefined') {
             stroke = true;
@@ -996,9 +1006,9 @@ var Renderer = Base.extend('Renderer', {
             radius = 5;
         }
         if (typeof radius === 'number') {
-            radius = {tl: radius, tr: radius, br: radius, bl: radius};
+            radius = { tl: radius, tr: radius, br: radius, bl: radius };
         } else {
-            let defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+            let defaultRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
             for (let side in defaultRadius) {
                 radius[side] = radius[side] || defaultRadius[side];
             }
@@ -1187,6 +1197,7 @@ var Renderer = Base.extend('Renderer', {
         var grid = this.grid,
             selectionModel = grid.selectionModel,
             behavior = grid.behavior,
+            properties = cellEvent.properties,
 
             isHandleColumn = cellEvent.isHandleColumn,
             isTreeColumn = cellEvent.isTreeColumn,
@@ -1220,6 +1231,12 @@ var Renderer = Base.extend('Renderer', {
         } else if (isDataRow) {
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
             format = config.format;
+        } else if (x === grid.behavior.rowColumnIndex && r === 0 && isHandleColumn && isHeaderRow && behavior.errorCount) {
+            value = behavior.errorCount + 10;
+            config.foregroundSelectionColor = config.color = properties.backgroundColor;
+            config.backgroundText = this.properties.errorTotalUnicodeChar;
+            config.backgroundTextFont = this.properties.errorIconFont;
+            config.backgroundTextColor = this.properties.errorIconColor;
         } else {
             format = cellEvent.subgrid.format || config.format; // subgrid format can override column format
             if (isFilterRow) {
@@ -1238,6 +1255,9 @@ var Renderer = Base.extend('Renderer', {
             //Including hierarchyColumn
             config.dataRow = cellEvent.dataRow;
             value = cellEvent.value;
+            if (typeof value === 'object' && value.type === 'ERROR') {
+                config.foregroundSelectionColor = config.color = cellEvent.properties.errorCellDataColor;
+            }
         } else {
             if (isDataRow) {
                 // row handle for a data row
@@ -1273,7 +1293,13 @@ var Renderer = Base.extend('Renderer', {
         config.halign = isHeaderRow ? config.rowHeaderHalign : behavior.getCellProperty('halign') || config.halign;
 
         if (!config.headerPrefix) {
-            config.headerPrefix = cellEvent.column.schema ? cellEvent.column.schema.headerPrefix : undefined;
+            if (cellEvent.column.hasError) {
+                config.headerPrefix = this.properties.errorIconUnicodeChar;
+                config.columnTitlePrefixFont = this.properties.errorIconFont;
+                config.columnTitlePrefixColor = this.properties.errorIconColor;
+            } else {
+                config.headerPrefix = cellEvent.column.schema ? cellEvent.column.schema.headerPrefix : undefined;
+            }
         }
 
         if (!config.colTypeSign) {
@@ -1381,7 +1407,9 @@ var Renderer = Base.extend('Renderer', {
      */
     resetCellPropertiesCache: function(xOrCellEvent, y, dataModel) {
         var cellEvent = this.findCell.apply(this, arguments);
-        if (cellEvent) { cellEvent._cellOwnProperties = undefined; }
+        if (cellEvent) {
+            cellEvent._cellOwnProperties = undefined;
+        }
         return cellEvent;
     },
 

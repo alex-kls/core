@@ -116,6 +116,13 @@ var defaults = {
      */
     backgroundHeaderSelectionColor: '#DDDDDD',
 
+    /**
+     * @summary Text color for error cell
+     * @description Color for symbol of error, when value described as object with type:"ERROR" field
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    errorCellDataColor: '#a94d4dc2',
 
     disableHoverHighlighting: true,
 
@@ -1955,6 +1962,41 @@ var defaults = {
      * @memberOf module:defaults
      */
     contextMenuIconUnicodeChar: decodeURI('\uf0d7'),
+
+    /**
+     * @desc String, that will be displayed as error icon
+     * Best way to use this parameter is set it's value on such unicode char, provided by your icons pack
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    errorIconUnicodeChar: decodeURI('\uf071'),
+
+    /**
+     * @desc String, that will be displayed as error icon for total count of errors
+     * Best way to use this parameter is set it's value on such unicode char, provided by your icons pack
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    errorTotalUnicodeChar: decodeURI('\uf2ec'),
+
+    /**
+     * @desc font of error icon
+     * Best use of this parameter is set font family on one of connected icon-pack's, to render needed icon
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    errorIconFont: '13px fontAwesome',
+
+    /**
+     * @desc color of error icon
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    errorIconColor: '#ff0000c2',
 
     /**
      * @desc Prefered width of button

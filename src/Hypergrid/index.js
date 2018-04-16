@@ -1924,6 +1924,10 @@ var Hypergrid = Base.extend('Hypergrid', {
             return;
         }
         return this.columnDefs.find(cd => cd.field === name);
+    },
+
+    getColumnByName: function(name) {
+        return this.getActiveColumns().find(c => c.name === name);
     }
 });
 

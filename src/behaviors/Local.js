@@ -51,7 +51,8 @@ var Local = Behavior.extend('Local', {
                 newColumn = this.addColumn({
                     index: index,
                     header: columnSchema.header,
-                    calculator: columnSchema.calculator
+                    calculator: columnSchema.calculator,
+                    colDef: columnSchema.colDef
                 });
 
                 // restore width from previous schema when data just refreshed.
@@ -65,6 +66,7 @@ var Local = Behavior.extend('Local', {
 
                 if (columnSchema.formatter) {
                     newColumn.properties.format = newColumn.name;
+                    newColumn.schema.format = newColumn.name;
                     const options = {
                         name: newColumn.name,
                         format: (value, config) => (config === undefined) ? value : columnSchema.formatter(value, config.dataRow), // called for render view
@@ -108,6 +110,16 @@ var Local = Behavior.extend('Local', {
                 if (dataProps.showCellContextMenuIcon) {
                     gc.cache.font = props.contextMenuIconFont;
                     textWidth += gc.getTextWidth(props.contextMenuIconUnicodeChar) + 2 * props.contextMenuButtonPadding + props.contextMenuLeftSpaceToCutText;
+                }
+
+                if (column.schema && column.schema.headerPrefix) {
+                    gc.cache.font = props.columnTitlePrefixFont;
+                    textWidth += gc.getTextWidth(props.contextMenuIconUnicodeChar) + props.columnTitlePrefixRightSpace;
+                }
+
+                if (column.hasError) {
+                    gc.cache.font = props.errorIconFont;
+                    textWidth += gc.getTextWidth(props.errorIconUnicodeChar) + props.columnTitlePrefixRightSpace;
                 }
 
                 if (dataProps.showColumnType && column.schema.colTypeSign) {
@@ -234,6 +246,8 @@ var Local = Behavior.extend('Local', {
             this.createColumns();
         }
 
+        this.checkForErrors();
+
         grid.allowEvents(this.getRowCount());
     },
 
@@ -300,7 +314,42 @@ var Local = Behavior.extend('Local', {
             this.createColumns();
         }
 
+        this.checkForErrors();
+
         grid.allowEvents(this.getRowCount());
+    },
+
+    checkForErrors: function() {
+        const errors = {};
+
+        this.getData().forEach(row => {
+            Object.keys(row).forEach(columnName => {
+                const value = row[columnName];
+                if (typeof value === 'object' && value.type === 'ERROR') {
+                    if (!errors[columnName]) {
+                        errors[columnName] = [];
+                    }
+                    errors[columnName].push(value);
+                }
+            });
+        });
+
+        this.errorCount = Object.keys(errors).length;
+
+        if (this.errorCount) {
+            Object.keys(errors).forEach(columnName => {
+                const column = this.grid.getColumnByName(columnName);
+                if (column) {
+                    column.hasError = true;
+                    column.errorCount = errors[columnName].length;
+
+                    const colDef = column.colDef;
+                    if (colDef) {
+                        colDef.errorCount = errors[columnName].length;
+                    }
+                }
+            });
+        }
     },
 
     /**

@@ -234,6 +234,15 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.cache.fillStyle = prevFillStyleState;
         }
 
+        if (config.backgroundText) {
+            gc.cache.fillStyle = config.backgroundTextColor;
+            gc.cache.font = config.backgroundTextFont;
+
+            console.log(gc, config, config.backgroundText, leftPadding, textRightPadding);
+
+            renderSingleLineText(gc, config, config.backgroundText, leftPadding, textRightPadding);
+        }
+
         if (renderValue) {
             // draw text
             gc.cache.fillStyle = textColor;

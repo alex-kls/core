@@ -26,6 +26,7 @@ var ErrorCell = CellRenderer.extend('ErrorCell', {
      *
      * @param {CanvasRenderingContext2D} gc
      * @param {object} config
+     * @param message
      * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
      * @memberOf ErrorCell.prototype
      */
@@ -37,14 +38,14 @@ var ErrorCell = CellRenderer.extend('ErrorCell', {
 
         // clear the cell
         // (this makes use of the rect path defined by the caller)
-        gc.cache.fillStyle = '#FFD500';
+        gc.cache.fillStyle = '#FFFFFF';
         gc.fill();
 
         // render message text
-        gc.cache.fillStyle = '#A00';
+        gc.cache.fillStyle = '#a94d4dc2';
         gc.cache.textAlign = 'start';
         gc.cache.textBaseline = 'middle';
-        gc.cache.font = 'bold 6pt "arial narrow", verdana, geneva';
+        gc.cache.font = '13px "Helvetica Neue",Helvetica,Arial,sans-serif';
         gc.fillText(message, x + 4, y + height / 2 + 0.5);
     }
 });

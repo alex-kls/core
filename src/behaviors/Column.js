@@ -95,11 +95,11 @@ Column.prototype = {
      * @returns {string|undefined} Returns `undefined` if the column is not in the schema (such as for handle column).
      */
     get colId() { // read-only (no setter)
-        return this.schema.name;
+        return (this.colDef && this.colDef.colId) || this.schema.name;
     },
 
-    get colDef() {
-        return this.behavior.grid.getColDef(this.name);
+    get colDef() { // read-only (no setter)
+        return this.properties.colDef || this.behavior.grid.getColDef(this.name);
     },
 
     /**

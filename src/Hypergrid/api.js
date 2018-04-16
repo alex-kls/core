@@ -75,17 +75,20 @@ function convertColDefs(colDefs) {
         const colTypeSign = singleColDef && singleColDef.colTypeSign;
         const maxWidth = singleColDef && singleColDef.maxWidth;
         const headerPrefix = singleColDef && singleColDef.headerPrefix;
+        const name = originalField || letters;
 
         schema.push({
             header: letters || '',
-            name: originalField || letters,
+            name: name,
             width: width || undefined,
             halign: halign || undefined,
             colTypeSign: colTypeSign || undefined,
             maxWidth: maxWidth && maxWidth < maximumColumnWidth ? maxWidth : maximumColumnWidth,
             formatter: getFormatter(singleColDef) || undefined,
+            format: name,
             headerPrefix: headerPrefix || undefined,
-            cellContextMenu: getContextMenuItems
+            cellContextMenu: getContextMenuItems,
+            colDef: singleColDef
         });
 
         if (originalField) {
