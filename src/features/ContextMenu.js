@@ -65,6 +65,10 @@ var ContextMenu = Feature.extend('ContextMenu', {
 
         if (isCursorOverContextMenuIcon) {
             let contextMenu = grid.behavior.getCellProperties(event).cellContextMenu || grid.properties.cellContextMenu;
+            if (event.isHeaderRow && grid.properties.headerContextMenu) {
+                contextMenu = grid.properties.headerContextMenu;
+            }
+
             let rightToLeft = event.primitiveEvent.detail.mouse.x + 200 >= window.innerWidth;
             let startX = rightToLeft ? contextMenuIconRightX : contextMenuIconLeftX;
             startX += grid.canvas.size.left;
@@ -90,6 +94,10 @@ var ContextMenu = Feature.extend('ContextMenu', {
      */
     handleContextMenu: function(grid, event) {
         let contextMenu = grid.behavior.getCellProperties(event).cellContextMenu || grid.properties.cellContextMenu;
+        if (event.isHeaderRow && grid.properties.headerContextMenu) {
+            contextMenu = grid.properties.headerContextMenu;
+        }
+
         let rightToLeft = event.primitiveEvent.detail.mouse.x + 200 >= window.innerWidth;
         this.paintContextMenu(menuDiv,
             grid,

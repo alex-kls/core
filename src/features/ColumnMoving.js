@@ -6,62 +6,62 @@
 // This feature is responsible for column drag and drop reordering.
 // This object is a mess and desperately needs a complete rewrite.....
 
-var Feature = require('./Feature');
+const Feature = require('./Feature');
 
-var GRAB = ['grab', '-moz-grab', '-webkit-grab'],
+const GRAB = ['grab', '-moz-grab', '-webkit-grab'],
     GRABBING = ['grabbing', '-moz-grabbing', '-webkit-grabbing'],
     setName = function(name) { this.cursor = name; };
 
-var dragger;
-var draggerCTX;
-var placeholder;
-var placeholderCTX;
+let dragger,
+    draggerCTX,
+    placeholder,
+    placeholderCTX;
 
 /**
  * @constructor
  * @extends Feature
  */
-var ColumnMoving = Feature.extend('ColumnMoving', {
+const ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * queue up the animations that need to play so they are done synchronously
      * @type {Array}
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      */
     floaterAnimationQueue: [],
 
     /**
      * am I currently auto scrolling right
      * @type {boolean}
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      */
     columnDragAutoScrollingRight: false,
 
     /**
      * am I currently auto scrolling left
      * @type {boolean}
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      */
     columnDragAutoScrollingLeft: false,
 
     /**
      * am I dragging right now
      * @type {boolean}
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      */
     dragging: false,
 
     /**
      * the column index of the currently dragged column
      * @type {number}
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      */
     dragCol: -1,
 
     /**
      * an offset to position the dragged item from the cursor
      * @type {number}
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      */
     dragOffset: 0,
 
@@ -70,7 +70,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     scrollAttempt: 0,
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @desc give me an opportunity to initialize stuff on the grid
      * @param {Hypergrid} grid
      */
@@ -82,7 +82,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @desc initialize animation support on the grid
      * @param {Hypergrid} grid
      */
@@ -109,7 +109,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -132,34 +132,35 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
         if (
             grid.behavior.isColumnReorderable() &&
-            !event.isColumnFixed
+            !event.isColumnFixed &&
+            event.isHeaderCell &&
+            !event.isColumnFixed &&
+            !event.primitiveEvent.detail.isRightClick
         ) {
-            if (event.isHeaderCell && !event.isColumnFixed) {
-                // start dragging
-                var gridCell = event.gridCell;
-                this.cursor = GRABBING;
-                this.dragging = true;
-                this.dragCol = gridCell.x;
+            // start dragging
+            const gridCell = event.gridCell;
+            this.cursor = GRABBING;
+            this.dragging = true;
+            this.dragCol = gridCell.x;
 
-                var firstSelectedColumn = grid.getSelectedColumns()[0] ||
-                    grid.renderer.visibleColumns.findIndex(function(c) {return c.column === event.column;});
-                var hScrollOffset = grid.getHScrollValue();
-                var firstSelectedColumnX = grid.renderer.visibleColumns[Math.max(0, firstSelectedColumn - hScrollOffset)].left;
+            const firstSelectedColumn = grid.getSelectedColumns()[0] ||
+                grid.renderer.visibleColumns.findIndex(function(c) {return c.column === event.column;});
+            const hScrollOffset = grid.getHScrollValue();
+            const firstSelectedColumnX = grid.renderer.visibleColumns[Math.max(0, firstSelectedColumn - hScrollOffset)].left;
 
-                this.dragOffset = event.primitiveEvent.detail.mouse.x - firstSelectedColumnX;
+            this.dragOffset = event.primitiveEvent.detail.mouse.x - firstSelectedColumnX;
 
-                this.detachChain();
-                this.createDragColumn(grid, this.dragCol);
-                this.createPlaceholder(grid, this.dragCol);
-                this.dragColumn(grid, event);
-            }
+            this.detachChain();
+            this.createDragColumn(grid, this.dragCol);
+            this.createPlaceholder(grid, this.dragCol);
+            this.dragColumn(grid, event);
         }
         if (this.next) {
             this.next.handleMouseDown(grid, event);
@@ -167,7 +168,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -176,7 +177,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         if (this.dragging) {
             this.cursor = null;
             //delay here to give other events a chance to be dropped
-            var self = this;
+            const self = this;
             this.endDragColumn(grid);
             setTimeout(function() {
                 self.attachChain();
@@ -194,7 +195,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -222,25 +223,25 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @desc this is the main event handler that manages the dragging of the column and moving of placeholder
      * @param {Hypergrid} grid
      */
     movePlaceholderTo: function(grid, overCol) {
-        var visibleColumns = grid.renderer.visibleColumns;
+        const visibleColumns = grid.renderer.visibleColumns;
 
-        var d = placeholder;
+        const d = placeholder;
         d.style.display = 'inline';
 
-        var scrollLeft = grid.getHScrollValue();
-        var fixedColumnCount = grid.getFixedColumnCount();
+        let scrollLeft = grid.getHScrollValue();
+        const fixedColumnCount = grid.getFixedColumnCount();
         if (overCol < fixedColumnCount) {
             scrollLeft = 0;
         }
 
-        var x;
+        let x;
         if (overCol >= scrollLeft + visibleColumns.length){
-            var lastColumn = visibleColumns[visibleColumns.length - 1];
+            const lastColumn = visibleColumns[visibleColumns.length - 1];
             x = lastColumn.left + lastColumn.width - 3;
         } else {
             x = visibleColumns[overCol - scrollLeft].left;
@@ -251,29 +252,29 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @desc create the placeholder at columnIndex where column(s) should be moved to
      * @param {Hypergrid} grid
      * @param {number} columnIndex - the index of the column after which
      */
     createPlaceholder: function(grid, columnIndex) {
-        var fixedColumnCount = grid.getFixedColumnCount();
-        var scrollLeft = grid.getHScrollValue();
+        const fixedColumnCount = grid.getFixedColumnCount();
+        let scrollLeft = grid.getHScrollValue();
 
         if (columnIndex < fixedColumnCount) {
             scrollLeft = 0;
         }
 
-        var width = 3;
-        var colHeight = grid.div.clientHeight;
-        var d = placeholder;
-        var style = d.style;
-        var location = grid.div.getBoundingClientRect();
+        const width = 3;
+        const colHeight = grid.div.clientHeight;
+        const d = placeholder;
+        const style = d.style;
+        const location = grid.div.getBoundingClientRect();
 
         style.top = location.top + 'px';
         style.left = location.left - 2 + 'px';
 
-        var hdpiRatio = grid.getHiDPI(placeholderCTX);
+        const hdpiRatio = grid.getHiDPI(placeholderCTX);
 
         d.setAttribute('width', Math.round(width * hdpiRatio) + 'px');
         d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
@@ -282,7 +283,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
         style.backgroundColor = 'rgb(110, 110, 110)';
 
-        var startX = grid.renderer.visibleColumns[columnIndex - scrollLeft].left * hdpiRatio;
+        let startX = grid.renderer.visibleColumns[columnIndex - scrollLeft].left * hdpiRatio;
 
         placeholderCTX.scale(hdpiRatio, hdpiRatio);
 
@@ -297,14 +298,14 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @desc utility function for setting cross browser css properties
      * @param {HTMLElement} element - descripton
      * @param {string} property - the property
      * @param {string} value - the value to assign
      */
     setCrossBrowserProperty: function(element, property, value) {
-        var uProperty = property[0].toUpperCase() + property.substr(1);
+        const uProperty = property[0].toUpperCase() + property.substr(1);
         this.setProp(element, 'webkit' + uProperty, value);
         this.setProp(element, 'Moz' + uProperty, value);
         this.setProp(element, 'ms' + uProperty, value);
@@ -313,7 +314,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @desc utility function for setting properties on HTMLElements
      * @param {HTMLElement} element - descripton
      * @param {string} property - the property
@@ -326,29 +327,28 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @desc create the dragged column at columnIndex above the floated column
      * @param {Hypergrid} grid
      * @param {number} columnIndex - the index of the column that will be floating
      */
     createDragColumn: function(grid, columnIndex) {
+        const hdpiRatio = grid.getHiDPI(draggerCTX);
+        const selectedColumns = grid.getSelectedColumns();
+        const consequent = this._isConsequent(selectedColumns);
+        const columns = consequent ? selectedColumns : [columnIndex];
 
-        var hdpiRatio = grid.getHiDPI(draggerCTX);
-        var selectedColumns = grid.getSelectedColumns();
-        var consequent = this._isConsequent(selectedColumns);
-        var columns = consequent ? selectedColumns : [columnIndex];
-
-        var columnWidth = 0;
+        let columnWidth = 0;
         columns.forEach(function(col){
             columnWidth += grid.getColumnWidth(col);
         });
 
-        var colHeight = grid.div.clientHeight;
-        var d = dragger;
-        var location = grid.div.getBoundingClientRect();
-        var style = d.style;
+        const colHeight = grid.div.clientHeight;
+        const d = dragger;
+        const location = grid.div.getBoundingClientRect();
+        const style = d.style;
         // offset from top + header height
-        var offsetY = grid.getFixedRowsHeight();
+        const offsetY = grid.getFixedRowsHeight();
         style.top = location.top + offsetY + 'px';
         style.left = location.left + 'px';
         style.opacity = 0.2;
@@ -375,30 +375,29 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @desc this function is the main dragging logic
      * @param {Hypergrid} grid
      * @param {Object} event - dragging event
      */
     dragColumn: function(grid, event) {
+        const x = event.primitiveEvent.detail.mouse.x;
+        const distance = x - this.dragOffset;
 
-        var x = event.primitiveEvent.detail.mouse.x;
-        var distance = x - this.dragOffset;
+        const autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
+        const dragColumnIndex = grid.renderOverridesCache.dragger.startIndex;
 
-        var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
-        var dragColumnIndex = grid.renderOverridesCache.dragger.startIndex;
+        const minX = 0;
+        const maxX = grid.renderer.getFinalVisibleColumnBoundary();
 
-        var minX = 0;
-        var maxX = grid.renderer.getFinalVisibleColumnBoundary();
-
-        var d = dragger;
+        const d = dragger;
 
         this.setCrossBrowserProperty(d, 'transform', 'translate(' + distance + 'px, ' + 0 + 'px)');
         requestAnimationFrame(function() {
             d.style.display = 'inline';
         });
 
-        var threshold = 20;
+        const threshold = 20;
         if (x < minX + threshold) {
             this.checkAutoScrollToLeft(grid, x);
         }
@@ -414,23 +413,23 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             this.resetScrollDelay();
         }
 
-        var overCol = grid.renderer.getColumnFromPixelX(x);
-        var selectedColumns = grid.getSelectedColumns();
-        var visibleColumns = grid.renderer.visibleColumns;
-        var placeholderCol = -1;
+        let overCol = grid.renderer.getColumnFromPixelX(x);
+        const selectedColumns = grid.getSelectedColumns();
+        const visibleColumns = grid.renderer.visibleColumns;
+        let placeholderCol = -1;
         if (!autoScrollingNow) {
             if (!selectedColumns.slice(1).includes(overCol)){
                 grid.renderOverridesCache.dragger.columnIndex = overCol;
-                var draggedToTheRight = dragColumnIndex < overCol;
+                const draggedToTheRight = dragColumnIndex < overCol;
                 if (draggedToTheRight) {
                     overCol += 1;
                 }
                 placeholderCol = overCol;
             } else {
-                var firstSelectedColumnIndex = selectedColumns[0];
-                var firstVisibleColumnIndex = visibleColumns[0].columnIndex;
-                var lastSelectedColumnIndex = selectedColumns[selectedColumns.length - 1] + 2;
-                var lastVisibleColumnIndex = visibleColumns[visibleColumns.length - 1].columnIndex;
+                const firstSelectedColumnIndex = selectedColumns[0];
+                const firstVisibleColumnIndex = visibleColumns[0].columnIndex;
+                const lastSelectedColumnIndex = selectedColumns[selectedColumns.length - 1] + 2;
+                const lastVisibleColumnIndex = visibleColumns[visibleColumns.length - 1].columnIndex;
                 if (firstVisibleColumnIndex < firstSelectedColumnIndex) {
                     placeholderCol = firstSelectedColumnIndex;
                 } else if (lastVisibleColumnIndex > lastSelectedColumnIndex) {
@@ -444,7 +443,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @desc resets scroll delay to initial value
      */
     resetScrollDelay: function(){
@@ -452,7 +451,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @desc returns delay between auto-scrolling by one step. Delay is decremented with each further step.
      */
     getScrollDelay: function() {
@@ -460,7 +459,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @desc autoscroll to the right if necessary
      * @param {Hypergrid} grid
      * @param {number} x - the start position
@@ -477,14 +476,14 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         if (!this.columnDragAutoScrollingRight) {
             return;
         }
-        var scrollLeft = grid.getHScrollValue();
+        const scrollLeft = grid.getHScrollValue();
         if (!grid.dragging || scrollLeft > (grid.sbHScroller.range.max - 2)) {
             return;
         }
         grid.scrollBy(1, 0);
 
-        var visibleColumns = grid.renderer.visibleColumns;
-        var placeholderCol = visibleColumns[visibleColumns.length - 1].columnIndex + 1;
+        const visibleColumns = grid.renderer.visibleColumns;
+        const placeholderCol = visibleColumns[visibleColumns.length - 1].columnIndex + 1;
         this.movePlaceholderTo(grid, placeholderCol);
 
         grid.renderOverridesCache.dragger.columnIndex += 1;
@@ -492,7 +491,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @desc autoscroll to the left if necessary
      * @param {Hypergrid} grid
      * @param {number} x - the start position
@@ -509,14 +508,14 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         if (!this.columnDragAutoScrollingLeft) {
             return;
         }
-        var scrollLeft = grid.getHScrollValue();
+        const scrollLeft = grid.getHScrollValue();
         if (!grid.dragging || scrollLeft < 1) {
             return;
         }
         grid.scrollBy(-1, 0);
 
-        var visibleColumns = grid.renderer.visibleColumns;
-        var placeholderCol = visibleColumns[0].columnIndex - 1;
+        const visibleColumns = grid.renderer.visibleColumns;
+        const placeholderCol = visibleColumns[0].columnIndex - 1;
         this.movePlaceholderTo(grid, placeholderCol);
 
         grid.renderOverridesCache.dragger.columnIndex -= 1;
@@ -524,25 +523,24 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     /**
-     * @memberOf CellMoving.prototype
+     * @memberOf ColumnMoving.prototype
      * @desc a column drag has completed, update data and cleanup
      * @param {Hypergrid} grid
      */
     endDragColumn: function(grid) {
+        const d = dragger;
+        const changed = grid.renderOverridesCache.dragger.startIndex !== grid.renderOverridesCache.dragger.columnIndex;
 
-        var d = dragger;
-        var changed = grid.renderOverridesCache.dragger.startIndex !== grid.renderOverridesCache.dragger.columnIndex;
+        const selectedColumns = grid.getSelectedColumns();
+        const consequent = this._isConsequent(selectedColumns);
 
-        var selectedColumns = grid.getSelectedColumns();
-        var consequent = this._isConsequent(selectedColumns);
-
-        var placeholderIndex = grid.renderOverridesCache.dragger.columnIndex;
-        var draggerIndex = grid.renderOverridesCache.dragger.startIndex;
-        var from = consequent ? selectedColumns[0] : [draggerIndex];
-        var len = consequent ? selectedColumns.length : 1;
+        const placeholderIndex = grid.renderOverridesCache.dragger.columnIndex;
+        const draggerIndex = grid.renderOverridesCache.dragger.startIndex;
+        const from = consequent ? selectedColumns[0] : [draggerIndex];
+        const len = consequent ? selectedColumns.length : 1;
         grid.moveColumns(from, len, placeholderIndex);
 
-        var f = placeholder;
+        const f = placeholder;
         requestAnimationFrame(function() {
             f.style.display = 'none';
         });
@@ -551,7 +549,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         grid.repaint();
 
         grid.clearSelections();
-        var startNewSelectionFrom;
+        let startNewSelectionFrom;
         if (from < placeholderIndex){
             startNewSelectionFrom = placeholderIndex - (len - 1);
         } else {
@@ -570,10 +568,10 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     },
 
     _isConsequent: function(arr){
-        var consequent = true;
+        let consequent = true;
         if (arr.length > 1) {
             arr.sort();
-            for (var i = 0; i < arr.length - 1; i++) {
+            for (let i = 0; i < arr.length - 1; i++) {
                 if (arr[i + 1] - arr[i] !== 1){
                     consequent = false;
                 }

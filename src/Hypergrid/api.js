@@ -204,6 +204,11 @@ function setColumnDefs(colDefs) {
     const firstRowData = schema.data;
     let data = this.behavior.getData();
 
+
+    if (this.getMainMenuItems) {
+        this.behavior.grid.properties.headerContextMenu = this.getMainMenuItems;
+    }
+
     // create first row from headers
     if (!data || data.length === 0) {
         data = [firstRowData];
