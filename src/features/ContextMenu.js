@@ -59,7 +59,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
             + event.bounds.width
             - grid.properties.contextMenuButtonRightMargin;
         let contextMenuIconLeftX = contextMenuIconRightX
-            - grid.properties.contextMenuButtonPreferedWidth
+            - grid.properties.contextMenuButtonIconPreferedWidth
             - (grid.properties.contextMenuButtonPadding * 2);
 
 
@@ -164,18 +164,40 @@ var ContextMenu = Feature.extend('ContextMenu', {
         let cellHasContextMenuItem = event.properties.showCellContextMenuIcon
             || (event.rowProperties && event.rowProperties.showCellContextMenuIcon)
             || (event.cellOwnProperties && event.cellOwnProperties.showCellContextMenuIcon);
+
+        if (!cellHasContextMenuItem) {
+            return false;
+        }
+
         let eventCellRightX = event.bounds.width;
         let contextMenuIconRightX = eventCellRightX
             - grid.properties.contextMenuButtonRightMargin;
+
+
+        let typeSignWidth = 0;
+        if (event.column.schema && event.column.schema.colTypeSign) {
+            let gc = grid.canvas.gc,
+                prevFontState = gc.cache.font,
+                prevFillStyleState = gc.cache.fillStyle,
+                config = event.properties;
+
+            gc.cache.font = config.columnTypeSignFont;
+            gc.cache.fillStyle = config.columnTypeSignColor;
+            typeSignWidth = gc.measureText(event.column.schema.colTypeSign).width;
+            typeSignWidth += config.contextMenuLeftSpaceToCutText;
+
+            gc.cache.font = prevFontState;
+            gc.cache.fillStyle = prevFillStyleState;
+        }
         let contextMenuIconLeftX = contextMenuIconRightX
-            - grid.properties.contextMenuButtonPreferedWidth
-            - (grid.properties.contextMenuButtonPadding * 2);
+            - grid.properties.contextMenuButtonIconPreferedWidth
+            - (grid.properties.contextMenuButtonPadding * 2)
+            - typeSignWidth;
 
         let contextMenuIconTopY = event.bounds.height / 2 - grid.properties.contextMenuButtonHeight / 2;
         let contextMenuIconBottomY = contextMenuIconTopY + grid.properties.contextMenuButtonHeight;
 
-        return cellHasContextMenuItem
-            && event.mousePoint.x <= contextMenuIconRightX
+        return event.mousePoint.x <= contextMenuIconRightX
             && event.mousePoint.x >= contextMenuIconLeftX
             && event.mousePoint.y <= contextMenuIconBottomY
             && event.mousePoint.y >= contextMenuIconTopY;

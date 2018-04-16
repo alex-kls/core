@@ -1913,7 +1913,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    contextMenuIconColor: '#BDBDBD',
+    contextMenuIconColor: '#616161',
 
     /**
      * @desc Color of context menu icon, when hovered
@@ -1922,6 +1922,30 @@ var defaults = {
      * @memberOf module:defaults
      */
     contextMenuIconHoveredColor: '#616161',
+
+    /**
+     * @desc Color of context menu button border
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    contextMenuButtonStrokeStyle: '#C6C6C6',
+
+    /**
+     * @desc Color of context menu button background color
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    contextMenuButtonFillStyle: '#F8F8F8',
+
+    /**
+     * @desc Color of context menu button background color when hovered
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    contextMenuButtonHoveredFillStyle: '#f0f0f0',
 
     /**
      * @desc String, that will be displayed as context menu icon
@@ -1939,7 +1963,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    contextMenuButtonPreferedWidth: 5,
+    contextMenuButtonIconPreferedWidth: 8,
 
     /**
      * @desc space between cell right border and button
@@ -1979,7 +2003,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    columnTypeSignFont: '700 10px "Helvetica Neue",Helvetica,Arial,sans-serif',
+    columnTypeSignFont: '900 10px "Helvetica Neue",Helvetica,Arial,sans-serif',
 
     /**
      * @desc Color of column type sign
@@ -1987,7 +2011,15 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    columnTypeSignColor: '#888888',
+    columnTypeSignColor: '#343434',
+
+    /**
+     * @desc Color of column type sign
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    columnTypeSignPreferedWidth: 15,
 
     /**
      * @desc Font of column title prefix

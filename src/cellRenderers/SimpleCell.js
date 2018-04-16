@@ -152,24 +152,21 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPaddingRight;
 
         let textRightPadding = rightPadding;
-        if (config.showCellContextMenuIcon) {
-            textRightPadding += config.contextMenuLeftSpaceToCutText;
-        }
 
         if (config.showCellContextMenuIcon && renderValue) {
+            gc.cache.strokeStyle = config.contextMenuButtonStrokeStyle;
             if (config.contextMenuIconIsHovered) {
-                gc.cache.strokeStyle = '#C6C6C6';
-                gc.cache.fillStyle = '#F8F8F8';
+                gc.cache.fillStyle = config.contextMenuButtonHoveredFillStyle;
             } else {
-                gc.cache.strokeStyle = '#E5E5E5';
-                gc.cache.fillStyle = '#F8F8F8';
+                gc.cache.fillStyle = config.contextMenuButtonFillStyle;
             }
 
             let buttonStartY = y + (height / 2 - config.contextMenuButtonHeight / 2);
-            let buttonContentWidth = gc.measureText(config.contextMenuIconUnicodeChar).width
+            let buttonContentWidth = config.contextMenuButtonIconPreferedWidth
                 + 2 * config.contextMenuButtonPadding;
 
             let buttonStartX = x + width - config.contextMenuButtonRightMargin - buttonContentWidth;
+
             this.roundRect(gc,
                 buttonStartX,
                 buttonStartY,
@@ -192,17 +189,19 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             let configClone = Object.assign({}, config);
             configClone.halign = 'right';
 
-            let iconRightPadding = x + width - (buttonStartX + buttonContentWidth) + config.contextMenuButtonPadding / 2 + 0.5;
-            renderSingleLineText(gc,
-                configClone,
-                config.contextMenuIconUnicodeChar,
-                leftPadding,
-                iconRightPadding);
+            let iconStartX = x + width - config.contextMenuButtonRightMargin
+                - config.contextMenuButtonPadding
+                - config.contextMenuButtonIconPreferedWidth;
+            let iconStartY = buttonStartY + config.contextMenuButtonHeight / 2;
+
+            gc.simpleText(config.contextMenuIconUnicodeChar,
+                iconStartX,
+                iconStartY);
 
             gc.cache.font = prevFontState;
             gc.cache.fillStyle = prevFillStyleState;
 
-            textRightPadding += buttonContentWidth;
+            textRightPadding += buttonContentWidth + config.contextMenuLeftSpaceToCutText;
         }
 
         if (config.showColumnType && config.colTypeSign) {
