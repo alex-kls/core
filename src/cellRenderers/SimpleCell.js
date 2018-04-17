@@ -154,7 +154,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         let textRightPadding = rightPadding;
 
         if (config.renderTotalErrorSignNeeded && config.renderTotalErrorCount) {
-            let totalErrorsCountIconStartY = y + (height / 2 - config.totalErrorsCountIconHeight / 2);
+            let totalErrorsCountIconStartY = y + (height / 2 - config.totalErrorsCountIconHeight / 2) - 2;
             let totalErrorsCountIconStartX = x + (width / 2 - config.totalErrorsCountIconWidth / 2);
             this.renderRoundedTriangleWithText(gc,
                 totalErrorsCountIconStartX,

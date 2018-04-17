@@ -1398,7 +1398,8 @@ var defaults = {
         'cellclick',
         'cellediting',
         'onhover',
-        'linkdetails'
+        'linkdetails',
+        'warningtooltip'
     ],
 
     /** @summary How to truncate text.
@@ -1998,7 +1999,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    totalErrorsCountIconWidth: 16,
+    totalErrorsCountIconWidth: 18,
 
     /**
      * @desc font of error icon
@@ -2015,7 +2016,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    errorIconColor: '#ff0000c2',
+    errorIconColor: '#FF3D3D',
 
     /**
      * @desc Prefered width of button
@@ -2104,7 +2105,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    columnTitlePrefixRightSpace: 3,
+    columnTitlePrefixRightSpace: 10,
 
     /**
      * @desc Svg icon that will be rendered at cell (0,0), if table has an errors
@@ -2121,7 +2122,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    columnWarningFont: '800 10px "Helvetica Neue",Helvetica,Arial,sans-serif',
+    columnWarningFont: '700 10px "Helvetica Neue",Helvetica,Arial,sans-serif',
 
     /**
      * @desc color of error icon
@@ -2137,7 +2138,15 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    columnWarningIconColor: '#FF4040',
+    columnWarningIconColor: '#FF3D3D',
+    //
+    // /**
+    //  * @desc placeholder value for cells, where own value cannot be rendered because of errors
+    //  * @default
+    //  * @type {string}
+    //  * @memberOf module:defaults
+    //  */
+    // errorCellPlaceholderText: 'Ø',
 };
 
 

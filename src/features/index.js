@@ -31,6 +31,7 @@ var Features = Registry.extend('Features', {
         this.add(Features.ColumnFixation);
         this.add(Features.RowFixation);
         this.add(Features.LinkDetails);
+        this.add(Features.WarningTooltip);
     }
 
 });
@@ -57,5 +58,6 @@ Features.ContextMenu = require('./ContextMenu');
 Features.ColumnFixation = require('./ColumnFixation');
 Features.RowFixation = require('./RowFixation');
 Features.LinkDetails = require('./LinkDetails');
+Features.WarningTooltip = require('./WarningTooltip');
 
 module.exports = new Features;

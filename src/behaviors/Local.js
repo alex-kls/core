@@ -321,33 +321,38 @@ var Local = Behavior.extend('Local', {
         grid.allowEvents(this.getRowCount());
     },
 
+    getColumnsErrors: function() {
+        return this.errors;
+    },
+
     checkForErrors: function() {
-        const errors = {};
+        this.errors = {};
 
         this.getData().forEach(row => {
             Object.keys(row).forEach(columnName => {
                 const value = row[columnName];
                 if (typeof value === 'object' && value.type === 'ERROR') {
-                    if (!errors[columnName]) {
-                        errors[columnName] = [];
+                    if (!this.errors[columnName]) {
+                        this.errors[columnName] = [];
                     }
-                    errors[columnName].push(value);
+                    this.errors[columnName].push(value);
                 }
             });
         });
 
-        this.errorCount = Object.keys(errors).length;
+        this.errorCount = Object.keys(this.errors).length;
 
         if (this.errorCount) {
-            Object.keys(errors).forEach(columnName => {
+            Object.keys(this.errors).forEach(columnName => {
                 const column = this.grid.getColumnByName(columnName);
                 if (column) {
                     column.hasError = true;
-                    column.errorCount = errors[columnName].length;
+                    column.errorCount = this.errors[columnName].length;
+                    column.firstError = this.errors[columnName][0];
 
                     const colDef = column.colDef;
                     if (colDef) {
-                        colDef.errorCount = errors[columnName].length;
+                        colDef.errorCount = this.errors[columnName].length;
                     }
                 }
             });
@@ -510,7 +515,9 @@ var Local = Behavior.extend('Local', {
 
     getSelections: function() {
         return this.grid.selectionModel.getSelections();
-    }
+    },
+
+    errors: {}
 });
 
 Object.defineProperties(Local.prototype, require('./columnEnum').descriptors);
