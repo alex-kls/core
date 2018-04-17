@@ -1975,14 +1975,30 @@ var defaults = {
      */
     errorIconUnicodeChar: decodeURI('\uf071'),
 
+    // /**
+    //  * @desc String, that will be displayed as error icon for total count of errors
+    //  * Best way to use this parameter is set it's value on such unicode char, provided by your icons pack
+    //  * @default
+    //  * @type {string}
+    //  * @memberOf module:defaults
+    //  */
+    // errorTotalUnicodeChar: decodeURI('\uf2ec'),
+
     /**
-     * @desc String, that will be displayed as error icon for total count of errors
-     * Best way to use this parameter is set it's value on such unicode char, provided by your icons pack
+     * @desc height of icon, that represents total number of errors
      * @default
-     * @type {string}
+     * @type {number}
      * @memberOf module:defaults
      */
-    errorTotalUnicodeChar: decodeURI('\uf2ec'),
+    totalErrorsCountIconHeight: 16,
+
+    /**
+     * @desc width of icon, that represents total number of errors
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    totalErrorsCountIconWidth: 16,
 
     /**
      * @desc font of error icon
@@ -2089,6 +2105,30 @@ var defaults = {
      * @memberOf module:defaults
      */
     columnTitlePrefixRightSpace: 3,
+
+    /**
+     * @desc Svg icon that will be rendered at cell (0,0), if table has an errors
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    columnWarningIconSrc: 'https://test1.datadocs.com/static/img/visualization/ingest-warning.svg',
+
+    /**
+     * @desc Font of text (total number of errors), that rendered inside warning icon
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    columnWarningFont: '800 10px "Helvetica Neue",Helvetica,Arial,sans-serif',
+
+    /**
+     * @desc color of error icon
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    columnWarningFontColor: 'white',
 };
 
 

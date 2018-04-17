@@ -1232,11 +1232,12 @@ var Renderer = Base.extend('Renderer', {
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
             format = config.format;
         } else if (x === grid.behavior.rowColumnIndex && r === 0 && isHandleColumn && isHeaderRow && behavior.errorCount) {
-            value = behavior.errorCount + 10;
             config.foregroundSelectionColor = config.color = properties.backgroundColor;
-            config.backgroundText = this.properties.errorTotalUnicodeChar;
-            config.backgroundTextFont = this.properties.errorIconFont;
-            config.backgroundTextColor = this.properties.errorIconColor;
+            // config.backgroundText = this.properties.errorTotalUnicodeChar;
+            // config.backgroundTextFont = this.properties.errorIconFont;
+            // config.backgroundTextColor = this.properties.errorIconColor;
+            config.renderTotalErrorSignNeeded = true;
+            config.renderTotalErrorCount = behavior.errorCount;
         } else {
             format = cellEvent.subgrid.format || config.format; // subgrid format can override column format
             if (isFilterRow) {

@@ -1,3 +1,4 @@
+/* eslint-env browser */
 'use strict';
 
 /** @typedef {object} CellRenderer#renderConfig
@@ -138,6 +139,38 @@ var CellRenderer = Base.extend('CellRenderer', {
             gc.fill();
         }
         gc.closePath();
+    },
+
+    renderSvgImageWithText: function(gc, x, y, height, width, svgSrc, val, font, fontColor) {
+        let prevFontState = gc.cache.font,
+            prevFillStyleState = gc.cache.fillStyle,
+            prevTextAlign = gc.cache.textAlign;
+
+        let img = new Image;
+        img.onload = function(){
+            gc.drawImage(img, x, y, height, width);
+
+            let textStartX = x + width / 2;
+            let textStartY = y + height / 2 + 5;
+
+            gc.cache.font = font;
+            gc.cache.fillStyle = fontColor;
+            gc.cache.textAlign = 'center';
+
+            if (val.length > 1) {
+                val = '...';
+            }
+
+            gc.simpleText(val,
+                textStartX,
+                textStartY);
+
+            gc.cache.font = prevFontState;
+            gc.cache.fillStyle = prevFillStyleState;
+            gc.cache.textAlign = prevTextAlign;
+        };
+        // let valueWidth = gc.measureText(val);
+        img.src = svgSrc;
     }
 });
 

@@ -153,6 +153,20 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
         let textRightPadding = rightPadding;
 
+        if (config.renderTotalErrorSignNeeded && config.renderTotalErrorCount) {
+            let totalErrorsCountIconStartY = y + (height / 2 - config.totalErrorsCountIconHeight / 2);
+            let totalErrorsCountIconStartX = x + (width / 2 - config.totalErrorsCountIconWidth / 2);
+            this.renderSvgImageWithText(gc,
+                totalErrorsCountIconStartX,
+                totalErrorsCountIconStartY,
+                config.totalErrorsCountIconHeight,
+                config.totalErrorsCountIconWidth,
+                config.columnWarningIconSrc,
+                config.renderTotalErrorCount,
+                config.columnWarningFont,
+                config.columnWarningFontColor);
+        }
+
         if (config.showCellContextMenuIcon && renderValue) {
             gc.cache.strokeStyle = config.contextMenuButtonStrokeStyle;
             if (config.contextMenuIconIsHovered) {
