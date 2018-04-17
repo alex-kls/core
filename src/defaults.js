@@ -2108,6 +2108,7 @@ var defaults = {
 
     /**
      * @desc Svg icon that will be rendered at cell (0,0), if table has an errors
+     * @deprecated now used rendered triangle instead of svg to minimize loading time
      * @default
      * @type {string}
      * @memberOf module:defaults
@@ -2129,6 +2130,14 @@ var defaults = {
      * @memberOf module:defaults
      */
     columnWarningFontColor: 'white',
+
+    /**
+     * @desc color of total errors icon
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    columnWarningIconColor: '#FF4040',
 };
 
 

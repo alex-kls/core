@@ -141,6 +141,19 @@ var CellRenderer = Base.extend('CellRenderer', {
         gc.closePath();
     },
 
+    /**
+     * @desc utility function to render SVG image with an text inside
+     * @param {CanvasRenderingContext2D} gc
+     * @param {number} x - left point of area where image will be rendered
+     * @param {number} y - top point of area where image will be rendered
+     * @param {number} width - width of area where image will be rendered
+     * @param {number} height - height of area where image will be rendered
+     * @param {string} svgSrc - link to an image, that needed to be rendered
+     * @param {string} val - text value, that will be rendered inside image area
+     * @param {string} font - font of an inner text
+     * @param {string} fontColor - font color of an inner text
+     * @memberOf CellRenderer.prototype
+     */
     renderSvgImageWithText: function(gc, x, y, height, width, svgSrc, val, font, fontColor) {
         let prevFontState = gc.cache.font,
             prevFillStyleState = gc.cache.fillStyle,
@@ -169,8 +182,70 @@ var CellRenderer = Base.extend('CellRenderer', {
             gc.cache.fillStyle = prevFillStyleState;
             gc.cache.textAlign = prevTextAlign;
         };
-        // let valueWidth = gc.measureText(val);
         img.src = svgSrc;
+    },
+
+    /**
+     * @desc utility function to render triangle with rounded corners with an inner text
+     * @param {CanvasRenderingContext2D} gc
+     * @param {number} x - left point of area where triangle will be rendered
+     * @param {number} y - top point of area where triangle will be rendered
+     * @param {number} width - width of area where triangle will be rendered
+     * @param {number} height - height of area where triangle will be rendered
+     * @param {number} cornerRadius - corner radius of triangle
+     * @param {string} fillStyle - fill style of an entire triangle
+     * @param {string} val - text value, that will be rendered inside image area
+     * @param {string} font - font of an inner text
+     * @param {string} fontColor - font color of an inner text
+     * @memberOf CellRenderer.prototype
+     */
+    renderRoundedTriangleWithText: function(gc, x, y, height, width, cornerRadius, fillStyle, val, font, fontColor) {
+        let prevFontState = gc.cache.font,
+            prevFillStyleState = gc.cache.fillStyle,
+            prevTextAlign = gc.cache.textAlign,
+            prevLineJoin = gc.cache.lineJoin,
+            prevLineWidth = gc.cache.lineWidth;
+
+        let topPointX = x + width / 2;
+        let topPointY = y + cornerRadius * 2;
+
+        let triangleWidth = width - cornerRadius * 2;
+        let triangleHeight = height - cornerRadius * 2;
+
+        gc.beginPath();
+        gc.moveTo(topPointX, topPointY);
+        gc.lineTo(topPointX + triangleWidth / 2, topPointY + triangleHeight);
+        gc.lineTo(topPointX - triangleWidth / 2, topPointY + triangleHeight);
+        gc.closePath();
+        gc.fillStyle = fillStyle;
+        gc.fill();
+
+
+        gc.lineWidth = cornerRadius;
+        gc.lineJoin = 'round';
+        gc.strokeStyle = fillStyle;
+        gc.stroke();
+
+        let textStartX = x + width / 2;
+        let textStartY = y + height / 2 + 4;
+
+        gc.cache.font = font;
+        gc.cache.fillStyle = fontColor;
+        gc.cache.textAlign = 'center';
+
+        if (val.length > 1) {
+            val = '...';
+        }
+
+        gc.simpleText(val,
+            textStartX,
+            textStartY);
+
+        gc.cache.font = prevFontState;
+        gc.cache.fillStyle = prevFillStyleState;
+        gc.cache.textAlign = prevTextAlign;
+        gc.cache.lineJoin = prevLineJoin;
+        gc.cache.lineWidth = prevLineWidth;
     }
 });
 

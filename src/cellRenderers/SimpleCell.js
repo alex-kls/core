@@ -156,12 +156,13 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         if (config.renderTotalErrorSignNeeded && config.renderTotalErrorCount) {
             let totalErrorsCountIconStartY = y + (height / 2 - config.totalErrorsCountIconHeight / 2);
             let totalErrorsCountIconStartX = x + (width / 2 - config.totalErrorsCountIconWidth / 2);
-            this.renderSvgImageWithText(gc,
+            this.renderRoundedTriangleWithText(gc,
                 totalErrorsCountIconStartX,
                 totalErrorsCountIconStartY,
                 config.totalErrorsCountIconHeight,
                 config.totalErrorsCountIconWidth,
-                config.columnWarningIconSrc,
+                2,
+                config.columnWarningIconColor,
                 config.renderTotalErrorCount,
                 config.columnWarningFont,
                 config.columnWarningFontColor);
