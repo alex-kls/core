@@ -51,7 +51,7 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
                 let tooltipRightX = event.bounds.x
                     + event.properties.cellPaddingLeft
                     + grid.canvas.size.left
-                    + 5;
+                    + 8;
                 let tooltipTopY = event.bounds.y + event.bounds.height + grid.canvas.size.top;
                 this.paintWarningTooltip(tooltipDiv,
                     tooltipRightX,
