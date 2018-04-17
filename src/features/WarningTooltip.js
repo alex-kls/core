@@ -68,7 +68,7 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
                 this.paintWarningTooltip(tooltipDiv,
                     tooltipRightX,
                     tooltipTopY,
-                    grid.getFieldsErrorsMessage(grid.behavior.getColumnsErrors()),
+                    grid.getFieldsErrorsMessage(),
                     'right');
             }
         } else {

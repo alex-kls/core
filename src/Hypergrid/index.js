@@ -178,7 +178,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.onColumnsMoved = options.onColumnsMoved || this.onColumnsMoved;
         this.getMainMenuItems = options.getMainMenuItems || this.getMainMenuItems;
         this.getContextMenuItems = options.getContextMenuItems || this.getContextMenuItems;
-        this.getFieldsErrorsMessage = options.getFieldsErrorsMessage || this.getFieldsErrorsMessage;
 
         /**
          * @name plugins
@@ -1929,6 +1928,11 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     getColumnByName: function(name) {
         return this.getActiveColumns().find(c => c.name === name);
+    },
+
+    getFieldsErrorsMessage: function() {
+        const fields = Object.keys(this.behavior.getColumnsErrors());
+        return `The following fields have possible errors: ${fields.join(', ')}. Please review them before saving your data.`;
     }
 });
 

@@ -129,16 +129,6 @@
                             console.error('no coldDef', colDef, column);
                         }
                     },
-                    getColumnsErrors: function() {
-                        return window.grid.behavior.getColumnsErrors();
-                    },
-                    getFieldsErrorsMessage: function(fields) {
-                        if (!fields) {
-                            fields = this.getColumnsErrors();
-                        }
-                        fields = Object.keys(fields);
-                        return `The following fields have possible errors: ${fields.join(', ')}. Please review them before saving your data.`;
-                    },
                     getMainMenuItems: (params) => [
                         {
                             "name": "Data Type: <span class=\"ag-grid-selected-type \">Text </span>",
