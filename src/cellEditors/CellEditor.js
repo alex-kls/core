@@ -215,7 +215,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     setEditorValue: function(value) {
-        value = typeof value !== 'undefined' ? value : '';
+        value = typeof value !== 'undefined' && typeof value !== 'object' ? value : '';
         this.input.value = this.localizer.format(value);
     },
 
@@ -266,6 +266,7 @@ var CellEditor = Base.extend('CellEditor', {
         /**
          * @type {boolean|string|Error}
          */
+
         var error = this.validateEditorValue();
 
         if (!error) {
@@ -276,7 +277,7 @@ var CellEditor = Base.extend('CellEditor', {
             }
         }
 
-        if (!error && this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, value)) {
+        if (!error && this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, value) && !this.el.readOnly) {
             try {
                 this.saveEditorValue(value);
             } catch (err) {

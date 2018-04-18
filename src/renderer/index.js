@@ -1256,9 +1256,9 @@ var Renderer = Base.extend('Renderer', {
             //Including hierarchyColumn
             config.dataRow = cellEvent.dataRow;
             value = cellEvent.value;
-            if (typeof value === 'object' && value.type === 'ERROR') {
-                config.foregroundSelectionColor = config.color = cellEvent.properties.errorCellDataColor;
-                // value = config.errorCellPlaceholderText;
+            if (!!value && typeof value === 'object' && value.type === 'ERROR') {
+                config.foregroundSelectionColor = config.color = config.errorCellDataColor;
+                // value = config.emptyCellPlaceholder;
             }
         } else {
             if (isDataRow) {

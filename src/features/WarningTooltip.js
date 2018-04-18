@@ -60,7 +60,7 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
             }
         } else {
             if (this.isMenuShown) {
-                this.hideWarningTooltip(tooltipDiv);
+                this.hideWarningTooltip(grid);
             }
         }
 
@@ -82,7 +82,7 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
      * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleDataAdded: function(grid, event) {
-        this.hideWarningTooltip();
+        this.hideWarningTooltip(grid);
 
         if (this.next) {
             this.next.handleDataAdded(grid, event);
@@ -127,7 +127,6 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
         let totalErrorsCountIconStartX = event.bounds.width / 2 - event.properties.totalErrorsCountIconWidth / 2;
         let totalErrorsCountIconEndX = totalErrorsCountIconStartX + event.properties.totalErrorsCountIconWidth;
 
-
         return event.mousePoint.x <= totalErrorsCountIconEndX
             && event.mousePoint.x >= totalErrorsCountIconStartX
             && event.mousePoint.y <= totalErrorsCountIconEndY
@@ -144,7 +143,7 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
      * @param {string} placement - placement of an tooltip
      */
     paintWarningTooltip: function(grid, x, y, text, placement) {
-        this.hideWarningTooltip(tooltipDiv);
+        this.hideWarningTooltip(grid);
 
         if (!tooltipDiv) {
             this.initializeWarningTooltipDiv();
@@ -170,7 +169,7 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
         tooltipInnerDiv.innerHTML = text;
         tooltipDiv.appendChild(tooltipInnerDiv);
 
-        this.showWarningTooltip();
+        this.showWarningTooltip(grid);
 
         let leftX, topY;
         let tooltipWidth = tooltipDiv.offsetWidth,
@@ -193,16 +192,16 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
     /**
      * @memberOf WarningTooltip.prototype
      * @desc utility method to start show context menu on defined point.
-     * @desc Menu must be formed before it will be passed to this method
+     * @param {Hypergrid} grid
      */
-    showWarningTooltip: function() {
+    showWarningTooltip: function(grid) {
         let op = 0.1;  // initial opacity
         tooltipDiv.style.opacity = op;
         tooltipDiv.style.display = 'block';
         this.isMenuShown = true;
         this.clearIntervals();
         fadeInInterval = setInterval(() => {
-            if (op >= 1){
+            if (op >= grid.properties.warningTooltipOpacity){
                 clearInterval(fadeInInterval);
             }
             if (!tooltipDiv) {
@@ -229,15 +228,16 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
     /**
      * @memberOf WarningTooltip.prototype
      * @desc utility method to stop displaying context menu
+     * @param {Hypergrid} grid
      */
-    hideWarningTooltip: function() {
+    hideWarningTooltip: function(grid) {
         this.isMenuShown = false;
 
         if (!tooltipDiv) {
             return;
         }
 
-        let op = 1;  // initial opacity
+        let op = grid.properties.warningTooltipOpacity;  // initial opacity
         this.clearIntervals();
         fadeOutInterval = setInterval(() => {
             if (op <= 0.1){

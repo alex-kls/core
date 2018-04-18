@@ -2105,7 +2105,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    columnTitlePrefixRightSpace: 10,
+    columnTitlePrefixRightSpace: 5,
 
     /**
      * @desc Svg icon that will be rendered at cell (0,0), if table has an errors
@@ -2178,7 +2178,15 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    warningTooltipInnerClass: 'tooltip-inner'
+    warningTooltipInnerClass: 'tooltip-inner',
+
+    /**
+     * @desc tooltip opacity when visible
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    warningTooltipOpacity: 0.8,
 };
 
 
