@@ -2147,6 +2147,38 @@ var defaults = {
     //  * @memberOf module:defaults
     //  */
     // errorCellPlaceholderText: 'Ø',
+
+    /**
+     * @desc classes of tooltip container when placed at bottom
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    warningTooltipBottomClass: 'tooltip bottom ng-animate in-add fade in main-page-tooltip',
+
+    /**
+     * @desc classes of tooltip container when placed at right
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    warningTooltipRightClass: 'tooltip right ng-animate in-add fade in main-page-tooltip',
+
+    /**
+     * @desc classes of tooltip-arrow
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    warningTooltipArrowClass: 'tooltip-arrow',
+
+    /**
+     * @desc classes of tooltip-inner
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    warningTooltipInnerClass: 'tooltip-inner'
 };
 
 

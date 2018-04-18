@@ -3,7 +3,9 @@
 
 const Feature = require('./Feature');
 
-let tooltipDiv;
+var tooltipDiv,
+    fadeInInterval,
+    fadeOutInterval;
 
 /**
  * @constructor
@@ -14,31 +16,16 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
 
     /**
      * @memberOf WarningTooltip.prototype
-     * @desc give me an opportunity to initialize stuff on the grid
-     * @param {Hypergrid} grid
-     */
-    initializeOn: function(grid) {
-        if (!tooltipDiv) {
-            tooltipDiv = this.initializeWarningTooltipDiv();
-        }
-
-        if (this.next) {
-            this.next.initializeOn(grid);
-        }
-    },
-
-    /**
-     * @memberOf WarningTooltip.prototype
      * @desc initialize context menu div
      */
     initializeWarningTooltipDiv: function() {
-        let tooltipHolderDiv = document.createElement('div');
+        tooltipDiv = document.createElement('div');
 
-        tooltipHolderDiv.style.display = 'none';
+        tooltipDiv.style.display = 'none';
 
-        document.body.appendChild(tooltipHolderDiv);
+        document.body.appendChild(tooltipDiv);
 
-        return tooltipHolderDiv;
+        return tooltipDiv;
     },
 
     handleMouseMove: function(grid, event) {
@@ -53,7 +40,7 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
                     + grid.canvas.size.left
                     + 8;
                 let tooltipTopY = event.bounds.y + event.bounds.height + grid.canvas.size.top;
-                this.paintWarningTooltip(tooltipDiv,
+                this.paintWarningTooltip(grid,
                     tooltipRightX,
                     tooltipTopY,
                     event.column.firstError.description,
@@ -65,14 +52,16 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
                     + event.bounds.width / 2 + event.properties.totalErrorsCountIconWidth / 2
                     + grid.canvas.size.left;
                 let tooltipTopY = event.bounds.y + event.bounds.height / 2 + grid.canvas.size.top;
-                this.paintWarningTooltip(tooltipDiv,
+                this.paintWarningTooltip(grid,
                     tooltipRightX,
                     tooltipTopY,
                     grid.getFieldsErrorsMessage(),
                     'right');
             }
         } else {
-            this.hideWarningTooltip(tooltipDiv);
+            if (this.isMenuShown) {
+                this.hideWarningTooltip(tooltipDiv);
+            }
         }
 
         if (stateChanged) {
@@ -93,7 +82,7 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
      * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleDataAdded: function(grid, event) {
-        this.hideWarningTooltip(tooltipDiv);
+        this.hideWarningTooltip();
 
         if (this.next) {
             this.next.handleDataAdded(grid, event);
@@ -148,40 +137,44 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
     /**
      * @memberOf WarningTooltip.prototype
      * @desc utility method to paint context menu based on click event, and position params
-     * @param {HTMLElement} tooltipHolderDiv - object with Html element and related elements
+     * @param {Hypergrid} grid
      * @param {number} x - defines horizontal point of menu start
      * @param {number} y - defines vertical point of menu start
      * @param {string} text - tooltip content
      * @param {string} placement - placement of an tooltip
      */
-    paintWarningTooltip: function(tooltipHolderDiv, x, y, text, placement) {
-        this.hideWarningTooltip(tooltipHolderDiv);
+    paintWarningTooltip: function(grid, x, y, text, placement) {
+        this.hideWarningTooltip(tooltipDiv);
+
+        if (!tooltipDiv) {
+            this.initializeWarningTooltipDiv();
+        }
 
         // tooltipHolderDiv.setAttribute('class', 'tooltip bottom fade in main-page-tooltip');
 
         switch (placement){
             case 'bottom':
-                tooltipHolderDiv.setAttribute('class', 'tooltip bottom fade in main-page-tooltip');
+                tooltipDiv.setAttribute('class', grid.properties.warningTooltipBottomClass);
                 break;
             case 'right':
-                tooltipHolderDiv.setAttribute('class', 'tooltip right fade in main-page-tooltip');
+                tooltipDiv.setAttribute('class', grid.properties.warningTooltipRightClass);
                 break;
         }
 
         let tooltipArrowDiv = document.createElement('div');
-        tooltipArrowDiv.setAttribute('class', 'tooltip-arrow');
-        tooltipHolderDiv.appendChild(tooltipArrowDiv);
+        tooltipArrowDiv.setAttribute('class', grid.properties.warningTooltipArrowClass);
+        tooltipDiv.appendChild(tooltipArrowDiv);
 
         let tooltipInnerDiv = document.createElement('div');
-        tooltipInnerDiv.setAttribute('class', 'tooltip-inner');
+        tooltipInnerDiv.setAttribute('class', grid.properties.warningTooltipInnerClass);
         tooltipInnerDiv.innerHTML = text;
-        tooltipHolderDiv.appendChild(tooltipInnerDiv);
+        tooltipDiv.appendChild(tooltipInnerDiv);
 
-        this.showWarningTooltip(tooltipHolderDiv);
+        this.showWarningTooltip();
 
         let leftX, topY;
-        let tooltipWidth = tooltipHolderDiv.offsetWidth,
-            tooltipHeight = tooltipHolderDiv.offsetHeight;
+        let tooltipWidth = tooltipDiv.offsetWidth,
+            tooltipHeight = tooltipDiv.offsetHeight;
 
         switch (placement){
             case 'bottom':
@@ -194,51 +187,89 @@ const WarningTooltip = Feature.extend('WarningTooltip', {
                 break;
         }
 
-        this.moveWarningTooltip(tooltipHolderDiv, leftX, topY);
+        this.moveWarningTooltip(leftX, topY);
     },
 
     /**
      * @memberOf WarningTooltip.prototype
      * @desc utility method to start show context menu on defined point.
      * @desc Menu must be formed before it will be passed to this method
-     * @param {HTMLElement} tooltipHolderDiv - Html element that represents tooltip container
      */
-    showWarningTooltip: function(tooltipHolderDiv) {
-        tooltipHolderDiv.style.display = 'block';
+    showWarningTooltip: function() {
+        let op = 0.1;  // initial opacity
+        tooltipDiv.style.opacity = op;
+        tooltipDiv.style.display = 'block';
         this.isMenuShown = true;
+        this.clearIntervals();
+        fadeInInterval = setInterval(() => {
+            if (op >= 1){
+                clearInterval(fadeInInterval);
+            }
+            if (!tooltipDiv) {
+                return;
+            }
+            tooltipDiv.style.opacity = op;
+            tooltipDiv.style.filter = 'alpha(opacity=' + op * 100 + ')';
+            op += op * 0.2;
+        }, 5);
     },
 
     /**
      * @memberOf WarningTooltip.prototype
      * @desc utility method to move tooltip to position
      * @desc Menu must be formed before it will be passed to this method
-     * @param {HTMLElement} tooltipHolderDiv - Html element that represents tooltip container
      * @param {number} x - defines horizontal point of tooltip start
      * @param {number} y - defines vertical point of tooltip start
      */
-    moveWarningTooltip: function(tooltipHolderDiv, x, y) {
-        tooltipHolderDiv.style.top = y + 'px';
-        tooltipHolderDiv.style.left = x + 'px';
+    moveWarningTooltip: function(x, y) {
+        tooltipDiv.style.top = y + 'px';
+        tooltipDiv.style.left = x + 'px';
     },
 
     /**
      * @memberOf WarningTooltip.prototype
      * @desc utility method to stop displaying context menu
-     * @param {HTMLElement} tooltipHolderDiv - Html element that represents tooltip container
      */
-    hideWarningTooltip: function(tooltipHolderDiv) {
-        tooltipHolderDiv.innerHTML = '';
-        tooltipHolderDiv.style.display = 'none';
+    hideWarningTooltip: function() {
         this.isMenuShown = false;
+
+        if (!tooltipDiv) {
+            return;
+        }
+
+        let op = 1;  // initial opacity
+        this.clearIntervals();
+        fadeOutInterval = setInterval(() => {
+            if (op <= 0.1){
+                clearInterval(fadeOutInterval);
+
+                if (!tooltipDiv) {
+                    return;
+                }
+                tooltipDiv.style.display = 'none';
+
+                tooltipDiv.innerHTML = '';
+                tooltipDiv.remove();
+                tooltipDiv = null;
+            }
+
+            if (!tooltipDiv) {
+                return;
+            }
+
+            tooltipDiv.style.opacity = op;
+            tooltipDiv.style.filter = 'alpha(opacity=' + op * 100 + ')';
+            op -= op * 0.2;
+        }, 5);
     },
 
-    /**
-     * @memberOf WarningTooltip.prototype
-     * @desc utility method to remove HTML element from current DOM
-     * @param {HTMLElement} element - HTML element that need to be removed from DOM
-     */
-    removeDOMElement: function(element) {
-        element.remove();
+    clearIntervals: function() {
+        if  (fadeOutInterval) {
+            clearInterval(fadeOutInterval);
+        }
+        if  (fadeInInterval) {
+            clearInterval(fadeInInterval);
+        }
     }
 });
 
