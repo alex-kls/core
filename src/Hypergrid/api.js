@@ -270,13 +270,16 @@ function destroy(total) {
     this.selectionModel.reset();
     this.renderer.reset();
 
-    if (total) {
+    if (total || !this.isAlive()) {
         this.destroyScrollbars();
     } else {
         this.canvas.resize();
         this.behaviorChanged();
         this.refreshProperties();
-        this.initialize(this.div);
+        if (this.div) {
+            this.initialize(this.div);
+            this.canvas.start();
+        }
     }
 }
 

@@ -218,9 +218,23 @@ var Hypergrid = Base.extend('Hypergrid', {
     terminate: function() {
         document.removeEventListener('mousedown', this.mouseCatcher);
         this.canvas.stop();
-        Hypergrid.grids.splice(this.grids.indexOf(this), 1);
+        if (this.grids) {
+            Hypergrid.grids.splice(this.grids.indexOf(this), 1);
+        }
     },
 
+    /*
+    * check if grid alive
+     */
+    isAlive: function() {
+        // check if div still in DOM
+        if (!document.body.contains(this.div)) {
+            this.terminate();
+            this.div = undefined;
+            return false;
+        }
+        return true;
+    },
 
     resetGridBorder: function(edge) {
         edge = edge || '';

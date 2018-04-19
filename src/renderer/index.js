@@ -1716,7 +1716,7 @@ function computeCellsBounds() {
             this.bottomFreeSpace = Y - y;
             if (this.bottomFreeSpace <= gridProps.defaultRowHeight) {
                 var headerRowsCount = behavior.getHeaderRowCount();
-                var previousFirstRow = this.visibleRows[headerRowsCount];
+                var previousFirstRow = this.visibleRows[headerRowsCount] || this.visibleRows[headerRowsCount - 1];
 
                 this.skippedTopSpace = gridProps.defaultRowHeight - this.bottomFreeSpace + lineWidthH;
                 var top = previousFirstRow.top - this.skippedTopSpace;
