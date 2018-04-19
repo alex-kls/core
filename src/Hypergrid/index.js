@@ -129,9 +129,11 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         if (options.data) {
             this.setData(options.data, options); // if no behavior has yet been set, `setData` sets a default behavior
-        } else if (options.Behavior || options.dataModel || options.DataModel) {
-            this.setBehavior(options); // also sets options.data
         } else {
+            // behaviour should be
+            if (!this.behavior) {
+                this.setBehavior(options);
+            }
             this.initScrollbars();
         }
 
