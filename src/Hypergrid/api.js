@@ -236,6 +236,11 @@ function setColumnDefs(colDefs) {
 function setRowData(rowData) {
     console.log('setRowData', rowData);
 
+    // todo remove this in future
+    if (rowData.length === 1000) {
+        rowData.pop();
+    }
+
     this.data = rowData;
 
     this.setData({ data: rowData });
@@ -364,7 +369,7 @@ function setDatasource(datasource) {
     console.log('setDatasource', datasource);
     this.api.datasource = datasource;
 
-    const startRow = this.data.length;
+    const startRow = this.data.length || 0;
 
     if (startRow < datasource.totalSize) {
         const params = {
@@ -372,6 +377,12 @@ function setDatasource(datasource) {
             endRow: startRow + this.paginationPageSize, // replace with correct getter
             successCallback: (rows, lastRowIndex) => {
                 console.log('successCallback', rows, lastRowIndex);
+
+                // todo remove this in future
+                if (startRow === 0 && rows.length === 1000) {
+                    rows.pop();
+                }
+
                 [].push.apply(this.data, rows);
                 this.addData({ data: rows });
             },
