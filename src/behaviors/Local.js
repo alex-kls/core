@@ -26,22 +26,24 @@ var Local = Behavior.extend('Local', {
     },
 
     createColumns: function() {
-        var oldColumns = this.columns;
-        var oldAllColumns = this.allColumns;
+        const oldColumns = this.columns;
+        const oldAllColumns = this.allColumns;
 
         Behavior.prototype.createColumns.call(this);
 
         this.schema.forEach(function(columnSchema, index) {
-            var findFunction = function(c) {
+            const findFunction = function(c) {
                 return c.properties.index === index &&
                     c.properties.name === columnSchema.name &&
                     c.properties.calculator === columnSchema.calculator &&
                     c.colDef === columnSchema.colDef;
             };
-            var oldColumn = oldAllColumns.find(findFunction) || oldColumns.find(findFunction);
+            const oldColumn = oldAllColumns.find(findFunction) || oldColumns.find(findFunction);
+            const oldColumnColdDef = oldAllColumns.find(c => c.colDef === columnSchema.colDef) || oldColumns.find(c => c.colDef === columnSchema.colDef);
+
             if (oldColumn) {
-                var newColumn = this.addColumn(oldColumn.properties);
-                var props = newColumn.properties;
+                const newColumn = this.addColumn(oldColumn.properties);
+                const props = newColumn.properties;
 
                 // disable resizing for old resized columns
                 // when data was added to existed array of data
@@ -49,7 +51,7 @@ var Local = Behavior.extend('Local', {
                     props.columnAutosizing = false;
                 }
             } else {
-                newColumn = this.addColumn({
+                const newColumn = this.addColumn({
                     index: index,
                     header: columnSchema.header,
                     calculator: columnSchema.calculator,
@@ -63,6 +65,17 @@ var Local = Behavior.extend('Local', {
                         width: columnSchema.width,
                         columnAutosizing: false
                     });
+                } else if (oldColumnColdDef) {
+                    const props = oldColumnColdDef.properties;
+
+                    // disable resizing for old resized columns
+                    // when data was added to existed array of data
+                    if (props.width === props.preferredWidth && props.columnAutosizing && props.columnAutosized) {
+                        Object.assign(newColumn.properties, {
+                            width: props.width,
+                            columnAutosizing: false
+                        });
+                    }
                 }
 
                 if (columnSchema.formatter) {
@@ -149,7 +162,7 @@ var Local = Behavior.extend('Local', {
     fitColumns: function() {
         var gc = this.grid.canvas.gc;
         var oldFont = gc.cache.font;
-        this.allColumns.forEach(c => this.fitColumn.bind(this)(c));
+        this.allColumns.forEach(c => this.fitColumn(c));
         gc.cache.font = oldFont;
     },
 

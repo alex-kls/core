@@ -18,6 +18,7 @@ function setColumnVisible(key, visible) {
         }
     }
     this.api.setColumnDefs(colDef);
+    this.api.needColumnsToFit = true;
 }
 
 function setColumnsVisible(keys, visible) {
@@ -34,6 +35,7 @@ function setColumnsVisible(keys, visible) {
         }
     });
     this.api.setColumnDefs(colDef);
+    this.api.needColumnsToFit = true;
 }
 
 function changePinnedRange(countToPin) {
