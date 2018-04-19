@@ -150,6 +150,13 @@ var mixin = {
         });
     },
 
+    fireSyntheticColumnsMovedEvent: function(columns, toIndex) {
+        return dispatchEvent.call(this, 'fin-columns-moved', true, {
+            columns: columns,
+            toIndex: toIndex
+        });
+    },
+
     /**
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-row-selection-changed` event.

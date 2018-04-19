@@ -181,6 +181,12 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.getMainMenuItems = options.getMainMenuItems || this.getMainMenuItems;
         this.getContextMenuItems = options.getContextMenuItems || this.getContextMenuItems;
 
+        if (this.onColumnsMoved) {
+            this.addInternalEventListener('fin-columns-moved', (e) => {
+                this.onColumnsMoved(e.detail.columns, e.detail.toIndex);
+            });
+        }
+
         /**
          * @name plugins
          * @summary Dictionary of named instance plug-ins.
@@ -1825,14 +1831,25 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.canvas.restartPaintThread();
     },
 
+    /**
+     * @deprecated columns dragging now performed like in google sheets (performed only when user stop dragging on new position)
+     */
     swapColumns: function(source, target) {
         //Turns out this is called during dragged 'i.e' when the floater column is reshuffled
         //by the currently dragged column. The column positions are constantly reshuffled
         this.behavior.swapColumns(source, target);
     },
 
-    moveColumns: function(from, len, target) {
-        this.behavior.moveColumns(from, len, target);
+    /**
+     * @desc utility method to perform columns reordering
+     * @param {number} from - start index
+     * @param {number} len - length of columns set to reorder
+     * @param {number} target - new start index of an columns
+     * @param {boolean?} broadcastEvent - optional param. If set to 'false', synthetic event will not be fired.
+     * Useful, when reordering not initiated by user, and don't need to affect side effects
+     */
+    moveColumns: function(from, len, target, broadcastEvent) {
+        this.behavior.moveColumns(from, len, target, broadcastEvent);
     },
 
     getSelectedColumns: function() {

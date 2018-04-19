@@ -57,6 +57,7 @@ function getColumn(key) {
 }
 
 function moveColumn(fromIndex, toIndex) {
+    this.moveColumns(fromIndex, 1, toIndex, false);
     console.log('moveColumn', fromIndex, toIndex);
 }
 

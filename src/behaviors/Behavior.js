@@ -1120,21 +1120,31 @@ var Behavior = Base.extend('Behavior', {
         this.changed();
     },
 
-    moveColumns: function(from, len, target) {
+    /**
+     * @desc utility method to perform columns reordering
+     * @param {number} from - start index
+     * @param {number} len - length of columns set to reorder
+     * @param {number} target - new start index of an columns
+     * @param {boolean?} broadcastEvent - optional param. If set to 'false', synthetic event will not be fired.
+     * Useful, when reordering not initiated by user, and don't need to affect side effects
+     */
+    moveColumns: function(from, len, target, broadcastEvent = true) {
         const columns = this.columns;
 
         let headers = [];
         if (this.grid.properties.onlyDataReorder) {
             headers = columns.map(c => c.header);
         }
+        let columnsToMoveBefore = columns.slice(from, from + len);
+
         columns.move(from, len, target);
         if (this.grid.properties.onlyDataReorder) {
             columns.forEach((c, i) => c.header = headers[i]);
         }
 
-        const columnToMove = columns.slice(from, from + len);
+        const columnsToMove = columns.slice(from, from + len);
 
-        columnToMove.reverse().forEach((column) => {
+        columnsToMove.reverse().forEach((column) => {
             const colDefs = this.grid.columnDefs;
             const singleColDef = column.colDef;
 
@@ -1143,8 +1153,8 @@ var Behavior = Base.extend('Behavior', {
             }
         });
 
-        if (this.grid.onColumnsMoved) {
-            this.grid.onColumnsMoved(columnToMove, target);
+        if (broadcastEvent) {
+            this.grid.fireSyntheticColumnsMovedEvent(columnsToMoveBefore, target);
         }
 
         this.changed();

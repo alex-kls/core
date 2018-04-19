@@ -199,8 +199,44 @@ const virtualPageRowModel = {
     }
 };
 
+// function isColumnDefsSimilar(colDefs1, colDefs2) {
+//     if (colDefs1.length === 0 && colDefs2.length === 0) {
+//         return true;
+//     }
+//
+//     if (colDefs1.length !== colDefs2.length) {
+//         return false;
+//     }
+//
+//     colDefs1.forEach((cd, i) => {
+//         let cd2WidhSameIndex = colDefs2[i];
+//
+//         if (!cd2WidhSameIndex) {
+//             return false;
+//         }
+//
+//         if (cd.colId !== cd2WidhSameIndex.colId) {
+//             return false;
+//         }
+//     });
+//
+//     return true;
+// }
+
 function setColumnDefs(colDefs) {
-    console.log('setColumnDefs', colDefs);
+    // works like expected, but datadocs calls method 11 times and if not reflect all, first row not shown
+    // if (!!this.columnDefs
+    //     && !!colDefs
+    //     && !(colDefs.length === 0)
+    //     && !(this.columnDefs.length === 0)
+    //     && !!this.behavior.dataModel
+    //     && !!this.behavior.dataModel.schema
+    //     && isColumnDefsSimilar(this.columnDefs, colDefs)) {
+    //     return;
+    // }
+
+    console.log('setColumnDefs');
+
     this.columnDefs = colDefs;
 
     const schema = convertColDefs.bind(this)(colDefs);
