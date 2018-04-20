@@ -244,6 +244,15 @@ Canvas.prototype = {
         }
     },
 
+    refreshBounds: function() {
+        const box = this.size = this.getDivBoundingClientRect();
+        this.width = box.width - this.component.properties.canvasWidthOffset;
+        this.height = box.height - this.component.properties.canvasHeightOffset;
+        this.bounds = new rectangular.Rectangle(0, 0, this.width, this.height);
+        this.component.setBounds(this.bounds);
+        this.component.viewHeight = this.bounds.height;
+    },
+
     resize: function(withNotification) {
         withNotification = typeof withNotification !== 'undefined' ? withNotification : true;
         var box = this.size = this.getDivBoundingClientRect();

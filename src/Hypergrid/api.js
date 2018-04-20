@@ -191,11 +191,11 @@ const floatingRowModel = {
 const virtualPageRowModel = {
     virtualPageCache: {
         updateAllRowTopFromIndexes: function() {
-
+            console.log('updateAllRowTopFromIndexes');
         }
     },
     getRow: function(rowIndex, dontCreatePage) {
-        console.log(rowIndex, dontCreatePage);
+        console.log('getRow', rowIndex, dontCreatePage);
     }
 };
 

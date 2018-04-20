@@ -1318,6 +1318,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc This is called by the fin-canvas when a resize occurs.
      */
     resized: function() {
+        this.canvas.refreshBounds();
         this.behaviorShapeChanged();
     },
 
