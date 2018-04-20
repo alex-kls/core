@@ -933,6 +933,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     deferredBehaviorChange: function() {
         if (this.needsShapeChanged) {
             if (this.divCanvas) {
+                this.canvas.refreshBounds();
                 this.synchronizeScrollingBoundaries(); // calls computeCellsBounds and repaint (state change)
             }
         } else if (this.needsStateChanged) {
@@ -1323,7 +1324,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc This is called by the fin-canvas when a resize occurs.
      */
     resized: function() {
-        this.canvas.refreshBounds();
         this.behaviorShapeChanged();
     },
 
