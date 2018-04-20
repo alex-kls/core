@@ -161,17 +161,16 @@ var Hypergrid = Base.extend('Hypergrid', {
                     if (typeof from[k] === 'function') {
                         to[k] = from[k].bind(context);
                     } else if (typeof from === 'object') {
-                        to[k] = from[k];
-                        bindAllFunctions(to[k], from[k], context);
+                        if (Array.isArray(from[k])) {
+                            to[k] = [];
+                        } else {
+                            to[k] = from[k];
+                            bindAllFunctions(to[k], from[k], context);
+                        }
                     }
                 }
             }
         };
-
-        if (this.api.rangeController) {
-            // because this nonempty array could broke app on init
-            this.api.rangeController.selectedCols = [];
-        }
 
         bindAllFunctions(require('./api'), this.api, this);
         bindAllFunctions(require('./columnApi'), this.columnApi, this);
