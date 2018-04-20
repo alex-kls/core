@@ -170,6 +170,9 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
                 columnAutosizing: true,
                 columnAutosized: false // todo: columnAutosizing should be a setter that automatically resets columnAutosized on state change to true
             });
+            if (column.colDef) {
+                delete column.colDef.width;
+            }
             this.callCallbackIfNeeded(grid, column);
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);

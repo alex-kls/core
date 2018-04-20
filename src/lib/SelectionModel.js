@@ -353,7 +353,9 @@ SelectionModel.prototype = {
      * @param x2
      */
     selectColumn: function(x1, x2) {
+        this.clearMostRecentRowSelection();
         this.columnSelectionModel.select(x1, x2);
+        this.select(x1, 0, x2 - x1, this.grid.getRowCount() - 1);
         this.grid.selectColDefsForApi();
         this.setLastSelectionType('column');
     },
@@ -373,6 +375,9 @@ SelectionModel.prototype = {
 
     setAllRowsSelected: function(isIt) {
         this.allRowsSelected = isIt;
+        if (isIt) {
+            this.select(0, 0, this.grid.getColumnCount() - 1, this.grid.getRowCount() - 1);
+        }
     },
 
     areAllRowsSelected: function() {
@@ -385,7 +390,9 @@ SelectionModel.prototype = {
      * @param y2
      */
     selectRow: function(y1, y2) {
+        this.clearMostRecentColumnSelection();
         this.rowSelectionModel.select(y1, y2);
+        this.select(0, y1, this.grid.getColumnCount() - 1, y2 - y1);
         this.setLastSelectionType('row');
     },
 

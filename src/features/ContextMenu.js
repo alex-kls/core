@@ -100,14 +100,47 @@ var ContextMenu = Feature.extend('ContextMenu', {
     },
 
     /**
+     * @summary update selections if needed based on right click cell or header. if menu called on unselected item especially
+     * @param {Hypergrid} grid
+     * @param {CellEvent} event - the event details
+     */
+    updateSelections: function(grid, event) {
+        if (event.isHeaderRow && !event.isColumnSelected) {
+            // top row ow headers
+            grid.clearSelections();
+            grid.selectColumn(event.dataCell.x, event.dataCell.x);
+        } else if (event.isHandleColumn && event.isDataRow && !event.isRowSelected) {
+            // left row number headers
+            grid.clearSelections();
+            grid.selectRow(event.dataCell.y, event.dataCell.y);
+        } else if (!event.isCellSelected) {
+            // simple cell
+            grid.clearSelections();
+            grid.select(event.dataCell.x, event.dataCell.y, 0, 0);
+        }
+    },
+
+    /**
      * @memberOf ContextMenu.prototype
      * @param {Hypergrid} grid
      * @param {CellEvent} event - the event details
      */
     handleContextMenu: function(grid, event) {
-        let contextMenu = grid.behavior.getCellProperties(event).cellContextMenu || grid.properties.cellContextMenu;
+        let contextMenu;
         if (event.isHeaderRow && grid.properties.headerContextMenu) {
             contextMenu = grid.properties.headerContextMenu;
+        } else {
+            contextMenu = grid.behavior.getCellProperties(event).cellContextMenu || grid.properties.cellContextMenu;
+        }
+
+        this.updateSelections(grid, event);
+
+        // update cell menu for left column of row numbers
+        if (event.isHandleColumn && event.isDataRow) {
+            const point = grid.selectionModel.getFirstSelectedCellOfLastSelection();
+            if (point) {
+                contextMenu = grid.behavior.getCellProperties(point.x, point.y).cellContextMenu || grid.properties.cellContextMenu;
+            }
         }
 
         let rightToLeft = event.primitiveEvent.detail.mouse.x + 200 >= window.innerWidth;
@@ -244,8 +277,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
         menuHolderDiv.element.appendChild(menuListHolderDiv);
 
         if (typeof items === 'function') {
-            const colDef = grid.getColDef(event.column.name);
-            items = items({ column: { colDef, colId: colDef.colId }, node: { data: event.dataRow }, value: event.value });
+            items = items({ column: event.column, node: { data: event.dataRow }, value: event.value });
         }
 
         items.forEach((item) => {

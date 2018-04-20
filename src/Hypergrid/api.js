@@ -256,8 +256,9 @@ function setColumnDefs(colDefs) {
         if (this.behavior.getRowProperties(0).headerRow) {
             data[0] = firstRowData;
         } else {
-            data.splice(0, 0, firstRowData);
+            data.unshift(firstRowData);
         }
+        this.api.needColumnsToFit = true;
     }
 
     this.behavior.setData({
@@ -310,6 +311,8 @@ function destroy(total) {
     this.behavior.reset();
     this.selectionModel.reset();
     this.renderer.reset();
+
+    this.api.rangeController.selectedCols = [];
 
     if (total || !this.isAlive()) {
         this.destroyScrollbars();
@@ -445,7 +448,7 @@ function getSortModel() {
 }
 
 function doLayout() {
-    console.log('doLayout');
+    // console.log('doLayout');
 }
 
 function refreshInMemoryRowModel() {

@@ -12,7 +12,6 @@ function setColumnVisible(key, visible) {
     if (!visible) {
         const singleColDef = this.getColDef(key);
 
-        // remove if it isn't removed in 'onRemoveColumn' callback
         if (singleColDef) {
             colDef.splice(colDef.indexOf(singleColDef), 1);
         }

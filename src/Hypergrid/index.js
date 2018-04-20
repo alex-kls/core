@@ -167,6 +167,12 @@ var Hypergrid = Base.extend('Hypergrid', {
                 }
             }
         };
+
+        if (this.api.rangeController) {
+            // because this nonempty array could broke app on init
+            this.api.rangeController.selectedCols = [];
+        }
+
         bindAllFunctions(require('./api'), this.api, this);
         bindAllFunctions(require('./columnApi'), this.columnApi, this);
 
@@ -176,7 +182,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.paginationPageSize = options.paginationPageSize || this.paginationPageSize || 1000;
         this.onColumnResized = options.onColumnResized || this.onColumnResized;
         this.onUpdateColumnName = options.onUpdateColumnName || this.onUpdateColumnName;
-        this.onRemoveColumn = options.onRemoveColumn || this.onRemoveColumn;
         this.onColumnsMoved = options.onColumnsMoved || this.onColumnsMoved;
         this.getMainMenuItems = options.getMainMenuItems || this.getMainMenuItems;
         this.getContextMenuItems = options.getContextMenuItems || this.getContextMenuItems;

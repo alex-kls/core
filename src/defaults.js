@@ -1486,9 +1486,6 @@ var defaults = {
                 const grid = cellEvent.grid;
                 const colDef = grid.columnDefs;
                 const column = cellEvent.column;
-                if (grid.onRemoveColumn) {
-                    grid.onRemoveColumn(column);
-                }
 
                 const singleColDef = grid.getColDef(column.name);
 

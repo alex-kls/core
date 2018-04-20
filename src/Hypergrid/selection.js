@@ -78,7 +78,7 @@ exports.mixin = {
 
             for (var h = 0; h < height; h++) {
                 for (var w = 0; w < width; w++) {
-                    result += selections[w][h] + (w < lastCol ? '\t' : whiteSpaceDelimiterForRow);
+                    result += (selections[w][h] || '') + (w < lastCol ? '\t' : whiteSpaceDelimiterForRow);
                 }
             }
         }
@@ -311,13 +311,14 @@ exports.mixin = {
 
                 for (let r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     const dataRow = dataModel.getRow(y);
-                    values[r] = valOrFunc(dataRow, column);
-                    if (behavior.getRowProperties(y).headerRow) {
+                    values[r] = valOrFunc(dataRow, column) || '';
+                    const rowProps = behavior.getRowProperties(y);
+                    if (rowProps && rowProps.headerRow) {
                         copyIncludeHeaders = false;
                     }
                 }
                 if (copyIncludeHeaders) {
-                    values.unshift(column.colDef.headerName);
+                    values.unshift(column.colDef ? column.colDef.headerName : '');
                 }
             }
 
@@ -566,11 +567,7 @@ exports.mixin = {
             let to = Math.max(...columns); // -Ifinity if empty
 
             if (from >= 0 && to >= 0) {
-                this.api.rangeController.selectedCols = this.columnDefs.slice(from, to + 1).map(colDef => ({
-                    colDef,
-                    colId: colDef.colId,
-                    id: colDef.colId
-                }));
+                this.api.rangeController.selectedCols = this.getActiveColumns(from, to + 1).filter(c => c.colDef);
             } else {
                 this.api.rangeController.selectedCols = [];
             }

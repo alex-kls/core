@@ -39,7 +39,7 @@ var Local = Behavior.extend('Local', {
                     c.colDef === columnSchema.colDef;
             };
             const oldColumn = oldAllColumns.find(findFunction) || oldColumns.find(findFunction);
-            const oldColumnColdDef = oldAllColumns.find(c => c.colDef === columnSchema.colDef) || oldColumns.find(c => c.colDef === columnSchema.colDef);
+            const oldColumnColdDef = oldAllColumns.find(c => c.colDef && c.colDef === columnSchema.colDef) || oldColumns.find(c => c.colDef === columnSchema.colDef);
 
             if (oldColumn) {
                 const newColumn = this.addColumn(oldColumn.properties);
@@ -70,12 +70,12 @@ var Local = Behavior.extend('Local', {
 
                     // disable resizing for old resized columns
                     // when data was added to existed array of data
-                    if (props.width === props.preferredWidth && props.columnAutosizing && props.columnAutosized) {
-                        Object.assign(newColumn.properties, {
-                            width: props.width,
-                            columnAutosizing: false
-                        });
-                    }
+                    Object.assign(newColumn.properties, {
+                        width: props.width,
+                        preferredWidth: props.preferredWidth,
+                        columnAutosizing: props.columnAutosizing,
+                        columnAutosized: props.columnAutosized,
+                    });
                 }
 
                 if (columnSchema.formatter) {
