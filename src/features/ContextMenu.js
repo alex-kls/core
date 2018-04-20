@@ -105,7 +105,10 @@ var ContextMenu = Feature.extend('ContextMenu', {
      * @param {CellEvent} event - the event details
      */
     updateSelections: function(grid, event) {
-        if (event.isHeaderRow && !event.isColumnSelected) {
+        if (event.isHeaderRow && event.isHandleColumn && !event.isDataRow) {
+            grid.clearSelections();
+            grid.selectionModel.selectAllRows();
+        } else if (event.isHeaderRow && !event.isColumnSelected) {
             // top row ow headers
             grid.clearSelections();
             grid.selectColumn(event.dataCell.x, event.dataCell.x);
@@ -136,7 +139,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
         this.updateSelections(grid, event);
 
         // update cell menu for left column of row numbers
-        if (event.isHandleColumn && event.isDataRow) {
+        if (event.isHandleColumn) {
             const point = grid.selectionModel.getFirstSelectedCellOfLastSelection();
             if (point) {
                 contextMenu = grid.behavior.getCellProperties(point.x, point.y).cellContextMenu || grid.properties.cellContextMenu;

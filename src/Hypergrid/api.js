@@ -259,8 +259,8 @@ function setColumnDefs(colDefs) {
             } else {
                 data.unshift(firstRowData);
             }
+            this.api.needColumnsToFit = true;
         }
-        this.api.needColumnsToFit = true;
     }
 
     this.behavior.setData({
@@ -285,7 +285,7 @@ function setRowData(rowData) {
     this.setData({ data: rowData });
 
     if (this.columnDefs) {
-        setColumnDefs.bind(this)(this.columnDefs);
+        this.api.setColumnDefs(this.columnDefs);
     }
 }
 
