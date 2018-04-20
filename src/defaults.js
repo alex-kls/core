@@ -2127,7 +2127,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    columnWarningFont: '700 10px "Helvetica Neue",Helvetica,Arial,sans-serif',
+    columnWarningFont: '1000 9px "Helvetica Neue",Helvetica,Arial,sans-serif',
 
     /**
      * @desc color of error icon

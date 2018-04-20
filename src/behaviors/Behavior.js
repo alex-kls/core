@@ -1126,8 +1126,9 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} len - length of columns set to reorder
      * @param {number} target - new start index of an columns
      * @param {boolean?} broadcastEvent - optional param. If set to 'false', synthetic event will not be fired.
-     * @param {boolean?} givenHiddenColumns
      * Useful, when reordering not initiated by user, and don't need to affect side effects
+     * @param {boolean?} givenHiddenColumns - if true, method performed like all the columns is shown and indexes
+     * of visible columns and all columns are equal
      */
     moveColumns: function(from, len, target, broadcastEvent = true, givenHiddenColumns = false) {
         console.log('moveColumns called with params', from, len, target, broadcastEvent, givenHiddenColumns);
@@ -1140,14 +1141,10 @@ var Behavior = Base.extend('Behavior', {
             ? colDefs.slice(0).splice(from, len)
             : visibleColDefs.slice(0).splice(from, len);
 
-        console.log('colDefsToMove', colDefsToMove);
-
         let headers = [];
         if (this.grid.properties.onlyDataReorder) {
             headers = columns.map(c => c.header);
         }
-
-        console.log('target before praparations ', target);
 
         if (!givenHiddenColumns) {
             let visibleColumnWithTargetIndex = visibleColDefs[target];
@@ -1175,17 +1172,14 @@ var Behavior = Base.extend('Behavior', {
                 let currentColumnIndex = columns.indexOf(columnWithSameColDef);
                 columns.splice(targetColumnIndex, 0, columns.splice(currentColumnIndex, 1)[0]);
 
-                console.log(`so, after all preparations we need to move column from ${currentColumnIndex} to ${targetColumnIndex}`);
+                console.log(`Column with index ${currentColumnIndex} moved to ${targetColumnIndex}`);
             }
 
             let currentColDefIndex = colDefs.indexOf(colDef);
             colDefs.splice(target, 0, colDefs.splice(currentColDefIndex, 1)[0]);
 
-            console.log(`so, after all preparations we need to move colDef from ${currentColDefIndex} to ${target}`);
+            console.log(`ColDef with index ${currentColDefIndex} moved to ${target}`);
         });
-
-        console.log('current columns state', columns);
-        console.log('current colDefs state', colDefs);
 
         if (broadcastEvent) {
             this.grid.fireSyntheticColumnsMovedEvent(movedColumns, target);

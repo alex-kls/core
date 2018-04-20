@@ -1848,12 +1848,13 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @desc utility method to perform columns reordering
-     * @param {number} from - start index
+     * @param {number} from - visible columns start index
      * @param {number} len - length of columns set to reorder
      * @param {number} target - new start index of an columns
      * @param {boolean?} broadcastEvent - optional param. If set to 'false', synthetic event will not be fired.
-     * @param {boolean?} givenHiddenColumns
      * Useful, when reordering not initiated by user, and don't need to affect side effects
+     * @param {boolean?} givenHiddenColumns - if true, method performed like all the columns is shown and indexes
+     * of visible columns and all columns are equal
      */
     moveColumns: function(from, len, target, broadcastEvent, givenHiddenColumns) {
         this.behavior.moveColumns(from, len, target, broadcastEvent, givenHiddenColumns);

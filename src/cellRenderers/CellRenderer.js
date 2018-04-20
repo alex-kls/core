@@ -227,7 +227,7 @@ var CellRenderer = Base.extend('CellRenderer', {
         gc.stroke();
 
         let textStartX = x + width / 2;
-        let textStartY = y + height / 2 + 4;
+        let textStartY = y + height / 2 + 3;
 
         gc.cache.font = font;
         gc.cache.fillStyle = fontColor;
