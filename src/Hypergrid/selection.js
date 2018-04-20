@@ -307,12 +307,16 @@ exports.mixin = {
             for (let c = 0, x = rect.origin.x; c < colCount; c++, x++) {
                 const values = rows[c] = new Array(rowCount);
                 const column = behavior.getActiveColumn(x);
+                let copyIncludeHeaders = this.copyIncludeHeaders;
 
                 for (let r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     const dataRow = dataModel.getRow(y);
                     values[r] = valOrFunc(dataRow, column);
+                    if (behavior.getRowProperties(y).headerRow) {
+                        copyIncludeHeaders = false;
+                    }
                 }
-                if (this.copyIncludeHeaders) {
+                if (copyIncludeHeaders) {
                     values.unshift(column.colDef.headerName);
                 }
             }
