@@ -7,34 +7,25 @@ function getAllGridColumns() {
 function setColumnVisible(key, visible) {
     console.log('setColumnVisible', key, visible);
 
-    const colDef = this.columnDefs;
-
-    if (!visible) {
-        const singleColDef = this.getColDef(key);
-
-        if (singleColDef) {
-            colDef.splice(colDef.indexOf(singleColDef), 1);
-        }
-    }
-    this.api.setColumnDefs(colDef);
-    this.api.needColumnsToFit = true;
+    setColumnsVisible.bind(this)([key], visible);
 }
 
 function setColumnsVisible(keys, visible) {
     console.log('setColumnsVisible', keys, visible);
-    var colDef = this.columnDefs;
+    let colDef = this.columnDefs,
+        columnsStateChanged = false;
     keys.forEach((key) => {
-        if (!visible) {
-            var singleColDef = this.getColDef(key);
-
-            // remove if it isn't removed in 'onRemoveColumn' callback
-            if (singleColDef) {
-                colDef.splice(colDef.indexOf(singleColDef), 1);
-            }
+        let singleColDef = this.getColDef(key);
+        if (singleColDef) {
+            singleColDef.isHidden = !visible;
+            columnsStateChanged = true;
         }
     });
-    this.api.setColumnDefs(colDef);
-    this.api.needColumnsToFit = true;
+
+    if (columnsStateChanged) {
+        this.api.setColumnDefs(colDef);
+        this.api.needColumnsToFit = true;
+    }
 }
 
 function changePinnedRange(countToPin) {
@@ -56,7 +47,7 @@ function getColumn(key) {
 }
 
 function moveColumn(fromIndex, toIndex) {
-    this.moveColumns(fromIndex, 1, toIndex, false);
+    this.moveColumns(fromIndex, 1, toIndex, false, true);
     console.log('moveColumn', fromIndex, toIndex);
 }
 

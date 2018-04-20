@@ -176,6 +176,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         bindAllFunctions(require('./columnApi'), this.columnApi, this);
 
         this.columnDefs = options.columnDefs || [];
+        this.visibleColumnDefs = this.columnDefs.filter((cd) => !cd.isHidden);
         this.data = options.data || [];
         this.rowData = options.rowData || [];
         this.paginationPageSize = options.paginationPageSize || this.paginationPageSize || 1000;
@@ -1851,10 +1852,11 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {number} len - length of columns set to reorder
      * @param {number} target - new start index of an columns
      * @param {boolean?} broadcastEvent - optional param. If set to 'false', synthetic event will not be fired.
+     * @param {boolean?} givenHiddenColumns
      * Useful, when reordering not initiated by user, and don't need to affect side effects
      */
-    moveColumns: function(from, len, target, broadcastEvent) {
-        this.behavior.moveColumns(from, len, target, broadcastEvent);
+    moveColumns: function(from, len, target, broadcastEvent, givenHiddenColumns) {
+        this.behavior.moveColumns(from, len, target, broadcastEvent, givenHiddenColumns);
     },
 
     getSelectedColumns: function() {
@@ -1957,11 +1959,11 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.behavior.charMap;
     },
 
-    getColDef: function(name) {
-        if (!this.columnDefs) {
+    getColDef: function(name, columnDefs = this.columnDefs) {
+        if (!columnDefs) {
             return;
         }
-        return this.columnDefs.find(cd => cd.field === name || cd.colId === name);
+        return columnDefs.find(cd => cd.field === name || cd.colId === name);
     },
 
     getColumnByName: function(name) {

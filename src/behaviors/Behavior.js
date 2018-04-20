@@ -1122,40 +1122,76 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @desc utility method to perform columns reordering
-     * @param {number} from - start index
+     * @param {number} from - visible columns start index
      * @param {number} len - length of columns set to reorder
      * @param {number} target - new start index of an columns
      * @param {boolean?} broadcastEvent - optional param. If set to 'false', synthetic event will not be fired.
+     * @param {boolean?} givenHiddenColumns
      * Useful, when reordering not initiated by user, and don't need to affect side effects
      */
-    moveColumns: function(from, len, target, broadcastEvent = true) {
+    moveColumns: function(from, len, target, broadcastEvent = true, givenHiddenColumns = false) {
+        console.log('moveColumns called with params', from, len, target, broadcastEvent, givenHiddenColumns);
         const columns = this.columns;
+
+        const visibleColDefs = this.grid.visibleColumnDefs;
+        const colDefs = this.grid.columnDefs;
+
+        let colDefsToMove = givenHiddenColumns
+            ? colDefs.slice(0).splice(from, len)
+            : visibleColDefs.slice(0).splice(from, len);
+
+        console.log('colDefsToMove', colDefsToMove);
 
         let headers = [];
         if (this.grid.properties.onlyDataReorder) {
             headers = columns.map(c => c.header);
         }
-        let columnsToMoveBefore = columns.slice(from, from + len);
 
-        columns.move(from, len, target);
+        console.log('target before praparations ', target);
+
+        if (!givenHiddenColumns) {
+            let visibleColumnWithTargetIndex = visibleColDefs[target];
+            target = colDefs.indexOf(visibleColumnWithTargetIndex);
+        }
+
         if (this.grid.properties.onlyDataReorder) {
             columns.forEach((c, i) => c.header = headers[i]);
         }
 
-        const columnsToMove = columns.slice(from, from + len);
+        let movedColumns = [];
+        let colDefsPrepared = colDefsToMove;
+        if (colDefs.indexOf(colDefsToMove[0]) >= target) {
+            colDefsPrepared = colDefsToMove.reverse();
+        }
+        colDefsPrepared.forEach((colDef) => {
+            let columnWithSameColDef = columns.find((c) => c.colDef === colDef);
+            if (columnWithSameColDef) {
+                movedColumns.unshift(columnWithSameColDef);
 
-        columnsToMove.reverse().forEach((column) => {
-            const colDefs = this.grid.columnDefs;
-            const singleColDef = column.colDef;
+                let targetColumnIndex = target;
+                let invisibleColumnsCountBeforeColDef = colDefs.slice(0).splice(0, target).filter((cd) => cd.isHidden).length;
+                targetColumnIndex -= invisibleColumnsCountBeforeColDef;
 
-            if (singleColDef) {
-                colDefs.splice(target, 0, colDefs.splice(colDefs.indexOf(singleColDef), 1)[0]);
+                let currentColumnIndex = columns.indexOf(columnWithSameColDef);
+                columns.splice(targetColumnIndex, 0, columns.splice(currentColumnIndex, 1)[0]);
+
+                console.log(`so, after all preparations we need to move column from ${currentColumnIndex} to ${targetColumnIndex}`);
             }
+
+            let currentColDefIndex = colDefs.indexOf(colDef);
+            colDefs.splice(target, 0, colDefs.splice(currentColDefIndex, 1)[0]);
+
+            console.log(`so, after all preparations we need to move colDef from ${currentColDefIndex} to ${target}`);
         });
 
+        console.log('current columns state', columns);
+        console.log('current colDefs state', colDefs);
+
         if (broadcastEvent) {
-            this.grid.fireSyntheticColumnsMovedEvent(columnsToMoveBefore, target);
+            this.grid.fireSyntheticColumnsMovedEvent(movedColumns, target);
         }
+
+        this.grid.visibleColumnDefs = colDefs.filter((cd) => !cd.isHidden);
 
         this.changed();
     },

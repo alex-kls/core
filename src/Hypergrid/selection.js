@@ -559,7 +559,7 @@ exports.mixin = {
     },
 
     selectColDefsForApi: function() {
-        if (this.columnDefs) {
+        if (this.visibleColumnDefs) {
             const selections = this.getSelections();
             const selectedColumns = this.getSelectedColumns();
             const columns = [...selections.map(s => s.left), ...selections.map(s => s.right), ...selectedColumns];

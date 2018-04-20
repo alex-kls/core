@@ -42,6 +42,14 @@ var defaults = {
     noDataMessage: '',
 
     /**
+     * @desc If true, first row will be used to render headers
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    useHeaders: true,
+
+    /**
      * @summary List of subgrids by
      * @desc Restrict usage here to strings (naming data models) or arrays consisting of such a string + constructor arguments. That is, avoid {@link subgridSpec}'s function and object overloads and {@link subgridConstructorRef} function overload.
      * @default "[ 'HeaderSubgrid', 'data' ]"

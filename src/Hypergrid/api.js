@@ -97,7 +97,7 @@ function convertColDefs(colDefs) {
     }
 
     if (colDefs.length < az.length) {
-        az.forEach(function(singleLetter, index) {
+        az.forEach((singleLetter, index) => {
             colDefMapper(colDefs[index], singleLetter);
         });
     } else {
@@ -238,25 +238,27 @@ function setColumnDefs(colDefs) {
     console.log('setColumnDefs');
 
     this.columnDefs = colDefs;
+    this.visibleColumnDefs = this.columnDefs.filter((cd) => !cd.isHidden);
 
-    const schema = convertColDefs.bind(this)(colDefs);
+    const schema = convertColDefs.bind(this)(this.visibleColumnDefs);
     const firstRowData = schema.data;
     let data = this.behavior.getData();
-
 
     if (this.getMainMenuItems) {
         this.behavior.grid.properties.headerContextMenu = this.getMainMenuItems;
     }
 
     // create first row from headers
-    if (!data || data.length === 0) {
-        data = [firstRowData];
-        this.api.needColumnsToFit = true;
-    } else if (data && !equal(data[0], firstRowData)) {
-        if (this.behavior.getRowProperties(0).headerRow) {
-            data[0] = firstRowData;
-        } else {
-            data.unshift(firstRowData);
+    if (this.behavior.grid.properties.useHeaders) {
+        if (!data || data.length === 0) {
+            data = [firstRowData];
+            this.api.needColumnsToFit = true;
+        } else if (data && !equal(data[0], firstRowData)) {
+            if (this.behavior.getRowProperties(0).headerRow) {
+                data[0] = firstRowData;
+            } else {
+                data.unshift(firstRowData);
+            }
         }
         this.api.needColumnsToFit = true;
     }
@@ -281,6 +283,10 @@ function setRowData(rowData) {
     this.data = rowData;
 
     this.setData({ data: rowData });
+
+    if (this.columnDefs) {
+        setColumnDefs.bind(this)(this.columnDefs);
+    }
 }
 
 function sizeColumnsToFit() {
