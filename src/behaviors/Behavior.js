@@ -343,7 +343,7 @@ var Behavior = Base.extend('Behavior', {
         if (!column) {
             return this.grid.properties.defaultColumnWidth;
         }
-        return column.getWidth() + this.grid.properties.gridLinesVWidth;
+        return column.getWidth() + (this.grid.properties.gridLinesV ? this.grid.properties.gridLinesVWidth : 0);
     },
 
     /**

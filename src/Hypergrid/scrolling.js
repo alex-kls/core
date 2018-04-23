@@ -105,40 +105,31 @@ exports.mixin = {
     },
 
     scrollToMakeVisible: function(column, row) {
-        var delta,
-            dw = this.renderer.dataWindow,
-            fixedColumnCount = this.properties.fixedColumnCount,
-            fixedRowCount = this.properties.fixedRowCount,
-            pxDelta = 0;
+        const { origin, corner } = this.renderer.dataWindow;
+        const { fixedColumnCount, fixedRowCount } = this.properties;
+
+        let delta;
+        let pxDelta = 0;
 
         // scroll only if target not in fixed columns
         if (column >= fixedColumnCount) {
-            delta = column - dw.origin.x;
+            delta = column - origin.x;
             // target is to left of scrollable columns; negative delta scrolls left
             if (delta < 0) {
                 pxDelta = 0;
-                for (var ic = 0; ic <= Math.abs(delta); ic++) {
-                    pxDelta += this.getColumnWidth(dw.origin.x - ic);
-
-                    if (this.properties.gridLinesV) {
-                        pxDelta += this.properties.gridLinesVWidth * 2;
-                    }
+                for (let i = 0; i <= Math.abs(delta); i++) {
+                    pxDelta += this.getColumnWidth(origin.x - i);
                 }
 
                 this.sbHScroller.index -= pxDelta;
-
-                // target is to right of scrollable columns; positive delta scrolls right
-                // Note: The +1 forces right-most column to scroll left (just in case it was only partially in view)
             }
-            delta = column - dw.corner.x;
+
+            delta = column - corner.x;
             if (delta >= 0) {
                 pxDelta = 0;
-                for (var jc = 0; jc <= Math.abs(delta); jc++) {
-                    pxDelta += this.getColumnWidth(dw.corner.x - jc);
-
-                    if (this.properties.gridLinesV) {
-                        pxDelta += this.properties.gridLinesVWidth * 2;
-                    }
+                // scroll more than just one cut column
+                for (let i = 0; i <= Math.abs(delta) + 2; i++) {
+                    pxDelta += this.getColumnWidth(corner.x - i);
                 }
 
                 this.sbHScroller.index += pxDelta;
@@ -151,33 +142,32 @@ exports.mixin = {
 
         // scroll only if target not in fixed rows
         if (row >= fixedRowCount) {
-            delta = row - dw.origin.y;
+            delta = row - origin.y;
             // target is above scrollable rows; negative delta scrolls up
             if (delta < 0) {
                 pxDelta = 0;
-                for (var i = 0; i < Math.abs(delta) + 1; i++) {
-                    pxDelta += this.getRowHeight(dw.origin.y - i);
+                for (let i = 0; i < Math.abs(delta) + 1; i++) {
+                    pxDelta += this.getRowHeight(origin.y - i);
 
                     if (this.properties.gridLinesH) {
-                        pxDelta += this.properties.gridLinesHWidth * 2;
+                        pxDelta += this.properties.gridLinesHWidth;
                     }
                 }
-                pxDelta += 20;
                 this.sbVScroller.index -= pxDelta;
             }
 
-            delta = row - dw.corner.y;
+            delta = row - corner.y;
             // or target is below scrollable rows; positive delta scrolls down
             if (delta >= 0) {
                 pxDelta = 0;
-                for (var j = 0; j < Math.abs(delta) + 1; j++) {
-                    pxDelta += this.getRowHeight(dw.corner.y + j);
+                // scroll more than just one cut row
+                for (let i = 0; i < Math.abs(delta) + 2; i++) {
+                    pxDelta += this.getRowHeight(corner.y + i);
 
                     if (this.properties.gridLinesH) {
-                        pxDelta += this.properties.gridLinesHWidth * 2;
+                        pxDelta += this.properties.gridLinesHWidth;
                     }
                 }
-                pxDelta += 20;
                 this.sbVScroller.index += pxDelta;
             }
         }
