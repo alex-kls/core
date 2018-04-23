@@ -728,7 +728,13 @@ exports.mixin = {
 
         this.repaint();
 
-        return colScrolled || rowScrolled;
+        const needScroll = colScrolled || rowScrolled;
+
+        if (needScroll) {
+            this.scrollToMakeVisible(newX + origin.x, newY + origin.y);
+        }
+
+        return needScroll;
     },
 
     /**

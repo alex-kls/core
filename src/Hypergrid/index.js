@@ -1185,37 +1185,23 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @return {boolean} Column is visible.
      */
     insureModelColIsVisible: function(colIndex, offsetX) {
-        var maxCols = this.getColumnCount() - 1, // -1 excludes partially visible columns
-            indexToCheck = colIndex + Math.sign(offsetX),
-            visible = !this.isColumnVisible(indexToCheck) || colIndex === maxCols;
-
-        if (visible) {
-            //the scroll position is the leftmost column
-            this.scrollBy(offsetX, 0);
-        }
-
-        return visible;
+        const maxCols = this.getColumnCount() - 1; // -1 excludes partially visible columns
+        const indexToCheck = colIndex + Math.sign(offsetX);
+        return !this.isColumnVisible(indexToCheck) || colIndex === maxCols;
     },
 
     /**
      * @memberOf Hypergrid#
      * @summary Scroll in the `offsetY` direction if column index c is not visible.
      * @param {number} rowIndex - The column index in question.
-     * @param {number} offsetX - The direction and magnitude to scroll if we need to.
+     * @param {number} offsetY - The direction and magnitude to scroll if we need to.
      * @return {boolean} Row is visible.
      */
     insureModelRowIsVisible: function(rowIndex, offsetY) {
-        var maxRows = this.getRowCount() - 1, // -1 excludes partially visible rows
-            scrollOffset = (offsetY > -1) ? 2 : 0, // 2 to keep one blank line below active cell, 0 to keep zero lines above active cell
-            indexToCheck = rowIndex + scrollOffset,
-            visible = !this.isDataRowVisible(indexToCheck) || rowIndex === maxRows;
-
-        if (visible) {
-            //the scroll position is the topmost row
-            this.scrollBy(0, offsetY);
-        }
-
-        return visible;
+        const maxRows = this.getRowCount() - 1; // -1 excludes partially visible rows
+        const scrollOffset = (offsetY > -1) ? 2 : 0; // 2 to keep one blank line below active cell, 0 to keep zero lines above active cell
+        const indexToCheck = rowIndex + scrollOffset;
+        return !this.isDataRowVisible(indexToCheck) || rowIndex === maxRows;
     },
 
     /**
