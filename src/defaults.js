@@ -1536,6 +1536,7 @@ var defaults = {
         margin: '0 0 0 0',
         fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
         width: 'auto',
+        height: 'auto',
         'white-space': 'nowrap',
     },
 
