@@ -276,7 +276,7 @@ function setRowData(rowData) {
     console.log('setRowData', rowData);
 
     // todo remove this in future
-    if (rowData.length === 1000) {
+    if (rowData.length === 1000 && this.behavior.grid.properties.useHeaders) {
         rowData.pop();
     }
 
@@ -358,6 +358,11 @@ function getModel() {
             console.log('getRow');
         }
     };
+}
+
+function applyProperties(newProps) {
+    Object.assign(this.behavior.grid.properties, newProps);
+    this.repaint();
 }
 
 function refreshView() {
@@ -504,6 +509,7 @@ module.exports = {
     doLayout: doLayout,
     refreshInMemoryRowModel: refreshInMemoryRowModel,
     attachLinkToDataCell: attachLinkToDataCell,
-    registerCellEditedEventListener: registerCellEditedEventListener
+    registerCellEditedEventListener: registerCellEditedEventListener,
+    applyProperties: applyProperties
 };
 
