@@ -1310,7 +1310,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    multipleSelections: false,
+    multipleSelections: true,
 
     /** @summary Re-render grid at maximum speed.
      * @desc In this mode:
@@ -1457,15 +1457,13 @@ var defaults = {
         {
             name: 'Copy',
             action: function(clickEvent, gridEvent) {
-                console.log('third callback works fine');
-                console.log('grid event', gridEvent);
+                gridEvent.grid.api.copySelectedRangeToClipboard(false);
             }
         },
         {
             name: 'Copy With Headers',
             action: function(clickEvent, gridEvent) {
-                console.log('fourth callback works fine');
-                console.log('grid event', gridEvent);
+                gridEvent.grid.api.copySelectedRangeToClipboard(true);
             }
         }
     ],

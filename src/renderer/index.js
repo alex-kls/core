@@ -623,7 +623,7 @@ var Renderer = Base.extend('Renderer', {
         //render header cells after all another cells to avoid overlapping
         this.gridRenderers['by-columns-and-rows-headers'].paintCells.call(this, gc);
 
-        this.renderLastSelection(gc);
+        this.renderSelections(gc);
         this.renderFirstSelectedCell(gc);
 
         gc.closePath();
@@ -680,13 +680,15 @@ var Renderer = Base.extend('Renderer', {
         gc.closePath();
     },
 
-    renderLastSelection: function(gc) {
-        var selections = this.grid.selectionModel.getSelections();
+    renderSelections: function(gc) {
+        const selections = this.grid.selectionModel.getSelections();
         if (!selections || selections.length === 0) {
             return;
         }
+        selections.forEach(s => this.renderSelectionRect(gc, s));
+    },
 
-        var selection = this.grid.selectionModel.getLastSelection();
+    renderSelectionRect: function(gc, selection) {
         if (selection.origin.x === -1) {
             return;
         }
