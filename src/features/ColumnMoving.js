@@ -244,10 +244,12 @@ const ColumnMoving = Feature.extend('ColumnMoving', {
         if (overCol >= scrollLeft + visibleColumns.length){
             const lastColumn = visibleColumns[visibleColumns.length - 1];
             x = lastColumn.left + lastColumn.width;
-            console.log('1');
         } else {
-            x = visibleColumns[overCol - scrollLeft].left + placeholderLineWidth / 2;
-            console.log('2');
+            let supportingColumn = visibleColumns[overCol - scrollLeft];
+            if (!supportingColumn) {
+                return;
+            }
+            x = supportingColumn.left + placeholderLineWidth / 2;
         }
 
         this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, ' + 0 + 'px)');
