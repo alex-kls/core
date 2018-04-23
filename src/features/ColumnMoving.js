@@ -94,7 +94,7 @@ const ColumnMoving = Feature.extend('ColumnMoving', {
             dragger.style.position = 'fixed';
 
             document.body.appendChild(dragger);
-            draggerCTX = dragger.getContext('2d', { alpha: false });
+            draggerCTX = dragger.getContext('2d', { alpha: true });
         }
         if (!placeholder) {
             placeholder = document.createElement('canvas');
@@ -103,7 +103,7 @@ const ColumnMoving = Feature.extend('ColumnMoving', {
             placeholder.style.position = 'fixed';
 
             document.body.appendChild(placeholder);
-            placeholderCTX = placeholder.getContext('2d', { alpha: false });
+            placeholderCTX = placeholder.getContext('2d', { alpha: true });
         }
 
     },
@@ -228,6 +228,7 @@ const ColumnMoving = Feature.extend('ColumnMoving', {
      * @param {Hypergrid} grid
      */
     movePlaceholderTo: function(grid, overCol) {
+        const placeholderLineWidth = grid.properties.columnMoveInsertLineWidth;
         const visibleColumns = grid.renderer.visibleColumns;
 
         const d = placeholder;
@@ -242,9 +243,11 @@ const ColumnMoving = Feature.extend('ColumnMoving', {
         let x;
         if (overCol >= scrollLeft + visibleColumns.length){
             const lastColumn = visibleColumns[visibleColumns.length - 1];
-            x = lastColumn.left + lastColumn.width - 3;
+            x = lastColumn.left + lastColumn.width;
+            console.log('1');
         } else {
-            x = visibleColumns[overCol - scrollLeft].left;
+            x = visibleColumns[overCol - scrollLeft].left + placeholderLineWidth / 2;
+            console.log('2');
         }
 
         this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, ' + 0 + 'px)');
@@ -265,13 +268,23 @@ const ColumnMoving = Feature.extend('ColumnMoving', {
             scrollLeft = 0;
         }
 
-        const width = 3;
-        const colHeight = grid.div.clientHeight;
+        const width = grid.properties.columnMoveInsertLineWidth;
+        let colHeight = grid.div.clientHeight;
         const d = placeholder;
         const style = d.style;
         const location = grid.div.getBoundingClientRect();
 
-        style.top = location.top + 'px';
+        let heightToSkip = 0;
+        const rowsToSkip = grid.getHeaderRowCount();
+        for (let i = 0; i < rowsToSkip; i++) {
+            heightToSkip += grid.getRowHeight(i);
+        }
+        if (grid.properties.gridLinesH && grid.properties.gridLinesHWidth) {
+            heightToSkip += grid.properties.gridLinesHWidth;
+        }
+        colHeight -= heightToSkip;
+
+        style.top = (location.top + heightToSkip) + 'px';
         style.left = location.left - 2 + 'px';
 
         const hdpiRatio = grid.getHiDPI(placeholderCTX);
@@ -281,7 +294,7 @@ const ColumnMoving = Feature.extend('ColumnMoving', {
         // style.boxShadow = '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)';
         style.width = width + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
         style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
-        style.backgroundColor = 'rgb(110, 110, 110)';
+        style.backgroundColor = grid.properties.columnMoveInsertLineColor;
 
         let startX = grid.renderer.visibleColumns[columnIndex - scrollLeft].left * hdpiRatio;
 
@@ -351,8 +364,8 @@ const ColumnMoving = Feature.extend('ColumnMoving', {
         const offsetY = grid.getFixedRowsHeight();
         style.top = location.top + offsetY + 'px';
         style.left = location.left + 'px';
-        style.opacity = 0.2;
-        style.borderTop = '1px solid rgb(51, 153, 255)';
+        style.opacity = 0.15;
+        style.border = '1px solid #4285F4';
         style.backgroundColor = 'rgb(0, 0, 0)';
 
         d.setAttribute('width', Math.round(columnWidth * hdpiRatio) + 'px');

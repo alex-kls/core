@@ -2192,6 +2192,20 @@ var defaults = {
      * @memberOf module:defaults
      */
     warningTooltipOpacity: 0.8,
+
+    /**
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    columnMoveInsertLineColor: '#777777',
+
+    /**
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    columnMoveInsertLineWidth: 2
 };
 
 
