@@ -338,43 +338,32 @@ var Renderer = Base.extend('Renderer', {
         if (!this.visibleColumns.length) {
             return null;
         }
-        var x = point.x,
-            y = point.y,
-            isPseudoRow = false,
-            isPseudoCol = false,
-            vrs = this.visibleRows,
-            visibleColumns = this.visibleColumns,
-            firstColumn = visibleColumns[this.grid.behavior.leftMostColIndex],
-            inFirstColumn = x < firstColumn.right,
-            vc = inFirstColumn ? firstColumn : visibleColumns.findWithNeg(function(vc) {
-                return x < vc.right;
-            }),
-            result = { fake: false };
+        const { x, y } = point;
+        const { visibleRows, visibleColumns } = this;
 
-        // if (this.renderedCuttedRowsCount > 0) {
-        //     var filtered = vrs
-        //         .filter(function(vr) { return y <= vr.bottom && y >= vr.top; })
-        //         .sort(function(vr1, vr2) { return vr1.rowIndex - vr2.rowIndex; });
-        //     vr = filtered[filtered.length - 1];
-        //     console.log('filtered', filtered);
-        //     console.log('x: ' + x + ' y: ' + y);
-        // } else {
-        //     vr = vrs.filter(function(vr) { return y <= vr.bottom && y >= vr.top; });
-        // }
-        var filtered = vrs
-            .filter(function(vr) {
-                return y <= vr.bottom && y >= vr.top;
-            })
-            .sort(function(vr1, vr2) {
-                return vr2.rowIndex - vr1.rowIndex;
-            });
-        var vr = filtered[filtered.length - 1];
+        const firstColumn = visibleColumns[this.grid.behavior.leftMostColIndex];
+        const inFirstColumn = x < firstColumn.right;
 
-        //default to last row and col
+        const [firstRow] = visibleRows;
+        const behindFirstRow = y < firstRow.top;
+
+        let isPseudoRow = false;
+        let isPseudoCol = false;
+        const result = { fake: false };
+
+        let vc = inFirstColumn ? firstColumn : visibleColumns.findWithNeg(vc => x < vc.right);
+
+        const filtered = visibleRows
+            .filter(vr => behindFirstRow ? (vr.index !== vr.rowIndex) : (y <= vr.bottom && y >= vr.top))
+            .sort((vr1, vr2) => vr2.rowIndex - vr1.rowIndex);
+
+        let vr = filtered[filtered.length - 1];
+
+        // default to last row and col
         if (vr) {
             isPseudoRow = false;
         } else {
-            vr = vrs[vrs.length - 1];
+            vr = visibleRows[behindFirstRow ? 0 : visibleRows.length - 1];
             isPseudoRow = true;
         }
 
@@ -385,11 +374,8 @@ var Renderer = Base.extend('Renderer', {
             isPseudoCol = true;
         }
 
-        var mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
+        const mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
             cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index);
-
-        // cellEvent.visibleColumn = vc;
-        // cellEvent.visibleRow = vr;
 
         result.cellEvent = Object.defineProperty(cellEvent, 'mousePoint', { value: mousePoint });
 
