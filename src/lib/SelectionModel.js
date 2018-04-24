@@ -1,6 +1,6 @@
 'use strict';
 
-var RangeSelectionModel = require('sparse-boolean-array');
+const RangeSelectionModel = require('sparse-boolean-array');
 
 /**
  *
@@ -174,17 +174,28 @@ SelectionModel.prototype = {
         if (!keepRowSelections) {
             this.setAllRowsSelected(false);
         }
-        if (this.selections.length) { --this.selections.length; }
-        if (this.flattenedX.length) { --this.flattenedX.length; }
-        if (this.flattenedY.length) { --this.flattenedY.length; }
+        if (this.selections.length) {
+            --this.selections.length;
+        }
+        if (this.flattenedX.length) {
+            --this.flattenedX.length;
+        }
+        if (this.flattenedY.length) {
+            --this.flattenedY.length;
+        }
         //this.getGrid().selectionChanged();
+    },
+
+    selectionModelClearMostRecent: function(selectionModel) {
+        selectionModel.clearMostRecentSelection();
+        this.clearMostRecentSelection();
     },
 
     /**
      * @memberOf SelectionModel.prototype
      */
     clearMostRecentColumnSelection: function() {
-        this.columnSelectionModel.clearMostRecentSelection();
+        this.selectionModelClearMostRecent(this.columnSelectionModel);
         this.setLastSelectionType('column');
     },
 
@@ -192,7 +203,7 @@ SelectionModel.prototype = {
      * @memberOf SelectionModel.prototype
      */
     clearMostRecentRowSelection: function() {
-        this.rowSelectionModel.clearMostRecentSelection();
+        this.selectionModelClearMostRecent(this.rowSelectionModel);
         this.setLastSelectionType('row');
     },
 
@@ -353,7 +364,6 @@ SelectionModel.prototype = {
      * @param x2
      */
     selectColumn: function(x1, x2) {
-        this.clearMostRecentRowSelection();
         this.columnSelectionModel.select(x1, x2);
         this.select(x1, 0, x2 - x1, this.grid.getRowCount() - 1);
         this.grid.selectColDefsForApi();
@@ -390,9 +400,9 @@ SelectionModel.prototype = {
      * @param y2
      */
     selectRow: function(y1, y2) {
-        this.clearMostRecentColumnSelection();
         this.rowSelectionModel.select(y1, y2);
         this.select(0, y1, this.grid.getColumnCount() - 1, y2 - y1);
+        this.grid.selectColDefsForApi();
         this.setLastSelectionType('row');
     },
 
@@ -451,7 +461,7 @@ SelectionModel.prototype = {
      * @memberOf SelectionModel.prototype
      * @returns {boolean}
      */
-     isColumnOrRowSelected: function() {
+    isColumnOrRowSelected: function() {
         return !this.columnSelectionModel.isEmpty() || !this.rowSelectionModel.isEmpty();
     },
 

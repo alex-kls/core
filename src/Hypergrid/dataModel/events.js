@@ -103,7 +103,7 @@ function getUnderlyingIndexesOfSelectedRows() {
     var sourceIndexes = [],
         dataModel = this.dataModel;
 
-    if (this.properties.checkboxOnlyRowSelections) {
+    if (this.properties.keepRowSelections) {
         this.getSelectedRows().forEach(function(selectedRowIndex) {
             sourceIndexes.push(dataModel.getRowIndex(selectedRowIndex));
         });
@@ -127,7 +127,7 @@ function reselectRowsByUnderlyingIndexes(sourceIndexes) {
 
     selectionModel.clearRowSelection();
 
-    if (this.properties.checkboxOnlyRowSelections) {
+    if (this.properties.keepRowSelections) {
         for (r = 0; selectedRowCount && r < rowCount; ++r) {
             i = sourceIndexes.indexOf(dataModel.getRowIndex(r));
             if (i >= 0) {

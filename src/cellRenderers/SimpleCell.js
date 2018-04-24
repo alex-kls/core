@@ -87,12 +87,8 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         }
 
         if (gc.alpha(hoverColor) < 1) {
-            if (config.isSelected && !config.isFirstSelectedCell) {
-                if (!config.isHeaderRow && config.isDataColumn) {
-                    selectColor = config.backgroundSelectionColor;
-                } else {
-                    selectColor = config.backgroundHeaderSelectionColor;
-                }
+            if (config.isSelected && !config.isFirstSelectedCell && (config.isHeaderRow || !config.isDataColumn)) {
+                selectColor = config.backgroundHeaderSelectionColor;
             }
 
             if (gc.alpha(selectColor) < 1) {

@@ -17,9 +17,15 @@ exports.mixin = {
          * @private
          */
         this.selectionDetailGetters = {
-            get rows() { return grid.getSelectedRows(); },
-            get columns() { return grid.getSelectedColumns(); },
-            get selections() { return grid.selectionModel.getSelections(); }
+            get rows() {
+                return grid.getSelectedRows();
+            },
+            get columns() {
+                return grid.getSelectedColumns();
+            },
+            get selections() {
+                return grid.selectionModel.getSelections();
+            }
         };
 
         /**
@@ -91,8 +97,7 @@ exports.mixin = {
      * @desc Clear all the selections.
      */
     clearSelections: function() {
-        var keepRowSelections = this.properties.checkboxOnlyRowSelections;
-        this.selectionModel.clear(keepRowSelections);
+        this.selectionModel.clear(this.properties.keepRowSelections);
         this.clearMouseDown();
     },
 
@@ -101,8 +106,7 @@ exports.mixin = {
      * @desc Clear the most recent selection.
      */
     clearMostRecentSelection: function() {
-        var keepRowSelections = this.properties.checkboxOnlyRowSelections;
-        this.selectionModel.clearMostRecentSelection(keepRowSelections);
+        this.selectionModel.clearMostRecentSelection(this.properties.keepRowSelections);
     },
 
     /**
@@ -118,7 +122,7 @@ exports.mixin = {
      * @desc Clear the most recent row selection.
      */
     clearMostRecentRowSelection: function() {
-        //this.selectionModel.clearMostRecentRowSelection(); // commented off as per GRID-112
+        this.selectionModel.clearMostRecentRowSelection();
     },
 
     clearRowSelection: function() {
@@ -329,8 +333,7 @@ exports.mixin = {
     },
 
     selectCell: function(x, y, silent) {
-        var keepRowSelections = this.properties.checkboxOnlyRowSelections;
-        this.selectionModel.clear(keepRowSelections);
+        this.selectionModel.clear(this.properties.keepRowSelections);
         this.selectionModel.select(x, y, 0, 0, silent);
     },
 
@@ -340,6 +343,7 @@ exports.mixin = {
         var alreadySelected = model.isColumnSelected(x);
         var hasCTRL = keys.indexOf('CTRL') > -1;
         var hasSHIFT = keys.indexOf('SHIFT') > -1;
+
         if (!hasCTRL && !hasSHIFT) {
             model.clear();
             if (!alreadySelected) {
@@ -353,6 +357,7 @@ exports.mixin = {
                     model.selectColumn(x);
                 }
             }
+
             if (hasSHIFT) {
                 model.clear();
                 model.selectColumn(this.lastEdgeSelection[0], x);
@@ -369,27 +374,32 @@ exports.mixin = {
         //we can select the totals rows if they exist, but not rows above that
         keys = keys || [];
 
-        var sm = this.selectionModel;
-        var alreadySelected = sm.isRowSelected(y);
-        var hasSHIFT = keys.indexOf('SHIFT') >= 0;
+        const model = this.selectionModel;
+        const hasSHIFT = keys.indexOf('SHIFT') > -1;
+        const hasCTRL = keys.indexOf('CTRL') > -1;
 
-        if (alreadySelected) {
-            sm.deselectRow(y);
+        if (!hasCTRL && !hasSHIFT) {
+            model.clear();
+
+            model.selectRow(y);
         } else {
-            this.singleSelect();
-            sm.selectRow(y);
+            if (hasCTRL) {
+                model.selectRow(y);
+
+            }
+
+            if (hasSHIFT) {
+                model.clear();
+                model.selectRow(this.lastEdgeSelection[1], y);
+            }
         }
 
-        if (hasSHIFT) {
-            sm.clear();
-            sm.selectRow(this.lastEdgeSelection[1], y);
-        }
-
-        if (!alreadySelected && !hasSHIFT) {
+        if (!hasSHIFT) {
             this.lastEdgeSelection[1] = y;
         }
 
         this.repaint();
+        this.fireSyntheticRowSelectionChangedEvent();
     },
 
     singleSelect: function() {
@@ -560,14 +570,19 @@ exports.mixin = {
 
     selectColDefsForApi: function() {
         if (this.visibleColumnDefs) {
+            const selectedColumns = this.getSelectedColumns() || [];
             const selections = this.getSelections();
-            const selectedColumns = this.getSelectedColumns();
-            const columns = [...selections.map(s => s.left), ...selections.map(s => s.right), ...selectedColumns];
-            let from = Math.min(...columns); // -Ifinity if empty
-            let to = Math.max(...columns); // -Ifinity if empty
 
-            if (from >= 0 && to >= 0) {
-                this.api.rangeController.selectedCols = this.getActiveColumns(from, to + 1).filter(c => c.colDef);
+            selections.forEach(s => {
+                for (let i = s.left; i <= s.right; ++i) {
+                    if (!selections.includes(i)) {
+                        selectedColumns.push(i);
+                    }
+                }
+            });
+
+            if (selectedColumns.length) {
+                this.api.rangeController.selectedCols = this.behavior.getActiveColumns().filter(c => c.colDef && selectedColumns.includes(c.index));
             } else {
                 this.api.rangeController.selectedCols = [];
             }
@@ -583,20 +598,18 @@ exports.mixin = {
         this.selectionModel.selectColumn(x1, x2);
     },
     selectRow: function(y1, y2) {
-        var sm = this.selectionModel;
-
         if (this.singleSelect()) {
             y1 = y2;
-        } else {
+        } else if (y2 === undefined) {
             // multiple row selection
-            y2 = y2 || y1;
+            y2 = y1;
         }
 
-        sm.selectRow(Math.min(y1, y2), Math.max(y1, y2));
+        this.selectionModel.selectRow(Math.min(y1, y2), Math.max(y1, y2));
     },
 
     selectRowsFromCells: function() {
-        if (!this.properties.checkboxOnlyRowSelections && this.properties.autoSelectRows) {
+        if (!this.properties.keepRowSelections && this.properties.autoSelectRows) {
             var last;
 
             if (!this.properties.singleRowSelectionMode) {
@@ -767,7 +780,7 @@ function getColumns(hiddenColumns) {
         columns = [];
         hiddenColumns.forEach(function(index) {
             var key = typeof index === 'number' ? 'index' : 'name',
-                column = allColumns.find(function(column) { return column[key] === index; });
+                column = allColumns.find(column => column[key] === index);
             if (activeColumns.indexOf(column) < 0) {
                 columns.push(column);
             }

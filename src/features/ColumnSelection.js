@@ -18,7 +18,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * The horizontal cell coordinate of the where the mouse pointer is during a drag operation.
-     * @type {Object}
+     * @type {number}
      * @default null
      * @memberOf ColumnSelection.prototype
      */

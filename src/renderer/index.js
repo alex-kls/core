@@ -681,11 +681,7 @@ var Renderer = Base.extend('Renderer', {
     },
 
     renderSelections: function(gc) {
-        const selections = this.grid.selectionModel.getSelections();
-        if (!selections || selections.length === 0) {
-            return;
-        }
-        selections.forEach(s => this.renderSelectionRect(gc, s));
+        (this.grid.selectionModel.getSelections() || []).forEach(s => this.renderSelectionRect(gc, s));
     },
 
     renderSelectionRect: function(gc, selection) {

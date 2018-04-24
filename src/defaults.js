@@ -967,7 +967,7 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    singleRowSelectionMode: true,
+    singleRowSelectionMode: false,
 
     /**
      * @summary Fill color for last selection overlay.
@@ -976,7 +976,7 @@ var defaults = {
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    selectionRegionOverlayColor: 'transparent', // 'rgba(0, 0, 48, 0.2)',
+    selectionRegionOverlayColor: 'rgba(160,195,255,.2)', // 'transparent', // 'rgba(0, 0, 48, 0.2)',
 
     /**
      * @summary Stroke color for last selection overlay.
@@ -1122,12 +1122,11 @@ var defaults = {
     /**
      * @summary Retain row selections.
      * @desc When falsy, row selections are cleared when selecting cells; when truthy, row selections are kept as is when selecting cells.
-     * @todo Deprecate in favor of something simpler like `keepRowSelections`. (The current name is misleading and has caused some confusion among both developers and users. At the very least it should have been called `checkboxOnlyRowDeselections`.)
      * @default
      * @type {boolean}
      * @memberOf module:defaults
      */
-    checkboxOnlyRowSelections: false,
+    keepRowSelections: false,
 
     /**
      * @summary Select cell's entire row.
