@@ -28,6 +28,14 @@ var CellClick = Feature.extend('CellClick', {
         let consumed = false;
         if (this.isAggregationTotalCell(event) && grid.onAggregatedCellClick) {
             grid.onAggregatedCellClick(event);
+
+            if (event.isExpandableRow) {
+                if (!event.isRowExpanded) {
+                    grid.behavior.expandChildRows(event.dataCell.y);
+                } else {
+                    grid.behavior.collapseChildRows(event.dataRow);
+                }
+            }
         } else {
             consumed = (event.isDataCell || event.isTreeColumn) && (
                 this.openLink(grid, event) !== undefined ||
@@ -51,6 +59,10 @@ var CellClick = Feature.extend('CellClick', {
             aggregationChildCount = event.aggregationChildCount;
 
         return isAggregationColumn && isAggregationRow && aggregationChildCount > 0;
+    },
+
+    isMouseOverExpandIcon: function(grid, event) {
+
     },
 
     /**

@@ -151,6 +151,10 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         leftPadding = leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPaddingLeft;
         rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPaddingRight;
 
+        if (config.isAggregationColumn) {
+            leftPadding += config.treeLevel * config.aggregationGroupTreeLevelOffset;
+        }
+
         let textRightPadding = rightPadding;
 
         if (config.renderTotalErrorSignNeeded && config.renderTotalErrorCount) {
@@ -235,15 +239,18 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.cache.fillStyle = prevFillStyleState;
         }
 
-        if (config.headerPrefix && config.headerRow) {
+        if (config.valuePrefix) {
             let prevFontState = gc.cache.font,
                 prevFillStyleState = gc.cache.fillStyle;
 
-            gc.cache.font = config.columnTitlePrefixFont;
-            gc.cache.fillStyle = config.columnTitlePrefixColor;
+            gc.cache.font = config.valuePrefixFont;
+            gc.cache.fillStyle = config.valuePrefixColor;
 
-            renderSingleLineText(gc, config, config.headerPrefix, leftPadding, textRightPadding);
-            leftPadding += gc.getTextWidth(config.headerPrefix) + config.columnTitlePrefixRightSpace;
+            const oldIgnoreUnderliningState = config.ignoreUnderlining;
+            config.ignoreUnderlining = config.prefixIgnoreUnderliningNeeded;
+            renderSingleLineText(gc, config, config.valuePrefix, leftPadding, textRightPadding);
+            leftPadding += gc.getTextWidth(config.valuePrefix) + config.columnTitlePrefixRightSpace;
+            config.ignoreUnderlining = oldIgnoreUnderliningState;
 
             gc.cache.font = prevFontState;
             gc.cache.fillStyle = prevFillStyleState;

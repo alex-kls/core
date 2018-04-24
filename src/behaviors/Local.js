@@ -530,6 +530,29 @@ var Local = Behavior.extend('Local', {
         return this.grid.selectionModel.getSelections();
     },
 
+    expandChildRows: function(rowIndex) {
+        const row = this.grid.getRow(rowIndex);
+        if (!row.$$open && !!row.$$children && row.$$children.length > 0) {
+            for (let i = 0; i < row.$$children.length; i++) {
+                const rowToInsert = row.$$children[i];
+                rowToInsert.$$parentRowAggregation = row.$$aggregation;
+                this.dataModel.addRow(rowToInsert, rowIndex + 1 + i);
+            }
+        }
+        row.$$open = true;
+    },
+
+    collapseChildRows: function(row) {
+        if (row.$$open && !!row.$$children && row.$$children.length > 0) {
+            let dataToDelete = this.dataModel.data.filter((d) => d.$$parentRowAggregation === row.$$aggregation);
+            dataToDelete.forEach(dtd => {
+                this.collapseChildRows(dtd);
+                this.dataModel.data = this.dataModel.data.filter((d) => d !== dtd);
+            });
+        }
+        row.$$open = false;
+    },
+
     errors: {}
 });
 

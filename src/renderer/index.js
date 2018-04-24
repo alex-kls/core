@@ -1282,13 +1282,34 @@ var Renderer = Base.extend('Renderer', {
         config.subrow = 0;
         config.halign = isHeaderRow ? config.rowHeaderHalign : behavior.getCellProperty('halign') || config.halign;
 
-        if (!config.headerPrefix) {
+        config.isAggregationColumn = cellEvent.isAggregationColumn;
+        if (config.isAggregationColumn) {
+            config.hasChildRows = cellEvent.hasChildRows;
+            config.isAggregationRow = cellEvent.isAggregationRow;
+            config.aggregationChildCount = cellEvent.aggregationChildCount;
+            config.isExpandableRow = cellEvent.isExpandableRow;
+            config.isRowExpanded = cellEvent.isRowExpanded;
+            config.treeLevel = cellEvent.treeLevel;
+
+            if (config.isExpandableRow) {
+                config.valuePrefix = config.isRowExpanded
+                    ? this.properties.aggregationGroupExpandIconCollapsedChar
+                    : this.properties.aggregationGroupExpandIconExpandedChar;
+                config.valuePrefixFont = this.properties.aggregationGroupExpandIconFont;
+                config.valuePrefixColor = this.properties.aggregationGroupExpandIconColor;
+                config.prefixIgnoreUnderliningNeeded = true;
+            }
+        }
+
+        if (!config.valuePrefix) {
             if (cellEvent.column.hasError) {
-                config.headerPrefix = this.properties.errorIconUnicodeChar;
-                config.columnTitlePrefixFont = this.properties.errorIconFont;
-                config.columnTitlePrefixColor = this.properties.errorIconColor;
-            } else {
-                config.headerPrefix = cellEvent.column.schema ? cellEvent.column.schema.headerPrefix : undefined;
+                config.valuePrefix = this.properties.errorIconUnicodeChar;
+                config.valuePrefixFont = this.properties.errorIconFont;
+                config.valuePrefixColor = this.properties.errorIconColor;
+            } else if (config.headerRow) {
+                config.valuePrefix = cellEvent.column.schema ? cellEvent.column.schema.headerPrefix : undefined;
+                config.valuePrefixFont = this.properties.columnTitlePrefixFont;
+                config.valuePrefixColor = this.properties.columnTitlePrefixColor;
             }
         }
 
@@ -1298,13 +1319,6 @@ var Renderer = Base.extend('Renderer', {
 
         if (grid.mouseDownState) {
             config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
-        }
-
-        config.isAggregationColumn = cellEvent.isAggregationColumn;
-        if (config.isAggregationColumn) {
-            config.hasChildRows = cellEvent.hasChildRows;
-            config.isAggregationRow = cellEvent.isAggregationRow;
-            config.aggregationChildCount = cellEvent.aggregationChildCount;
         }
 
         // subrow logic - coded for efficiency when no subrows (!value.subrows)

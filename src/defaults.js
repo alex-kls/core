@@ -2228,7 +2228,13 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    aggregationGroupTotalLeftOffset: 3
+    aggregationGroupTotalLeftOffset: 3,
+
+    aggregationGroupExpandIconFont: 'normal normal lighter 14px fontAwesome',
+    aggregationGroupExpandIconColor: '#9F9F9F',
+    aggregationGroupExpandIconExpandedChar: decodeURI('\uf196'),
+    aggregationGroupExpandIconCollapsedChar: decodeURI('\uf147'),
+    aggregationGroupTreeLevelOffset: 20
 };
 
 

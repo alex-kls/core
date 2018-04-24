@@ -1274,6 +1274,35 @@ var Behavior = Base.extend('Behavior', {
         return !!row && row.$$cluster_size ? row.$$cluster_size : 0;
     },
 
+    isExpandableRowByIndex: function(rowIndex) {
+        let row = this.grid.getRow(rowIndex);
+        return this.isExpandableRow(row);
+    },
+
+    isExpandableRow: function(row) {
+        return !!row && row.$$expandable ? row.$$expandable : false;
+    },
+
+    isRowExpandedByIndex: function(rowIndex) {
+        let row = this.grid.getRow(rowIndex);
+
+        return this.isRowExpanded(row);
+    },
+
+    isRowExpanded: function(row) {
+        return !!row && row.$$open ? row.$$open : false;
+    },
+
+    getRowTreeLevelByIndex: function(rowIndex) {
+        let row = this.grid.getRow(rowIndex);
+
+        return this.getRowTreeLevel(row);
+    },
+
+    getRowTreeLevel: function(row) {
+        return !!row && row.__treeLevel ? row.__treeLevel : false;
+    },
+
     hasTreeColumn: function(columnIndex) {
         return true;
     },

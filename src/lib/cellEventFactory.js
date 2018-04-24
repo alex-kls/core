@@ -473,6 +473,27 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      */
     aggregationChildCount: { get: function() { return this.grid.behavior.getAggregationChildCount(this.dataRow); } },
 
+    /**
+     * @desc shows, is row can be expanded
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    isExpandableRow: { get: function() { return this.grid.behavior.isExpandableRow(this.dataRow); } },
+
+    /**
+     * @desc shows, is row already expanded
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    isRowExpanded: { get: function() { return this.grid.behavior.isRowExpanded(this.dataRow); } },
+
+    /**
+     * @desc tree level of an row
+     * @type {number}
+     * @memberOf CellEvent#
+     */
+    treeLevel: { get: function() { return this.grid.behavior.getRowTreeLevel(this.dataRow); } },
+
     $$CLASS_NAME: { value: 'CellEvent' }
 });
 

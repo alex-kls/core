@@ -172,6 +172,22 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     },
 
     /**
+     * Insert or append a new rows.
+     *
+     * _Note parameter order is the reverse of `setRow`._
+     * @param {array} dataRows
+     * @param {number} [y=Infinity] - The index of the new row. If `y` >= row count, row is appended to end; otherwise row is inserted at `y` and row indexes of all remaining rows are incremented.
+     * @memberOf DataSourceLocal#
+     */
+    addRows: function(dataRows, y) {
+        if (y === undefined || y >= this.getRowCount()) {
+            y = this.getRowCount();
+        }
+        this.data.splice(y, 0, dataRows);
+        this.dispatchEvent('data-shape-changed');
+    },
+
+    /**
      * Rows are removed entirely and no longer render.
      * Indexes of all remaining rows are decreased by `rowCount`.
      * @param {number} y
