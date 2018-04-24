@@ -1273,7 +1273,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    linkOnHover: false,
+    linkOnHover: true,
 
     /** @summary Color for link.
      * @desc Falsy means defer to foreground color.
@@ -2204,7 +2204,31 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    columnMoveInsertLineWidth: 2
+    columnMoveInsertLineWidth: 2,
+
+    /**
+     * @desc Color of number, that displays total count of each group while aggregated
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    aggregationGroupTotalColor: '#8F8F8F',
+
+    /**
+     * @desc Font of aggregation total number
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    aggregationGroupTotalFont: '13px "Helvetica Neue",Helvetica,Arial,sans-serif',
+
+    /**
+     * @desc Space between main cell content and aggregation total
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    aggregationGroupTotalLeftOffset: 3
 };
 
 

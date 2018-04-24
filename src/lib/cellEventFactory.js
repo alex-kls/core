@@ -438,6 +438,41 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      */
     isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isDataColumn; } },
 
+    /**
+     * @desc shows, is cell located in aggregation column
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    isAggregationColumn: {get: function() { return !!this.column && this.column.name === '$$aggregation'; }},
+
+    /**
+     * @desc shows, is cell located in aggregation row
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    isAggregationRow: { get: function() { return this.grid.behavior.isAggregationRow(this.dataRow); } },
+
+    /**
+     * @desc returns array of child rows of an current aggregated row
+     * @type {array}
+     * @memberOf CellEvent#
+     */
+    childRows: { get: function() { return this.grid.behavior.getChildRows(this.dataRow); } },
+
+    /**
+     * @desc shows, is cell located in row, that has child rows
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    hasChildRows: { get: function() { return this.grid.behavior.hasChildRows(this.dataRow); } },
+
+    /**
+     * @desc returns count of aggregated child rows
+     * @type {number}
+     * @memberOf CellEvent#
+     */
+    aggregationChildCount: { get: function() { return this.grid.behavior.getAggregationChildCount(this.dataRow); } },
+
     $$CLASS_NAME: { value: 'CellEvent' }
 });
 

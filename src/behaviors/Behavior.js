@@ -1197,8 +1197,85 @@ var Behavior = Base.extend('Behavior', {
         );
     },
 
+    /**
+     * @desc shows, is row with this index represents aggregation
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    isAggregationRowByIndex: function(rowIndex) {
+        let row = this.grid.getRow(rowIndex);
+
+        return this.isAggregationRow(row);
+    },
+
+    /**
+     * @desc shows, is row represents aggregation
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    isAggregationRow: function(row) {
+        return !!row && !!row.$$aggregation;
+    },
+
+    /**
+     * @desc returns array of child rows of an row by index
+     * @type {array}
+     * @memberOf CellEvent#
+     */
+    getChildRowsByIndex: function(rowIndex) {
+        let row = this.grid.getRow(rowIndex);
+
+        return this.getChildRows(row);
+    },
+    /**
+     * @desc returns array of child rows of an row if exists
+     * @type {array}
+     * @memberOf CellEvent#
+     */
+    getChildRows: function(row) {
+        return !!row && row.$$children ? row.$$children : [];
+    },
+
+    /**
+     * @desc shows, is row with index contains aggregated subrows
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    hasChildRowsByIndex: function(rowIndex) {
+        return this.getChildRowsByIndex(rowIndex).length > 0;
+    },
+
+    /**
+     * @desc shows, is row contains aggregated subrows
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    hasChildRows: function(row) {
+        return this.getChildRows(row).length > 0;
+    },
+
+    /**
+     * @desc returns count of aggregated child rows by parent row index
+     * @type {number}
+     * @memberOf CellEvent#
+     */
+    getAggregationChildCountByIndex: function(rowIndex) {
+        let row = this.grid.getRow(rowIndex);
+
+        return this.getAggregationChildCount(row);
+    },
+
+    /**
+     * @desc returns count of aggregated child rows
+     * @type {number}
+     * @memberOf CellEvent#
+     */
+    getAggregationChildCount: function(row) {
+        return !!row && row.$$cluster_size ? row.$$cluster_size : 0;
+    },
+
     hasTreeColumn: function(columnIndex) {
-        return false;
+        return true;
     },
 
     getSelectionMatrixFunction: function(selectedRows) {

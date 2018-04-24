@@ -264,6 +264,17 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             valWidth = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, val, leftPadding, textRightPadding)
                 : renderSingleLineText(gc, config, val, leftPadding, textRightPadding);
+
+            if (config.aggregationChildCount > 0) {
+                gc.fillStyle = config.aggregationGroupTotalColor;
+                gc.font = config.aggregationGroupTotalFont;
+                const newLeftPadding = leftPadding + gc.getTextWidth(val) + config.aggregationGroupTotalLeftOffset;
+                const aggregationCountString = `(${config.aggregationChildCount})`;
+                let oldIgnoreUnderliningState = config.ignoreUnderlining;
+                config.ignoreUnderlining = true;
+                valWidth += renderMultiLineText(gc, config, aggregationCountString, newLeftPadding, textRightPadding);
+                config.ignoreUnderlining = oldIgnoreUnderliningState;
+            }
         } else if (centerIcon) {            // Measure & draw center icon
             iyoffset = Math.round((height - centerIcon.height) / 2);
             ixoffset = Math.round((width - centerIcon.width) / 2);
@@ -416,7 +427,8 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         y += config.bounds.height / 2;
 
         if (config.isUserDataArea) {
-            if (config.link) {
+            const isAggregationHighlightingNeeded = config.isAggregationColumn && config.isAggregationRow && config.aggregationChildCount > 0;
+            if (config.link || isAggregationHighlightingNeeded && !config.ignoreUnderlining) {
                 if (config.isCellHovered || !config.linkOnHover) {
                     if (config.linkColor) {
                         gc.cache.strokeStyle = config.linkColor;

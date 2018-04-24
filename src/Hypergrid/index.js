@@ -185,6 +185,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.onColumnsMoved = options.onColumnsMoved || this.onColumnsMoved;
         this.getMainMenuItems = options.getMainMenuItems || this.getMainMenuItems;
         this.getContextMenuItems = options.getContextMenuItems || this.getContextMenuItems;
+        this.onAggregatedCellClick = options.onAggregatedCellClick || this.onAggregatedCellClick;
 
         if (this.onColumnsMoved) {
             this.addInternalEventListener('fin-columns-moved', (e) => {

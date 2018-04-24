@@ -9,8 +9,8 @@ var Feature = require('./Feature');
 var CellClick = Feature.extend('CellClick', {
 
     handleMouseMove: function(grid, event) {
-        var link = event.properties.link,
-            isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
+        let link = event.properties.link,
+            isActionableLink = (link && typeof link !== 'boolean') || this.isAggregationTotalCell(event); // actionable with truthy other than `true`
 
         this.cursor = isActionableLink ? 'pointer' : null;
 
@@ -25,14 +25,32 @@ var CellClick = Feature.extend('CellClick', {
      * @memberOf CellClick#
      */
     handleClick: function(grid, event) {
-        var consumed = (event.isDataCell || event.isTreeColumn) && (
-            this.openLink(grid, event) !== undefined ||
-            grid.behavior.cellClicked(event)
-        );
+        let consumed = false;
+        if (this.isAggregationTotalCell(event) && grid.onAggregatedCellClick) {
+            grid.onAggregatedCellClick(event);
+        } else {
+            consumed = (event.isDataCell || event.isTreeColumn) && (
+                this.openLink(grid, event) !== undefined ||
+                grid.behavior.cellClicked(event)
+            );
+        }
 
         if (!consumed && this.next) {
             this.next.handleClick(grid, event);
         }
+    },
+
+    /**
+     * @desc shows is cell represent aggregation data summary
+     * @param {CellEvent} event - the event details
+     * @memberOf CellClick#
+     */
+    isAggregationTotalCell: function(event) {
+        const isAggregationColumn = event.isAggregationColumn,
+            isAggregationRow = event.isAggregationRow,
+            aggregationChildCount = event.aggregationChildCount;
+
+        return isAggregationColumn && isAggregationRow && aggregationChildCount > 0;
     },
 
     /**

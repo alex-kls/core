@@ -263,6 +263,8 @@ function setColumnDefs(colDefs) {
         }
     }
 
+    console.log('schema.schema', schema.schema);
+
     this.behavior.setData({
         data: data,
         schema: schema.schema

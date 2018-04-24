@@ -1300,6 +1300,13 @@ var Renderer = Base.extend('Renderer', {
             config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
         }
 
+        config.isAggregationColumn = cellEvent.isAggregationColumn;
+        if (config.isAggregationColumn) {
+            config.hasChildRows = cellEvent.hasChildRows;
+            config.isAggregationRow = cellEvent.isAggregationRow;
+            config.aggregationChildCount = cellEvent.aggregationChildCount;
+        }
+
         // subrow logic - coded for efficiency when no subrows (!value.subrows)
         var isArray = isUserDataArea && value && value.constructor === Array, // fastest array determination
             subrows = isArray && value.subrows && value.length;
