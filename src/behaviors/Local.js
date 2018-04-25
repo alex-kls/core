@@ -111,7 +111,7 @@ var Local = Behavior.extend('Local', {
         const props = column.properties;
 
         let width = props.defaultColumnWidth;
-        const key = column.properties.field;
+        const key = props.field;
         const formatter = this.grid.getFormatter(column.name);
 
         // get max width based of
@@ -137,6 +137,21 @@ var Local = Behavior.extend('Local', {
                 if (column.hasError && dataProps.headerRow) {
                     gc.cache.font = props.errorIconFont;
                     textWidth += gc.getTextWidth(props.errorIconUnicodeChar) + props.columnTitlePrefixRightSpace;
+                }
+
+                if (column.name === '$$aggregation') {
+                    const aggregationCount = this.getAggregationChildCount(d);
+                    if (aggregationCount > 0) {
+                        gc.font = props.aggregationGroupTotalFont;
+                        textWidth += gc.getTextWidth(`(${aggregationCount})`) + props.aggregationGroupTotalLeftOffset;
+                        textWidth += this.getRowTreeLevel(d) * props.aggregationGroupTreeLevelOffset;
+                    }
+
+                    const valuePrefix = props[`aggregationGroupExpandIcon${this.isExpandableRow(d) ? 'Collapsed' : 'Expanded'}Char`];
+                    if (valuePrefix) {
+                        gc.cache.font = props.aggregationGroupExpandIconFont;
+                        textWidth += gc.getTextWidth(valuePrefix) + props.columnTitlePrefixRightSpace;
+                    }
                 }
 
                 gc.cache.font = dataProps.font;
