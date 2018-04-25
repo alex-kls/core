@@ -1151,10 +1151,6 @@ var Behavior = Base.extend('Behavior', {
             target = colDefs.indexOf(visibleColumnWithTargetIndex);
         }
 
-        if (this.grid.properties.onlyDataReorder) {
-            columns.forEach((c, i) => c.header = headers[i]);
-        }
-
         let movedColumns = [];
         let colDefsPrepared = colDefsToMove;
         if (colDefs.indexOf(colDefsToMove[0]) >= target) {
@@ -1186,6 +1182,10 @@ var Behavior = Base.extend('Behavior', {
         }
 
         this.grid.visibleColumnDefs = colDefs.filter((cd) => !cd.isHidden);
+
+        if (this.grid.properties.onlyDataReorder) {
+            columns.forEach((c, i) => c.header = headers[i]);
+        }
 
         this.changed();
     },

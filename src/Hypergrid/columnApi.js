@@ -2,6 +2,7 @@
 
 function getAllGridColumns() {
     console.log('getAllGridColumns');
+    return this.getActiveColumns();
 }
 
 function setColumnVisible(key, visible) {

@@ -169,7 +169,7 @@ const gridPanel = {
 const columnController = {
     getAllGridColumns: function() {
         console.log('getAllGridColumns');
-        return [];
+        return this.getActiveColumns();
     },
     updateDisplayedColumns: function() {
         console.log('updateDisplayedColumns');
