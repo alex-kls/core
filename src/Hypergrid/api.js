@@ -235,7 +235,7 @@ function setColumnDefs(colDefs) {
     //     return;
     // }
 
-    console.log('setColumnDefs');
+    console.log('setColumnDefs', colDefs);
 
     this.columnDefs = colDefs;
     this.visibleColumnDefs = this.columnDefs.filter((cd) => !cd.isHidden);

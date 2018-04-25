@@ -131,7 +131,7 @@ var Local = Behavior.extend('Local', {
 
                 if (column.schema && column.schema.headerPrefix) {
                     gc.cache.font = props.columnTitlePrefixFont;
-                    textWidth += gc.getTextWidth(props.contextMenuIconUnicodeChar) + props.columnTitlePrefixRightSpace;
+                    textWidth += gc.getTextWidth(column.schema.headerPrefix) + props.columnTitlePrefixRightSpace;
                 }
 
                 if (column.hasError && dataProps.headerRow) {
