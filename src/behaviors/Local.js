@@ -555,7 +555,8 @@ var Local = Behavior.extend('Local', {
         if (!row.$$open && !!row.$$children && row.$$children.length > 0) {
             for (let i = 0; i < row.$$children.length; i++) {
                 const rowToInsert = row.$$children[i];
-                rowToInsert.$$parentRowAggregation = row.$$aggregation;
+                // rowToInsert.$$parentRowAggregation = row.$$aggregation;
+                rowToInsert.$$parentRow = row;
                 this.dataModel.addRow(rowToInsert, rowIndex + 1 + i);
             }
         }
@@ -569,7 +570,7 @@ var Local = Behavior.extend('Local', {
      */
     collapseChildRows: function(row) {
         if (row.$$open && !!row.$$children && row.$$children.length > 0) {
-            let dataToDelete = this.dataModel.data.filter((d) => d.$$parentRowAggregation === row.$$aggregation);
+            let dataToDelete = this.dataModel.data.filter((d) => d.$$parentRow === row);
             dataToDelete.forEach(dtd => {
                 this.collapseChildRows(dtd);
                 this.dataModel.data = this.dataModel.data.filter((d) => d !== dtd);

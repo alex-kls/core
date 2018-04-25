@@ -1302,7 +1302,6 @@ var Renderer = Base.extend('Renderer', {
         }
 
         if (!config.valuePrefix && config.headerRow) {
-            console.log('error icon will be rendered on config', config);
             if (cellEvent.column.hasError) {
                 config.valuePrefix = this.properties.errorIconUnicodeChar;
                 config.valuePrefixFont = this.properties.errorIconFont;
