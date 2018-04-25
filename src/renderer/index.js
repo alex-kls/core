@@ -758,7 +758,9 @@ var Renderer = Base.extend('Renderer', {
                 width: width,
                 height: height
             },
-            selectionRegionOverlayColor: this.gridRenderer.paintCells.partial ? 'transparent' : gridProps.selectionRegionOverlayColor,
+            selectionRegionOverlayColor: (this.gridRenderer.paintCells.partial || (selection.width === 0 && selection.height === 0)) ?
+                'transparent' :
+                gridProps.selectionRegionOverlayColor,
             selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor,
             selectionRegionBorderWidth: gridProps.selectionRegionBorderWidth ? gridProps.selectionRegionBorderWidth : 1
         };
