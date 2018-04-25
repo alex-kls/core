@@ -595,6 +595,18 @@ var mixin = {
                 if (grid.onUpdateColumnName) {
                     if (column) {
                         grid.onUpdateColumnName(column, e.detail.newValue);
+
+                        // refresh names from colDefs
+                        const rowProps = grid.behavior.getRowProperties(0);
+                        if (rowProps && rowProps.headerRow) {
+                            const row = grid.getRow(0);
+
+                            grid.getColumns().forEach(c => {
+                                if (c.colDef && row[c.name] !== c.colDef.headerName) {
+                                    row[c.name] = c.colDef.headerName;
+                                }
+                            });
+                        }
                     }
                 }
             }
