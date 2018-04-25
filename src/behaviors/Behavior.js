@@ -1271,7 +1271,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf CellEvent#
      */
     getAggregationChildCount: function(row) {
-        return !!row && row.$$cluster_size ? row.$$cluster_size : 0;
+        return !!row && !!row.$$cluster_size ? row.$$cluster_size : 0;
     },
 
     isExpandableRowByIndex: function(rowIndex) {

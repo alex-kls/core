@@ -25,16 +25,17 @@ var CellClick = Feature.extend('CellClick', {
      * @memberOf CellClick#
      */
     handleClick: function(grid, event) {
+        console.log('event', event);
         let consumed = false;
-        if (this.isAggregationTotalCell(event) && grid.onAggregatedCellClick) {
-            grid.onAggregatedCellClick(event);
-
-            if (event.isExpandableRow) {
+        if (this.isAggregationTotalCell(event)) {
+            if (this.overExpandIcon(grid, event)) {
                 if (!event.isRowExpanded) {
                     grid.behavior.expandChildRows(event.dataCell.y);
                 } else {
                     grid.behavior.collapseChildRows(event.dataRow);
                 }
+            } else if (grid.onAggregatedCellClick) {
+                grid.onAggregatedCellClick(event);
             }
         } else {
             consumed = (event.isDataCell || event.isTreeColumn) && (
@@ -61,8 +62,22 @@ var CellClick = Feature.extend('CellClick', {
         return isAggregationColumn && isAggregationRow && aggregationChildCount > 0;
     },
 
-    isMouseOverExpandIcon: function(grid, event) {
+    overExpandIcon: function(grid, event) {
+        if (!event.isExpandableRow) {
+            return false;
+        }
 
+        let iconLeftX = event.properties.cellPaddingLeft +
+            event.treeLevel * event.properties.aggregationGroupTreeLevelOffset;
+        let iconRightX = iconLeftX + event.properties.aggregationGroupExpandIconClickableWidth;
+
+        let iconTopY = 5;
+        let iconBottomY = event.bounds.height - 5;
+
+        return event.mousePoint.x <= iconRightX
+            && event.mousePoint.x >= iconLeftX
+            && event.mousePoint.y <= iconBottomY
+            && event.mousePoint.y >= iconTopY;
     },
 
     /**

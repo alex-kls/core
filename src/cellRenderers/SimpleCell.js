@@ -55,6 +55,17 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
         var renderValue = val || config.renderFalsy && val == 0; // eslint-disable-line eqeqeq
 
+        if (config.processStringsWithHtmlTags && !!val) {
+            if (!!config.classesInterpretedAsPostfix
+                && config.classesInterpretedAsPostfix.length > 0) {
+                let dividedString = getDividedPostfixesFromString(val, config.classesInterpretedAsPostfix);
+                val = dividedString.string;
+                if (dividedString.postfixes.length > 0 && !config.valuePostfix) {
+                    config.valuePostfix = dividedString.postfixes.join(' ');
+                }
+            }
+        }
+
         if (renderValue) {
             val = config.formatValue(val, config);
 
@@ -260,6 +271,10 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         }
 
         if (renderValue) {
+            if (config.processStringsWithHtmlTags && !!val) {
+                val = removeHtmlTagsFromString(val);
+            }
+
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
@@ -268,14 +283,13 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
                 ? renderMultiLineText(gc, config, val, leftPadding, textRightPadding)
                 : renderSingleLineText(gc, config, val, leftPadding, textRightPadding);
 
-            if (config.aggregationChildCount > 0) {
-                gc.fillStyle = config.aggregationGroupTotalColor;
-                gc.font = config.aggregationGroupTotalFont;
-                const newLeftPadding = leftPadding + gc.getTextWidth(val) + config.aggregationGroupTotalLeftOffset;
-                const aggregationCountString = `(${config.aggregationChildCount})`;
+            if (config.valuePostfix) {
+                gc.cache.fillStyle = config.cellValuePostfixColor;
+                gc.cache.font = config.cellValuePostfixFont;
+                const newLeftPadding = leftPadding + gc.getTextWidth(val) + config.cellValuePostfixLeftOffset;
                 let oldIgnoreUnderliningState = config.ignoreUnderlining;
                 config.ignoreUnderlining = true;
-                valWidth += renderMultiLineText(gc, config, aggregationCountString, newLeftPadding, textRightPadding);
+                valWidth += renderMultiLineText(gc, config, config.valuePostfix, newLeftPadding, textRightPadding);
                 config.ignoreUnderlining = oldIgnoreUnderliningState;
             }
         } else if (centerIcon) {            // Measure & draw center icon
@@ -460,6 +474,32 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
     }
 
     return minWidth;
+}
+
+function removeHtmlTagsFromString(string) {
+    return string.replace
+        ? string.replace(/<(?:!|\/?[a-zA-Z]+).*?\/?>/g, '').trim()
+        : string;
+}
+
+function getDividedPostfixesFromString(string, postfixClasses) {
+    let res = [];
+    postfixClasses.forEach((pc) => {
+        if (string && string.match) {
+            const regexpString = `(<[^\\/]*class=\\".*${pc}.*\\".*>)(.*)(<\\/.*>)`;
+            const regexp = new RegExp(regexpString, 'g');
+            let matches = regexp.exec(string);
+            if (matches && matches.length >= 2) {
+                res.push(matches[2]);
+                string = string.replace(regexp, '');
+            }
+        }
+    });
+
+    return {
+        string: string,
+        postfixes: res
+    };
 }
 
 function findLines(gc, config, words, width) {

@@ -2211,7 +2211,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    aggregationGroupTotalColor: '#8F8F8F',
+    cellValuePostfixColor: '#8F8F8F',
 
     /**
      * @desc Font of aggregation total number
@@ -2219,21 +2219,86 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    aggregationGroupTotalFont: '13px "Helvetica Neue",Helvetica,Arial,sans-serif',
+    cellValuePostfixFont: '13px "Helvetica Neue",Helvetica,Arial,sans-serif',
 
     /**
-     * @desc Space between main cell content and aggregation total
+     * @desc Space between main cell content and postfix
      * @default
      * @type {number}
      * @memberOf module:defaults
      */
-    aggregationGroupTotalLeftOffset: 3,
+    cellValuePostfixLeftOffset: 5,
 
+    /**
+     * @desc font of aggregation group expand icon
+     * Best use of this parameter is set font family on one of connected icon-pack's, to render needed icon
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
     aggregationGroupExpandIconFont: 'normal normal lighter 14px fontAwesome',
+
+    /**
+     * @desc color of aggregated row expand icon
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
     aggregationGroupExpandIconColor: '#9F9F9F',
+
+    /**
+     * @desc icon (or text(not recomended)) that will be displayed as expand action trigger
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
     aggregationGroupExpandIconExpandedChar: decodeURI('\uf196'),
+
+    /**
+     * @desc icon (or text(not recomended)) that will be displayed as collapse action trigger
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
     aggregationGroupExpandIconCollapsedChar: decodeURI('\uf147'),
-    aggregationGroupTreeLevelOffset: 20
+
+    /**
+     * @desc additional left offset of each tree level.
+     * Other words, every child row will be displayed with additional offset
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    aggregationGroupTreeLevelOffset: 20,
+
+    /**
+     * @desc width of clickable area, that starts on group expand icon start
+     * Utility param. Used to perform clicks on icon
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    aggregationGroupExpandIconClickableWidth: 15,
+
+    /**
+     * @desc if true, values of cells, that contain HTML tags will be 'parsed' to plain text.
+     * Tags with classes from classesInterpretedAsPostfix list will be interpreted as postfix and removed from cell value string
+     * Other tags will be removed, but inner text not be affected
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    processStringsWithHtmlTags: true,
+
+    /**
+     * @desc list of classes, which means, that element represents value postfix
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    classesInterpretedAsPostfix: [
+        'cluster-size'
+    ],
 };
 
 

@@ -1295,14 +1295,19 @@ var Renderer = Base.extend('Renderer', {
                 config.valuePrefixColor = this.properties.aggregationGroupExpandIconColor;
                 config.prefixIgnoreUnderliningNeeded = true;
             }
+
+            if (config.aggregationChildCount && !config.headerRow) {
+                config.valuePostfix = `(${config.aggregationChildCount})`;
+            }
         }
 
-        if (!config.valuePrefix) {
+        if (!config.valuePrefix && config.headerRow) {
+            console.log('error icon will be rendered on config', config);
             if (cellEvent.column.hasError) {
                 config.valuePrefix = this.properties.errorIconUnicodeChar;
                 config.valuePrefixFont = this.properties.errorIconFont;
                 config.valuePrefixColor = this.properties.errorIconColor;
-            } else if (config.headerRow) {
+            } else {
                 config.valuePrefix = cellEvent.column.schema ? cellEvent.column.schema.headerPrefix : undefined;
                 config.valuePrefixFont = this.properties.columnTitlePrefixFont;
                 config.valuePrefixColor = this.properties.columnTitlePrefixColor;

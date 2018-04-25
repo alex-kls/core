@@ -545,6 +545,11 @@ var Local = Behavior.extend('Local', {
         return this.grid.selectionModel.getSelections();
     },
 
+    /**
+     * @desc append child rows right after parent
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
     expandChildRows: function(rowIndex) {
         const row = this.grid.getRow(rowIndex);
         if (!row.$$open && !!row.$$children && row.$$children.length > 0) {
@@ -557,6 +562,11 @@ var Local = Behavior.extend('Local', {
         row.$$open = true;
     },
 
+    /**
+     * @desc remove all child rows from data model
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
     collapseChildRows: function(row) {
         if (row.$$open && !!row.$$children && row.$$children.length > 0) {
             let dataToDelete = this.dataModel.data.filter((d) => d.$$parentRowAggregation === row.$$aggregation);
