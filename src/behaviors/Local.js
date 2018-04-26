@@ -1,6 +1,7 @@
 'use strict';
 
 var Behavior = require('./Behavior');
+const { getDividedPostfixesFromString } = require('../cellRenderers/CellRenderer');
 
 /** @name DataSource
  * @memberOf Behavior#
@@ -111,12 +112,24 @@ var Local = Behavior.extend('Local', {
         const props = column.properties;
 
         let width = props.defaultColumnWidth;
-        const key = props.field;
         const formatter = this.grid.getFormatter(column.name);
 
         // get max width based of
         data.forEach((d, i) => {
-            if (d[key]) {
+            let val = column.getValue(i);
+            if (val) {
+                let valuePostfix = null;
+
+                if (props.processStringsWithHtmlTags) {
+                    if (props.classesInterpretedAsPostfix && props.classesInterpretedAsPostfix.length > 0) {
+                        const { string, postfixes } = getDividedPostfixesFromString(val, props.classesInterpretedAsPostfix);
+                        val = string;
+                        if (postfixes.length > 0) {
+                            valuePostfix = postfixes.join(' ');
+                        }
+                    }
+                }
+
                 const dataProps = this.getRowProperties(i) || props;
                 let textWidth = props.cellPaddingRight;
 
@@ -140,15 +153,14 @@ var Local = Behavior.extend('Local', {
                 }
 
                 if (column.name === '$$aggregation') {
+                    const treeLevel = this.getRowTreeLevel(d);
+                    const treeOffset = treeLevel ? this.getRowTreeLevel(d) * props.aggregationGroupTreeLevelOffset : 0;
+                    textWidth += treeOffset;
+
                     const aggregationCount = this.getAggregationChildCount(d);
                     if (aggregationCount > 0) {
-                        gc.font = props.cellValuePostfixFont;
-                        textWidth += gc.getTextWidth(`(${aggregationCount})`) + props.cellValuePostfixLeftOffset;
-                    }
-
-                    const treeLevel = this.getRowTreeLevel(d);
-                    if (treeLevel) {
-                        textWidth += this.getRowTreeLevel(d) * props.aggregationGroupTreeLevelOffset;
+                        gc.cache.font = props.cellValuePostfixFont;
+                        textWidth += props.cellPaddingLeft + treeOffset + gc.getTextWidth(`(${aggregationCount})`) + props.cellValuePostfixLeftOffset;
                     }
 
                     if (this.isExpandableRow(d)) {
@@ -160,8 +172,13 @@ var Local = Behavior.extend('Local', {
                     }
                 }
 
+                if (valuePostfix) {
+                    gc.cache.font = props.cellValuePostfixFont;
+                    textWidth += gc.getTextWidth(valuePostfix) + props.cellValuePostfixLeftOffset;
+                }
+
                 gc.cache.font = dataProps.font;
-                textWidth += gc.getTextWidth(formatter(d[key], Object.assign({}, dataProps, { dataRow: d }))) + props.cellPaddingLeft;
+                textWidth += gc.getTextWidth(formatter(val, Object.assign({}, dataProps, { dataRow: d }))) + props.cellPaddingLeft;
 
                 if (textWidth > width) {
                     width = textWidth;

@@ -58,7 +58,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         if (config.processStringsWithHtmlTags && !!val) {
             if (!!config.classesInterpretedAsPostfix
                 && config.classesInterpretedAsPostfix.length > 0) {
-                let dividedString = getDividedPostfixesFromString(val, config.classesInterpretedAsPostfix);
+                let dividedString = CellRenderer.getDividedPostfixesFromString(val, config.classesInterpretedAsPostfix);
                 val = dividedString.string;
                 if (dividedString.postfixes.length > 0 && !config.valuePostfix) {
                     config.valuePostfix = dividedString.postfixes.join(' ');
@@ -284,11 +284,11 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
                 : renderSingleLineText(gc, config, val, leftPadding, textRightPadding);
 
             if (config.valuePostfix) {
-                gc.cache.fillStyle = config.cellValuePostfixColor;
-                gc.cache.font = config.cellValuePostfixFont;
                 const newLeftPadding = leftPadding + gc.getTextWidth(val) + config.cellValuePostfixLeftOffset;
                 let oldIgnoreUnderliningState = config.ignoreUnderlining;
                 config.ignoreUnderlining = true;
+                gc.cache.fillStyle = config.cellValuePostfixColor;
+                gc.cache.font = config.cellValuePostfixFont;
                 valWidth += renderMultiLineText(gc, config, config.valuePostfix, newLeftPadding, textRightPadding);
                 config.ignoreUnderlining = oldIgnoreUnderliningState;
             }
@@ -480,26 +480,6 @@ function removeHtmlTagsFromString(string) {
     return string.replace
         ? string.replace(/<(?:!|\/?[a-zA-Z]+).*?\/?>/g, '').trim()
         : string;
-}
-
-function getDividedPostfixesFromString(string, postfixClasses) {
-    let res = [];
-    postfixClasses.forEach((pc) => {
-        if (string && string.match) {
-            const regexpString = `(<[^\\/]*class=\\".*${pc}.*\\".*>)(.*)(<\\/.*>)`;
-            const regexp = new RegExp(regexpString, 'g');
-            let matches = regexp.exec(string);
-            if (matches && matches.length >= 2) {
-                res.push(matches[2]);
-                string = string.replace(regexp, '');
-            }
-        }
-    });
-
-    return {
-        string: string,
-        postfixes: res
-    };
 }
 
 function findLines(gc, config, words, width) {

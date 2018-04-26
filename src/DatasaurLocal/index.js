@@ -211,7 +211,6 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      */
     _getDataRowObject: function(x, y) {
         const row = this.data[y];
-        let foundedValue;
 
         if (!row) {
             return null;
@@ -220,21 +219,10 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         const columnName = getColumnName.call(this, x);
 
         if (columnName in row) {
-            foundedValue = row[columnName];
+            return row[columnName];
         }
 
-
-        Object.keys(row).forEach((key) => {
-            if (!foundedValue) {
-                let combinedColumns = key.split('/');
-                // if (combinedColumns.includes(columnName)) {
-                if (combinedColumns[0] === columnName) {
-                    foundedValue = row[key];
-                }
-            }
-        });
-
-        return foundedValue;
+        return row[Object.keys(row).find(key => key.split('/')[0] === columnName)];
     },
 
     /**
