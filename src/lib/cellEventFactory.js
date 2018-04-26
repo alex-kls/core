@@ -512,6 +512,13 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
     isRowExpanded: { get: function() { return this.grid.behavior.isRowExpanded(this.dataRow); } },
 
     /**
+     * @desc shows, is row contains grand total value
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    isGrandTotalRow: {get: function() { return !!this.dataRow && !!this.dataRow.$$grand_total; }},
+
+    /**
      * @desc tree level of an row
      * @type {number}
      * @memberOf CellEvent#

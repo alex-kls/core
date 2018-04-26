@@ -2299,6 +2299,14 @@ var defaults = {
     classesInterpretedAsPostfix: [
         'cluster-size'
     ],
+
+    /**
+     * font of aggregation grand total
+     * @default
+     * @type {cssFont}
+     * @memberOf module:defaults
+     */
+    grandAggregationCellFont: 'bold 13px "Helvetica Neue",Helvetica,Arial,sans-serif',
 };
 
 

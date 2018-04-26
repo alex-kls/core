@@ -444,7 +444,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         y += config.bounds.height / 2;
 
         if (config.isUserDataArea) {
-            const isAggregationHighlightingNeeded = config.isAggregationColumn && config.isAggregationRow && config.aggregationChildCount > 0;
+            const isAggregationHighlightingNeeded = !config.isGrandTotalRow && config.isAggregationColumn && config.isAggregationRow && config.aggregationChildCount > 0;
             if (config.link || isAggregationHighlightingNeeded && !config.ignoreUnderlining) {
                 if (config.isCellHovered || !config.linkOnHover) {
                     if (config.linkColor) {

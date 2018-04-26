@@ -95,7 +95,7 @@ function convertColDefs(colDefs) {
                                 foregroundSelectionFont: headersFont, // set bold font for title row
                                 editable: true, // allow edit content
                                 cellContextMenu: self.getMainMenuItems ? self.getMainMenuItems : self.properties.headerContextMenu, // set context menu items with callbacks
-                                halign: 'center',
+                                halign: 'left',
                                 showCellContextMenuIcon: showAdditionalInfo,
                                 showColumnType: showAdditionalInfo
                             }

@@ -57,9 +57,10 @@ var CellClick = Feature.extend('CellClick', {
     isAggregationTotalCell: function(event) {
         const isAggregationColumn = event.isAggregationColumn,
             isAggregationRow = event.isAggregationRow,
-            aggregationChildCount = event.aggregationChildCount;
+            aggregationChildCount = event.aggregationChildCount,
+            aggregationGrandTotalRow = event.isGrandTotalRow;
 
-        return isAggregationColumn && isAggregationRow && aggregationChildCount > 0;
+        return isAggregationColumn && isAggregationRow && aggregationChildCount > 0 && !aggregationGrandTotalRow;
     },
 
     overExpandIcon: function(grid, event) {

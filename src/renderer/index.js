@@ -1312,6 +1312,7 @@ var Renderer = Base.extend('Renderer', {
             config.isExpandableRow = cellEvent.isExpandableRow;
             config.isRowExpanded = cellEvent.isRowExpanded;
             config.treeLevel = cellEvent.treeLevel;
+            config.isGrandTotalRow = cellEvent.isGrandTotalRow;
 
             if (config.isExpandableRow) {
                 config.valuePrefix = config.isRowExpanded
@@ -1324,6 +1325,12 @@ var Renderer = Base.extend('Renderer', {
 
             if (config.aggregationChildCount && !config.headerRow) {
                 config.valuePostfix = `(${config.aggregationChildCount})`;
+            }
+
+            if (config.isGrandTotalRow) {
+                config.backgroundTextFont = this.properties.grandAggregationCellFont;
+                config.foregroundSelectionFont  = this.properties.grandAggregationCellFont;
+                config.font = this.properties.grandAggregationCellFont;
             }
         }
 
