@@ -284,6 +284,23 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     },
 
     /**
+     * @summary get additional width based on colspan
+     * @param x
+     * @param y
+     * @returns {number}
+     */
+    getAdditionalWidth: function(x, y) {
+        let additional = 0;
+        for (let i = 0; i < this.getColspan(x, y); i++) {
+            let nextColumn = this.grid.renderer.visibleColumns[x + i + 1];
+            if (nextColumn) {
+                additional += nextColumn.width;
+            }
+        }
+        return additional;
+    },
+
+    /**
      * @public
      * @desc get rowspan of an cell, if exist. Otherwise, returns 0;
      * @param x
@@ -298,6 +315,23 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         } else {
             return 0;
         }
+    },
+
+    /**
+     * @summary get additional height based on colspan
+     * @param x
+     * @param y
+     * @returns {number}
+     */
+    getAdditionalHeight: function(x, y) {
+        let additional = 0;
+        for (let i = 0; i < this.getRowspan(x, y); i++) {
+            let nextRow = this.grid.renderer.visibleRows[y + i + 1];
+            if (nextRow) {
+                additional += nextRow.height;
+            }
+        }
+        return additional;
     },
 
     /**

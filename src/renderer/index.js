@@ -290,35 +290,13 @@ var Renderer = Base.extend('Renderer', {
      * @returns {Rectangle} Bounding rect of cell with the given coordinates.
      */
     getBoundsOfCell: function(x, y) {
-        let cellEvent = this.findCell(x, y - this.grid.getHeaderRowCount());
-
-        let colspan = cellEvent ? cellEvent.colspan : 0;
-        let rowspan = cellEvent ? cellEvent.rowspan : 0;
-
-        var vc = this.visibleColumns[x],
-            vr = this.visibleRows[y];
-
-        let additionalWidth = 0;
-        for (let i = 0; i < colspan; i++) {
-            let nextColumn = this.visibleColumns[x + i + 1];
-            if (nextColumn) {
-                additionalWidth += nextColumn.width;
-            }
-        }
-
-        let additionalHeight = 0;
-        for (let i = 0; i < rowspan; i++) {
-            let nextRow = this.visibleRows[y + i + 1];
-            if (nextRow) {
-                additionalHeight += nextRow.height;
-            }
-        }
+        const vc = this.visibleColumns[x], vr = this.visibleRows[y];
 
         return {
             x: vc.left,
             y: vr.top,
-            width: vc.width + additionalWidth,
-            height: vr.height + additionalHeight
+            width: vc.width + this.grid.behavior.getAdditionalWidth(x, y),
+            height: vr.height + this.grid.behavior.getAdditionalHeight(x, y)
         };
     },
 

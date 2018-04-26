@@ -63,8 +63,8 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         return this._bounds || (this._bounds = {
             x: this.visibleColumn.left,
             y: this.visibleRow.top,
-            width: this.visibleColumn.width,
-            height: this.visibleRow.height
+            width: this.visibleColumn.width + this.behavior.getAdditionalWidth(this.dataCell.x, this.dataCell.y),
+            height: this.visibleRow.height + this.behavior.getAdditionalHeight(this.dataCell.x, this.dataCell.y)
         });
     } },
 

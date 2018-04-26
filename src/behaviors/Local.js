@@ -117,7 +117,7 @@ var Local = Behavior.extend('Local', {
         // get max width based of
         data.forEach((d, i) => {
             let val = column.getValue(i);
-            if (val) {
+            if (val && this.dataModel.getColspan(column.index, i) === 0) {
                 let valuePostfix = null;
 
                 if (props.processStringsWithHtmlTags) {
@@ -130,55 +130,61 @@ var Local = Behavior.extend('Local', {
                     }
                 }
 
+                const widths = {};
+
                 const dataProps = this.getRowProperties(i) || props;
-                let textWidth = props.cellPaddingRight;
+                widths.cellPaddingRight = props.cellPaddingRight;
 
                 if (dataProps.showCellContextMenuIcon) {
                     gc.cache.font = props.contextMenuIconFont;
-                    textWidth += props.contextMenuButtonIconPreferedWidth + 2 * props.contextMenuButtonPadding + props.contextMenuLeftSpaceToCutText;
+                    widths.showCellContextMenuIcon = props.contextMenuButtonIconPreferedWidth + 2 * props.contextMenuButtonPadding + props.contextMenuLeftSpaceToCutText;
                 }
 
                 if (dataProps.showColumnType && column.schema.colTypeSign) {
-                    textWidth += textWidth;
+                    widths.colTypeSign = (widths.showCellContextMenuIcon || 0) + widths.cellPaddingRight;
                 }
 
-                if (column.schema && column.schema.headerPrefix) {
+                if (column.schema && column.schema.headerPrefix && dataProps.headerRow) {
                     gc.cache.font = props.columnTitlePrefixFont;
-                    textWidth += gc.getTextWidth(column.schema.headerPrefix) + props.columnTitlePrefixRightSpace;
+                    widths.headerPrefix = gc.getTextWidth(column.schema.headerPrefix) + props.columnTitlePrefixRightSpace;
                 }
 
                 if (column.hasError && dataProps.headerRow) {
                     gc.cache.font = props.errorIconFont;
-                    textWidth += gc.getTextWidth(props.errorIconUnicodeChar) + props.columnTitlePrefixRightSpace;
+                    widths.hasError = gc.getTextWidth(props.errorIconUnicodeChar) + props.columnTitlePrefixRightSpace;
                 }
 
                 if (column.name === '$$aggregation') {
                     const treeLevel = this.getRowTreeLevel(d);
                     const treeOffset = treeLevel ? this.getRowTreeLevel(d) * props.aggregationGroupTreeLevelOffset : 0;
-                    textWidth += treeOffset;
+                    widths.treeOffset = treeOffset;
 
                     const aggregationCount = this.getAggregationChildCount(d);
                     if (aggregationCount > 0) {
                         gc.cache.font = props.cellValuePostfixFont;
-                        textWidth += props.cellPaddingLeft + treeOffset + gc.getTextWidth(`(${aggregationCount})`) + props.cellValuePostfixLeftOffset;
+                        widths.aggregationCount = props.cellPaddingLeft + treeOffset + gc.getTextWidth(`(${aggregationCount})`) + props.cellValuePostfixLeftOffset;
                     }
 
                     if (this.isExpandableRow(d)) {
                         const valuePrefix = props[`aggregationGroupExpandIcon${ this.isRowExpanded(d) ? 'Collapsed' : 'Expanded'}Char`];
                         if (valuePrefix) {
                             gc.cache.font = props.aggregationGroupExpandIconFont;
-                            textWidth += gc.getTextWidth(valuePrefix) + props.columnTitlePrefixRightSpace;
+                            widths.valuePrefix = gc.getTextWidth(valuePrefix) + props.columnTitlePrefixRightSpace;
                         }
                     }
                 }
 
                 if (valuePostfix) {
                     gc.cache.font = props.cellValuePostfixFont;
-                    textWidth += gc.getTextWidth(valuePostfix) + props.cellValuePostfixLeftOffset;
+                    widths.valuePostfix = gc.getTextWidth(valuePostfix) + props.cellValuePostfixLeftOffset;
                 }
 
                 gc.cache.font = dataProps.font;
-                textWidth += gc.getTextWidth(formatter(val, Object.assign({}, dataProps, { dataRow: d }))) + props.cellPaddingLeft;
+                widths.val = gc.getTextWidth(formatter(val, Object.assign({}, dataProps, { dataRow: d }))) + props.cellPaddingLeft;
+
+                // console.log('widths', val, widths);
+                let textWidth = Object.values(widths).reduce((a, b) => a + b, 0);
+                // console.log('textWidth', textWidth);
 
                 if (textWidth > width) {
                     width = textWidth;
@@ -600,6 +606,27 @@ var Local = Behavior.extend('Local', {
             });
         }
         row.$$open = false;
+    },
+
+
+    /**
+     * @summary get additional width based on colspan
+     * @param x
+     * @param y
+     * @returns {number}
+     */
+    getAdditionalWidth: function(x, y) {
+        return this.dataModel.getAdditionalWidth(x, y);
+    },
+
+    /**
+     * @summary get additional height based on rowspan
+     * @param x
+     * @param y
+     * @returns {number}
+     */
+    getAdditionalHeight: function(x, y) {
+        return this.dataModel.getAdditionalHeight(x, y);
     },
 
     errors: {}
