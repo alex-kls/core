@@ -142,15 +142,21 @@ var Local = Behavior.extend('Local', {
                 if (column.name === '$$aggregation') {
                     const aggregationCount = this.getAggregationChildCount(d);
                     if (aggregationCount > 0) {
-                        gc.font = props.aggregationGroupTotalFont;
-                        textWidth += gc.getTextWidth(`(${aggregationCount})`) + props.aggregationGroupTotalLeftOffset;
+                        gc.font = props.cellValuePostfixFont;
+                        textWidth += gc.getTextWidth(`(${aggregationCount})`) + props.cellValuePostfixLeftOffset;
+                    }
+
+                    const treeLevel = this.getRowTreeLevel(d);
+                    if (treeLevel) {
                         textWidth += this.getRowTreeLevel(d) * props.aggregationGroupTreeLevelOffset;
                     }
 
-                    const valuePrefix = props[`aggregationGroupExpandIcon${this.isExpandableRow(d) ? 'Collapsed' : 'Expanded'}Char`];
-                    if (valuePrefix) {
-                        gc.cache.font = props.aggregationGroupExpandIconFont;
-                        textWidth += gc.getTextWidth(valuePrefix) + props.columnTitlePrefixRightSpace;
+                    if (this.isExpandableRow(d)) {
+                        const valuePrefix = props[`aggregationGroupExpandIcon${ this.isRowExpanded(d) ? 'Collapsed' : 'Expanded'}Char`];
+                        if (valuePrefix) {
+                            gc.cache.font = props.aggregationGroupExpandIconFont;
+                            textWidth += gc.getTextWidth(valuePrefix) + props.columnTitlePrefixRightSpace;
+                        }
                     }
                 }
 
