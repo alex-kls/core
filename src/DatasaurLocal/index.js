@@ -212,6 +212,8 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     _getDataRowObject: function(x, y) {
         const row = this.data[y];
 
+        let foundedValue, skipNeeded = false;
+
         if (!row) {
             return null;
         }
@@ -222,7 +224,23 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
             return row[columnName];
         }
 
-        return row[Object.keys(row).find(key => key.split('/')[0] === columnName)];
+        Object.keys(row).forEach((key) => {
+            if (!foundedValue) {
+                let combinedColumns = key.split('/');
+                if (combinedColumns.includes(columnName)) {
+                    if (combinedColumns[0] === columnName) {
+                        foundedValue = row[key];
+                    } else {
+                        skipNeeded = true;
+                    }
+                }
+            }
+        });
+
+        return {
+            foundedValue: foundedValue,
+            skipNeeded: skipNeeded
+        };
     },
 
     /**
@@ -230,7 +248,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      * @memberOf DataSourceLocal#
      */
     getValue: function(x, y) {
-        let foundedDataRowValue = this._getDataRowObject(x, y);
+        let foundedDataRowValue = this._getDataRowObject(x, y).foundedValue;
 
         if (foundedDataRowValue) {
             if (typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.value) {
@@ -245,7 +263,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      * @memberOf DataSourceLocal#
      */
     setValue: function(x, y, value) {
-        let foundedDataRowValue = this._getDataRowObject(x, y);
+        let foundedDataRowValue = this._getDataRowObject(x, y).foundedValue;
 
         if (foundedDataRowValue) {
             if (typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.value) {
@@ -266,7 +284,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      * @return {*}
      */
     getColspan: function(x, y) {
-        let foundedDataRowValue = this._getDataRowObject(x, y);
+        let foundedDataRowValue = this._getDataRowObject(x, y).foundedValue;
 
         if (foundedDataRowValue && typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.colspan) {
             return foundedDataRowValue.colspan;
@@ -283,13 +301,23 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      * @return {*}
      */
     getRowspan: function(x, y) {
-        let foundedDataRowValue = this._getDataRowObject(x, y);
+        let foundedDataRowValue = this._getDataRowObject(x, y).foundedValue;
 
         if (foundedDataRowValue && typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.rowspan) {
             return foundedDataRowValue.rowspan;
         } else {
             return 0;
         }
+    },
+
+    /**
+     * @public
+     * @param x
+     * @param y
+     * @return {*}
+     */
+    isRenderSkipNeeded: function(x, y) {
+        return this._getDataRowObject(x, y).skipNeeded;
     },
 
     /**

@@ -290,14 +290,35 @@ var Renderer = Base.extend('Renderer', {
      * @returns {Rectangle} Bounding rect of cell with the given coordinates.
      */
     getBoundsOfCell: function(x, y) {
+        let cellEvent = this.findCell(x, y - this.grid.getHeaderRowCount());
+
+        let colspan = cellEvent ? cellEvent.colspan : 0;
+        let rowspan = cellEvent ? cellEvent.rowspan : 0;
+
         var vc = this.visibleColumns[x],
             vr = this.visibleRows[y];
+
+        let additionalWidth = 0;
+        for (let i = 0; i < colspan; i++) {
+            let nextColumn = this.visibleColumns[x + i + 1];
+            if (nextColumn) {
+                additionalWidth += nextColumn.width;
+            }
+        }
+
+        let additionalHeight = 0;
+        for (let i = 0; i < rowspan; i++) {
+            let nextRow = this.visibleRows[y + i + 1];
+            if (nextRow) {
+                additionalHeight += nextRow.height;
+            }
+        }
 
         return {
             x: vc.left,
             y: vr.top,
-            width: vc.width,
-            height: vr.height
+            width: vc.width + additionalWidth,
+            height: vr.height + additionalHeight
         };
     },
 
@@ -1162,7 +1183,7 @@ var Renderer = Base.extend('Renderer', {
     paintCell: function(gc, x, y) {
         gc.moveTo(0, 0);
 
-        var c = this.visibleColumns[x].index, // todo refac
+        let c = this.visibleColumns[x].index, // todo refac
             r = this.visibleRows[y].index;
 
         if (c) { //something is being viewed at at the moment (otherwise returns undefined)
@@ -1180,6 +1201,10 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer
      */
     _paintCell: function(gc, cellEvent, prefillColor) {
+        if (cellEvent.isRenderSkipNeeded) {
+            return;
+        }
+
         var grid = this.grid,
             selectionModel = grid.selectionModel,
             behavior = grid.behavior,

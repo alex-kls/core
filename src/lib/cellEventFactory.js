@@ -36,6 +36,14 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
     },
 
     /**
+     * If true, cell will be ignored on render
+     * @memberOf CellEvent#
+     */
+    isRenderSkipNeeded: {
+        get: function() { return this.subgrid.isRenderSkipNeeded(this.dataCell.x, this.dataCell.y); }
+    },
+
+    /**
      * The formatted value of the cell.
      * @memberOf CellEvent#
      */
