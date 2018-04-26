@@ -20,6 +20,22 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
     },
 
     /**
+     * The colspan value of the cell, unformatted.
+     * @memberOf CellEvent#
+     */
+    colspan: {
+        get: function() { return this.subgrid.getColspan(this.dataCell.x, this.dataCell.y); }
+    },
+
+    /**
+     * The rowspan value of the cell, unformatted.
+     * @memberOf CellEvent#
+     */
+    rowspan: {
+        get: function() { return this.subgrid.getRowspan(this.dataCell.x, this.dataCell.y); }
+    },
+
+    /**
      * The formatted value of the cell.
      * @memberOf CellEvent#
      */

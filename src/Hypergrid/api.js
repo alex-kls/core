@@ -55,20 +55,7 @@ function convertColDefs(colDefs) {
     const self = this;
 
     const data = [];
-    // const data = {
-    //     __META: {
-    //         __ROW: {
-    //             headerRow: true, // used for preventing duplicates
-    //             font: headersFont, // set bold font for title row
-    //             foregroundSelectionFont: headersFont, // set bold font for title row
-    //             editable: true, // allow edit content
-    //             cellContextMenu: this.getMainMenuItems ? this.getMainMenuItems : this.properties.headerContextMenu, // set context menu items with callbacks
-    //             halign: 'left',
-    //             showCellContextMenuIcon: showAdditionalInfo,
-    //             showColumnType: showAdditionalInfo
-    //         }
-    //     }
-    // };
+
     const az = range('A', 'Z');
 
     let colDefMapperCallsCount = 0;
@@ -115,7 +102,10 @@ function convertColDefs(colDefs) {
                         }
                     };
                 }
-                data[parentsCount][insertedColumnNames.join('/')] = singleColDef.headerName || '';
+                data[parentsCount][insertedColumnNames.join('/')] = {
+                    colspan: insertedColumnNames.length - 1,
+                    value: singleColDef.headerName || ''
+                };
 
                 return insertedColumnNames;
             } else {

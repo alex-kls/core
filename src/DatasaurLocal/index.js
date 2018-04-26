@@ -204,11 +204,15 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     },
 
     /**
-     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getValue}
-     * @memberOf DataSourceLocal#
+     * @private
+     * @param x
+     * @param y
+     * @private
      */
-    getValue: function(x, y) {
+    _getDataRowObject: function(x, y) {
         const row = this.data[y];
+        let foundedValue;
+
         if (!row) {
             return null;
         }
@@ -216,26 +220,88 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         const columnName = getColumnName.call(this, x);
 
         if (columnName in row) {
-            return row[columnName];
+            foundedValue = row[columnName];
         }
 
-        let foundedValue;
+
         Object.keys(row).forEach((key) => {
             if (!foundedValue) {
                 let combinedColumns = key.split('/');
-                if (combinedColumns.includes(columnName)) {
+                // if (combinedColumns.includes(columnName)) {
+                if (combinedColumns[0] === columnName) {
                     foundedValue = row[key];
                 }
             }
         });
+
         return foundedValue;
+    },
+
+    /**
+     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getValue}
+     * @memberOf DataSourceLocal#
+     */
+    getValue: function(x, y) {
+        let foundedDataRowValue = this._getDataRowObject(x, y);
+
+        if (foundedDataRowValue) {
+            if (typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.value) {
+                return foundedDataRowValue.value;
+            } else {
+                return foundedDataRowValue;
+            }
+        }
     },
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setValue}
      * @memberOf DataSourceLocal#
      */
     setValue: function(x, y, value) {
-        this.data[y][getColumnName.call(this, x)] = value;
+        let foundedDataRowValue = this._getDataRowObject(x, y);
+
+        if (foundedDataRowValue) {
+            if (typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.value) {
+                foundedDataRowValue.value = value;
+            } else {
+                foundedDataRowValue = value;
+            }
+        }
+
+        this.data[y][getColumnName.call(this, x)] = foundedDataRowValue;
+    },
+
+    /**
+     * @public
+     * @desc get colspan of an cell, if exist. Otherwise, returns 0;
+     * @param x
+     * @param y
+     * @return {*}
+     */
+    getColspan: function(x, y) {
+        let foundedDataRowValue = this._getDataRowObject(x, y);
+
+        if (foundedDataRowValue && typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.colspan) {
+            return foundedDataRowValue.colspan;
+        } else {
+            return 0;
+        }
+    },
+
+    /**
+     * @public
+     * @desc get rowspan of an cell, if exist. Otherwise, returns 0;
+     * @param x
+     * @param y
+     * @return {*}
+     */
+    getRowspan: function(x, y) {
+        let foundedDataRowValue = this._getDataRowObject(x, y);
+
+        if (foundedDataRowValue && typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.rowspan) {
+            return foundedDataRowValue.rowspan;
+        } else {
+            return 0;
+        }
     },
 
     /**
