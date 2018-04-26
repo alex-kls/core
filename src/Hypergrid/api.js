@@ -52,57 +52,137 @@ function convertColDefs(colDefs) {
 
     const showAdditionalInfo = this.properties.showAdditionalInfo;
 
-    const data = {
-        __META: {
-            __ROW: {
-                headerRow: true, // used for preventing duplicates
-                font: headersFont, // set bold font for title row
-                foregroundSelectionFont: headersFont, // set bold font for title row
-                editable: true, // allow edit content
-                cellContextMenu: this.getMainMenuItems ? this.getMainMenuItems : this.properties.headerContextMenu, // set context menu items with callbacks
-                halign: 'left',
-                showCellContextMenuIcon: showAdditionalInfo,
-                showColumnType: showAdditionalInfo
-            }
-        }
-    };
+    const self = this;
+
+    const data = [];
+    // const data = {
+    //     __META: {
+    //         __ROW: {
+    //             headerRow: true, // used for preventing duplicates
+    //             font: headersFont, // set bold font for title row
+    //             foregroundSelectionFont: headersFont, // set bold font for title row
+    //             editable: true, // allow edit content
+    //             cellContextMenu: this.getMainMenuItems ? this.getMainMenuItems : this.properties.headerContextMenu, // set context menu items with callbacks
+    //             halign: 'left',
+    //             showCellContextMenuIcon: showAdditionalInfo,
+    //             showColumnType: showAdditionalInfo
+    //         }
+    //     }
+    // };
     const az = range('A', 'Z');
 
-    function colDefMapper(singleColDef, letters) {
-        const originalField = singleColDef && (singleColDef.originalField || singleColDef.field);
-        const width = singleColDef && singleColDef.width;
-        const halign = singleColDef && singleColDef.halign;
-        const colTypeSign = singleColDef && singleColDef.colTypeSign;
-        const maxWidth = singleColDef && singleColDef.maxWidth;
-        const headerPrefix = singleColDef && singleColDef.headerPrefix;
-        const name = originalField || letters;
+    let colDefMapperCallsCount = 0;
+    // let maxTreeLevel = 0;
+    //
+    // function countMaxTreeLevel(prevLevel, colDefsToDetect) {
+    //     let currentLevel = prevLevel + 1;
+    //     colDefsToDetect.forEach((cd) => {
+    //         if (cd.children && cd.children.length > 0) {
+    //             countMaxTreeLevel(currentLevel, cd.children);
+    //         }
+    //     });
+    //
+    //     if (currentLevel > maxTreeLevel) {
+    //         maxTreeLevel = currentLevel;
+    //     }
+    // }
+    //
+    // countMaxTreeLevel(0, colDefs);
 
-        schema.push({
-            header: letters || '',
-            name: name,
-            width: width || undefined,
-            halign: halign || undefined,
-            colTypeSign: colTypeSign || undefined,
-            maxWidth: maxWidth && maxWidth < maximumColumnWidth ? maxWidth : maximumColumnWidth,
-            formatter: getFormatter(singleColDef) || undefined,
-            format: name,
-            headerPrefix: headerPrefix || undefined,
-            cellContextMenu: getContextMenuItems,
-            colDef: singleColDef
-        });
+    function colDefMapper(singleColDef, parentsCount = 0) {
+        const letter = idOf(az, colDefMapperCallsCount);
+        colDefMapperCallsCount++;
+        if (singleColDef) {
+            if (!!singleColDef.children && singleColDef.children.length > 0) {
+                let insertedColumnNames = [];
+                singleColDef.children.forEach((ch) => {
+                    insertedColumnNames = [...insertedColumnNames, ...colDefMapper(ch, parentsCount + 1)];
+                });
 
-        if (originalField) {
-            data[originalField] = singleColDef.headerName || '';
+                if (!data[parentsCount]) {
+                    data[parentsCount] = {
+                        __META: {
+                            __ROW: {
+                                headerRow: true, // used for preventing duplicates
+                                font: headersFont, // set bold font for title row
+                                foregroundSelectionFont: headersFont, // set bold font for title row
+                                editable: true, // allow edit content
+                                cellContextMenu: self.getMainMenuItems ? self.getMainMenuItems : self.properties.headerContextMenu, // set context menu items with callbacks
+                                halign: 'left',
+                                showCellContextMenuIcon: showAdditionalInfo,
+                                showColumnType: showAdditionalInfo
+                            }
+                        }
+                    };
+                }
+                data[parentsCount][insertedColumnNames.join('/')] = singleColDef.headerName || '';
+
+                return insertedColumnNames;
+            } else {
+                const originalField = singleColDef.field;
+                const maxWidth = singleColDef && singleColDef.maxWidth;
+                const name = originalField || letter;
+
+                schema.push({
+                    header: letter || '',
+                    name: name,
+                    width: singleColDef.width,
+                    halign: singleColDef.halign,
+                    colTypeSign: singleColDef.colTypeSign,
+                    maxWidth: maxWidth && maxWidth < maximumColumnWidth ? maxWidth : maximumColumnWidth,
+                    formatter: getFormatter(singleColDef) || undefined,
+                    format: name,
+                    headerPrefix: singleColDef.headerPrefix,
+                    cellContextMenu: getContextMenuItems,
+                    colDef: singleColDef
+                });
+
+                if (originalField) {
+                    if (!data[parentsCount]) {
+                        data[parentsCount] = {
+                            __META: {
+                                __ROW: {
+                                    headerRow: true, // used for preventing duplicates
+                                    font: headersFont, // set bold font for title row
+                                    foregroundSelectionFont: headersFont, // set bold font for title row
+                                    editable: true, // allow edit content
+                                    cellContextMenu: self.getMainMenuItems ? self.getMainMenuItems : self.properties.headerContextMenu, // set context menu items with callbacks
+                                    halign: 'left',
+                                    showCellContextMenuIcon: showAdditionalInfo,
+                                    showColumnType: showAdditionalInfo
+                                }
+                            }
+                        };
+                    }
+                    data[parentsCount][originalField] = singleColDef.headerName || '';
+                }
+                return [name];
+            }
+        } else {
+            schema.push({
+                header: letter || '',
+                name: letter,
+                width: undefined,
+                halign: undefined,
+                colTypeSign: undefined,
+                maxWidth: maximumColumnWidth,
+                formatter: undefined,
+                format: name,
+                headerPrefix: undefined,
+                cellContextMenu: getContextMenuItems,
+                colDef: undefined
+            });
+            return [letter];
         }
     }
 
     if (colDefs.length < az.length) {
         az.forEach((singleLetter, index) => {
-            colDefMapper(colDefs[index], singleLetter);
+            colDefMapper(colDefs[index]);
         });
     } else {
         colDefs.forEach(function(singleColDef, index) {
-            colDefMapper(singleColDef, idOf(az, index));
+            colDefMapper(singleColDef);
         });
     }
 
@@ -241,7 +321,8 @@ function setColumnDefs(colDefs) {
     this.visibleColumnDefs = this.columnDefs.filter((cd) => !cd.isHidden);
 
     const schema = convertColDefs.bind(this)(this.visibleColumnDefs);
-    const firstRowData = schema.data;
+    console.log('schema', schema);
+    const firstRowsData = schema.data;
     let data = this.behavior.getData();
 
     if (this.getMainMenuItems) {
@@ -251,14 +332,19 @@ function setColumnDefs(colDefs) {
     // create first row from headers
     if (this.behavior.grid.properties.useHeaders) {
         if (!data || data.length === 0) {
-            data = [firstRowData];
+            data = [...firstRowsData];
             this.api.needColumnsToFit = true;
-        } else if (data && !equal(data[0], firstRowData)) {
-            if (this.behavior.getRowProperties(0).headerRow) {
-                data[0] = firstRowData;
-            } else {
-                data.unshift(firstRowData);
-            }
+        } else {
+            firstRowsData.forEach((d, i) => {
+                if (!equal(data[0], d)) {
+                    if (this.behavior.getRowProperties(i).headerRow) {
+                        data[i] = d;
+                    } else {
+                        data.splice(i, 0, d);
+                    }
+                }
+            });
+
             this.api.needColumnsToFit = true;
         }
     }

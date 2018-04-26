@@ -208,11 +208,27 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      * @memberOf DataSourceLocal#
      */
     getValue: function(x, y) {
-        var row = this.data[y];
+        const row = this.data[y];
         if (!row) {
             return null;
         }
-        return row[getColumnName.call(this, x)];
+
+        const columnName = getColumnName.call(this, x);
+
+        if (columnName in row) {
+            return row[columnName];
+        }
+
+        let foundedValue;
+        Object.keys(row).forEach((key) => {
+            if (!foundedValue) {
+                let combinedColumns = key.split('/');
+                if (combinedColumns.includes(columnName)) {
+                    foundedValue = row[key];
+                }
+            }
+        });
+        return foundedValue;
     },
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setValue}
