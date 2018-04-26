@@ -1042,13 +1042,17 @@ var Renderer = Base.extend('Renderer', {
 
                     let start = gridProps.defaultHeaderRowHeight;
 
-                    for (let i = 0; i < visibleRows.length; ++i) {
-                        if (this.grid.behavior.dataModel.isRenderSkipNeeded(vc.index + 1, i)) {
-                            start += this.grid.behavior.getRowHeight(i);
-                        } else {
-                            break;
+                    for (let i = 0; i < rowsLength; ++i) {
+                        const row = visibleRows[i];
+                        if (row.subgrid.isData) {
+                            if (this.grid.behavior.dataModel.isRenderSkipNeeded(vc.columnIndex + 1, row.rowIndex)) {
+                                start += row.height;
+                            } else {
+                                break;
+                            }
                         }
                     }
+
                     if (!vc.gap) {
                         this.drawLine(gc, right, start, gridProps.gridLinesVWidth, viewHeight);
                     }
