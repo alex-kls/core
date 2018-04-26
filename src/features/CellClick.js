@@ -76,7 +76,7 @@ var CellClick = Feature.extend('CellClick', {
         let iconBottomY = event.bounds.height - 5;
 
         return event.mousePoint.x <= iconRightX
-            && event.mousePoint.x >= iconLeftX
+            && event.mousePoint.x >= 0
             && event.mousePoint.y <= iconBottomY
             && event.mousePoint.y >= iconTopY;
     },
