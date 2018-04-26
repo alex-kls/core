@@ -212,35 +212,25 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     _getDataRowObject: function(x, y) {
         const row = this.data[y];
 
-        let foundedValue, skipNeeded = false;
-
         if (!row) {
-            return null;
+            return {};
         }
 
         const columnName = getColumnName.call(this, x);
 
         if (columnName in row) {
-            return row[columnName];
+            return { foundedValue: row[columnName] };
         }
 
-        Object.keys(row).forEach((key) => {
-            if (!foundedValue) {
-                let combinedColumns = key.split('/');
-                if (combinedColumns.includes(columnName)) {
-                    if (combinedColumns[0] === columnName) {
-                        foundedValue = row[key];
-                    } else {
-                        skipNeeded = true;
-                    }
-                }
-            }
-        });
+        let foundedValue, skipNeeded = false;
 
-        return {
-            foundedValue: foundedValue,
-            skipNeeded: skipNeeded
-        };
+        foundedValue = row[Object.keys(row).find((key) => {
+            let combinedColumns = key.split('/');
+            skipNeeded = skipNeeded || combinedColumns.includes(columnName) && combinedColumns[0] !== columnName;
+            return combinedColumns[0] === columnName;
+        })];
+
+        return { foundedValue, skipNeeded };
     },
 
     /**
