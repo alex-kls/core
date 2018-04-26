@@ -1039,8 +1039,18 @@ var Renderer = Base.extend('Renderer', {
                 for (let right, vc = visibleColumns[0], c = 0; c < columnsLength; c++) {
                     vc = visibleColumns[c];
                     right = vc.right;
+
+                    let start = gridProps.defaultHeaderRowHeight;
+
+                    for (let i = 0; i < visibleRows.length; ++i) {
+                        if (this.grid.behavior.dataModel.isRenderSkipNeeded(vc.index + 1, i)) {
+                            start += this.grid.behavior.getRowHeight(i);
+                        } else {
+                            break;
+                        }
+                    }
                     if (!vc.gap) {
-                        this.drawLine(gc, right, 0, gridProps.gridLinesVWidth, viewHeight);
+                        this.drawLine(gc, right, start, gridProps.gridLinesVWidth, viewHeight);
                     }
                 }
             }
