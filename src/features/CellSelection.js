@@ -58,16 +58,28 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
-        var dx = event.gridCell.x,
-            dy = event.dataCell.y,
-            isSelectable = grid.behavior.getCellProperty(event.dataCell.x, event.gridCell.y, 'cellSelection');
+        let nearestSelectableCellEvent;
+        if (event.isRenderSkipNeeded) {
+            for (let i = event.dataCell.x - 1; i >= 0; i--) {
+                const nextEvent = grid.renderer.findCell(i, event.dataCell.y);
+                if (!nextEvent.isRenderSkipNeeded && !nearestSelectableCellEvent) {
+                    nearestSelectableCellEvent = nextEvent;
+                }
+            }
+        }
 
-        if (isSelectable && event.isDataCell) {
-            if (event.primitiveEvent.detail.isRightClick && event.isCellSelected) {
+        let cellEventToSelect = nearestSelectableCellEvent ? nearestSelectableCellEvent : event;
+
+        let dx = cellEventToSelect.gridCell.x,
+            dy = cellEventToSelect.dataCell.y,
+            isSelectable = grid.behavior.getCellProperty(cellEventToSelect.dataCell.x, cellEventToSelect.gridCell.y, 'cellSelection');
+
+        if (isSelectable && cellEventToSelect.isDataCell) {
+            if (event.primitiveEvent.detail.isRightClick && cellEventToSelect.isCellSelected) {
                 return;
             }
 
-            var dCell = grid.newPoint(dx, dy),
+            let dCell = grid.newPoint(dx, dy),
                 primEvent = event.primitiveEvent,
                 keys = primEvent.detail.keys;
             this.dragging = true;
