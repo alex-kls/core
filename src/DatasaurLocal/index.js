@@ -350,8 +350,27 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      * @param y
      * @return {*}
      */
+    isColspanedByLeftRow: function(x, y) {
+        let rowValue = this._getDataRowObject(x, y);
+
+        return !!rowValue.foundedValue && rowValue.foundedValue.isColspanedByColumn;
+        // return this._getDataRowObject(x, y).skipNeeded;
+    },
+
+    /**
+     * @public
+     * @param x
+     * @param y
+     * @return {*}
+     */
+    isRowspanedByTopRow: function(x, y) {
+        let cellOnRow = this._getDataRowObject(x, y);
+
+        return !!cellOnRow.foundedValue && cellOnRow.foundedValue.isRowspanedByRow;
+    },
+
     isRenderSkipNeeded: function(x, y) {
-        return this._getDataRowObject(x, y).skipNeeded;
+        return this.isRowspanedByTopRow(x, y) || this.isColspanedByLeftRow(x, y);
     },
 
     /**
@@ -376,18 +395,6 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         }
 
         return true;
-    },
-
-    /**
-     * @public
-     * @param x
-     * @param y
-     * @return {*}
-     */
-    isRowspanedByTopRow: function(x, y) {
-        let cellOnRow = this._getDataRowObject(x, y);
-
-        return !!cellOnRow.foundedValue && cellOnRow.foundedValue.isRowspanedByRow;
     },
 
     /**

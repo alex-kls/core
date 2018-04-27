@@ -1050,7 +1050,7 @@ var Renderer = Base.extend('Renderer', {
                     for (let i = 0; i < rowsLength; ++i) {
                         const row = visibleRows[i];
                         if (row.subgrid.isData) {
-                            if (this.grid.behavior.dataModel.isRenderSkipNeeded(vc.columnIndex + 1, row.rowIndex)) {
+                            if (this.grid.behavior.dataModel.isColspanedByLeftRow(vc.columnIndex + 1, row.rowIndex)) {
                                 start += row.height;
                             } else {
                                 break;
@@ -1215,7 +1215,7 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer
      */
     _paintCell: function(gc, cellEvent, prefillColor) {
-        if (cellEvent.isRenderSkipNeeded || cellEvent.isRowspanedByTopRow) {
+        if (cellEvent.isRenderSkipNeeded) {
             return;
         }
 

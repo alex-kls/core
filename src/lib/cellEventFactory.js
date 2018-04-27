@@ -43,6 +43,10 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         get: function() { return this.subgrid.isRenderSkipNeeded(this.dataCell.x, this.dataCell.y); }
     },
 
+    isColspanedByLeftRow: {
+        get: function() { return this.subgrid.isColspanedByLeftRow(this.dataCell.x, this.dataCell.y); }
+    },
+
     // Not recommended to use in any case. Especially, while render grid
     // /**
     //  * If true, cell will be ignored on render

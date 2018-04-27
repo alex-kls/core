@@ -59,10 +59,10 @@ var CellSelection = Feature.extend('CellSelection', {
      */
     handleMouseDown: function(grid, event) {
         let nearestSelectableCellEvent;
-        if (event.isRenderSkipNeeded) {
+        if (event.isColspanedByLeftRow) {
             for (let i = event.dataCell.x - 1; i >= 0; i--) {
                 const nextEvent = grid.renderer.findCell(i, event.dataCell.y);
-                if (!!nextEvent && !nextEvent.isRenderSkipNeeded && !nearestSelectableCellEvent) {
+                if (!!nextEvent && !nextEvent.isColspanedByLeftRow && !nearestSelectableCellEvent) {
                     nearestSelectableCellEvent = nextEvent;
                 }
             }

@@ -109,13 +109,29 @@ function convertColDefs(colDefs) {
                     data[headerLevel] = getEmptyHeaderRow();
 
                 }
-                data[headerLevel][insertedColumnNames.join('/')] = {
-                    colspan: insertedColumnNames.length - 1,
+                // data[headerLevel][insertedColumnNames.join('/')] = {
+                //     colspan: insertedColumnNames.length - 1,
+                //     value: singleColDef.headerName || '',
+                //     properties: {
+                //         ignoreValuePrefix: true
+                //     }
+                // };
+                const colspan = insertedColumnNames.length - 1;
+                data[headerLevel][insertedColumnNames[0]] = {
+                    colspan: colspan,
                     value: singleColDef.headerName || '',
                     properties: {
                         ignoreValuePrefix: true
                     }
                 };
+
+                for (let i = 1; i < insertedColumnNames.length; i++) {
+                    data[headerLevel][insertedColumnNames[i]] = {
+                        colspan: colspan - i,
+                        isColspanedByColumn: true,
+                        colspanedByColumn: insertedColumnNames[0]
+                    };
+                }
 
                 return insertedColumnNames;
             } else {
@@ -146,11 +162,12 @@ function convertColDefs(colDefs) {
                         rowspan: rowspan,
                         value: singleColDef.headerName || ''
                     };
-                    for (let i = headerLevel + 1; i < maxTreeLevel; i++) {
+                    for (let i = headerLevel + 1, it = 1; i < maxTreeLevel; i++, it++) {
                         if (!data[i]) {
                             data[i] = getEmptyHeaderRow();
                         }
                         data[i][originalField] = {
+                            rowspan: rowspan - i,
                             isRowspanedByRow: true,
                             rowspanedByRow: headerLevel
                         };
