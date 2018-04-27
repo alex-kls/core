@@ -346,7 +346,6 @@ function setColumnDefs(colDefs) {
     if (this.behavior.grid.properties.useHeaders) {
         if (!data || data.length === 0) {
             data = [...firstRowsData];
-            this.api.needColumnsToFit = true;
         } else {
             firstRowsData.forEach((d, i) => {
                 if (!equal(data[0], d)) {
@@ -357,9 +356,8 @@ function setColumnDefs(colDefs) {
                     }
                 }
             });
-
-            this.api.needColumnsToFit = true;
         }
+        this.api.needColumnsToFit = true;
     }
 
     console.log('schema.schema', schema.schema);

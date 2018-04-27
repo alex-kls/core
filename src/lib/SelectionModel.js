@@ -98,21 +98,101 @@ SelectionModel.prototype = {
         this.lastSelectionType = type;
     },
 
+    checkSelectionCorners: function(ox, oy, ex, ey) {
+        let x1 = ox, x2 = ox + ex, swapX = x1 > x2;
+        let y1 = oy, y2 = oy + ey, swapY = y1 > y2;
+
+        if (swapX) {
+            x2 = [x1, x1 = x2][0];
+        }
+        if (swapY) {
+            y2 = [y1, y1 = y2][0];
+        }
+
+        const dm = this.grid.behavior.dataModel;
+
+        // check top cells
+        for (let x = x1; x <= x2; ++x) {
+            if (dm.isRenderSkipNeeded(x, y1)) {
+                let yOffset = y1;
+                while (dm.isRenderSkipNeeded(x, yOffset) && yOffset > 0) {
+                    --yOffset;
+                }
+                y1 = yOffset;
+            }
+        }
+
+        // check bottom cells
+        for (let x = x1; x <= x2; ++x) {
+            let span = dm.getRowspan(x, y2);
+            if (dm.isRenderSkipNeeded(x, y2) || span > 0) {
+                let yOffset = y2;
+                while (span === 0 && yOffset > 0) {
+                    --yOffset;
+                    span = dm.getRowspan(x, yOffset);
+                }
+                console.log('check bottom cells', yOffset, span);
+                y2 = yOffset + span;
+            }
+        }
+
+        // check left cells
+        for (let y = y1; y <= y2; ++y) {
+            if (dm.isRenderSkipNeeded(x1, y)) {
+                let xOffset = x1;
+                while (dm.isRenderSkipNeeded(xOffset, y) && xOffset > 0) {
+                    --xOffset;
+                }
+                x1 = xOffset;
+            }
+        }
+
+        // check right cells
+        for (let y = y1; y <= y2; ++y) {
+            let span = dm.getColspan(x2, y);
+            if (dm.isRenderSkipNeeded(x2, y) || span > 0) {
+                let xOffset = x2;
+                while (span === 0 && xOffset > 0) {
+                    --xOffset;
+                    span = dm.getColspan(xOffset, y);
+                }
+                x2 = xOffset + span;
+            }
+        }
+
+        if (swapX) {
+            x2 = [x1, x1 = x2][0];
+        }
+        if (swapY) {
+            y2 = [y1, y1 = y2][0];
+        }
+
+        return { ox: x1, oy: y1, ex: x2 - x1, ey: y2 - y1 };
+    },
+
     /**
      * @memberOf SelectionModel.prototype
      * @description Select the region described by the given coordinates.
      *
-     * @param {number} ox - origin x coordinate
-     * @param {number} oy - origin y coordinate
-     * @param {number} ex - extent x coordinate
-     * @param {number} ey - extent y coordinate
+     * @param {number} _ox - origin x coordinate
+     * @param {number} _oy - origin y coordinate
+     * @param {number} _ex - extent x coordinate
+     * @param {number} _ey - extent y coordinate
      * @param {boolean} silent - whether to fire selection changed event
      */
-    select: function(ox, oy, ex, ey, silent) {
-        var newSelection = this.grid.newRectangle(ox, oy, ex, ey);
+    select: function(_ox, _oy, _ex, _ey, silent) {
+        if (isNaN(_ex)) {
+            _ex = 0;
+        }
+        if (isNaN(_ey)) {
+            _ey = 0;
+        }
+
+        let { ox, oy, ex, ey } = this.checkSelectionCorners(_ox, _oy, _ex, _ey);
+        const newSelection = this.grid.newRectangle(ox, oy, ex, ey);
 
         //Cache the first selected cell before it gets normalized to top-left origin
-        newSelection.firstSelectedCell = this.grid.newPoint(ox, oy);
+        newSelection.firstSelectedCell = this.grid.newPoint(_ox, _oy);
 
         newSelection.lastSelectedCell = (
             newSelection.firstSelectedCell.x === newSelection.origin.x &&
@@ -364,6 +444,9 @@ SelectionModel.prototype = {
      * @param x2
      */
     selectColumn: function(x1, x2) {
+        if (x2 === undefined) {
+            x2 = x1;
+        }
         this.columnSelectionModel.select(x1, x2);
         this.select(x1, 0, x2 - x1, this.grid.getRowCount() - 1);
         this.grid.selectColDefsForApi();

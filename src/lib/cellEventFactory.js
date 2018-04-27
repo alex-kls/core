@@ -57,7 +57,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
     // },
 
     isRowspanedByTopRow: {
-        get: function() { return this.subgrid.isRowspanedByTopRow(this.dataCell.x, this.dataCell.y); }
+        get: function() { return false;}//this.subgrid.isRowspanedByTopRow(this.dataCell.x, this.dataCell.y); }
     },
     /**
      * The formatted value of the cell.

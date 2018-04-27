@@ -634,26 +634,43 @@ var Renderer = Base.extend('Renderer', {
     },
 
     renderFirstSelectedCell: function(gc) {
-        var firstSelectedCell = this.grid.selectionModel.getFirstSelectedCellOfLastSelection();
+        let firstSelectedCell = this.grid.selectionModel.getFirstSelectedCellOfLastSelection();
 
         if (!firstSelectedCell) {
             return;
         }
 
-        if (!this.grid.isDataVisible(firstSelectedCell.x, firstSelectedCell.y)) {
+        let { x, y } = firstSelectedCell;
+        if (!this.grid.isDataVisible(x, y)) {
+            const colspan = this.grid.behavior.getColspan(x, y);
+            const rowspan = this.grid.behavior.getRowspan(x, y);
+
+            if (colspan >= 0) {
+                while (!this.grid.isDataVisible(x, y) && x < firstSelectedCell.x + colspan) {
+                    ++x;
+                }
+            }
+            if (rowspan >= 0) {
+                while (!this.grid.isDataVisible(x, y) && y < firstSelectedCell.y + rowspan) {
+                    ++y;
+                }
+            }
+        }
+
+        if (!this.grid.isDataVisible(x, y)) {
             return;
         }
 
         var fixedColumnsCount = this.grid.getFixedColumnCount();
-        var newX = (firstSelectedCell.x >= fixedColumnsCount) ?
-            firstSelectedCell.x - this.dataWindow.origin.x :
-            firstSelectedCell.x;
+        var newX = (x >= fixedColumnsCount) ?
+            x - this.dataWindow.origin.x :
+            x;
 
         newX = Math.max(0, newX);
 
         var pointWithHeaders = {
             x: newX,
-            y: firstSelectedCell.y + this.grid.getHeaderRowCount() - this.grid.getVScrollValue() + this.renderedCuttedRowsCount
+            y: y + this.grid.getHeaderRowCount() - this.grid.getVScrollValue() + this.renderedCuttedRowsCount
         };
 
         var cellBounds = this.grid.getBoundsOfCell(pointWithHeaders);

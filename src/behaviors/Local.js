@@ -635,6 +635,28 @@ var Local = Behavior.extend('Local', {
         return this.dataModel.getAdditionalHeight(x, y);
     },
 
+    /**
+     * @public
+     * @desc get colspan of an cell, if exist. Otherwise, returns 0;
+     * @param x
+     * @param y
+     * @return {*}
+     */
+    getColspan: function(x, y) {
+        return this.dataModel.getColspan(x, y);
+    },
+
+    /**
+     * @public
+     * @desc get rowspan of an cell, if exist. Otherwise, returns 0;
+     * @param x
+     * @param y
+     * @return {*}
+     */
+    getRowspan: function(x, y) {
+        return this.dataModel.getRowspan(x, y);
+    },
+
     errors: {}
 });
 

@@ -39,6 +39,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
          * @memberOf DataSourceLocal#
          */
         this.data = [];
+        this.cache = [];
     },
 
     /**
@@ -57,6 +58,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
          * @memberOf DataSourceLocal#
          */
         this.data = data || [];
+        this.cache = [];
 
         if (schema) {
             this.setSchema(schema);
@@ -75,6 +77,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      */
     addData: function(data, schema) {
         this.data.push.apply(this.data, data || []);
+        this.cache = [];
 
         if (schema) {
             this.setSchema(schema);
@@ -127,6 +130,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      */
     setRow: function(y, dataRow) {
         this.data[y] = dataRow || undefined;
+        this.cache = [];
     },
 
     /**
@@ -168,6 +172,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         } else {
             this.data.splice(y, 0, dataRow);
         }
+        this.cache = [];
         this.dispatchEvent('data-shape-changed');
     },
 
@@ -184,6 +189,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
             y = this.getRowCount();
         }
         this.data.splice(y, 0, dataRows);
+        this.cache = [];
         this.dispatchEvent('data-shape-changed');
     },
 
@@ -197,6 +203,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      */
     delRow: function(y, rowCount) {
         var rows = this.data.splice(y, rowCount === undefined ? 1 : rowCount);
+        this.cache = [];
         if (rows.length) {
             this.dispatchEvent('data-shape-changed');
         }
@@ -210,13 +217,21 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      * @private
      */
     _getDataRowObject: function(x, y) {
+        if (this.cache && (x in this.cache) && (y in this.cache[x])) {
+            return this.cache[x][y];
+        }
+
+        if (!(x in this.cache)) {
+            this.cache[x] = [];
+        }
+
         const row = this.data[y];
 
         if (!row || x > this.getColumnCount()) {
             return {};
         }
 
-        return this._getDataRowObjectByRowAndColumnIndex(row, x);
+        return (this.cache[x][y] = this._getDataRowObjectByRowAndColumnIndex(row, x));
     },
 
     _getDataRowObjectByRowAndColumnIndex: function(row, x) {
@@ -262,7 +277,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
                 foundedDataRowValue = value;
             }
         }
-
+        this.cache = [];
         this.data[y][this.getColumnName(x)] = foundedDataRowValue;
     },
 
@@ -288,13 +303,22 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      * @return {*}
      */
     getColspan: function(x, y) {
-        let foundedDataRowValue = this._getDataRowObject(x, y).foundedValue;
+        let dataRowObject = this._getDataRowObject(x, y);
+        const foundedDataRowValue = dataRowObject.foundedValue;
 
-        if (foundedDataRowValue && typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.colspan) {
-            return foundedDataRowValue.colspan;
-        } else {
-            return 0;
+        if (foundedDataRowValue && typeof foundedDataRowValue === 'object') {
+            if (foundedDataRowValue.colspan) {
+                return foundedDataRowValue.colspan;
+            }
+        } else if (dataRowObject.skipNeeded) {
+            let i = x;
+            while (dataRowObject.skipNeeded) {
+                dataRowObject = this._getDataRowObject(--i, y);
+            }
+            return dataRowObject.foundedValue.colspan - (x - i);
         }
+
+        return 0;
     },
 
     /**
