@@ -58,44 +58,47 @@ function convertColDefs(colDefs) {
 
     const data = [];
 
-    // let maxTreeLevel = 0;
-    //
-    // function countMaxTreeLevel(prevLevel, colDefsToDetect) {
-    //     let currentLevel = prevLevel + 1;
-    //     colDefsToDetect.forEach((cd) => {
-    //         if (cd.children && cd.children.length > 0) {
-    //             countMaxTreeLevel(currentLevel, cd.children);
-    //         }
-    //     });
-    //
-    //     if (currentLevel > maxTreeLevel) {
-    //         maxTreeLevel = currentLevel;
-    //     }
-    // }
-    //
-    // countMaxTreeLevel(0, colDefs);
+    const az = range('A', 'Z');
 
     let colDefMapperCallsCount = 0;
+    let maxTreeLevel = 0;
+
+    function countMaxTreeLevel(prevLevel, colDefsToDetect) {
+        let currentLevel = prevLevel + 1;
+        colDefsToDetect.forEach((cd) => {
+            if (cd.children && cd.children.length > 0) {
+                countMaxTreeLevel(currentLevel, cd.children);
+            }
+        });
+
+        if (currentLevel > maxTreeLevel) {
+            maxTreeLevel = currentLevel;
+        }
+    }
+
+    function getEmptyHeaderRow(){
+        return {
+            __META: {
+                __ROW: {
+                    headerRow: true, // used for preventing duplicates
+                    font: headersFont, // set bold font for title row
+                    foregroundSelectionFont: headersFont, // set bold font for title row
+                    editable: true, // allow edit content
+                    cellContextMenu: self.getMainMenuItems ? self.getMainMenuItems : self.properties.headerContextMenu, // set context menu items with callbacks
+                    halign: 'left',
+                    showCellContextMenuIcon: showAdditionalInfo,
+                    showColumnType: showAdditionalInfo
+                }
+            }
+        };
+    }
+
+    countMaxTreeLevel(0, colDefs);
     function colDefMapper(singleColDef, headerLevel = 0) {
         const letter = idOf(colDefMapperCallsCount);
         colDefMapperCallsCount++;
 
         if (singleColDef) {
-            const rowProperties = {
-                __META: {
-                    __ROW: {
-                        headerRow: true, // used for preventing duplicates
-                        font: headersFont, // set bold font for title row
-                        foregroundSelectionFont: headersFont, // set bold font for title row
-                        editable: true, // allow edit content
-                        cellContextMenu: self.getMainMenuItems ? self.getMainMenuItems : self.properties.headerContextMenu, // set context menu items with callbacks
-                        halign: 'left',
-                        showCellContextMenuIcon: showAdditionalInfo,
-                        showColumnType: showAdditionalInfo
-                    }
-                }
-            };
-
             if (!!singleColDef.children && singleColDef.children.length > 0) {
                 let insertedColumnNames = [];
                 singleColDef.children.forEach((ch) => {
@@ -103,11 +106,15 @@ function convertColDefs(colDefs) {
                 });
 
                 if (!data[headerLevel]) {
-                    data[headerLevel] = rowProperties;
+                    data[headerLevel] = getEmptyHeaderRow();
+
                 }
                 data[headerLevel][insertedColumnNames.join('/')] = {
                     colspan: insertedColumnNames.length - 1,
-                    value: singleColDef.headerName || ''
+                    value: singleColDef.headerName || '',
+                    properties: {
+                        ignoreValuePrefix: true
+                    }
                 };
 
                 return insertedColumnNames;
@@ -132,9 +139,22 @@ function convertColDefs(colDefs) {
 
                 if (originalField) {
                     if (!data[headerLevel]) {
-                        data[headerLevel] = rowProperties;
+                        data[headerLevel] = getEmptyHeaderRow();
                     }
-                    data[headerLevel][originalField] = singleColDef.headerName || '';
+                    const rowspan = maxTreeLevel - headerLevel - 1;
+                    data[headerLevel][originalField] = {
+                        rowspan: rowspan,
+                        value: singleColDef.headerName || ''
+                    };
+                    for (let i = headerLevel + 1; i < maxTreeLevel; i++) {
+                        if (!data[i]) {
+                            data[i] = getEmptyHeaderRow();
+                        }
+                        data[i][originalField] = {
+                            isRowspanedByRow: true,
+                            rowspanedByRow: headerLevel
+                        };
+                    }
                 }
                 return [name];
             }
@@ -158,7 +178,7 @@ function convertColDefs(colDefs) {
         }
     }
 
-    return { schema: schema, data: data };
+    return { schema: schema, data: data, fictiveHeaderRowsCount: maxTreeLevel };
 }
 
 // function getOpenLinkFunc(link) {
@@ -296,6 +316,10 @@ function setColumnDefs(colDefs) {
     console.log('schema', schema);
     const firstRowsData = schema.data;
     let data = this.behavior.getData();
+
+    if (schema.fictiveHeaderRowsCount) {
+        this.behavior.grid.properties.fictiveHeaderRowsCount = schema.fictiveHeaderRowsCount;
+    }
 
     if (this.getMainMenuItems) {
         this.behavior.grid.properties.headerContextMenu = this.getMainMenuItems;

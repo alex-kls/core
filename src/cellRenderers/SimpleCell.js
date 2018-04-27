@@ -246,7 +246,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.cache.fillStyle = prevFillStyleState;
         }
 
-        if (config.valuePrefix) {
+        if (config.valuePrefix && !config.ignoreValuePrefix) {
             let prevFontState = gc.cache.font,
                 prevFillStyleState = gc.cache.fillStyle;
 
@@ -283,7 +283,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
                 ? renderMultiLineText(gc, config, val, leftPadding, textRightPadding)
                 : renderSingleLineText(gc, config, val, leftPadding, textRightPadding);
 
-            if (config.valuePostfix) {
+            if (config.valuePostfix && !config.ignoreValuePostfix) {
                 const newLeftPadding = leftPadding + gc.getTextWidth(val) + config.cellValuePostfixLeftOffset;
                 let oldIgnoreUnderliningState = config.ignoreUnderlining;
                 config.ignoreUnderlining = true;

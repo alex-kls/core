@@ -216,8 +216,12 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
             return {};
         }
 
-        // just get value
+        return this._getDataRowObjectByRowAndColumnIndex(row, x);
+    },
+
+    _getDataRowObjectByRowAndColumnIndex: function(row, x) {
         const columnName = this.getColumnName(x);
+
         if (columnName in row) {
             return { foundedValue: row[columnName] };
         }
@@ -260,6 +264,20 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         }
 
         this.data[y][this.getColumnName(x)] = foundedDataRowValue;
+    },
+
+    /**
+     * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getValue}
+     * @memberOf DataSourceLocal#
+     */
+    getDefinedCellProperties: function(x, y) {
+        let foundedDataRowValue = this._getDataRowObject(x, y).foundedValue;
+
+        if (typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.properties) {
+            return foundedDataRowValue.properties;
+        } else {
+            return {};
+        }
     },
 
     /**
@@ -334,6 +352,42 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      */
     isRenderSkipNeeded: function(x, y) {
         return this._getDataRowObject(x, y).skipNeeded;
+    },
+
+    /**
+     * @deprecated
+     * @desc Not recommended to use in any case. Especially, while render grid
+     * @public
+     * @param x
+     * @param y
+     * @return {*}
+     */
+    isVerticalRenderSkipNeeded: function(x, y) {
+        if (y === 0) {
+            return false;
+        }
+        for (let i = y - 1; i >= 0; i--) {
+            let cellOnRow = this._getDataRowObject(x, i);
+            if (!!cellOnRow
+                && (cellOnRow.foundedValue && (!cellOnRow.foundedValue.rowspan || cellOnRow.foundedValue.rowspan < 1))
+                || (cellOnRow.skipNeeded)) {
+                return false;
+            }
+        }
+
+        return true;
+    },
+
+    /**
+     * @public
+     * @param x
+     * @param y
+     * @return {*}
+     */
+    isRowspanedByTopRow: function(x, y) {
+        let cellOnRow = this._getDataRowObject(x, y);
+
+        return !!cellOnRow.foundedValue && cellOnRow.foundedValue.isRowspanedByRow;
     },
 
     /**

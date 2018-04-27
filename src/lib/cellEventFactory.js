@@ -43,6 +43,18 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         get: function() { return this.subgrid.isRenderSkipNeeded(this.dataCell.x, this.dataCell.y); }
     },
 
+    // Not recommended to use in any case. Especially, while render grid
+    // /**
+    //  * If true, cell will be ignored on render
+    //  * @memberOf CellEvent#
+    //  */
+    // isVerticalRenderSkipNeeded: {
+    //     get: function() { return this.subgrid.isVerticalRenderSkipNeeded(this.dataCell.x, this.dataCell.y); }
+    // },
+
+    isRowspanedByTopRow: {
+        get: function() { return this.subgrid.isRowspanedByTopRow(this.dataCell.x, this.dataCell.y); }
+    },
     /**
      * The formatted value of the cell.
      * @memberOf CellEvent#
@@ -94,7 +106,9 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         if (this._cellOwnProperties === undefined) {
             this._cellOwnProperties = this.column.getCellOwnProperties(this.dataCell.y, this.subgrid);
         }
-        return this._cellOwnProperties; // null return means there is no cell properties object
+
+        // null return means there is no cell properties object
+        return this._cellOwnProperties;
     } },
     /**
      * @returns {string} Cell properties object if it exists, else the column properties object it would have as a prototype if did exist.
@@ -102,7 +116,22 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @memberOf CellEvent#
      */
     properties: { get: function() {
-        return this.cellOwnProperties || this.columnProperties;
+        let properties = this.cellOwnProperties || this.columnProperties;
+
+        if (this._cellOwnDefinedProperties === undefined) {
+            this._cellOwnDefinedProperties = this.subgrid.getDefinedCellProperties(this.dataCell.x, this.dataCell.y);
+        }
+
+        if (!!this._cellOwnDefinedProperties
+            && typeof this._cellOwnDefinedProperties === 'object'
+            && !!properties
+            && typeof properties === 'object') {
+            Object.keys(this._cellOwnDefinedProperties).forEach((key) => {
+                properties[key] = this._cellOwnDefinedProperties[key];
+            });
+        }
+
+        return properties;
     } },
     /**
      * @param {string} key - Property name.

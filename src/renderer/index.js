@@ -1069,9 +1069,26 @@ var Renderer = Base.extend('Renderer', {
                 for (let bottom, vr = visibleRows[0], r = 0; r < rowsLength; r++) {
                     vr = visibleRows[r];
                     bottom = vr.bottom;
-                    if (!vr.gap) {
-                        this.drawLine(gc, 0, bottom, viewWidth, gridProps.gridLinesHWidth);
+
+                    for (let i = 0; i < columnsLength; ++i) {
+                        const column = visibleColumns[i];
+                        if (!vr.gap && !this.grid.behavior.dataModel.isRowspanedByTopRow(column.columnIndex, vr.rowIndex + 1)) {
+                            this.drawLine(gc, column.left, bottom, column.width, gridProps.gridLinesHWidth);
+                        }
                     }
+                    // if (vr.rowIndex > gridProps.fictiveHeaderRowsCount) {
+                    //     for (let i = 0; i < columnsLength; ++i) {
+                    //         const column = visibleColumns[i];
+                    //         if (!vr.gap && !this.grid.behavior.dataModel.isRowspanedByTopRow(column.columnIndex - 1, vr.rowIndex + 1)) {
+                    //             this.drawLine(gc, column.left, bottom, column.width, gridProps.gridLinesHWidth);
+                    //         }
+                    //     }
+                    // } else if (!vr.gap) {
+                    //     this.drawLine(gc, 0, bottom, viewWidth, gridProps.gridLinesHWidth);
+                    // }
+                    // if (!vr.gap) {
+                    //     this.drawLine(gc, 0, bottom, viewWidth, gridProps.gridLinesHWidth);
+                    // }
                 }
             }
 
@@ -1198,7 +1215,7 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer
      */
     _paintCell: function(gc, cellEvent, prefillColor) {
-        if (cellEvent.isRenderSkipNeeded) {
+        if (cellEvent.isRenderSkipNeeded || cellEvent.isRowspanedByTopRow) {
             return;
         }
 

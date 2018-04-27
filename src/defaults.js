@@ -49,6 +49,8 @@ var defaults = {
      */
     useHeaders: true,
 
+    fictiveHeaderRowsCount: 0,
+
     /**
      * @summary List of subgrids by
      * @desc Restrict usage here to strings (naming data models) or arrays consisting of such a string + constructor arguments. That is, avoid {@link subgridSpec}'s function and object overloads and {@link subgridConstructorRef} function overload.
@@ -2307,6 +2309,22 @@ var defaults = {
      * @memberOf module:defaults
      */
     grandAggregationCellFont: 'bold 13px "Helvetica Neue",Helvetica,Arial,sans-serif',
+
+    /**
+     * If true, values prefixes will not be rendered even if exist
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    ignoreValuePrefix: false,
+
+    /**
+     * If true, values postfixes will not be rendered even if exist
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    ignoreValuePostfix: false,
 };
 
 
