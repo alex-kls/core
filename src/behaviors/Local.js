@@ -102,7 +102,7 @@ var Local = Behavior.extend('Local', {
 
     fitColumn: function(xOrColumn, force) {
         if (typeof xOrColumn !== 'object') {
-            xOrColumn = this.grid.behavior.getColumn(xOrColumn);
+            xOrColumn = this.grid.getColumn(xOrColumn);
         }
 
         const column = xOrColumn;
@@ -111,13 +111,13 @@ var Local = Behavior.extend('Local', {
 
         const props = column.properties;
 
-        let width = props.defaultColumnWidth;
+        let width = column.width || props.defaultColumnWidth;
         const formatter = this.grid.getFormatter(column.name);
 
         // get max width based of
         data.forEach((d, i) => {
             let val = column.getValue(i);
-            if (val && this.dataModel.getColspan(column.index, i) === 0) {
+            if (val) {
                 let valuePostfix = null;
 
                 if (props.processStringsWithHtmlTags) {
@@ -186,18 +186,24 @@ var Local = Behavior.extend('Local', {
                 let textWidth = Object.values(widths).reduce((a, b) => a + b, 0);
                 // console.log('textWidth', textWidth);
 
+                const colspan = this.dataModel.getColspan(column.index, i);
+                if (colspan > 0) {
+                    textWidth = textWidth / (colspan + 1);
+                    for (let i = column.index; i <= column.index + colspan; ++i) {
+                        this.getColumn(i).width = textWidth;
+                    }
+                }
+
                 if (textWidth > width) {
                     width = textWidth;
                 }
             }
         });
 
-        width = Math.ceil(width);
-
-        props.preferredWidth = width;
+        props.preferredWidth = Math.ceil(width);
 
         if (force || props.columnAutosizing) {
-            if (width > 0) {
+            if (props.preferredWidth > 0) {
                 column.setWidth(props.preferredWidth);
             }
         }

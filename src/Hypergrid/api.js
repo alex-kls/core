@@ -13,8 +13,10 @@ function range(start, stop) {
     return result;
 }
 
-function idOf(range, i) {
-    return (i >= 26 ? idOf(range, (i / 26 >> 0) - 1) : '') + range[i % 26 >> 0];
+const az = range('A', 'Z');
+
+function idOf(i) {
+    return (i >= 26 ? idOf(az, (i / 26 >> 0) - 1) : '') + az[i % 26 >> 0];
 }
 
 function getFormatter(colDef) {
@@ -56,9 +58,6 @@ function convertColDefs(colDefs) {
 
     const data = [];
 
-    const az = range('A', 'Z');
-
-    let colDefMapperCallsCount = 0;
     // let maxTreeLevel = 0;
     //
     // function countMaxTreeLevel(prevLevel, colDefsToDetect) {
@@ -76,33 +75,37 @@ function convertColDefs(colDefs) {
     //
     // countMaxTreeLevel(0, colDefs);
 
-    function colDefMapper(singleColDef, parentsCount = 0) {
-        const letter = idOf(az, colDefMapperCallsCount);
+    let colDefMapperCallsCount = 0;
+    function colDefMapper(singleColDef, headerLevel = 0) {
+        const letter = idOf(colDefMapperCallsCount);
         colDefMapperCallsCount++;
+
         if (singleColDef) {
+            const rowProperties = {
+                __META: {
+                    __ROW: {
+                        headerRow: true, // used for preventing duplicates
+                        font: headersFont, // set bold font for title row
+                        foregroundSelectionFont: headersFont, // set bold font for title row
+                        editable: true, // allow edit content
+                        cellContextMenu: self.getMainMenuItems ? self.getMainMenuItems : self.properties.headerContextMenu, // set context menu items with callbacks
+                        halign: 'left',
+                        showCellContextMenuIcon: showAdditionalInfo,
+                        showColumnType: showAdditionalInfo
+                    }
+                }
+            };
+
             if (!!singleColDef.children && singleColDef.children.length > 0) {
                 let insertedColumnNames = [];
                 singleColDef.children.forEach((ch) => {
-                    insertedColumnNames = [...insertedColumnNames, ...colDefMapper(ch, parentsCount + 1)];
+                    insertedColumnNames = [...insertedColumnNames, ...colDefMapper(ch, headerLevel + 1)];
                 });
 
-                if (!data[parentsCount]) {
-                    data[parentsCount] = {
-                        __META: {
-                            __ROW: {
-                                headerRow: true, // used for preventing duplicates
-                                font: headersFont, // set bold font for title row
-                                foregroundSelectionFont: headersFont, // set bold font for title row
-                                editable: true, // allow edit content
-                                cellContextMenu: self.getMainMenuItems ? self.getMainMenuItems : self.properties.headerContextMenu, // set context menu items with callbacks
-                                halign: 'left',
-                                showCellContextMenuIcon: showAdditionalInfo,
-                                showColumnType: showAdditionalInfo
-                            }
-                        }
-                    };
+                if (!data[headerLevel]) {
+                    data[headerLevel] = rowProperties;
                 }
-                data[parentsCount][insertedColumnNames.join('/')] = {
+                data[headerLevel][insertedColumnNames.join('/')] = {
                     colspan: insertedColumnNames.length - 1,
                     value: singleColDef.headerName || ''
                 };
@@ -128,23 +131,10 @@ function convertColDefs(colDefs) {
                 });
 
                 if (originalField) {
-                    if (!data[parentsCount]) {
-                        data[parentsCount] = {
-                            __META: {
-                                __ROW: {
-                                    headerRow: true, // used for preventing duplicates
-                                    font: headersFont, // set bold font for title row
-                                    foregroundSelectionFont: headersFont, // set bold font for title row
-                                    editable: true, // allow edit content
-                                    cellContextMenu: self.getMainMenuItems ? self.getMainMenuItems : self.properties.headerContextMenu, // set context menu items with callbacks
-                                    halign: 'left',
-                                    showCellContextMenuIcon: showAdditionalInfo,
-                                    showColumnType: showAdditionalInfo
-                                }
-                            }
-                        };
+                    if (!data[headerLevel]) {
+                        data[headerLevel] = rowProperties;
                     }
-                    data[parentsCount][originalField] = singleColDef.headerName || '';
+                    data[headerLevel][originalField] = singleColDef.headerName || '';
                 }
                 return [name];
             }
@@ -152,28 +142,20 @@ function convertColDefs(colDefs) {
             schema.push({
                 header: letter || '',
                 name: letter,
-                width: undefined,
-                halign: undefined,
-                colTypeSign: undefined,
                 maxWidth: maximumColumnWidth,
-                formatter: undefined,
                 format: name,
-                headerPrefix: undefined,
-                cellContextMenu: getContextMenuItems,
-                colDef: undefined
+                cellContextMenu: getContextMenuItems
             });
             return [letter];
         }
     }
 
-    if (colDefs.length < az.length) {
-        az.forEach((singleLetter, index) => {
-            colDefMapper(colDefs[index]);
-        });
-    } else {
-        colDefs.forEach(function(singleColDef, index) {
-            colDefMapper(singleColDef);
-        });
+    colDefs.forEach(singleColDef => colDefMapper(singleColDef));
+
+    if (colDefMapperCallsCount < az.length) {
+        for (let i = colDefMapperCallsCount; i < az.length; ++i) {
+            colDefMapper();
+        }
     }
 
     return { schema: schema, data: data };

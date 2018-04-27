@@ -212,7 +212,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     _getDataRowObject: function(x, y) {
         const row = this.data[y];
 
-        if (!row) {
+        if (!row || x > this.getColumnCount()) {
             return {};
         }
 
@@ -292,7 +292,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     getAdditionalWidth: function(x, y) {
         let additional = 0;
         for (let i = 0; i < this.getColspan(x, y); i++) {
-            let nextColumn = this.grid.renderer.visibleColumns[x + i + 1];
+            let nextColumn = this.grid.behavior.columns[x + i + 1];
             if (nextColumn) {
                 additional += nextColumn.width + this.grid.properties.gridLinesVWidth;
             }
@@ -326,7 +326,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     getAdditionalHeight: function(x, y) {
         let additional = 0;
         for (let i = 0; i < this.getRowspan(x, y); i++) {
-            let nextRow = this.grid.renderer.visibleRows[y + i + 1];
+            let nextRow = this.grid.behavior.rows[y + i + 1];
             if (nextRow) {
                 additional += nextRow.height + this.grid.properties.gridLinesHWidth;
             }
@@ -362,7 +362,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
 });
 
 function getColumnName(x) {
-    return (typeof x)[0] === 'n' ? this.schema[x].name : x;
+    return (typeof x)[0] === 'n' ? this.schema[x] && this.schema[x].name : x;
 }
 
 module.exports = DataSourceLocal;
