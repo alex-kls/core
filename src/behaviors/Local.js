@@ -102,7 +102,7 @@ var Local = Behavior.extend('Local', {
 
     fitColumn: function(xOrColumn, force) {
         if (typeof xOrColumn !== 'object') {
-            xOrColumn = this.grid.getColumn(xOrColumn);
+            xOrColumn = this.getColumn(xOrColumn);
         }
 
         const column = xOrColumn;

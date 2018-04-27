@@ -59,14 +59,16 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @property {number} height
      * @memberOf CellEvent#
      */
-    bounds: { get: function() {
-        return this._bounds || (this._bounds = {
-            x: this.visibleColumn.left,
-            y: this.visibleRow.top,
-            width: this.visibleColumn.width + (this.colspan ? this.behavior.getAdditionalWidth(this.dataCell.x, this.dataCell.y) : 0),
-            height: this.visibleRow.height + (this.rowspan ? this.behavior.getAdditionalHeight(this.dataCell.x, this.dataCell.y) : 0)
-        });
-    } },
+    bounds: {
+        get: function() {
+            return this._bounds || (this._bounds = {
+                x: this.visibleColumn.left,
+                y: this.visibleRow.top,
+                width: this.visibleColumn.width + (this.colspan ? this.behavior.getAdditionalWidth(this.dataCell.x, this.dataCell.y) : 0),
+                height: this.visibleRow.height + (this.rowspan ? this.behavior.getAdditionalHeight(this.dataCell.x, this.dataCell.y) : 0)
+            });
+        }
+    },
 
     columnProperties: { get: function() {
         var cp = this._columnProperties;

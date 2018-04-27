@@ -292,9 +292,7 @@ var Renderer = Base.extend('Renderer', {
     getBoundsOfCell: function(x, y) {
         const vc = this.visibleColumns[x], vr = this.visibleRows[y];
 
-        const event = this.cellEventPool.find((e) => {
-            return e.visibleColumn === vc &&  e.visibleRow === vr;
-        });
+        const event = this.cellEventPool.find((e) => e.visibleColumn === vc && e.visibleRow === vr);
         if (event) {
             return event.bounds;
         }

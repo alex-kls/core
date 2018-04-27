@@ -216,14 +216,14 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
             return {};
         }
 
-        const columnName = getColumnName.call(this, x);
-
+        // just get value
+        const columnName = this.getColumnName(x);
         if (columnName in row) {
             return { foundedValue: row[columnName] };
         }
 
+        // get value if key consists of joined keys
         let foundedValue, skipNeeded = false;
-
         foundedValue = row[Object.keys(row).find((key) => {
             let combinedColumns = key.split('/');
             skipNeeded = skipNeeded || combinedColumns.includes(columnName) && combinedColumns[0] !== columnName;
@@ -240,12 +240,8 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     getValue: function(x, y) {
         let foundedDataRowValue = this._getDataRowObject(x, y).foundedValue;
 
-        if (typeof foundedDataRowValue !== 'undefined') {
-            if (typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.value) {
-                return foundedDataRowValue.value;
-            } else {
-                return foundedDataRowValue;
-            }
+        if (foundedDataRowValue !== undefined) {
+            return foundedDataRowValue && foundedDataRowValue.value ? foundedDataRowValue.value : foundedDataRowValue;
         }
     },
     /**
@@ -263,7 +259,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
             }
         }
 
-        this.data[y][getColumnName.call(this, x)] = foundedDataRowValue;
+        this.data[y][this.getColumnName(x)] = foundedDataRowValue;
     },
 
     /**
@@ -291,11 +287,9 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      */
     getAdditionalWidth: function(x, y) {
         let additional = 0;
-        for (let i = 0; i < this.getColspan(x, y); i++) {
-            let nextColumn = this.grid.behavior.columns[x + i + 1];
-            if (nextColumn) {
-                additional += nextColumn.width + this.grid.properties.gridLinesVWidth;
-            }
+        const colspan = this.getColspan(x, y);
+        for (let i = x + 1; i <= x + colspan; i++) {
+            additional += this.grid.getColumnWidth(i);
         }
         return additional;
     },
@@ -325,11 +319,9 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      */
     getAdditionalHeight: function(x, y) {
         let additional = 0;
-        for (let i = 0; i < this.getRowspan(x, y); i++) {
-            let nextRow = this.grid.behavior.rows[y + i + 1];
-            if (nextRow) {
-                additional += nextRow.height + this.grid.properties.gridLinesHWidth;
-            }
+        const rowspan = this.getRowspan(x, y);
+        for (let i = y + 1; i <= y + rowspan; i++) {
+            additional += this.grid.getRowHeight(i);
         }
         return additional;
     },
@@ -358,11 +350,11 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      */
     getColumnCount: function() {
         return this.schema.length;
+    },
+
+    getColumnName: function(x) {
+        return (typeof x)[0] === 'n' && this.schema[x] ? this.schema[x].name : x;
     }
 });
-
-function getColumnName(x) {
-    return (typeof x)[0] === 'n' ? this.schema[x] && this.schema[x].name : x;
-}
 
 module.exports = DataSourceLocal;
