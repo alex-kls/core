@@ -1214,7 +1214,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf CellEvent#
      */
     isAggregationRow: function(row) {
-        return !!row && !!row.$$aggregation;
+        return !!row && typeof row.$$aggregation !== 'undefined';
     },
 
     /**

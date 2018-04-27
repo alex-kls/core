@@ -240,7 +240,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     getValue: function(x, y) {
         let foundedDataRowValue = this._getDataRowObject(x, y).foundedValue;
 
-        if (foundedDataRowValue) {
+        if (typeof foundedDataRowValue !== 'undefined') {
             if (typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.value) {
                 return foundedDataRowValue.value;
             } else {
@@ -294,7 +294,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         for (let i = 0; i < this.getColspan(x, y); i++) {
             let nextColumn = this.grid.renderer.visibleColumns[x + i + 1];
             if (nextColumn) {
-                additional += nextColumn.width;
+                additional += nextColumn.width + this.grid.properties.gridLinesVWidth;
             }
         }
         return additional;
@@ -328,7 +328,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         for (let i = 0; i < this.getRowspan(x, y); i++) {
             let nextRow = this.grid.renderer.visibleRows[y + i + 1];
             if (nextRow) {
-                additional += nextRow.height;
+                additional += nextRow.height + this.grid.properties.gridLinesHWidth;
             }
         }
         return additional;
