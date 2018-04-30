@@ -321,8 +321,12 @@ exports.mixin = {
                         copyIncludeHeaders = false;
                     }
                 }
-                if (copyIncludeHeaders) {
-                    values.unshift(column.colDef ? column.colDef.headerName : '');
+                if (copyIncludeHeaders && column.colDef) {
+                    let header = column.colDef.headerName;
+                    if (column.colDef.headerPrefix) {
+                        header = `${column.colDef.headerPrefix} ${header}`;
+                    }
+                    values.unshift(column.colDef ? header : '');
                 }
             }
 
