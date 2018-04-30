@@ -108,15 +108,8 @@ function convertColDefs(colDefs) {
 
                 if (!data[headerLevel]) {
                     data[headerLevel] = getEmptyHeaderRow();
-
                 }
-                // data[headerLevel][insertedColumnNames.join('/')] = {
-                //     colspan: insertedColumnNames.length - 1,
-                //     value: singleColDef.headerName || '',
-                //     properties: {
-                //         ignoreValuePrefix: true
-                //     }
-                // };
+
                 const colspan = insertedColumnNames.length - 1;
                 data[headerLevel][insertedColumnNames[0]] = {
                     colspan: colspan,

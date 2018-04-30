@@ -140,27 +140,24 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
     } },
     /**
      * @returns {string} Cell properties object if it exists, else the column properties object it would have as a prototype if did exist.
-     * @method
-     * @memberOf CellEvent#
+     * @method* @memberOf CellEvent#
      */
-    properties: { get: function() {
-        let properties = this.cellOwnProperties || this.columnProperties;
+    properties: {
+        get: function() {
+            let props = shallowClone(this.cellOwnProperties || this.columnProperties);
 
-        if (this._cellOwnDefinedProperties === undefined) {
-            this._cellOwnDefinedProperties = this.subgrid.getDefinedCellProperties(this.dataCell.x, this.dataCell.y);
+            this._cellOwnDefinedProperties = this._cellOwnDefinedProperties || this.subgrid.getDefinedCellProperties(this.dataCell.x, this.dataCell.y);
+
+            if (props && typeof props === 'object' &&
+                this._cellOwnDefinedProperties && typeof this._cellOwnDefinedProperties === 'object' &&
+                Object.keys(this._cellOwnDefinedProperties).length
+            ) {
+                Object.assign(props, this._cellOwnDefinedProperties);
+            }
+
+            return props;
         }
-
-        if (!!this._cellOwnDefinedProperties
-            && typeof this._cellOwnDefinedProperties === 'object'
-            && !!properties
-            && typeof properties === 'object') {
-            Object.keys(this._cellOwnDefinedProperties).forEach((key) => {
-                properties[key] = this._cellOwnDefinedProperties[key];
-            });
-        }
-
-        return properties;
-    } },
+    },
     /**
      * @param {string} key - Property name.
      * @returns {string} Property value.
@@ -213,6 +210,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         // getter caches
         this._columnProperties = undefined;
         this._cellOwnProperties = undefined;
+        this._cellOwnDefinedProperties = undefined;
         this._bounds = undefined;
 
         // partial render support
@@ -711,6 +709,7 @@ function factory(grid) {
             // getter caches
             _columnProperties: writableDescriptor,
             _cellOwnProperties: writableDescriptor,
+            _cellOwnDefinedProperties: writableDescriptor,
             _bounds: writableDescriptor,
 
             // Following supports cell renderers' "partial render" capability:
@@ -734,6 +733,12 @@ function factory(grid) {
     });
 
     return CellEvent;
+}
+
+function shallowClone(obj) {
+    const clone = Object.create(Object.getPrototypeOf(obj));
+    Object.getOwnPropertyNames(obj).forEach((key) => Object.defineProperty(clone, key, Object.getOwnPropertyDescriptor(obj, key)));
+    return clone;
 }
 
 module.exports = factory;

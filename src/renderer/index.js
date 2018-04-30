@@ -1354,6 +1354,7 @@ var Renderer = Base.extend('Renderer', {
         config.buttonCells = this.buttonCells; // allow the renderer to identify itself if it's a button
         config.subrow = 0;
         config.halign = isHeaderRow ? config.rowHeaderHalign : behavior.getCellProperty('halign') || config.halign;
+        config.ignoreValuePrefix = properties.ignoreValuePrefix;
 
         config.isAggregationColumn = cellEvent.isAggregationColumn;
         if (config.isAggregationColumn) {
