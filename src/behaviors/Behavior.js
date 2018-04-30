@@ -1317,6 +1317,10 @@ var Behavior = Base.extend('Behavior', {
         return this.allColumns[this.rowColumnIndex];
     },
 
+    getHeaderColumnByName: function(nameToFind) {
+        return this.columns.find(c => c.name === nameToFind);
+    },
+
     autosizeAllColumns: function() {
         this.checkColumnAutosizing(true);
         this.changed();

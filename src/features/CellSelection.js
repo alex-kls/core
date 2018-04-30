@@ -58,27 +58,25 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
-        let nearestSelectableCellEvent;
-        if (event.isColspanedByLeftRow) {
-            for (let i = event.dataCell.x - 1; i >= 0; i--) {
-                const nextEvent = grid.renderer.findCell(i, event.dataCell.y);
-                if (!!nextEvent && !nextEvent.isColspanedByLeftRow && !nearestSelectableCellEvent) {
-                    nearestSelectableCellEvent = nextEvent;
-                }
+        let dx;
+        grid.behavior.getHeaderColumnByName();
+        if (event.isColspanedByLeftColumn && event.colspanMainColumnName) {
+            let mainColumn = grid.behavior.getHeaderColumnByName(event.colspanMainColumnName);
+            let mainColumnIndex = grid.behavior.columns.indexOf(mainColumn);
+
+            if (mainColumn && mainColumnIndex) {
+                dx = mainColumnIndex;
             }
         }
 
-        let cellEventToSelect = nearestSelectableCellEvent ? nearestSelectableCellEvent : event;
+        dx = dx !== undefined ? dx : event.dataCell.x;
+        let dy = event.dataCell.y,
+            isSelectable = grid.behavior.getCellProperty(event.dataCell.x, event.gridCell.y, 'cellSelection');
 
-        let dx = cellEventToSelect.gridCell.x,
-            dy = cellEventToSelect.dataCell.y,
-            isSelectable = grid.behavior.getCellProperty(cellEventToSelect.dataCell.x, cellEventToSelect.gridCell.y, 'cellSelection');
-
-        if (isSelectable && cellEventToSelect.isDataCell) {
-            if (event.primitiveEvent.detail.isRightClick && cellEventToSelect.isCellSelected) {
+        if (isSelectable && event.isDataCell) {
+            if (event.primitiveEvent.detail.isRightClick && event.isCellSelected) {
                 return;
             }
-
             let dCell = grid.newPoint(dx, dy),
                 primEvent = event.primitiveEvent,
                 keys = primEvent.detail.keys;

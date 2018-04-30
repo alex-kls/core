@@ -657,7 +657,19 @@ var Renderer = Base.extend('Renderer', {
             }
         }
 
-        if (!this.grid.isDataVisible(x, y)) {
+        if (!this.grid.isDataVisible(firstSelectedCell.x, firstSelectedCell.y)) {
+            // method with while can be heavy on large data. If so, next commented part of code can be used
+            //
+            // let firstVisibleColumnIndex = this.visibleColumns[0].columnIndex;
+            // let gridCellSourceValue = this.grid.behavior.dataModel._getDataRowObject(firstSelectedCell.x, firstSelectedCell.y);
+            // if (gridCellSourceValue.foundedValue
+            //     && gridCellSourceValue.foundedValue.colspan
+            //     && (firstSelectedCell.x + gridCellSourceValue.foundedValue.colspan) >= firstVisibleColumnIndex) {
+            //     firstSelectedCell = {x:firstVisibleColumnIndex, y: firstSelectedCell.y};
+            // } else {
+            //     return;
+            // }
+
             return;
         }
 
@@ -1067,7 +1079,7 @@ var Renderer = Base.extend('Renderer', {
                     for (let i = 0; i < rowsLength; ++i) {
                         const row = visibleRows[i];
                         if (row.subgrid.isData) {
-                            if (this.grid.behavior.dataModel.isColspanedByLeftRow(vc.columnIndex + 1, row.rowIndex)) {
+                            if (this.grid.behavior.dataModel.isColspanedByLeftColumn(vc.columnIndex + 1, row.rowIndex)) {
                                 start += row.height;
                             } else {
                                 break;

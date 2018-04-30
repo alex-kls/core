@@ -43,8 +43,28 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         get: function() { return this.subgrid.isRenderSkipNeeded(this.dataCell.x, this.dataCell.y); }
     },
 
-    isColspanedByLeftRow: {
-        get: function() { return this.subgrid.isColspanedByLeftRow(this.dataCell.x, this.dataCell.y); }
+    /**
+     * Shows, is cell need to be hidden because of left column
+     * @memberOf CellEvent#
+     */
+    isColspanedByLeftColumn: {
+        get: function() { return this.subgrid.isColspanedByLeftColumn(this.dataCell.x, this.dataCell.y); }
+    },
+
+    /**
+     * Returns index of row, that overlaps current cell
+     * @memberOf CellEvent#
+     */
+    rowspanMainRow: {
+        get: function() { return this.subgrid.getRowspanMainRow(this.dataCell.x, this.dataCell.y); }
+    },
+
+    /**
+     * Returns name of column, that overlaps current cell
+     * @memberOf CellEvent#
+     */
+    colspanMainColumnName: {
+        get: function() { return this.subgrid.getColspanMainColumnName(this.dataCell.x, this.dataCell.y); }
     },
 
     // Not recommended to use in any case. Especially, while render grid

@@ -374,11 +374,35 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      * @param y
      * @return {*}
      */
-    isColspanedByLeftRow: function(x, y) {
+    isColspanedByLeftColumn: function(x, y) {
         let rowValue = this._getDataRowObject(x, y);
 
         return !!rowValue.foundedValue && rowValue.foundedValue.isColspanedByColumn;
         // return this._getDataRowObject(x, y).skipNeeded;
+    },
+
+    /**
+     * @public
+     * @param x
+     * @param y
+     * @return {*}
+     */
+    getRowspanMainRow: function(x, y) {
+        let cellOnRow = this._getDataRowObject(x, y);
+
+        return !!cellOnRow.foundedValue && cellOnRow.foundedValue.rowspanedByRow ? cellOnRow.foundedValue.rowspanedByRow : null;
+    },
+
+    /**
+     * @public
+     * @param x
+     * @param y
+     * @return {*}
+     */
+    getColspanMainColumnName: function(x, y) {
+        let cellOnRow = this._getDataRowObject(x, y);
+
+        return !!cellOnRow.foundedValue && cellOnRow.foundedValue.colspanedByColumn ? cellOnRow.foundedValue.colspanedByColumn : null;
     },
 
     /**
@@ -394,7 +418,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     },
 
     isRenderSkipNeeded: function(x, y) {
-        return this.isRowspanedByTopRow(x, y) || this.isColspanedByLeftRow(x, y);
+        return this.isRowspanedByTopRow(x, y) || this.isColspanedByLeftColumn(x, y);
     },
 
     /**
