@@ -8,13 +8,13 @@ function getAllGridColumns() {
 function setColumnVisible(key, visible) {
     console.log('setColumnVisible', key, visible);
 
-    setColumnsVisible.bind(this)([key], visible);
+    setColumnsVisible.call(this, [key], visible);
 }
 
 function setColumnsVisible(keys, visible) {
     console.log('setColumnsVisible', keys, visible);
-    let colDef = this.columnDefs,
-        columnsStateChanged = false;
+    let colDef = this.columnDefs;
+    let columnsStateChanged = false;
     keys.forEach((key) => {
         let singleColDef = this.getColDef(key);
         if (singleColDef) {

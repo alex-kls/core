@@ -2283,16 +2283,6 @@ var defaults = {
     aggregationGroupExpandIconClickableWidth: 15,
 
     /**
-     * @desc list of classes, which means, that element represents value postfix
-     * @default
-     * @type {boolean}
-     * @memberOf module:defaults
-     */
-    classesInterpretedAsPostfix: [
-        'cluster-size'
-    ],
-
-    /**
      * font of aggregation grand total
      * @default
      * @type {cssFont}

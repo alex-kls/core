@@ -1971,7 +1971,17 @@ var Hypergrid = Base.extend('Hypergrid', {
         if (!columnDefs) {
             return;
         }
-        return columnDefs.find(cd => cd.field === name || cd.colId === name);
+        let found = columnDefs.find(cd => cd.field === name || cd.colId === name || cd.originalField === name);
+
+        if (!found) {
+            columnDefs.filter(cd => cd.children).forEach(cd => {
+                if (!found) {
+                    found = this.getColDef(name, cd.children);
+                }
+            });
+        }
+
+        return found;
     },
 
     getColumnByName: function(name) {

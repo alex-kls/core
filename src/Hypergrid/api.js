@@ -317,6 +317,16 @@ const virtualPageRowModel = {
 //     return true;
 // }
 
+function getVisibleColDefs(colDefs) {
+    const res = colDefs.filter((cd) => !cd.isHidden);
+
+    res.filter(cd => cd.children).forEach(cd => {
+        cd.children = getVisibleColDefs(cd.children);
+    });
+
+    return res;
+}
+
 function setColumnDefs(colDefs) {
     // works like expected, but datadocs calls method 11 times and if not reflect all, first row not shown
     // if (!!this.columnDefs
@@ -332,9 +342,9 @@ function setColumnDefs(colDefs) {
     console.log('setColumnDefs', colDefs);
 
     this.columnDefs = colDefs;
-    this.visibleColumnDefs = this.columnDefs.filter((cd) => !cd.isHidden);
+    this.visibleColumnDefs = getVisibleColDefs(this.columnDefs);
 
-    const schema = convertColDefs.bind(this)(this.visibleColumnDefs);
+    const schema = convertColDefs.call(this, this.visibleColumnDefs);
     console.log('schema', schema);
     const firstRowsData = schema.data;
     let data = this.behavior.getData();

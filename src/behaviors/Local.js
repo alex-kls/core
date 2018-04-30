@@ -382,7 +382,7 @@ var Local = Behavior.extend('Local', {
         this.getData().forEach(row => {
             Object.keys(row).forEach(columnName => {
                 const value = row[columnName];
-                if (!!value && typeof value === 'object' && value.type === 'ERROR') {
+                if (value && typeof value === 'object' && value.type === 'ERROR') {
                     if (!this.errors[columnName]) {
                         this.errors[columnName] = [];
                     }
