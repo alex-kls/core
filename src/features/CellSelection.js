@@ -58,7 +58,7 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
-        let dx;
+        let dx, dy;
         grid.behavior.getHeaderColumnByName();
         if (event.isColspanedByLeftColumn && event.colspanMainColumnName) {
             let mainColumn = grid.behavior.getHeaderColumnByName(event.colspanMainColumnName);
@@ -67,11 +67,13 @@ var CellSelection = Feature.extend('CellSelection', {
             if (mainColumn && mainColumnIndex) {
                 dx = mainColumnIndex;
             }
+        } else if (event.rowspanMainRow !== undefined && event.rowspanMainRow !== null) {
+            dy = event.rowspanMainRow;
         }
 
         dx = dx !== undefined ? dx : event.dataCell.x;
-        let dy = event.dataCell.y,
-            isSelectable = grid.behavior.getCellProperty(event.dataCell.x, event.gridCell.y, 'cellSelection');
+        dy = dy !== undefined ? dy : event.dataCell.y;
+        let isSelectable = grid.behavior.getCellProperty(dx, dy, 'cellSelection');
 
         if (isSelectable && event.isDataCell) {
             if (event.primitiveEvent.detail.isRightClick && event.isCellSelected) {

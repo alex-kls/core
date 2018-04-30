@@ -390,7 +390,9 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     getRowspanMainRow: function(x, y) {
         let cellOnRow = this._getDataRowObject(x, y);
 
-        return !!cellOnRow.foundedValue && cellOnRow.foundedValue.rowspanedByRow ? cellOnRow.foundedValue.rowspanedByRow : null;
+        return !!cellOnRow.foundedValue && cellOnRow.foundedValue.rowspanedByRow !== undefined
+            ? cellOnRow.foundedValue.rowspanedByRow
+            : null;
     },
 
     /**
@@ -411,14 +413,14 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      * @param y
      * @return {*}
      */
-    isRowspanedByTopRow: function(x, y) {
+    isRowspanedByRow: function(x, y) {
         let cellOnRow = this._getDataRowObject(x, y);
 
         return !!cellOnRow.foundedValue && cellOnRow.foundedValue.isRowspanedByRow;
     },
 
     isRenderSkipNeeded: function(x, y) {
-        return this.isRowspanedByTopRow(x, y) || this.isColspanedByLeftColumn(x, y);
+        return this.isRowspanedByRow(x, y) || this.isColspanedByLeftColumn(x, y);
     },
 
     /**

@@ -659,14 +659,17 @@ var Renderer = Base.extend('Renderer', {
 
         if (!this.grid.isDataVisible(x, y)) {
             let firstVisibleColumnIndex = this.visibleColumns[0].columnIndex;
-            let firstVisibleRowIndex = this.visibleRows[0].rowIndex;
+            let firstVisibleRowIndex = this.visibleRows[0].rowIndex + this.grid.getHeaderRowCount();
             const colspan = this.grid.behavior.getColspan(x, y);
             const rowspan = this.grid.behavior.getRowspan(x, y);
             if (colspan && ((x + colspan) >= firstVisibleColumnIndex)) {
                 x = firstVisibleColumnIndex;
             }
 
-            if (rowspan && ((y + rowspan) >= firstVisibleRowIndex)) {
+            console.log('rowspan', rowspan);
+            console.log('y', y);
+            console.log('firstVisibleRowIndex', firstVisibleRowIndex);
+            if (rowspan && ((y + rowspan + this.grid.getHeaderRowCount()) >= firstVisibleRowIndex)) {
                 y = firstVisibleRowIndex;
             }
         }
@@ -1103,14 +1106,14 @@ var Renderer = Base.extend('Renderer', {
 
                     for (let i = 0; i < columnsLength; ++i) {
                         const column = visibleColumns[i];
-                        if (!vr.gap && !this.grid.behavior.dataModel.isRowspanedByTopRow(column.columnIndex, vr.rowIndex + 1)) {
+                        if (!vr.gap && !this.grid.behavior.dataModel.isRowspanedByRow(column.columnIndex, vr.rowIndex + 1)) {
                             this.drawLine(gc, column.left, bottom, column.width, gridProps.gridLinesHWidth);
                         }
                     }
                     // if (vr.rowIndex > gridProps.fictiveHeaderRowsCount) {
                     //     for (let i = 0; i < columnsLength; ++i) {
                     //         const column = visibleColumns[i];
-                    //         if (!vr.gap && !this.grid.behavior.dataModel.isRowspanedByTopRow(column.columnIndex - 1, vr.rowIndex + 1)) {
+                    //         if (!vr.gap && !this.grid.behavior.dataModel.isRowspanedByRow(column.columnIndex - 1, vr.rowIndex + 1)) {
                     //             this.drawLine(gc, column.left, bottom, column.width, gridProps.gridLinesHWidth);
                     //         }
                     //     }

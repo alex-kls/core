@@ -59,6 +59,10 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         get: function() { return this.subgrid.getRowspanMainRow(this.dataCell.x, this.dataCell.y); }
     },
 
+    cellData: {
+        get: function() { return this.subgrid._getDataRowObject(this.dataCell.x, this.dataCell.y); }
+    },
+
     /**
      * Returns name of column, that overlaps current cell
      * @memberOf CellEvent#
@@ -76,8 +80,8 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
     //     get: function() { return this.subgrid.isVerticalRenderSkipNeeded(this.dataCell.x, this.dataCell.y); }
     // },
 
-    isRowspanedByTopRow: {
-        get: function() { return false;}//this.subgrid.isRowspanedByTopRow(this.dataCell.x, this.dataCell.y); }
+    isRowspanedByRow: {
+        get: function() { this.subgrid.isRowspanedByRow(this.dataCell.x, this.dataCell.y); }
     },
     /**
      * The formatted value of the cell.
