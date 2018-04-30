@@ -581,9 +581,9 @@ var mixin = {
         });
 
         this.addInternalEventListener('fin-after-cell-edit', function(e) {
-            // ellEvent, oldValue, newValue, control
-            var headerRowY = grid.properties.showHeaderRow ? 1 : 0;
-            if (e.detail.primitiveEvent.y === headerRowY) {
+            console.log('fin-after-cell-edit fired');
+            var headerRowY = grid.properties.useHeaders ? grid.properties.fictiveHeaderRowsCount : 0;
+            if (e.detail.primitiveEvent.y <= headerRowY) {
                 grid.fireAfterHeaderCellEdit(e.detail.primitiveEvent, e.detail.oldValue, e.detail.newValue, e.detail.input);
             }
         });
