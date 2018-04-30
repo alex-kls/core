@@ -55,14 +55,10 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
         var renderValue = val || config.renderFalsy && val == 0; // eslint-disable-line eqeqeq
 
-        if (config.processStringsWithHtmlTags && !!val) {
-            if (!!config.classesInterpretedAsPostfix
-                && config.classesInterpretedAsPostfix.length > 0) {
-                let dividedString = CellRenderer.getDividedPostfixesFromString(val, config.classesInterpretedAsPostfix);
-                val = dividedString.string;
-                if (dividedString.postfixes.length > 0 && !config.valuePostfix) {
-                    config.valuePostfix = dividedString.postfixes.join(' ');
-                }
+        if (renderValue && config.isDataRow) {
+            const count = config.grid.behavior.dataModel.getCount(config.dataCell.x, config.dataCell.y);
+            if (count !== undefined) {
+                config.valuePostfix = `(${count})`;
             }
         }
 
@@ -271,10 +267,6 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         }
 
         if (renderValue) {
-            if (config.processStringsWithHtmlTags && !!val) {
-                val = removeHtmlTagsFromString(val);
-            }
-
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
@@ -474,12 +466,6 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
     }
 
     return minWidth;
-}
-
-function removeHtmlTagsFromString(string) {
-    return string.replace
-        ? string.replace(/<(?:!|\/?[a-zA-Z]+).*?\/?>/g, '').trim()
-        : string;
 }
 
 function findLines(gc, config, words, width) {

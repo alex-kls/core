@@ -253,6 +253,18 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     },
 
     /**
+     * @summary get count value for some cell of data grid
+     * @memberOf DataSourceLocal#
+     */
+    getCount: function(x, y) {
+        let val = this._getDataRowObject(x, y).foundedValue;
+
+        if (val !== undefined) {
+            return val && val.count && val.count !== null ? val.count : undefined;
+        }
+    },
+
+    /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getValue}
      * @memberOf DataSourceLocal#
      */
@@ -263,6 +275,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
             return foundedDataRowValue && foundedDataRowValue.value ? foundedDataRowValue.value : foundedDataRowValue;
         }
     },
+
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#setValue}
      * @memberOf DataSourceLocal#

@@ -249,21 +249,4 @@ var CellRenderer = Base.extend('CellRenderer', {
     },
 });
 
-CellRenderer.getDividedPostfixesFromString = (string, postfixClasses) => {
-    let postfixes = [];
-    postfixClasses.forEach((pc) => {
-        if (string && string.match) {
-            const regexpString = `(<[^\\/]*class=\\".*${pc}.*\\".*>)(.*)(<\\/.*>)`;
-            const regexp = new RegExp(regexpString, 'g');
-            let matches = regexp.exec(string);
-            if (matches && matches.length >= 2) {
-                postfixes.push(matches[2]);
-                string = string.replace(regexp, '');
-            }
-        }
-    });
-
-    return { string, postfixes };
-};
-
 module.exports = CellRenderer;

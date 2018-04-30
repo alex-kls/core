@@ -1,7 +1,6 @@
 'use strict';
 
 var Behavior = require('./Behavior');
-const { getDividedPostfixesFromString } = require('../cellRenderers/CellRenderer');
 
 /** @name DataSource
  * @memberOf Behavior#
@@ -118,18 +117,6 @@ var Local = Behavior.extend('Local', {
         data.forEach((d, i) => {
             let val = column.getValue(i);
             if (val) {
-                let valuePostfix = null;
-
-                if (props.processStringsWithHtmlTags) {
-                    if (props.classesInterpretedAsPostfix && props.classesInterpretedAsPostfix.length > 0) {
-                        const { string, postfixes } = getDividedPostfixesFromString(val, props.classesInterpretedAsPostfix);
-                        val = string;
-                        if (postfixes.length > 0) {
-                            valuePostfix = postfixes.join(' ');
-                        }
-                    }
-                }
-
                 const widths = {};
 
                 const dataProps = this.getRowProperties(i) || props;
@@ -174,9 +161,10 @@ var Local = Behavior.extend('Local', {
                     }
                 }
 
-                if (valuePostfix) {
+                const count = column.getCount(i);
+                if (count !== undefined) {
                     gc.cache.font = props.cellValuePostfixFont;
-                    widths.valuePostfix = gc.getTextWidth(valuePostfix) + props.cellValuePostfixLeftOffset;
+                    widths.valuePostfix = gc.getTextWidth(`(${count})`) + props.cellValuePostfixLeftOffset;
                 }
 
                 gc.cache.font = dataProps.font;

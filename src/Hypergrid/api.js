@@ -76,7 +76,7 @@ function convertColDefs(colDefs) {
         }
     }
 
-    function getEmptyHeaderRow(){
+    function getEmptyHeaderRow() {
         return {
             __META: {
                 __ROW: {
@@ -94,6 +94,7 @@ function convertColDefs(colDefs) {
     }
 
     countMaxTreeLevel(0, colDefs);
+
     function colDefMapper(singleColDef, headerLevel = 0) {
         const letter = idOf(colDefMapperCallsCount);
         colDefMapperCallsCount++;
@@ -122,14 +123,16 @@ function convertColDefs(colDefs) {
                     value: singleColDef.headerName || '',
                     properties: {
                         ignoreValuePrefix: true
-                    }
+                    },
+                    count: singleColDef.count
                 };
 
                 for (let i = 1; i < insertedColumnNames.length; i++) {
                     data[headerLevel][insertedColumnNames[i]] = {
                         colspan: colspan - i,
                         isColspanedByColumn: true,
-                        colspanedByColumn: insertedColumnNames[0]
+                        colspanedByColumn: insertedColumnNames[0],
+                        count: singleColDef.count
                     };
                 }
 
@@ -160,7 +163,8 @@ function convertColDefs(colDefs) {
                     const rowspan = maxTreeLevel - headerLevel - 1;
                     data[headerLevel][originalField] = {
                         rowspan: rowspan,
-                        value: singleColDef.headerName || ''
+                        value: singleColDef.headerName || '',
+                        count: singleColDef.count
                     };
                     for (let i = headerLevel + 1, it = 1; i < maxTreeLevel; i++, it++) {
                         if (!data[i]) {
@@ -169,7 +173,8 @@ function convertColDefs(colDefs) {
                         data[i][originalField] = {
                             rowspan: rowspan - i,
                             isRowspanedByRow: true,
-                            rowspanedByRow: headerLevel
+                            rowspanedByRow: headerLevel,
+                            count: singleColDef.count
                         };
                     }
                 }

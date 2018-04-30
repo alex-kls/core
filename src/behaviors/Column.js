@@ -169,6 +169,10 @@ Column.prototype = {
         return this.schema.type;
     },
 
+    getCount: function(y) {
+        return this.dataModel.getCount(this.index, y);
+    },
+
     getValue: function(y) {
         return this.dataModel.getValue(this.index, y);
     },

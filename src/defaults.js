@@ -2283,16 +2283,6 @@ var defaults = {
     aggregationGroupExpandIconClickableWidth: 15,
 
     /**
-     * @desc if true, values of cells, that contain HTML tags will be 'parsed' to plain text.
-     * Tags with classes from classesInterpretedAsPostfix list will be interpreted as postfix and removed from cell value string
-     * Other tags will be removed, but inner text not be affected
-     * @default
-     * @type {boolean}
-     * @memberOf module:defaults
-     */
-    processStringsWithHtmlTags: true,
-
-    /**
      * @desc list of classes, which means, that element represents value postfix
      * @default
      * @type {boolean}
