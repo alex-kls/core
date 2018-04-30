@@ -444,7 +444,10 @@ var CellEditor = Base.extend('CellEditor', {
 
         style.left = px(cellBounds.x);
         style.top = px(cellBounds.y);
-        style.width = px(cellBounds.width);
+        let cuttedWidth = cellBounds.width > this.grid.canvas.width
+            ? (this.grid.canvas.width - cellBounds.x)
+            : cellBounds.width;
+        style.width = px(cuttedWidth);
         style.height = px(cellBounds.height);
     },
 

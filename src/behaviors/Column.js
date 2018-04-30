@@ -330,7 +330,6 @@ Column.prototype = {
                     value: cellEvent.properties.format
                 }
             }),
-
             cellEditor = this.dataModel.getCellEditorAt(columnIndex, rowIndex, editorName, options);
 
         if (cellEditor && !cellEditor.grid) {

@@ -1137,7 +1137,6 @@ var Hypergrid = Base.extend('Hypergrid', {
             let mainColumn = this.behavior.getHeaderColumnByName(event.colspanMainColumnName);
             let mainColumnIndex = this.behavior.columns.indexOf(mainColumn);
 
-
             if (mainColumn && mainColumnIndex) {
                 editableX = mainColumnIndex;
             }
@@ -1147,7 +1146,9 @@ var Hypergrid = Base.extend('Hypergrid', {
         }
 
         if (editableX !== event.dataCell.x || editableY !== event.dataCell.y) {
-            event.resetDataXY(editableX, editableY);
+            this.scrollToMakeVisible(editableX, editableY);
+            this.paintNow();
+            event = new this.behavior.CellEvent(editableX, editableY + this.getHeaderRowCount());
         }
 
         if (

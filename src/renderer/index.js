@@ -666,9 +666,6 @@ var Renderer = Base.extend('Renderer', {
                 x = firstVisibleColumnIndex;
             }
 
-            console.log('rowspan', rowspan);
-            console.log('y', y);
-            console.log('firstVisibleRowIndex', firstVisibleRowIndex);
             if (rowspan && ((y + rowspan + this.grid.getHeaderRowCount()) >= firstVisibleRowIndex)) {
                 y = firstVisibleRowIndex;
             }
