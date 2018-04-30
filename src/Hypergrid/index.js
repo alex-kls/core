@@ -180,12 +180,19 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.data = options.data || [];
         this.rowData = options.rowData || [];
         this.paginationPageSize = options.paginationPageSize || this.paginationPageSize || 1000;
-        this.onColumnResized = options.onColumnResized || this.onColumnResized;
-        this.onUpdateColumnName = options.onUpdateColumnName || this.onUpdateColumnName;
-        this.onColumnsMoved = options.onColumnsMoved || this.onColumnsMoved;
-        this.getMainMenuItems = options.getMainMenuItems || this.getMainMenuItems;
-        this.getContextMenuItems = options.getContextMenuItems || this.getContextMenuItems;
-        this.onAggregatedCellClick = options.onAggregatedCellClick || this.onAggregatedCellClick;
+
+        [ // reuse functions
+            'onColumnResized',
+            'onUpdateColumnName',
+            'onColumnsMoved',
+            'getMainMenuItems',
+            'getContextMenuItems',
+            'onAggregatedCellClick',
+            'onCtrlAndZ',
+            'onCtrlShiftAndZ'
+        ].forEach(k => {
+            this[k] = options[k] || this[k];
+        });
 
         if (this.onColumnsMoved) {
             this.addInternalEventListener('fin-columns-moved', (e) => {

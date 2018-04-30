@@ -778,6 +778,11 @@ var Behavior = Base.extend('Behavior', {
             this.featureChain.handleKeyDown(grid, event);
             this.setCursor(grid);
         }
+        if (grid.onCtrlShiftAndZ && event.detail.char === 'Z' && event.detail.ctrl && event.detail.shift) {
+            grid.onCtrlShiftAndZ();
+        } else if (grid.onCtrlAndZ && event.detail.char === 'z' && event.detail.ctrl) {
+            grid.onCtrlAndZ();
+        }
     },
 
     /**

@@ -116,7 +116,7 @@ var Local = Behavior.extend('Local', {
         // get max width based of
         data.forEach((d, i) => {
             let val = column.getValue(i);
-            if (val) {
+            if (val && typeof val !== 'object') {
                 const widths = {};
 
                 const dataProps = this.getRowProperties(i) || props;
