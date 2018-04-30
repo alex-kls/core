@@ -1800,10 +1800,7 @@ var defaults = {
         right: 0,
         backgroundColor: '#C7C7C7',
         boxShadow: '0px 0px 0px inset',
-        // transition: 'opacity .5s',
         position: 'absolute',
-        // margin: 2,
-        // transition: 'opacity .5s',
         borderRadius: 0
     },
 
@@ -1819,9 +1816,6 @@ var defaults = {
         bottom: 0,
         backgroundColor: '#C7C7C7',
         boxShadow: '0px 0px 0px inset',
-        // transition: 'opacity .5s',
-        // margin: 2,
-        // transition: 'opacity .5s',
         borderRadius: 0
     },
 
@@ -1981,15 +1975,6 @@ var defaults = {
      */
     errorIconUnicodeChar: decodeURI('\uf071'),
 
-    // /**
-    //  * @desc String, that will be displayed as error icon for total count of errors
-    //  * Best way to use this parameter is set it's value on such unicode char, provided by your icons pack
-    //  * @default
-    //  * @type {string}
-    //  * @memberOf module:defaults
-    //  */
-    // errorTotalUnicodeChar: decodeURI('\uf2ec'),
-
     /**
      * @desc height of icon, that represents total number of errors
      * @default
@@ -2081,14 +2066,6 @@ var defaults = {
     columnTypeSignColor: '#343434',
 
     /**
-     * @desc Color of column type sign
-     * @default
-     * @type {string}
-     * @memberOf module:defaults
-     */
-    columnTypeSignPreferedWidth: 15,
-
-    /**
      * @desc Font of column title prefix
      * @default
      * @type {string}
@@ -2113,15 +2090,6 @@ var defaults = {
     columnTitlePrefixRightSpace: 5,
 
     /**
-     * @desc Svg icon that will be rendered at cell (0,0), if table has an errors
-     * @deprecated now used rendered triangle instead of svg to minimize loading time
-     * @default
-     * @type {string}
-     * @memberOf module:defaults
-     */
-    columnWarningIconSrc: 'https://test1.datadocs.com/static/img/visualization/ingest-warning.svg',
-
-    /**
      * @desc Font of text (total number of errors), that rendered inside warning icon
      * @default
      * @type {string}
@@ -2144,14 +2112,6 @@ var defaults = {
      * @memberOf module:defaults
      */
     columnWarningIconColor: '#FF3D3D',
-    //
-    // /**
-    //  * @desc placeholder value for cells, where own value cannot be rendered because of errors
-    //  * @default
-    //  * @type {string}
-    //  * @memberOf module:defaults
-    //  */
-    // errorCellPlaceholderText: 'Ø',
 
     /**
      * @desc classes of tooltip container when placed at bottom
