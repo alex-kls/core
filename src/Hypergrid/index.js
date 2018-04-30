@@ -1131,6 +1131,25 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         this.abortEditing(); // if another editor is open, close it first
 
+        let editableX = event.dataCell.x, editableY = event.dataCell.y;
+
+        if (event.isColspanedByLeftColumn && event.colspanMainColumnName) {
+            let mainColumn = this.behavior.getHeaderColumnByName(event.colspanMainColumnName);
+            let mainColumnIndex = this.behavior.columns.indexOf(mainColumn);
+
+
+            if (mainColumn && mainColumnIndex) {
+                editableX = mainColumnIndex;
+            }
+        }
+        if (event.rowspanMainRow !== undefined && event.rowspanMainRow !== null) {
+            editableY = event.rowspanMainRow;
+        }
+
+        if (editableX !== event.dataCell.x || editableY !== event.dataCell.y) {
+            event.resetDataXY(editableX, editableY);
+        }
+
         if (
             event.isDataColumn &&
             (cellEditor = this.getCellEditorAt(event))
