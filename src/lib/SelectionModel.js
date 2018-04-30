@@ -113,7 +113,7 @@ SelectionModel.prototype = {
 
         // check top cells
         for (let x = x1; x <= x2; ++x) {
-            if (dm.isRenderSkipNeeded(x, y1)) {
+            if (dm.isRenderSkipNeeded(x, y1) && dm.getRowspan(x, y1 - 1) > 0) { // check if expand available
                 let yOffset = y1;
                 while (dm.isRenderSkipNeeded(x, yOffset) && yOffset > 0) {
                     --yOffset;
@@ -125,20 +125,14 @@ SelectionModel.prototype = {
         // check bottom cells
         for (let x = x1; x <= x2; ++x) {
             let span = dm.getRowspan(x, y2);
-            if (dm.isRenderSkipNeeded(x, y2) || span > 0) {
-                let yOffset = y2;
-                while (span === 0 && yOffset > 0) {
-                    --yOffset;
-                    span = dm.getRowspan(x, yOffset);
-                }
-                console.log('check bottom cells', yOffset, span);
-                y2 = yOffset + span;
+            if (span > 0) {
+                y2 += span; // just add rowspan if it available
             }
         }
 
         // check left cells
         for (let y = y1; y <= y2; ++y) {
-            if (dm.isRenderSkipNeeded(x1, y)) {
+            if (dm.isRenderSkipNeeded(x1, y) && dm.getColspan(x1 - 1, y) > 0) { // check if expand available
                 let xOffset = x1;
                 while (dm.isRenderSkipNeeded(xOffset, y) && xOffset > 0) {
                     --xOffset;
@@ -150,13 +144,8 @@ SelectionModel.prototype = {
         // check right cells
         for (let y = y1; y <= y2; ++y) {
             let span = dm.getColspan(x2, y);
-            if (dm.isRenderSkipNeeded(x2, y) || span > 0) {
-                let xOffset = x2;
-                while (span === 0 && xOffset > 0) {
-                    --xOffset;
-                    span = dm.getColspan(xOffset, y);
-                }
-                x2 = xOffset + span;
+            if (span > 0) {
+                x2 += span; // just add colspan if it available
             }
         }
 
@@ -165,6 +154,10 @@ SelectionModel.prototype = {
         }
         if (swapY) {
             y2 = [y1, y1 = y2][0];
+        }
+
+        if (ox !== x1 || oy !== y1 || ex !== x2 - x1 || ey !== y2 - y1) {
+            return this.checkSelectionCorners(x1, y1, x2 - x1, y2 - y1); // check one more time because of new included cells
         }
 
         return { ox: x1, oy: y1, ex: x2 - x1, ey: y2 - y1 };

@@ -1077,23 +1077,22 @@ var Renderer = Base.extend('Renderer', {
 
                 for (let right, vc = visibleColumns[0], c = 0; c < columnsLength; c++) {
                     vc = visibleColumns[c];
-                    right = vc.right;
+                    if (!vc.gap) {
+                        right = vc.right;
 
-                    let start = gridProps.defaultHeaderRowHeight;
+                        let shift = gridProps.defaultHeaderRowHeight - gridProps.gridLinesVWidth;
 
-                    for (let i = 0; i < rowsLength; ++i) {
-                        const row = visibleRows[i];
-                        if (row.subgrid.isData) {
-                            if (this.grid.behavior.dataModel.isColspanedByLeftColumn(vc.columnIndex + 1, row.rowIndex)) {
-                                start += row.height;
-                            } else {
-                                break;
+                        for (let i = 0; i < rowsLength; ++i) {
+                            const row = visibleRows[i];
+                            if (row.subgrid.isData) {
+                                if (this.grid.behavior.dataModel.isColspanedByLeftColumn(vc.columnIndex + 1, row.rowIndex)) {
+                                    shift += row.height + gridProps.gridLinesVWidth;
+                                } else {
+                                    break;
+                                }
                             }
                         }
-                    }
-
-                    if (!vc.gap) {
-                        this.drawLine(gc, right, start, gridProps.gridLinesVWidth, viewHeight);
+                        this.drawLine(gc, right, shift, gridProps.gridLinesVWidth, viewHeight - shift);
                     }
                 }
             }
@@ -1107,7 +1106,13 @@ var Renderer = Base.extend('Renderer', {
                     for (let i = 0; i < columnsLength; ++i) {
                         const column = visibleColumns[i];
                         if (!vr.gap && !this.grid.behavior.dataModel.isRowspanedByRow(column.columnIndex, vr.rowIndex + 1)) {
-                            this.drawLine(gc, column.left, bottom, column.width, gridProps.gridLinesHWidth);
+                            this.drawLine(
+                                gc,
+                                column.left,
+                                bottom,
+                                column.width + (gridProps.gridLinesV ? gridProps.gridLinesVWidth : 0),
+                                gridProps.gridLinesHWidth
+                            );
                         }
                     }
                     // if (vr.rowIndex > gridProps.fictiveHeaderRowsCount) {
