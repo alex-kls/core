@@ -641,35 +641,37 @@ var Renderer = Base.extend('Renderer', {
         }
 
         let { x, y } = firstSelectedCell;
+        // if (!this.grid.isDataVisible(x, y)) {
+        //     const colspan = this.grid.behavior.getColspan(x, y);
+        //     const rowspan = this.grid.behavior.getRowspan(x, y);
+        //
+        //     if (colspan >= 0) {
+        //         while (!this.grid.isDataVisible(x, y) && x < firstSelectedCell.x + colspan) {
+        //             ++x;
+        //         }
+        //     }
+        //     if (rowspan >= 0) {
+        //         while (!this.grid.isDataVisible(x, y) && y < firstSelectedCell.y + rowspan) {
+        //             ++y;
+        //         }
+        //     }
+        // }
+
         if (!this.grid.isDataVisible(x, y)) {
+            let firstVisibleColumnIndex = this.visibleColumns[0].columnIndex;
+            let firstVisibleRowIndex = this.visibleRows[0].rowIndex;
             const colspan = this.grid.behavior.getColspan(x, y);
             const rowspan = this.grid.behavior.getRowspan(x, y);
-
-            if (colspan >= 0) {
-                while (!this.grid.isDataVisible(x, y) && x < firstSelectedCell.x + colspan) {
-                    ++x;
-                }
+            if (colspan && ((x + colspan) >= firstVisibleColumnIndex)) {
+                x = firstVisibleColumnIndex;
             }
-            if (rowspan >= 0) {
-                while (!this.grid.isDataVisible(x, y) && y < firstSelectedCell.y + rowspan) {
-                    ++y;
-                }
+
+            if (rowspan && ((y + rowspan) >= firstVisibleRowIndex)) {
+                y = firstVisibleRowIndex;
             }
         }
 
-        if (!this.grid.isDataVisible(firstSelectedCell.x, firstSelectedCell.y)) {
-            // method with while can be heavy on large data. If so, next commented part of code can be used
-            //
-            // let firstVisibleColumnIndex = this.visibleColumns[0].columnIndex;
-            // let gridCellSourceValue = this.grid.behavior.dataModel._getDataRowObject(firstSelectedCell.x, firstSelectedCell.y);
-            // if (gridCellSourceValue.foundedValue
-            //     && gridCellSourceValue.foundedValue.colspan
-            //     && (firstSelectedCell.x + gridCellSourceValue.foundedValue.colspan) >= firstVisibleColumnIndex) {
-            //     firstSelectedCell = {x:firstVisibleColumnIndex, y: firstSelectedCell.y};
-            // } else {
-            //     return;
-            // }
-
+        if (!this.grid.isDataVisible(x, y)) {
             return;
         }
 
