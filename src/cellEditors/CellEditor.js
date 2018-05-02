@@ -452,8 +452,8 @@ var CellEditor = Base.extend('CellEditor', {
             width = cellBounds.width + selectionRegionBorderWidth;
         }
 
-        if (width > maximumColumnWidth) {
-            height += gc.getTextHeight(gc.cache.font).offset * Math.ceil(width / maximumColumnWidth);
+        if (width > maximumColumnWidth + selectionRegionBorderWidth) {
+            height += gc.getTextHeight(gc.cache.font).offset * (Math.ceil(width / maximumColumnWidth) - 1);
             width = maximumColumnWidth + selectionRegionBorderWidth;
         }
 

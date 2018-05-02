@@ -170,9 +170,9 @@ var Local = Behavior.extend('Local', {
                 gc.cache.font = dataProps.font;
                 widths.val = gc.getTextWidth(formatter(val, Object.assign({}, dataProps, { dataRow: d }))) + props.cellPaddingLeft;
 
-                console.log('widths', val, widths);
+                // console.log('widths', val, widths);
                 let textWidth = Object.values(widths).reduce((a, b) => a + b, 0);
-                console.log('textWidth', textWidth);
+                // console.log('textWidth', textWidth);
 
                 const colspan = this.dataModel.getColspan(column.index, i);
                 if (colspan > 0) {
