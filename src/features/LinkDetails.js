@@ -100,25 +100,35 @@ var LinkDetails = Feature.extend('LinkDetails', {
      * @param {number} x - defines horizontal point of menu start
      * @param {number} y - defines vertical point of menu start
      */
-    paintLinkDetails: function(linkDetailsHolderDiv, grid, link, x, y) {
+    paintLinkDetails: function(linkDetailsHolderDiv, grid, linkValue, x, y) {
         this.hideLinkDetails(linkDetailsHolderDiv);
 
-        var detailsLink = document.createElement('a');
-
-        if (grid.properties.linkDetailsAnchorStyle) {
-            Object.assign(detailsLink.style, grid.properties.linkDetailsAnchorStyle);
+        let links = linkValue;
+        if (!Array.isArray(linkValue)) {
+            links = [linkValue];
         }
 
-        detailsLink.href = link;
-        detailsLink.text = link;
-        detailsLink.target = '_blank';
+        links.forEach(l => {
+            let outerDiv = document.createElement('div');
+            let detailsLink = document.createElement('a');
 
-        var detailsLinkIcon = document.createElement('i');
-        detailsLinkIcon.setAttribute('class', 'fa fa-external-link');
+            if (grid.properties.linkDetailsAnchorStyle) {
+                Object.assign(detailsLink.style, grid.properties.linkDetailsAnchorStyle);
+            }
 
-        detailsLink.appendChild(detailsLinkIcon);
 
-        linkDetailsHolderDiv.appendChild(detailsLink);
+            detailsLink.href = l;
+            detailsLink.text = l;
+            detailsLink.target = '_blank';
+
+            let detailsLinkIcon = document.createElement('i');
+            detailsLinkIcon.setAttribute('class', 'fa fa-external-link');
+
+            detailsLink.appendChild(detailsLinkIcon);
+
+            outerDiv.appendChild(detailsLink);
+            linkDetailsHolderDiv.appendChild(outerDiv);
+        });
 
         if (grid.properties.linkDetailsStyle) {
             Object.assign(linkDetailsHolderDiv.style, grid.properties.linkDetailsStyle);

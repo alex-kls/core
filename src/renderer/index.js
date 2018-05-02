@@ -1313,6 +1313,7 @@ var Renderer = Base.extend('Renderer', {
         // Set cell contents:
         // * For all cells: set `config.value` (writable property)
         // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
+
         if (!isHandleColumn) {
             //Including hierarchyColumn
             config.dataRow = cellEvent.dataRow;
@@ -1331,6 +1332,10 @@ var Renderer = Base.extend('Renderer', {
                 // row handle for header row: gets "master" checkbox
                 config.allRowsSelected = selectionModel.areAllRowsSelected();
             }
+        }
+
+        if (Array.isArray(value)) {
+            value = value.join(config.linksArrayDivider);
         }
 
         config.isSelected = isSelected;

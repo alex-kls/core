@@ -15,7 +15,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @memberOf CellEvent#
      */
     isValueUrl: {
-        get: function() { return isStringUrl(this.value); },
+        get: function() { return isValueUrl(this.value); },
     },
 
     /**
@@ -750,6 +750,21 @@ function shallowClone(obj) {
 }
 
 module.exports = factory;
+
+function isValueUrl(value) {
+    let result = false;
+    if (Array.isArray(value)) {
+        value.forEach(v => {
+            if (isStringUrl(v)) {
+                result = true;
+            }
+        });
+    } else {
+        result = isStringUrl(value);
+    }
+
+    return result;
+}
 
 function isStringUrl(string) {
     if (!string) {
