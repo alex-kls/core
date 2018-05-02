@@ -438,6 +438,8 @@ function destroy(total) {
             this.canvas.start();
         }
     }
+
+    this.behavior.grid.fireSyntheticApiDestroyCalled(total);
 }
 
 function getRangeSelections() {

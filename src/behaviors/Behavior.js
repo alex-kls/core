@@ -785,6 +785,12 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
+    onApiDestroyCalled: function(grid, event) {
+        if (this.featureChain) {
+            this.featureChain.onApiDestroyCalled(grid, event);
+        }
+    },
+
     /**
      * @memberOf Behavior#
      * @desc delegate handling key up to the feature chain of responsibility

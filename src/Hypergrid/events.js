@@ -126,6 +126,11 @@ var mixin = {
         });
     },
 
+    fireSyntheticApiDestroyCalled: function(total) {
+        return dispatchEvent.call(this, 'fin-api-destroy-called', {total});
+    },
+
+
     fireSyntheticEditorKeyDownEvent: function(inputControl, keyEvent) {
         return dispatchEvent.call(this, 'fin-editor-keydown', {
             input: inputControl,
@@ -531,6 +536,10 @@ var mixin = {
             grid.delegateKeyDown(e);
         });
 
+        this.addInternalEventListener('fin-api-destroy-called', function(e) {
+            grid.delegateApiDestroyCalled(e);
+        });
+
         this.addInternalEventListener('fin-canvas-keyup', function(e) {
             if (grid.properties.readOnly) {
                 return;
@@ -718,6 +727,16 @@ var mixin = {
      */
     delegateKeyDown: function(event) {
         this.behavior.onKeyDown(this, event);
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @summary Generate a function name and call it on self.
+     * @desc This should also be delegated through Behavior keeping the default implementation here though.
+     * @param {event} event - The pertinent event.
+     */
+    delegateApiDestroyCalled: function(event) {
+        this.behavior.onApiDestroyCalled(this, event);
     },
 
     /**

@@ -40,6 +40,14 @@ var LinkDetails = Feature.extend('LinkDetails', {
         return holderDiv;
     },
 
+    onApiDestroyCalled: function(grid, event) {
+        this.hideLinkDetails(detailsHolderDiv);
+
+        if (this.next) {
+            this.next.onApiDestroyCalled(grid, event);
+        }
+    },
+
     /**
      * @memberOf LinkDetails.prototype
      * @param {Hypergrid} grid

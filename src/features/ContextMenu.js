@@ -57,6 +57,14 @@ var ContextMenu = Feature.extend('ContextMenu', {
         }
     },
 
+    onApiDestroyCalled: function(grid, event) {
+        this.hideContextMenu(menuDiv);
+
+        if (this.next) {
+            this.next.onApiDestroyCalled(grid, event);
+        }
+    },
+
     /**
      * @memberOf ContextMenu.prototype
      * @param {Hypergrid} grid

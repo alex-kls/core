@@ -146,6 +146,19 @@ var Feature = Base.extend('Feature', {
      * @private
      * @comment Not really private but was cluttering up all the feature doc pages.
      */
+    onApiDestroyCalled: function(grid, event) {
+        if (this.next) {
+            this.next.onApiDestroyCalled(grid, event);
+        }
+    },
+
+    /**
+     * @memberOf Feature.prototype
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
+     */
     handleMouseUp: function(grid, event) {
         if (this.next) {
             this.next.handleMouseUp(grid, event);
