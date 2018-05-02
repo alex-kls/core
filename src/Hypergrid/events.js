@@ -478,6 +478,10 @@ var mixin = {
             });
         });
 
+        this.addInternalEventListener('fin-canvas-outside-mousedown', function(e) {
+            grid.delegateCanvasOutsideMousedown(event);
+        });
+
         this.addInternalEventListener('fin-canvas-click', function(e) {
             if (grid.properties.readOnly) {
                 return;
@@ -681,6 +685,15 @@ var mixin = {
      */
     delegateMouseDown: function(mouseDetails) {
         this.behavior.handleMouseDown(this, mouseDetails);
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Delegate mousedown to the behavior (model).
+     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
+     */
+    delegateCanvasOutsideMousedown: function(mouseDetails) {
+        this.behavior.handleCanvasOutsideMouseDown(this, mouseDetails);
     },
 
     /**

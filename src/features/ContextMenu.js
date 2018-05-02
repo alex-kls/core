@@ -65,6 +65,15 @@ var ContextMenu = Feature.extend('ContextMenu', {
         }
     },
 
+    handleCanvasOutsideMouseDown: function(grid, event) {
+        this.hideContextMenu(menuDiv);
+
+        if (this.next) {
+            this.next.handleCanvasOutsideMouseDown(grid, event);
+        }
+    },
+
+
     /**
      * @memberOf ContextMenu.prototype
      * @param {Hypergrid} grid

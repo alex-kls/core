@@ -843,6 +843,19 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior#
+     * @desc delegate handling mouse down outside current canvas to the feature chain of responsibility
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     */
+    handleCanvasOutsideMouseDown: function(grid, event) {
+        if (this.featureChain) {
+            this.featureChain.handleCanvasOutsideMouseDown(grid, event);
+            this.setCursor(grid);
+        }
+    },
+
+    /**
+     * @memberOf Behavior#
      * @desc delegate handling mouse exit to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details

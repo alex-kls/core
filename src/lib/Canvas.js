@@ -68,6 +68,9 @@ function Canvas(div, component) {
     document.addEventListener('keyup', function(e) {
         self.finkeyup(e);
     });
+    document.addEventListener('mousedown', e => {
+        self.finMouseDownOutside(e);
+    });
 
     this.canvas.onmouseover = function() {
         self.hasMouse = true;
@@ -385,6 +388,14 @@ Canvas.prototype = {
             isRightClick: this.isRightClick(e)
         });
         this.takeFocus();
+
+        e.stopPropagation();
+    },
+
+    finMouseDownOutside: function(e) {
+        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-outside-mousedown', {
+            isRightClick: this.isRightClick(e)
+        });
     },
 
     finmouseup: function(e) {

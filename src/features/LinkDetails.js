@@ -48,6 +48,14 @@ var LinkDetails = Feature.extend('LinkDetails', {
         }
     },
 
+    handleCanvasOutsideMouseDown: function(grid, event) {
+        this.hideLinkDetails(detailsHolderDiv);
+
+        if (this.next) {
+            this.next.handleCanvasOutsideMouseDown(grid, event);
+        }
+    },
+
     /**
      * @memberOf LinkDetails.prototype
      * @param {Hypergrid} grid

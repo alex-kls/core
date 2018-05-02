@@ -152,6 +152,12 @@ var Feature = Base.extend('Feature', {
         }
     },
 
+    handleCanvasOutsideMouseDown: function(grid, event) {
+        if (this.next) {
+            this.next.handleCanvasOutsideMouseDown(grid, event);
+        }
+    },
+
     /**
      * @memberOf Feature.prototype
      * @param {Hypergrid} grid
