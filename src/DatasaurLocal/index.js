@@ -328,7 +328,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
             while (dataRowObject.skipNeeded) {
                 dataRowObject = this._getDataRowObject(--i, y);
             }
-            return dataRowObject.foundedValue.colspan - (x - i);
+            return dataRowObject.foundedValue ? dataRowObject.foundedValue.colspan - (x - i) : 0;
         }
 
         return 0;

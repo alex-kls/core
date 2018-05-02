@@ -657,7 +657,7 @@ var Renderer = Base.extend('Renderer', {
         //     }
         // }
 
-        if (!this.grid.isDataVisible(x, y)) {
+        if (!this.grid.isDataVisible(x, y) && this.visibleColumns.length > 0) {
             let firstVisibleColumnIndex = this.visibleColumns[0].columnIndex;
             let firstVisibleRowIndex = this.visibleRows[0].rowIndex + this.grid.getHeaderRowCount();
             const colspan = this.grid.behavior.getColspan(x, y);
