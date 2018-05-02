@@ -1880,7 +1880,7 @@ var defaults = {
         boxShadow: '0 0 2px 0 rgba(0,0,0,.15), 0 1px 2px 0 rgba(0,0,0,.4)',
         borderRadius: '1px',
         padding: '5px 7px',
-        zIndex: 10,
+        zIndex: 1030,
         fontSize: '14px'
     },
 
