@@ -297,8 +297,7 @@ exports.mixin = {
     },
 
     getSelectionMatrix: function() {
-        const behavior = this.behavior;
-        const dataModel = behavior.dataModel;
+        const {behavior, behavior: {dataModel}} = this;
         const selections = this.getSelections();
         const rects = new Array(selections.length);
 
@@ -309,27 +308,42 @@ exports.mixin = {
             const rows = [];
 
             for (let c = 0, x = rect.origin.x; c < colCount; c++, x++) {
-                const values = rows[c] = new Array(rowCount);
-                const column = behavior.getActiveColumn(x);
-                let copyIncludeHeaders = this.copyIncludeHeaders;
+                const colProps = behavior.getColumnProperties(x);
+                let values = rows[c] = new Array(rowCount);
+                const alreadyCopied = [];
+
+                const getHeaderValue = (x, y) => {
+                    alreadyCopied.push(y);
+                    if (dataModel.isRenderSkipNeeded(x, y)) {
+                        return '';
+                    } else {
+                        let val = dataModel.getValue(x, y) || '';
+
+                        if (colProps.colDef && colProps.colDef.headerPrefix && !dataModel.getDefinedCellProperties(x, y).ignoreValuePrefix) {
+                            val = `${colProps.colDef.headerPrefix} ${val}`;
+                        }
+
+                        return val;
+                    }
+                };
 
                 for (let r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
-                    const dataRow = dataModel.getRow(y);
-                    values[r] = valOrFunc(dataRow, column) || '';
-                    const rowProps = behavior.getRowProperties(y);
-                    if (rowProps && rowProps.headerRow) {
-                        copyIncludeHeaders = false;
-                    }
+                    values[r] = behavior.getRowProperties(y).headerRow ? getHeaderValue(x, y) : dataModel.getValue(x, y) || '';
                 }
-                if (copyIncludeHeaders) {
-                    if (column.colDef) {
-                        let header = column.colDef.headerName;
-                        if (column.colDef.headerPrefix) {
-                            header = `${column.colDef.headerPrefix} ${header}`;
+
+                if (this.copyIncludeHeaders) {
+                    let y = 0;
+                    const headerValues = [];
+
+                    while (behavior.getRowProperties(y).headerRow) {
+                        if (!alreadyCopied.includes(y)) {
+                            headerValues.push(getHeaderValue(x, y));
                         }
-                        values.unshift(header);
-                    } else {
-                        values.unshift('');
+                        ++y;
+                    }
+
+                    if (headerValues.length > 0) {
+                        [].unshift.apply(values, headerValues);
                     }
                 }
             }
@@ -827,6 +841,9 @@ function valOrFunc(dataRow, column) {
         if (calculator) {
             result = calculator(dataRow, column.name);
         }
+    }
+    if (result.value) {
+        return result.value;
     }
     return result || result === 0 || result === false ? result : '';
 }
