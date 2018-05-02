@@ -225,8 +225,7 @@ var CellEditor = Base.extend('CellEditor', {
      */
     showEditor: function() {
         var rowFont = this.event.rowProperties.font ? this.event.rowProperties.font : this.event.properties.font;
-        this.el.style.display = 'inline';
-        this.el.style.font = rowFont;
+        Object.assign(this.el.style, { display: 'inline', font: rowFont, resize: 'none' });
     },
 
     /**
@@ -437,18 +436,47 @@ var CellEditor = Base.extend('CellEditor', {
     /**
      * @memberOf CellEditor.prototype
      * @desc set the bounds of my input control
-     * @param {rectangle} rectangle - the bounds to move to
+     * @param {Rectangle} cellBounds - the bounds to move to
      */
     setBounds: function(cellBounds) {
-        var style = this.el.style;
+        const { maximumColumnWidth, selectionRegionBorderWidth } = this.grid.properties;
+        const { gc, width: canvasWidth, height: canvasHeight } = this.grid.canvas;
 
-        style.left = px(cellBounds.x);
-        style.top = px(cellBounds.y);
-        let cuttedWidth = cellBounds.width > this.grid.canvas.width
-            ? (this.grid.canvas.width - cellBounds.x)
-            : cellBounds.width;
-        style.width = px(cuttedWidth);
-        style.height = px(cellBounds.height);
+        let style = this.el.style;
+
+        let left = cellBounds.x;
+        let top = cellBounds.y - selectionRegionBorderWidth;
+        gc.cache.font = this.event.rowProperties.font ? this.event.rowProperties.font : this.event.properties.font;
+        // additional width and height because of inner padding and border
+        let width = gc.getTextWidth(this.initialValue) + 12;
+        let height = cellBounds.height + 2;
+
+        if (!width || width < cellBounds.width) {
+            width = cellBounds.width + selectionRegionBorderWidth;
+        }
+
+        if (width > maximumColumnWidth) {
+            height += gc.getTextHeight(gc.cache.font).offset * Math.ceil(width / maximumColumnWidth);
+            width = maximumColumnWidth + selectionRegionBorderWidth;
+        }
+
+        if (width > canvasWidth) {
+            width = canvasWidth;
+        }
+
+        if (left + width > canvasWidth) {
+            left -= left + width - canvasWidth;
+        }
+
+        if (height > canvasHeight) {
+            height = canvasHeight;
+        }
+
+        if (top + height > canvasHeight) {
+            top -= top + height - canvasHeight;
+        }
+
+        Object.assign(style, { left: px(left), top: px(top), width: px(width), height: px(height) });
     },
 
     /**

@@ -38,19 +38,9 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
         // setting gc properties are expensive, let's not do it needlessly
 
-        if (val && val.constructor === Array) {
-            leftIcon = val[0];
-            rightIcon = val[2];
-            val = config.exec(val[1]);
-            if (val && val.naturalWidth !== undefined) { // must be an image (much faster than instanceof HTMLImageElement)
-                centerIcon = val;
-                val = null;
-            }
-        } else {
-            leftIcon = images[config.leftIcon];
-            centerIcon = images[config.centerIcon];
-            rightIcon = images[config.rightIcon];
-        }
+        leftIcon = images[config.leftIcon];
+        centerIcon = images[config.centerIcon];
+        rightIcon = images[config.rightIcon];
 
         // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
         var renderValue = val || config.renderFalsy && val == 0; // eslint-disable-line eqeqeq

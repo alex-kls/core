@@ -755,7 +755,6 @@ function isStringUrl(string) {
     if (!string) {
         return false;
     }
-
-    const regexp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)/;
-    return regexp.test(string);
+    const URL_REGEXP = /^(\s*(http|https|ftp|ftps|itmss)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,6}(\/[^\s,;]*)?)$/g; // copy from datadoc
+    return URL_REGEXP.test(string);
 }

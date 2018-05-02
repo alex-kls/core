@@ -164,7 +164,7 @@ function getTextHeight(font) {
             result.height = blockRect.top - textRect.top;
 
             result.descent = result.height - result.ascent;
-
+            result.offset = text.offsetHeight;
         } finally {
             document.body.removeChild(div);
         }

@@ -12,7 +12,7 @@ var Localization = require('../lib/Localization');
  */
 var Textfield = CellEditor.extend('Textfield', {
 
-    template: '<input type="text" lang="{{locale}}" class="hypergrid-textfield" style="{{style}}">',
+    template: '<textarea lang="{{locale}}" class="hypergrid-textfield" style="{{style}}">',
 
     initialize: function() {
         this.input.style.textAlign = this.event.properties.halign;
