@@ -48,10 +48,12 @@ var LinkDetails = Feature.extend('LinkDetails', {
     handleClick: function(grid, event) {
         this.hideLinkDetails(detailsHolderDiv);
 
-        if (event.properties.link) {
+        if (event.properties.link || (event.properties.detectLinksPermanently && event.isValueUrl)) {
+            const linkToDisplay = event.properties.link ? event.properties.link : event.value;
+
             this.paintLinkDetails(detailsHolderDiv,
                 grid,
-                event.properties.link,
+                linkToDisplay,
                 event.bounds.x,
                 event.bounds.y);
             if (this.next) {
@@ -76,6 +78,16 @@ var LinkDetails = Feature.extend('LinkDetails', {
 
         if (this.next) {
             this.next.handleWheelMoved(grid, event);
+        }
+    },
+
+    handleMouseMove: function(grid, event) {
+        let link = event.properties.link,
+            isActionableLink = (link && typeof link !== 'boolean') || (event.properties.detectLinksPermanently && event.isValueUrl); // actionable with truthy other than `true`
+        this.cursor = isActionableLink ? 'pointer' : null;
+
+        if (this.next) {
+            this.next.handleMouseMove(grid, event);
         }
     },
 

@@ -49,6 +49,20 @@ var defaults = {
      */
     useHeaders: true,
 
+    /**
+     * @desc If true, cells, that contains only url will be displayed as a link
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    detectLinksPermanently: true,
+
+    /**
+     * @desc Contains count of rows, that currently used as a headers
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
     fictiveHeaderRowsCount: 0,
 
     /**

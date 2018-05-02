@@ -11,6 +11,14 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
     },
 
     /**
+     * Shows cell value is a http/https url value
+     * @memberOf CellEvent#
+     */
+    isValueUrl: {
+        get: function() { return isStringUrl(this.value); },
+    },
+
+    /**
      * An object representing the whole data row, including hidden columns.
      * @type {object}
      * @memberOf CellEvent#
@@ -742,3 +750,12 @@ function shallowClone(obj) {
 }
 
 module.exports = factory;
+
+function isStringUrl(string) {
+    if (!string) {
+        return false;
+    }
+
+    const regexp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)/;
+    return regexp.test(string);
+}

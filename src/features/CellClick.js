@@ -9,10 +9,8 @@ var Feature = require('./Feature');
 var CellClick = Feature.extend('CellClick', {
 
     handleMouseMove: function(grid, event) {
-        let link = event.properties.link,
-            isActionableLink = (link && typeof link !== 'boolean') || this.isAggregationTotalCell(event); // actionable with truthy other than `true`
-
-        this.cursor = isActionableLink ? 'pointer' : null;
+        let isActionableCell = this.isAggregationTotalCell(event);
+        this.cursor = isActionableCell ? 'pointer' : null;
 
         if (this.next) {
             this.next.handleMouseMove(grid, event);
