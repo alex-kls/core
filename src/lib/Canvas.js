@@ -69,7 +69,16 @@ function Canvas(div, component) {
         self.finkeyup(e);
     });
     document.addEventListener('mousedown', e => {
-        self.finMouseDownOutside(e);
+        if (this.canvas) {
+            const canvasRect = this.canvas.getBoundingClientRect();
+
+            if (!(event.clientX > canvasRect.x
+                && event.clientY > canvasRect.y
+                && event.clientX < (canvasRect.x + canvasRect.width)
+                && event.clientY < (canvasRect.y + canvasRect.height))) {
+                self.finMouseDownOutside(e);
+            }
+        }
     });
 
     this.canvas.onmouseover = function() {
@@ -389,7 +398,7 @@ Canvas.prototype = {
         });
         this.takeFocus();
 
-        e.stopPropagation();
+        // e.stopPropagation();
     },
 
     finMouseDownOutside: function(e) {
