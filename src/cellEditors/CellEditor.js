@@ -31,10 +31,7 @@ var CellEditor = Base.extend('CellEditor', {
 
         this.event = options;
 
-        var value = grid.behavior.getValue(this.event);
-        if (value instanceof Array) {
-            value = value[1]; //it's a nested object
-        }
+        var value = grid.getFormatter(options.format)(this.event.value, this.event);
 
         /**
          * my instance of hypergrid
@@ -475,6 +472,8 @@ var CellEditor = Base.extend('CellEditor', {
         if (top + height > canvasHeight) {
             top -= top + height - canvasHeight;
         }
+
+        width += selectionRegionBorderWidth;
 
         Object.assign(style, { left: px(left), top: px(top), width: px(width), height: px(height) });
     },
