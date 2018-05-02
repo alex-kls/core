@@ -713,8 +713,6 @@ FinBar.prototype = {
             this.onBarVisibilityChanged(this.mountDiv.style.visibility === 'visible');
         }
 
-        // console.log('this.gridPropertiesObject.' + oh.gridOffsetProperty, this.gridPropertiesObject[oh.gridOffsetProperty])
-
         /**
          * @private
          * @name _thumbMax

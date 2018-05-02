@@ -123,7 +123,7 @@ var RowFixation = Feature.extend('RowFixation', {
      */
     moveDragger: function(grid, x, y, movePlaceholderNeeded) {
         movePlaceholderNeeded = typeof movePlaceholderNeeded !== 'undefined' ? movePlaceholderNeeded : true;
-        console.log(y + grid.canvas.size.top);
+        grid.log(y + grid.canvas.size.top);
         rowFixationDragger.style.top = y + grid.canvas.size.top + 'px';
 
         if (movePlaceholderNeeded) {

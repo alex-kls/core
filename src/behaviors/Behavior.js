@@ -1136,7 +1136,7 @@ var Behavior = Base.extend('Behavior', {
      * of visible columns and all columns are equal
      */
     moveColumns: function(from, len, target, broadcastEvent = true, givenHiddenColumns = false) {
-        console.log('moveColumns called with params', from, len, target, broadcastEvent, givenHiddenColumns);
+        this.log('moveColumns called with params', from, len, target, broadcastEvent, givenHiddenColumns);
         const columns = this.columns;
 
         const visibleColDefs = this.grid.visibleColumnDefs;
@@ -1173,13 +1173,13 @@ var Behavior = Base.extend('Behavior', {
                 let currentColumnIndex = columns.indexOf(columnWithSameColDef);
                 columns.splice(targetColumnIndex, 0, columns.splice(currentColumnIndex, 1)[0]);
 
-                console.log(`Column with index ${currentColumnIndex} moved to ${targetColumnIndex}`);
+                this.log(`Column with index ${currentColumnIndex} moved to ${targetColumnIndex}`);
             }
 
             let currentColDefIndex = colDefs.indexOf(colDef);
             colDefs.splice(target, 0, colDefs.splice(currentColDefIndex, 1)[0]);
 
-            console.log(`ColDef with index ${currentColDefIndex} moved to ${target}`);
+            this.log(`ColDef with index ${currentColDefIndex} moved to ${target}`);
         });
 
         if (broadcastEvent) {
@@ -1380,6 +1380,10 @@ var Behavior = Base.extend('Behavior', {
 
     getSelections: function() {
         return this.grid.selectionModel.getSelections();
+    },
+
+    log: function() {
+      this.grid.log(...arguments);
     },
 });
 

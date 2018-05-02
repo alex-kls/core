@@ -189,7 +189,8 @@ var Hypergrid = Base.extend('Hypergrid', {
             'getContextMenuItems',
             'onAggregatedCellClick',
             'onCtrlAndZ',
-            'onCtrlShiftAndZ'
+            'onCtrlShiftAndZ',
+            'logEnable',
         ].forEach(k => {
             this[k] = options[k] || this[k];
         });
@@ -1998,7 +1999,13 @@ var Hypergrid = Base.extend('Hypergrid', {
     getFieldsErrorsMessage: function() {
         const fields = Object.keys(this.behavior.getColumnsErrors());
         return `The following fields have possible errors: ${fields.join(', ')}. Please review them before saving your data.`;
-    }
+    },
+
+    log() {
+        if (this.logEnable) {
+            console.log(...arguments);
+        }
+    },
 });
 
 

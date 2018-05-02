@@ -321,12 +321,16 @@ exports.mixin = {
                         copyIncludeHeaders = false;
                     }
                 }
-                if (copyIncludeHeaders && column.colDef) {
-                    let header = column.colDef.headerName;
-                    if (column.colDef.headerPrefix) {
-                        header = `${column.colDef.headerPrefix} ${header}`;
+                if (copyIncludeHeaders) {
+                    if (column.colDef) {
+                        let header = column.colDef.headerName;
+                        if (column.colDef.headerPrefix) {
+                            header = `${column.colDef.headerPrefix} ${header}`;
+                        }
+                        values.unshift(header);
+                    } else {
+                        values.unshift('');
                     }
-                    values.unshift(column.colDef ? header : '');
                 }
             }
 
@@ -609,7 +613,7 @@ exports.mixin = {
             y2 = y1;
         }
 
-        this.selectionModel.selectRow(Math.min(y1, y2), Math.max(y1, y2));
+        this.selectionModel.selectRow(y1, y2);
     },
 
     selectRowsFromCells: function() {

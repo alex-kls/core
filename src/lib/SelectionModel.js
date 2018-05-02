@@ -98,6 +98,46 @@ SelectionModel.prototype = {
         this.lastSelectionType = type;
     },
 
+    checkCellTop: function(x, y1) {
+        const dm = this.grid.behavior.dataModel;
+        if (dm.isRenderSkipNeeded(x, y1) && dm.getRowspan(x, y1 - 1) > 0) { // check if expand available
+            let yOffset = y1;
+            while (dm.isRenderSkipNeeded(x, yOffset) && yOffset > 0) {
+                --yOffset;
+            }
+            y1 = yOffset;
+        }
+        return y1;
+    },
+
+    checkCellBottom: function(x, y2) {
+        let span = this.grid.behavior.dataModel.getRowspan(x, y2);
+        if (span > 0) {
+            y2 += span; // just add rowspan if it available
+        }
+        return y2;
+    },
+
+    checkCellLeft: function(x1, y) {
+        const dm = this.grid.behavior.dataModel;
+        if (dm.isRenderSkipNeeded(x1, y) && dm.getColspan(x1 - 1, y) > 0) { // check if expand available
+            let xOffset = x1;
+            while (dm.isRenderSkipNeeded(xOffset, y) && xOffset > 0) {
+                --xOffset;
+            }
+            x1 = xOffset;
+        }
+        return x1;
+    },
+
+    checkCellRight: function(x2, y) {
+        let span = this.grid.behavior.dataModel.getColspan(x2, y);
+        if (span > 0) {
+            x2 += span; // just add colspan if it available
+        }
+        return x2;
+    },
+
     checkSelectionCorners: function(ox, oy, ex, ey) {
         let x1 = ox, x2 = ox + ex, swapX = x1 > x2;
         let y1 = oy, y2 = oy + ey, swapY = y1 > y2;
@@ -109,44 +149,24 @@ SelectionModel.prototype = {
             y2 = [y1, y1 = y2][0];
         }
 
-        const dm = this.grid.behavior.dataModel;
-
         // check top cells
         for (let x = x1; x <= x2; ++x) {
-            if (dm.isRenderSkipNeeded(x, y1) && dm.getRowspan(x, y1 - 1) > 0) { // check if expand available
-                let yOffset = y1;
-                while (dm.isRenderSkipNeeded(x, yOffset) && yOffset > 0) {
-                    --yOffset;
-                }
-                y1 = yOffset;
-            }
+            y1 = this.checkCellTop(x, y1);
         }
 
         // check bottom cells
         for (let x = x1; x <= x2; ++x) {
-            let span = dm.getRowspan(x, y2);
-            if (span > 0) {
-                y2 += span; // just add rowspan if it available
-            }
+            y2 = this.checkCellBottom(x, y2);
         }
 
         // check left cells
         for (let y = y1; y <= y2; ++y) {
-            if (dm.isRenderSkipNeeded(x1, y) && dm.getColspan(x1 - 1, y) > 0) { // check if expand available
-                let xOffset = x1;
-                while (dm.isRenderSkipNeeded(xOffset, y) && xOffset > 0) {
-                    --xOffset;
-                }
-                x1 = xOffset;
-            }
+            x1 = this.checkCellLeft(x1, y);
         }
 
         // check right cells
         for (let y = y1; y <= y2; ++y) {
-            let span = dm.getColspan(x2, y);
-            if (span > 0) {
-                x2 += span; // just add colspan if it available
-            }
+            x2 = this.checkCellRight(x2, y);
         }
 
         if (swapX) {
@@ -185,7 +205,7 @@ SelectionModel.prototype = {
         const newSelection = this.grid.newRectangle(ox, oy, ex, ey);
 
         //Cache the first selected cell before it gets normalized to top-left origin
-        newSelection.firstSelectedCell = this.grid.newPoint(_ox, _oy);
+        newSelection.firstSelectedCell = this.grid.newPoint(this.checkCellLeft(_ox, _oy), this.checkCellTop(_ox, _oy));
 
         newSelection.lastSelectedCell = (
             newSelection.firstSelectedCell.x === newSelection.origin.x &&
@@ -440,6 +460,16 @@ SelectionModel.prototype = {
         if (x2 === undefined) {
             x2 = x1;
         }
+
+        // rewrite if merged cells will be not first cell in row
+        if (x1 <= x2) {
+            x1 = this.checkCellLeft(x1, 0);
+            x2 = this.checkCellRight(x2, 0);
+        } else {
+            x1 = this.checkCellRight(x1, 0);
+            x2 = this.checkCellLeft(x2, 0);
+        }
+
         this.columnSelectionModel.select(x1, x2);
         this.select(x1, 0, x2 - x1, this.grid.getRowCount() - 1);
         this.grid.selectColDefsForApi();
@@ -476,6 +506,19 @@ SelectionModel.prototype = {
      * @param y2
      */
     selectRow: function(y1, y2) {
+        if (y2 === undefined) {
+            y2 = y1;
+        }
+
+        // rewrite if merged cells will be not first cell in row
+        if (y1 <= y2) {
+            y1 = this.checkCellTop(0, y1);
+            y2 = this.checkCellBottom(0, y2);
+        } else {
+            y1 = this.checkCellBottom(0, y1);
+            y2 = this.checkCellTop(0, y2);
+        }
+
         this.rowSelectionModel.select(y1, y2);
         this.select(0, y1, this.grid.getColumnCount() - 1, y2 - y1);
         this.grid.selectColDefsForApi();

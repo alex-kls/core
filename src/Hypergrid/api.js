@@ -228,38 +228,38 @@ const rangeController = {
 
 const gridPanel = {
     resetVerticalScrollPosition: function() {
-        console.log('resetVerticalScrollPosition');
+        this.log('resetVerticalScrollPosition');
         this.vScrollValue = 0;
     },
     setVerticalScrollPosition: function(value) {
-        console.log('setVerticalScrollPosition');
+        this.log('setVerticalScrollPosition');
         this.vScrollValue = value;
     },
     getVerticalScrollPosition: function() {
-        console.log('getVerticalScrollPosition');
+        this.log('getVerticalScrollPosition');
         return this.vScrollValue;
     },
     resetHorizontalScrollPosition: function() {
-        console.log('resetHorizontalScrollPosition');
+        this.log('resetHorizontalScrollPosition');
         this.hScrollValue = 0;
     },
     setHorizontalScrollPosition: function(value) {
-        console.log('setHorizontalScrollPosition');
+        this.log('setHorizontalScrollPosition');
         this.hScrollValue = value;
     },
     getHorizontalScrollPosition: function() {
-        console.log('getHorizontalScrollPosition');
+        this.log('getHorizontalScrollPosition');
         return this.hScrollValue;
     }
 };
 
 const columnController = {
     getAllGridColumns: function() {
-        console.log('getAllGridColumns');
+        this.log('getAllGridColumns');
         return this.getActiveColumns();
     },
     updateDisplayedColumns: function() {
-        console.log('updateDisplayedColumns');
+        this.log('updateDisplayedColumns');
     }
 };
 
@@ -267,22 +267,22 @@ const floatingRowModel = {
     floatingTopRows: [],
     flattenStage: {
         execute: function(rootNode) {
-            console.log(rootNode);
+            this.log(rootNode);
         }
     },
     setExpanded: function(id, expanded) {
-        console.log(id, expanded);
+        this.log(id, expanded);
     }
 };
 
 const virtualPageRowModel = {
     virtualPageCache: {
         updateAllRowTopFromIndexes: function() {
-            console.log('updateAllRowTopFromIndexes');
+            this.log('updateAllRowTopFromIndexes');
         }
     },
     getRow: function(rowIndex, dontCreatePage) {
-        console.log('getRow', rowIndex, dontCreatePage);
+        this.log('getRow', rowIndex, dontCreatePage);
     }
 };
 
@@ -332,13 +332,13 @@ function setColumnDefs(colDefs) {
     //     return;
     // }
 
-    console.log('setColumnDefs', colDefs);
+    this.log('setColumnDefs', colDefs);
 
     this.columnDefs = colDefs;
     this.visibleColumnDefs = getVisibleColDefs(this.columnDefs);
 
     const schema = convertColDefs.call(this, this.visibleColumnDefs);
-    console.log('schema', schema);
+    this.log('schema', schema);
     const firstRowsData = schema.data;
     let data = this.behavior.getData();
 
@@ -368,7 +368,7 @@ function setColumnDefs(colDefs) {
         this.api.needColumnsToFit = true;
     }
 
-    console.log('schema.schema', schema.schema);
+    this.log('schema.schema', schema.schema);
 
     this.behavior.setData({
         data: data,
@@ -380,7 +380,7 @@ function setColumnDefs(colDefs) {
 }
 
 function setRowData(rowData) {
-    console.log('setRowData', rowData);
+    this.log('setRowData', rowData);
 
     // todo remove this in future
     if (rowData.length === 1000 && this.behavior.grid.properties.useHeaders) {
@@ -397,7 +397,7 @@ function setRowData(rowData) {
 }
 
 function sizeColumnsToFit() {
-    console.log('sizeColumnsToFit');
+    this.log('sizeColumnsToFit');
 
     if (this.api.needColumnsToFit) {
         this.behavior.fitColumns();
@@ -412,7 +412,7 @@ function sizeColumnsToFit() {
 }
 
 function destroy(total) {
-    console.log('destroy', total);
+    this.log('destroy', total);
 
     this.cancelEditing();
 
@@ -441,28 +441,28 @@ function destroy(total) {
 }
 
 function getRangeSelections() {
-    console.log('getRangeSelections');
+    this.log('getRangeSelections');
     return this.getSelections().map(s => ({ start: { rowIndex: s.left, column: s.top }, end: { rowIndex: s.right, column: s.bottom } }));
 }
 
 function copySelectedRangeToClipboard(includeHeaders) {
-    console.log('copySelectedRangeToClipboard', includeHeaders);
+    this.log('copySelectedRangeToClipboard', includeHeaders);
     this.copyIncludeHeaders = includeHeaders;
     document.execCommand('copy');
     delete this.copyIncludeHeaders;
 }
 
 function getSelectedColumns() {
-    console.log('getSelectedColumns');
+    this.log('getSelectedColumns');
     return this.api.rangeController.selectedCols;
 }
 
 function getModel() {
-    console.log('getModel');
+    this.log('getModel');
     return {
         rowsToDisplay: [],
         getRow: function() {
-            console.log('getRow');
+            this.log('getRow');
         }
     };
 }
@@ -473,57 +473,57 @@ function applyProperties(newProps) {
 }
 
 function refreshView() {
-    console.log('refreshView');
+    this.log('refreshView');
     this.repaint();
 }
 
 function removeItems(rowNodes) {
-    console.log('removeItems', rowNodes);
+    this.log('removeItems', rowNodes);
 
 }
 
 function insertItemsAtIndex(index, items) {
-    console.log('insertItemsAtIndex', index, items);
+    this.log('insertItemsAtIndex', index, items);
 }
 
 function clearRangeSelection() {
-    console.log('clearRangeSelection');
+    this.log('clearRangeSelection');
     this.clearSelections();
     this.repaint();
 }
 
 function clearFocusedCell() {
-    console.log('clearFocusedCell');
+    this.log('clearFocusedCell');
     this.clearMostRecentSelection();
     this.repaint();
 }
 
 function getFloatingTopRowData() {
-    console.log('getFloatingTopRowData');
+    this.log('getFloatingTopRowData');
 }
 
 function getFloatingTopRowCount() {
-    console.log('getFloatingTopRowCount');
+    this.log('getFloatingTopRowCount');
 }
 
 function showNoRowsOverlay() {
-    console.log('showNoRowsOverlay');
+    this.log('showNoRowsOverlay');
 }
 
 function hideOverlay() {
-    console.log('hideOverlay');
+    this.log('hideOverlay');
 }
 
 function refreshCells(rowNodes, colIds, animate) {
-    console.log('refreshCells', rowNodes, colIds, animate);
+    this.log('refreshCells', rowNodes, colIds, animate);
 }
 
 function setFloatingTopRowDataForInMemoryModel(rows) {
-    console.log('setFloatingTopRowDataForInMemoryModel', rows);
+    this.log('setFloatingTopRowDataForInMemoryModel', rows);
 }
 
 function setDatasource(datasource) {
-    console.log('setDatasource', datasource);
+    this.log('setDatasource', datasource);
     this.api.datasource = datasource;
 
     const startRow = this.data.length || 0;
@@ -533,7 +533,7 @@ function setDatasource(datasource) {
             startRow: startRow, // replace with correct getter
             endRow: startRow + this.paginationPageSize, // replace with correct getter
             successCallback: (rows, lastRowIndex) => {
-                console.log('successCallback', rows, lastRowIndex);
+                this.log('successCallback', rows, lastRowIndex);
 
                 // todo remove this in future
                 if (startRow === 0 && rows.length === 1000) {
@@ -544,7 +544,7 @@ function setDatasource(datasource) {
                 this.addData({ data: rows });
             },
             failCallback: function() {
-                console.log('failCallback');
+                this.log('failCallback');
                 this.addData({ data: [] });
             },
             sortModel: datasource.sortModel,
@@ -557,20 +557,20 @@ function setDatasource(datasource) {
 }
 
 function onGroupExpandedOrCollapsed(refreshFromIndex) {
-    console.log('onGroupExpandedOrCollapsed', refreshFromIndex);
+    this.log('onGroupExpandedOrCollapsed', refreshFromIndex);
 }
 
 function getSortModel() {
-    console.log('getSortModel');
+    this.log('getSortModel');
     return [];
 }
 
 function doLayout() {
-    // console.log('doLayout');
+    // this.log('doLayout');
 }
 
 function refreshInMemoryRowModel() {
-    console.log('refreshInMemoryRowModel');
+    this.log('refreshInMemoryRowModel');
 }
 
 function attachLinkToDataCell(x, y, link) {
