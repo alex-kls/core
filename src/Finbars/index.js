@@ -4,6 +4,7 @@
 /* eslint-env node, browser */
 
 var cssInjector = require('css-injector');
+var lastY, lastX;
 
 /**
  * @constructor FinBar
@@ -614,6 +615,11 @@ FinBar.prototype = {
 
         if (this.deltaProp !== null) {
             container.addEventListener('wheel', this._bound.onwheel);
+            container.addEventListener('touchmove', this._bound.ontouchmove);
+            container.addEventListener('touchend', () => {
+                lastY = null;
+                lastX = null;
+            });
         }
 
         return this;
@@ -848,6 +854,29 @@ var handlersToBeBound = {
             key = orientationHashes[key === orientationHashes.horizontal.delta ? 'vertical' : 'horizontal'].delta;
         }
         this.index += evt[key];
+        evt.stopPropagation();
+        evt.preventDefault();
+    },
+
+    ontouchmove: function(evt) {
+        if (this._orientation === 'horizontal') {
+            let currentX = evt.touches[0].clientX;
+
+            if (lastX) {
+                this.index += (lastX - currentX);
+            }
+
+            lastX = currentX;
+        } else if (this._orientation === 'vertical') {
+            let currentY = evt.touches[0].clientY;
+
+            if (lastY) {
+                this.index += (lastY - currentY);
+            }
+
+            lastY = currentY;
+        }
+
         evt.stopPropagation();
         evt.preventDefault();
     },
