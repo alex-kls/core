@@ -1919,7 +1919,9 @@ var defaults = {
      */
     linkDetailsAnchorStyle: {
         color: '#15c',
-        textDecoration: 'none'
+        textDecoration: 'none',
+        lineHeight: '19px',
+        fontFamily: 'Arial,sans-serif'
     },
 
     /**
