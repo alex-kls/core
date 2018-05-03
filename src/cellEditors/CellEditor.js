@@ -221,8 +221,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @desc display the editor
      */
     showEditor: function() {
-        var rowFont = this.event.rowProperties.font ? this.event.rowProperties.font : this.event.properties.font;
-        Object.assign(this.el.style, { display: 'inline', font: rowFont, resize: 'none' });
+        Object.assign(this.el.style, { display: 'inline'});
     },
 
     /**
@@ -436,46 +435,52 @@ var CellEditor = Base.extend('CellEditor', {
      * @param {Rectangle} cellBounds - the bounds to move to
      */
     setBounds: function(cellBounds) {
-        const { maximumColumnWidth, selectionRegionBorderWidth } = this.grid.properties;
+        const { selectionRegionBorderWidth } = this.grid.properties;
         const { gc, width: canvasWidth, height: canvasHeight } = this.grid.canvas;
-
-        let style = this.el.style;
+        let { style } = this.el;
+        const rowFont = this.event.rowProperties.font || this.event.properties.font;
 
         let left = cellBounds.x;
-        let top = cellBounds.y - selectionRegionBorderWidth;
-        gc.cache.font = this.event.rowProperties.font ? this.event.rowProperties.font : this.event.properties.font;
-        // additional width and height because of inner padding and border
-        let width = gc.getTextWidth(this.initialValue) + 12;
-        let height = cellBounds.height + 2;
 
+        const maximumColumnWidth = canvasWidth - left;
+
+        gc.cache.font = rowFont;
+        // additional width because of inner padding and border
+        let width = gc.getTextWidth(this.initialValue) + 12;
+
+        // correct width if it too much
         if (!width || width < cellBounds.width) {
             width = cellBounds.width + selectionRegionBorderWidth;
         }
-
-        if (width > maximumColumnWidth + selectionRegionBorderWidth) {
-            height += gc.getTextHeight(gc.cache.font).offset * (Math.ceil(width / maximumColumnWidth) - 1);
-            width = maximumColumnWidth + selectionRegionBorderWidth;
+        if (width > maximumColumnWidth) {
+            width = maximumColumnWidth;
         }
 
-        if (width > canvasWidth) {
-            width = canvasWidth;
-        }
-
+        // move to left if it needed
         if (left + width > canvasWidth) {
-            left -= left + width - canvasWidth;
-        }
-
-        if (height > canvasHeight) {
-            height = canvasHeight;
-        }
-
-        if (top + height > canvasHeight) {
-            top -= top + height - canvasHeight;
+            left = canvasWidth - width;
         }
 
         width += selectionRegionBorderWidth;
 
-        Object.assign(style, { left: px(left), top: px(top), width: px(width), height: px(height) });
+        Object.assign(style, {left: px(left), width: px(width), font: rowFont, resize: 'none'});
+
+        // additional height because of inner padding and border
+        let height = this.el.scrollHeight + 2;
+        let top = cellBounds.y - selectionRegionBorderWidth;
+        const maximumColumnHeight = canvasHeight - top;
+
+        // correct height if it too mush
+        if (height > maximumColumnHeight) {
+            height = maximumColumnHeight;
+        }
+
+        // move to top if it needed
+        if (top + height > canvasHeight) {
+            top = canvasHeight - height;
+        }
+
+        Object.assign(style, { top: px(top), height: px(height) });
     },
 
     /**
