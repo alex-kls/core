@@ -71,6 +71,7 @@ function FinBar(options) {
         bar.onclick = bound.onclick;
     }
     bar.appendChild(thumb);
+    bar.ontouchstart = this._bound.onbartouchstart;
 
     options = options || {};
 
@@ -898,16 +899,37 @@ var handlersToBeBound = {
         this._addEvt('mousemove');
         this._addEvt('mouseup');
 
-        var mouseOverThumb = thumbBox.left <= evt.clientX && evt.clientX <= thumbBox.right &&
-            thumbBox.top <= evt.clientY && evt.clientY <= thumbBox.bottom,
+        this._bound._performCursorDown(evt);
+
+        evt.stopPropagation();
+        evt.preventDefault();
+    },
+
+    onbartouchstart: function(evt) {
+        var thumbBox = this.thumb.getBoundingClientRect();
+        this.pinOffset = evt.touches[0][this.oh.coordinate] - thumbBox[this.oh.leading] + this.bar.getBoundingClientRect()[this.oh.leading] + this._thumbMarginLeading;
+        document.documentElement.style.cursor = 'default';
+
+        this._addEvt('touchend');
+        this._addEvt('touchmove');
+
+        this._bound._performCursorDown(evt.touches[0]);
+
+        evt.stopPropagation();
+        evt.preventDefault();
+    },
+
+    _performCursorDown: function(coordsObject) {
+        let thumbBox = this.thumb.getBoundingClientRect();
+        let mouseOverThumb = thumbBox.left <= coordsObject.clientX && coordsObject.clientX <= thumbBox.right &&
+            thumbBox.top <= coordsObject.clientY && coordsObject.clientY <= thumbBox.bottom,
             mouseOverThumbCenter = false,
             goingUp = false,
             incrementValue = 0;
 
         if (!mouseOverThumb) {
-            goingUp = evt[this.oh.coordinate] < thumbBox[this.oh.leading];
+            goingUp = coordsObject[this.oh.coordinate] < thumbBox[this.oh.leading];
 
-            // this.index += goingUp ? -this.increment : this.increment;
             if (typeof this.paging === 'object') {
                 this.index = this.paging[goingUp ? 'up' : 'down'](Math.round(this.index));
             } else {
@@ -923,42 +945,36 @@ var handlersToBeBound = {
 
                 self._mouseHoldPerformInterval = setInterval(function() {
                     thumbBox = self.thumb.getBoundingClientRect();
-                    mouseOverThumb = thumbBox.left <= evt.clientX && evt.clientX <= thumbBox.right &&
-                        thumbBox.top <= evt.clientY && evt.clientY <= thumbBox.bottom;
+                    mouseOverThumb = thumbBox.left <= coordsObject.clientX && coordsObject.clientX <= thumbBox.right &&
+                        thumbBox.top <= coordsObject.clientY && coordsObject.clientY <= thumbBox.bottom;
 
                     var thumbCenterLeadingSide = (thumbBox[self.oh.leading] + thumbBox[self.oh.size]/3);
                     var thumbCenterTrailingSide = (thumbBox[self.oh.trailing] - thumbBox[self.oh.size]/3);
                     mouseOverThumbCenter = mouseOverThumb
-                        && (thumbCenterLeadingSide <= evt[self.oh.coordinate])
-                        && (thumbCenterTrailingSide >= evt[self.oh.coordinate]);
+                        && (thumbCenterLeadingSide <= coordsObject[self.oh.coordinate])
+                        && (thumbCenterTrailingSide >= coordsObject[self.oh.coordinate]);
 
                     // goingUp value changed only if thumb not in cursor yet.
                     // Otherwise we can think, that scroll continuous and goingUp don't need to be changed
                     if (!mouseOverThumb) {
-                        goingUp = evt[self.oh.coordinate] < thumbBox[self.oh.leading];
+                        goingUp = coordsObject[self.oh.coordinate] < thumbBox[self.oh.leading];
                     }
 
                     incrementValue = goingUp ? -self.increment : self.increment;
 
                     if (self.isMouseHoldOverBar && !mouseOverThumbCenter) {
-                        if (goingUp && (evt[self.oh.coordinate] <= thumbCenterLeadingSide)
+                        if (goingUp && (coordsObject[self.oh.coordinate] <= thumbCenterLeadingSide)
                             && ((self.index + incrementValue) <= 0)) {
                             self.index = 0;
                         } else {
                             self.index += incrementValue;
                         }
-
-                        // self.paging[goingUp ? 'up' : 'down'](Math.round(self.index));
-                        // self.index = self.paging[goingUp ? 'up' : 'down'](Math.round(self.index));
                     }
                 }, this.mouseHoldPerformIntervalRate);
             }, 200);
         } else if(!this.isMouseHoldOverBar){
             this.isThumbDragging = true;
         }
-
-        evt.stopPropagation();
-        evt.preventDefault();
     },
 
     onmousemove: function(evt) {
@@ -1010,6 +1026,8 @@ var handlersToBeBound = {
         this.isThumbTouchDragging = false;
         this.lastContainerTouchMovePos = null;
         this.lastThumbTouchMovePos = null;
+
+        this.performMouseHoldEnd();
 
         this._removeEvt('touchend');
         this._removeEvt('touchmove');
