@@ -6,8 +6,8 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @memberOf CellEvent#
      */
     value: {
-        get: function() { return this.subgrid.getValue(this.dataCell.x, this.dataCell.y); },
-        set: function(value) { this.subgrid.setValue(this.dataCell.x, this.dataCell.y, value); }
+        get: function() { return this.subgrid.getValue(this.valueCell.x, this.valueCell.y); },
+        set: function(value) { this.subgrid.setValue(this.valueCell.x, this.valueCell.y, value); }
     },
 
     /**
@@ -48,7 +48,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @memberOf CellEvent#
      */
     isRenderSkipNeeded: {
-        get: function() { return this.subgrid.isRenderSkipNeeded(this.dataCell.x, this.dataCell.y); }
+        get: function() { return this.subgrid.isRenderSkipNeeded(this.valueCell.x, this.valueCell.y); }
     },
 
     /**
@@ -68,7 +68,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
     },
 
     cellData: {
-        get: function() { return this.subgrid._getDataRowObject(this.dataCell.x, this.dataCell.y); }
+        get: function() { return this.subgrid._getDataRowObject(this.valueCell.x, this.valueCell.y); }
     },
 
     /**
@@ -154,7 +154,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         get: function() {
             let props = shallowClone(this.cellOwnProperties || this.columnProperties);
 
-            this._cellOwnDefinedProperties = this._cellOwnDefinedProperties || this.subgrid.getDefinedCellProperties(this.dataCell.x, this.dataCell.y);
+            this._cellOwnDefinedProperties = this._cellOwnDefinedProperties || this.subgrid.getDefinedCellProperties(this.valueCell.x, this.valueCell.y);
 
             if (props && typeof props === 'object' &&
                 this._cellOwnDefinedProperties && typeof this._cellOwnDefinedProperties === 'object' &&
@@ -214,31 +214,42 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
     } },
 
     // special method for use by renderer which reuses cellEvent object for performance reasons
-    reset: { value: function(visibleColumn, visibleRow) {
-        // getter caches
-        this._columnProperties = undefined;
-        this._cellOwnProperties = undefined;
-        this._cellOwnDefinedProperties = undefined;
-        this._bounds = undefined;
+    reset: {
+        value: function(visibleColumn, visibleRow) {
+            // getter caches
+            this._columnProperties = undefined;
+            this._cellOwnProperties = undefined;
+            this._cellOwnDefinedProperties = undefined;
+            this._bounds = undefined;
 
-        // partial render support
-        this.snapshot = [];
-        this.minWidth = undefined;
-        // this.disabled = undefined;
+            // partial render support
+            this.snapshot = [];
+            this.minWidth = undefined;
+            // this.disabled = undefined;
 
-        this.visibleColumn = visibleColumn;
-        this.visibleRow = visibleRow;
+            this.visibleColumn = visibleColumn;
+            this.visibleRow = visibleRow;
 
-        this.subgrid = visibleRow.subgrid;
+            this.subgrid = visibleRow.subgrid;
 
-        this.column = visibleColumn.column; // enumerable so will be copied to cell renderer object
+            this.column = visibleColumn.column; // enumerable so will be copied to cell renderer object
 
-        this.gridCell.x = visibleColumn.columnIndex;
-        this.gridCell.y = visibleRow.index;
+            this.gridCell.x = visibleColumn.columnIndex;
+            this.gridCell.y = visibleRow.index;
 
-        this.dataCell.x = this.column && this.column.index;
-        this.dataCell.y = visibleRow.rowIndex;
-    } },
+            this.valueCell.x = this.dataCell.x = this.column && this.column.index;
+            this.valueCell.y = this.dataCell.y = visibleRow.rowIndex;
+
+            if (this.isRenderSkipNeeded) {
+                if (this.valueCell.x > 1 && !this.grid.isColumnVisible(this.valueCell.x - 1)) {
+                    this.valueCell.x = this.grid.selectionModel.checkCellLeft(this.valueCell.x, this.valueCell.y);
+                }
+                if (this.valueCell.y > 0 && !this.grid.isDataRowVisible(this.valueCell.y - 1)) {
+                    this.valueCell.y = this.grid.selectionModel.checkCellTop(this.valueCell.x, this.valueCell.y);
+                }
+            }
+        }
+    },
 
     /**
      * Set up this `CellEvent` instance to point to the cell at the given grid coordinates.
@@ -701,6 +712,15 @@ function factory(grid) {
              * @memberOf CellEvent#
              */
             dataCell: {
+                value: new WritablePoint
+            },
+
+            /**
+             * @name valueCell
+             * @type {dataCellCoords}
+             * @memberOf CellEvent#
+             */
+            valueCell: {
                 value: new WritablePoint
             },
 

@@ -1508,15 +1508,6 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @desc Note that "viewable rows" includes any partially viewable rows.
-     * @returns {number} The number of viewable rows.
-     */
-    getVisibleRows: function() {
-        return this.renderer.getVisibleRows();
-    },
-
-    /**
-     * @memberOf Hypergrid#
      * @desc Note that "viewable columns" includes any partially viewable columns.
      * @returns {number} The number of viewable columns.
      */
