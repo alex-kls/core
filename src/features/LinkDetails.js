@@ -88,10 +88,6 @@ var LinkDetails = Feature.extend('LinkDetails', {
     },
 
     handleMouseMove: function(grid, event) {
-        // let link = event.properties.link,
-        //     isActionableLink = (link && typeof link !== 'boolean') || (event.properties.detectLinksPermanently && event.isValueUrl); // actionable with truthy other than `true`
-        // this.cursor = isActionableLink ? 'pointer' : null;
-
         if (!detailsShownOnDataCell
             || detailsShownOnDataCell.x !== event.gridCell.x
             || detailsShownOnDataCell.y !== event.gridCell.y) {

@@ -1313,12 +1313,12 @@ var defaults = {
      */
     linkColorOnHover: false,
 
-    /** @summary Will be used to stringify links array on render
+    /** @summary Will be used to stringify array on render
      * @type {string}
      * @default
      * @memberOf module:defaults
      */
-    linksArrayDivider: '; ',
+    arrayDivider: ', ',
 
     /** Display cell font with strike-through line drawn over it.
      * @type {boolean}

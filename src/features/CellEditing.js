@@ -48,10 +48,14 @@ var CellEditing = Feature.extend('CellEditing', {
             editor = grid.onEditorActivate(cellEvent);
 
             if (editor instanceof CellEditor) {
-                if (isVisibleChar) {
-                    editor.input.value = char;
-                } else if (isDeleteChar) {
-                    editor.setEditorValue('');
+                const neededVisibilityProp = cellEvent.isDataRow ? 'editable' : 'filterable';
+                const isEditable = cellEvent.rowProperties[neededVisibilityProp] || cellEvent.properties[neededVisibilityProp];
+                if (isEditable) {
+                    if (isVisibleChar) {
+                        editor.input.value = char;
+                    } else if (isDeleteChar) {
+                        editor.setEditorValue('');
+                    }
                 }
                 event.detail.primitiveEvent.preventDefault();
             }

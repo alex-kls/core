@@ -435,9 +435,10 @@ var CellEditor = Base.extend('CellEditor', {
      * @param {Rectangle} cellBounds - the bounds to move to
      */
     setBounds: function(cellBounds) {
+        console.log('setBounds', this.el.value, this.initialValue);
         const { selectionRegionBorderWidth } = this.grid.properties;
         const { gc, width: canvasWidth, height: canvasHeight } = this.grid.canvas;
-        let { style } = this.el;
+        const { style } = this.el;
         const rowFont = this.event.rowProperties.font || this.event.properties.font;
 
         let left = cellBounds.x;
@@ -466,7 +467,7 @@ var CellEditor = Base.extend('CellEditor', {
         Object.assign(style, {left: px(left), width: px(width), font: rowFont, resize: 'none'});
 
         // additional height because of inner padding and border
-        let height = this.el.scrollHeight + 2;
+        let height = (width === maximumColumnWidth + selectionRegionBorderWidth ? this.el.scrollHeight : cellBounds.height) + 2;
         let top = cellBounds.y - selectionRegionBorderWidth;
         const maximumColumnHeight = canvasHeight - top;
 

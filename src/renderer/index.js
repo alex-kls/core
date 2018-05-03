@@ -1335,7 +1335,7 @@ var Renderer = Base.extend('Renderer', {
         }
 
         if (Array.isArray(value)) {
-            value = value.join(config.linksArrayDivider);
+            value = `[${value.join(config.arrayDivider)}]`;
         }
 
         config.isSelected = isSelected;
