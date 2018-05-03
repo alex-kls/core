@@ -1288,7 +1288,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    linkOnHover: true,
+    linkOnHover: false,
 
     /** @summary Color for link.
      * @desc Falsy means defer to foreground color.
@@ -1296,7 +1296,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    linkColor: '#337ab7',
+    linkColor: '#15c',
 
     /** @summary Color for visited link.
      * @desc Falsy means defer to foreground color.
@@ -1304,7 +1304,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    linkVisitedColor: '#337ab7',
+    linkVisitedColor: '#15c',
 
     /** @summary Color link on hover only.
      * @type {boolean}
@@ -1881,8 +1881,35 @@ var defaults = {
         borderRadius: '1px',
         padding: '5px 7px',
         zIndex: 1030,
-        fontSize: '14px'
+        fontSize: '13px'
     },
+
+    /**
+     * @desc style object of an div, that contains link info, when mouse moved over it
+     * @default
+     * @type {Object}
+     * @memberOf module:defaults
+     */
+    linkDetailsHoveredStyle: {
+        boxShadow: '0 0 2px 0 rgba(0,0,0,.15), 0 2px 2px 0 rgba(0,0,0,.4)'
+    },
+
+    /**
+     * @desc Maximum length of link, that will be displayed on link details popover.
+     * If length of string greater than this value, value will be truncated
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    linkDetailsMaxStringLength: 30,
+
+    /**
+     * @desc Link details hide timeout in milliseconds
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    linkDetailsHideTimeout: 1000,
 
     /**
      * @desc style object of an link info anchor tag
@@ -1891,7 +1918,7 @@ var defaults = {
      * @memberOf module:defaults
      */
     linkDetailsAnchorStyle: {
-        color: '#337ab7',
+        color: '#15c',
         textDecoration: 'none'
     },
 
