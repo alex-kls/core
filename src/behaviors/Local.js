@@ -83,7 +83,7 @@ var Local = Behavior.extend('Local', {
                     newColumn.schema.format = newColumn.name;
                     const options = {
                         name: newColumn.name,
-                        format: (value, config) => (config === undefined) ? value : columnSchema.formatter(value, config.dataRow), // called for render view
+                        format: columnSchema.formatter, // called for render view
                         parse: value => value, // called for render value in editor
                         locale: 'en'
                     };
@@ -111,7 +111,6 @@ var Local = Behavior.extend('Local', {
         const props = column.properties;
 
         let width = column.width || props.defaultColumnWidth;
-        const formatter = this.grid.getFormatter(column.name);
 
         // get max width based of
         data.forEach((d, i) => {
@@ -168,7 +167,7 @@ var Local = Behavior.extend('Local', {
                 }
 
                 gc.cache.font = dataProps.font;
-                widths.val = gc.getTextWidth(formatter(val, Object.assign({}, dataProps, { dataRow: d }))) + props.cellPaddingLeft;
+                widths.val = gc.getTextWidth(this.grid.formatValue(column.name, val, dataProps.headerRow)) + props.cellPaddingLeft;
 
                 // console.log('widths', val, widths);
                 let textWidth = Object.values(widths).reduce((a, b) => a + b, 0);
@@ -529,7 +528,7 @@ var Local = Behavior.extend('Local', {
      * @param {number} y - the row index of interest
      */
     getRow: function(y) {
-        return this.deprecated('getRow(y)', 'dataModel.getRow(y)', '3.0.0', arguments, 'We removed grid.getRow(y) and grid.behavior.getRow(). If you are determined to call getRow, call it on the data model directily. However, calling .getRow(y) is not recommended; always try to use .getValue(x, y) instead. See https://github.com/fin-hypergrid/core/wiki/getRow(y)-and-getData()-(ab)use for more information');
+        return this.dataModel.getRow(y);
     },
 
     /**

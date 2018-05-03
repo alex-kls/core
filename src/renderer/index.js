@@ -1334,10 +1334,6 @@ var Renderer = Base.extend('Renderer', {
             }
         }
 
-        if (Array.isArray(value)) {
-            value = `[${value.join(config.arrayDivider)}]`;
-        }
-
         config.isSelected = isSelected;
         config.isDataColumn = !isRowHandleOrHierarchyColumn;
         config.isHandleColumn = isHandleColumn;

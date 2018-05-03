@@ -31,7 +31,7 @@ var CellEditor = Base.extend('CellEditor', {
 
         this.event = options;
 
-        var value = grid.getFormatter(options.format)(this.event.value, this.event);
+        var value = this.event.value;
 
         /**
          * my instance of hypergrid
@@ -212,8 +212,12 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     setEditorValue: function(value) {
+        value = this.localizer.format(value, this.event.rowProperties.headerRow);
+        if (Array.isArray(value)) {
+            value = `[${value.join(', ')}]`;
+        }
         value = typeof value !== 'undefined' && typeof value !== 'object' ? value : '';
-        this.input.value = this.localizer.format(value);
+        this.input.value = value;
     },
 
     /**
@@ -435,7 +439,6 @@ var CellEditor = Base.extend('CellEditor', {
      * @param {Rectangle} cellBounds - the bounds to move to
      */
     setBounds: function(cellBounds) {
-        console.log('setBounds', this.el.value, this.initialValue);
         const { selectionRegionBorderWidth } = this.grid.properties;
         const { gc, width: canvasWidth, height: canvasHeight } = this.grid.canvas;
         const { style } = this.el;

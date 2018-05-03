@@ -24,7 +24,7 @@ function getFormatter(colDef) {
         let formatter = f;
         if (formatter && typeof formatter !== 'string') {
             const update = formatter.prototype.update ? formatter.prototype.update : formatter;
-            formatter = (value, row) => update({ colDef, value, data: row, column: colDef });
+            formatter = value => update({ colDef, value, column: colDef });
         }
         return formatter;
     };
@@ -32,15 +32,16 @@ function getFormatter(colDef) {
     let dataFormatter = formatterMapper(colDef && colDef.cellRenderer);
     let headerFormatter = formatterMapper(colDef && colDef.headerCellRenderer);
 
-    const checker = (func, ...args) => {
-        return (func && typeof func === 'function') ? func(...args) : args[0];
-    };
+    const checker = (func, ...args) => (func && typeof func === 'function') ? func(...args) : args[0];
 
-    return (value, row) => {
-        if (row && row.__META && row.__META.__ROW && row.__META.__ROW.headerRow) {
-            return checker(headerFormatter, value, row);
+    return (value, isHeader) => {
+        if (typeof isHeader === 'object') {
+            isHeader = isHeader.rowProperties ? isHeader.rowProperties.headerRow : isHeader.headerRow;
         }
-        return checker(dataFormatter, value, row);
+        if (typeof isHeader !== 'boolean') {
+            isHeader = false;
+        }
+        return checker(isHeader ? headerFormatter : dataFormatter, value);
     };
 }
 
@@ -444,7 +445,7 @@ function destroy(total) {
 
 function getRangeSelections() {
     this.log('getRangeSelections');
-    return this.getSelections().map(s => ({ start: { rowIndex: s.left, column: s.top }, end: { rowIndex: s.right, column: s.bottom } }));
+    return this.getSelections();
 }
 
 function copySelectedRangeToClipboard(includeHeaders) {

@@ -592,11 +592,9 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.localization.get(localizerName).format;
     },
 
-    formatValue: function(localizerName, value) {
-        var formatter = this.getFormatter(localizerName);
-        return formatter(value);
+    formatValue: function(localizerName, value, isHeader) {
+        return value ? this.getFormatter(localizerName)(value, isHeader) : '';
     },
-
 
     /**
      * @memberOf Hypergrid#
@@ -1961,7 +1959,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.behavior.lookupFeature(key);
     },
     getRow: function(y) {
-        return this.deprecated('getRow(y)', 'behavior.dataModel.getRow(y)', '3.0.0', arguments, 'We removed grid.getRow(y) and grid.behavior.getRow(). If you are determined to call getRow, call it on the data model directily. However, calling .getRow(y) is not recommended; always try to use .getValue(x, y) instead. See https://github.com/fin-hypergrid/core/wiki/getRow(y)-and-getData()-(ab)use for more information.');
+        return this.behavior.getRow(y);
     },
 
     newPoint: function(x, y) {

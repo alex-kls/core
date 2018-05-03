@@ -96,7 +96,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @memberOf CellEvent#
      */
     formattedValue: {
-        get: function() { return this.grid.formatValue(this.properties.format, this.value); }
+        get: function() { return this.grid.formatValue(this.properties.format, this.value, this.rowProperties.headerRow); }
     },
 
     /**

@@ -1313,13 +1313,6 @@ var defaults = {
      */
     linkColorOnHover: false,
 
-    /** @summary Will be used to stringify array on render
-     * @type {string}
-     * @default
-     * @memberOf module:defaults
-     */
-    arrayDivider: ', ',
-
     /** Display cell font with strike-through line drawn over it.
      * @type {boolean}
      * @default

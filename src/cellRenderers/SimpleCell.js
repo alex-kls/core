@@ -55,6 +55,10 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         if (renderValue) {
             val = config.formatValue(val, config);
 
+            if (Array.isArray(val)) {
+                val = `[${val.join(', ')}]`;
+            }
+
             textFont = config.isSelected ? config.foregroundSelectionFont : config.font;
 
             textColor = gc.cache.strokeStyle = config.isSelected

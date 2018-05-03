@@ -323,12 +323,21 @@ exports.mixin = {
                             val = `${colProps.colDef.headerPrefix} ${val}`;
                         }
 
-                        return val;
+                        return val.trim();
                     }
                 };
 
                 for (let r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
-                    values[r] = behavior.getRowProperties(y).headerRow ? getHeaderValue(x, y) : dataModel.getValue(x, y) || '';
+                    if (behavior.getRowProperties(y).headerRow) {
+                        values[r] = getHeaderValue(x, y);
+                    } else {
+                        let val = dataModel.getValue(x, y);
+                        if (val) {
+                            values[r] = this.formatValue(dataModel.getColumnName(x), val, false);
+                        } else {
+                            values[r] = '';
+                        }
+                    }
                 }
 
                 if (this.copyIncludeHeaders) {
