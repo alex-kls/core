@@ -4,7 +4,7 @@
 /* eslint-env node, browser */
 
 var cssInjector = require('css-injector');
-var lastY, lastX;
+// var lastContainerTouchMovePos;
 
 /**
  * @constructor FinBar
@@ -47,6 +47,7 @@ function FinBar(options) {
     thumb.onclick = bound.shortStop;
     thumb.onmouseover = bound.onmouseover;
     thumb.onmouseout = this._bound.onmouseout;
+    thumb.ontouchstart = this._bound.onthumbtouchstart;
 
     /**
      * @name bar
@@ -217,6 +218,10 @@ FinBar.prototype = {
      */
     isMouseHoldOverBar: false,
 
+    lastContainerTouchMovePos: null,
+
+    lastThumbTouchMovePos: null,
+
     /**
      * @summary interval which used when mouse hold scroll performed
      * @desc table will be scrolled on one full page with this interval until mouse hold ends
@@ -248,6 +253,14 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     isThumbDragging: true,
+
+    /**
+     * @private
+     * @summary flag to detect that user start touch move over thumb, and scroll need to be placed based on mouse position
+     * @type {boolean}
+     * @memberOf FinBar.prototype
+     */
+    isThumbTouchDragging: false,
 
     /**
      * @private
@@ -616,10 +629,7 @@ FinBar.prototype = {
         if (this.deltaProp !== null) {
             container.addEventListener('wheel', this._bound.onwheel);
             container.addEventListener('touchmove', this._bound.ontouchmove);
-            container.addEventListener('touchend', () => {
-                lastY = null;
-                lastX = null;
-            });
+            container.addEventListener('touchstart', this._bound.ontouchstart);
         }
 
         return this;
@@ -858,29 +868,6 @@ var handlersToBeBound = {
         evt.preventDefault();
     },
 
-    ontouchmove: function(evt) {
-        if (this._orientation === 'horizontal') {
-            let currentX = evt.touches[0].clientX;
-
-            if (lastX) {
-                this.index += (lastX - currentX);
-            }
-
-            lastX = currentX;
-        } else if (this._orientation === 'vertical') {
-            let currentY = evt.touches[0].clientY;
-
-            if (lastY) {
-                this.index += (lastY - currentY);
-            }
-
-            lastY = currentY;
-        }
-
-        evt.stopPropagation();
-        evt.preventDefault();
-    },
-
     onclick: function(evt) {
         var self = this;
         this.thumb.addEventListener('transitionend', function waitForIt() {
@@ -994,6 +981,61 @@ var handlersToBeBound = {
         this._removeEvt('mouseup');
 
         document.documentElement.style.cursor = 'auto';
+
+        evt.stopPropagation();
+        evt.preventDefault();
+    },
+
+    ontouchstart: function(evt) {
+        this.lastContainerTouchMovePos = null;
+    },
+
+    onthumbtouchstart: function(evt) {
+        var thumbBox = this.thumb.getBoundingClientRect();
+        let currentMovePos = evt.touches[0][this.oh.coordinate];
+        this.pinOffset = currentMovePos - thumbBox[this.oh.leading] + this.bar.getBoundingClientRect()[this.oh.leading] + this._thumbMarginLeading;
+
+        this.isThumbTouchDragging = true;
+        this.lastThumbTouchMovePos = currentMovePos;
+        this.lastContainerTouchMovePos = null;
+
+        this._addEvt('touchend');
+        this._addEvt('touchmove');
+
+        evt.stopPropagation();
+        evt.preventDefault();
+    },
+
+    ontouchend: function(evt) {
+        this.isThumbTouchDragging = false;
+        this.lastContainerTouchMovePos = null;
+        this.lastThumbTouchMovePos = null;
+
+        this._removeEvt('touchend');
+        this._removeEvt('touchmove');
+
+        evt.stopPropagation();
+        evt.preventDefault();
+    },
+
+    ontouchmove: function(evt) {
+        if (this.isThumbTouchDragging) {
+            let currentMovePos = evt.touches[0][this.oh.coordinate];
+
+            let scaled = Math.min(this._thumbMax, Math.max(0, currentMovePos - this.pinOffset));
+            let idx = scaled / this._thumbMax * (this._max - this._min) + this._min;
+
+            this._setScroll(idx, scaled);
+            this.lastThumbTouchMovePos = currentMovePos;
+        } else {
+            let currentMovePos = evt.touches[0][this.oh.coordinate];
+
+            if (this.lastContainerTouchMovePos) {
+                this.index += (this.lastContainerTouchMovePos - currentMovePos);
+            }
+
+            this.lastContainerTouchMovePos = currentMovePos;
+        }
 
         evt.stopPropagation();
         evt.preventDefault();
