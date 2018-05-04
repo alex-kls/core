@@ -51,36 +51,6 @@ function Canvas(div, component) {
     this.bounds = new rectangular.Rectangle(0, 0, 0, 0);
     this.hasMouse = false;
 
-    document.addEventListener('mousemove', function(e) {
-        if (self.hasMouse || self.isDragging()) {
-            self.finmousemove(e);
-        }
-    });
-    document.addEventListener('mouseup', function(e) {
-        self.finmouseup(e);
-    });
-    document.addEventListener('wheel', function(e) {
-        self.finwheelmoved(e);
-    });
-    document.addEventListener('keydown', function(e) {
-        self.finkeydown(e);
-    });
-    document.addEventListener('keyup', function(e) {
-        self.finkeyup(e);
-    });
-    document.addEventListener('mousedown', e => {
-        if (this.canvas) {
-            const canvasRect = this.canvas.getBoundingClientRect();
-
-            if (!(event.clientX > canvasRect.x
-                && event.clientY > canvasRect.y
-                && event.clientX < (canvasRect.x + canvasRect.width)
-                && event.clientY < (canvasRect.y + canvasRect.height))) {
-                self.finMouseDownOutside(e);
-            }
-        }
-    });
-
     this.canvas.onmouseover = function() {
         self.hasMouse = true;
     };
@@ -147,6 +117,45 @@ Canvas.prototype = {
 
     addEventListener: function(name, callback) {
         this.canvas.addEventListener(name, callback);
+    },
+
+    toggleDocumentEventListeners: function(isEnable) {
+        const listeners = {
+            mousemove: e => {
+                if (this.hasMouse || this.isDragging()) {
+                    this.finmousemove(e);
+                }
+            },
+            mouseup: e => {
+                this.finmouseup(e);
+            },
+            wheel: e => {
+                this.finwheelmoved(e);
+            },
+            keydown: e => {
+                this.finkeydown(e);
+            },
+            keyup: e => {
+                this.finkeyup(e);
+            },
+            mousedown: e => {
+                if (this.canvas) {
+                    const canvasRect = this.canvas.getBoundingClientRect();
+
+                    if (canvasRect.x !== canvasRect.y && canvasRect.width !== canvasRect.height &&
+                        !(event.clientX > canvasRect.x
+                        && event.clientY > canvasRect.y
+                        && event.clientX < (canvasRect.x + canvasRect.width)
+                        && event.clientY < (canvasRect.y + canvasRect.height))) {
+                        this.finMouseDownOutside(e);
+                    }
+                }
+            }
+        };
+
+        Object.keys(listeners).forEach(eventType => {
+            document[`${isEnable ? 'add' : 'remove'}EventListener`](eventType, listeners[eventType]);
+        });
     },
 
     removeEventListener: function(name, callback) {
@@ -221,6 +230,7 @@ Canvas.prototype = {
     start: function() {
         this.beginPainting();
         this.beginResizing();
+        this.toggleDocumentEventListeners(true);
     },
 
     stop: function() {

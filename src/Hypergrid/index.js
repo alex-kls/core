@@ -1077,9 +1077,11 @@ var Hypergrid = Base.extend('Hypergrid', {
         } else if (!Array.isArray(cursorName)) {
             cursorName = [cursorName];
         }
-        cursorName.forEach(function(name) {
-            this.cursor = name;
-        }, this.div.style);
+        if (this.div) {
+            cursorName.forEach(function(name) {
+                this.cursor = name;
+            }, this.div.style);
+        }
     },
 
     /**
