@@ -1320,7 +1320,10 @@ var Renderer = Base.extend('Renderer', {
             value = cellEvent.value;
             if (value && typeof value === 'object' && value.type === 'ERROR') {
                 config.foregroundSelectionColor = config.color = config.errorCellDataColor;
-                // value = config.emptyCellPlaceholder;
+            }
+            if (value === null) {
+                config.foregroundSelectionColor = config.color = config.nullCellColor;
+                value = config.nullCellPlaceholder;
             }
         } else {
             if (isDataRow) {

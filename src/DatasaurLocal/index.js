@@ -301,7 +301,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     getDefinedCellProperties: function(x, y) {
         let foundedDataRowValue = this._getDataRowObject(x, y).foundedValue;
 
-        if (typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.properties) {
+        if (foundedDataRowValue !== null && typeof foundedDataRowValue === 'object' && !!foundedDataRowValue.properties) {
             return foundedDataRowValue.properties;
         } else {
             return {};

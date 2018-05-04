@@ -2288,6 +2288,16 @@ var defaults = {
      * @memberOf module:defaults
      */
     ignoreValuePostfix: false,
+
+    /**
+     * @summary placeholder for drawing null values
+     */
+    nullCellPlaceholder: 'Ø',
+
+    /**
+     * @summary color of placeholder for null values
+     */
+    nullCellColor: '#d4d4d4',
 };
 
 
