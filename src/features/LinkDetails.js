@@ -3,7 +3,7 @@
 
 var Feature = require('./Feature');
 
-var detailsHolderDiv;
+var detailsHolderElement;
 var detailsShownOnDataCell = null;
 
 var detailsHideTimeout = null;
@@ -19,8 +19,8 @@ var LinkDetails = Feature.extend('LinkDetails', {
      * @param {Hypergrid} grid
      */
     initializeOn: function(grid) {
-        if (!detailsHolderDiv) {
-            detailsHolderDiv = this.initializeLinkDetailsDiv();
+        if (!detailsHolderElement) {
+            detailsHolderElement = this.initializeLinkDetailsDiv();
         }
 
         if (this.next) {
@@ -32,19 +32,18 @@ var LinkDetails = Feature.extend('LinkDetails', {
      * @desc utility method to initialize div, that contains link info
      */
     initializeLinkDetailsDiv: function() {
-        var holderDiv = document.createElement('div');
+        var holderElement = document.createElement('a');
 
-        holderDiv.style.display = 'none';
-        holderDiv.style.position = 'absolute';
-        holderDiv.setAttribute('class', 'fin-link-details-div');
+        holderElement.style.display = 'none';
+        holderElement.setAttribute('class', 'fin-link-details-div');
 
-        document.body.appendChild(holderDiv);
+        document.body.appendChild(holderElement);
 
-        return holderDiv;
+        return holderElement;
     },
 
     onApiDestroyCalled: function(grid, event) {
-        this.hideLinkDetails(grid, detailsHolderDiv);
+        this.hideLinkDetails(grid, detailsHolderElement);
 
         if (this.next) {
             this.next.onApiDestroyCalled(grid, event);
@@ -52,7 +51,7 @@ var LinkDetails = Feature.extend('LinkDetails', {
     },
 
     handleCanvasOutsideMouseDown: function(grid, event) {
-        this.hideLinkDetails(grid, detailsHolderDiv);
+        this.hideLinkDetails(grid, detailsHolderElement);
 
         if (this.next) {
             this.next.handleCanvasOutsideMouseDown(grid, event);
@@ -65,7 +64,11 @@ var LinkDetails = Feature.extend('LinkDetails', {
      * @param {CellEvent} event
      */
     handleClick: function(grid, event) {
-        this.hideLinkDetails(grid, detailsHolderDiv);
+        if (detailsShownOnDataCell
+            && (detailsShownOnDataCell.x !== event.gridCell.x
+                || detailsShownOnDataCell.y !== event.gridCell.y)) {
+            this.hideLinkDetails(grid, detailsHolderElement);
+        }
 
         if (this.next) {
             this.next.handleClick(grid, event);
@@ -80,7 +83,7 @@ var LinkDetails = Feature.extend('LinkDetails', {
      * @comment Not really private but was cluttering up all the feature doc pages.
      */
     handleWheelMoved: function(grid, event) {
-        this.hideLinkDetails(grid, detailsHolderDiv);
+        this.hideLinkDetails(grid, detailsHolderElement);
 
         if (this.next) {
             this.next.handleWheelMoved(grid, event);
@@ -92,18 +95,18 @@ var LinkDetails = Feature.extend('LinkDetails', {
             || detailsShownOnDataCell.x !== event.gridCell.x
             || detailsShownOnDataCell.y !== event.gridCell.y) {
             if (event.properties.link || (event.properties.detectLinksPermanently && event.isValueUrl)) {
-                this.hideLinkDetails(grid, detailsHolderDiv);
+                this.hideLinkDetails(grid, detailsHolderElement);
 
                 const linkToDisplay = event.properties.link ? event.properties.link : event.value;
 
-                this.paintLinkDetails(detailsHolderDiv,
+                this.paintLinkDetails(detailsHolderElement,
                     grid,
                     linkToDisplay,
                     event.bounds);
 
                 detailsShownOnDataCell = event.gridCell;
             } else if (detailsShownOnDataCell) {
-                this.hideLinkDetailsTimeouted(grid, detailsHolderDiv);
+                this.hideLinkDetailsTimeouted(grid, detailsHolderElement);
             }
         }
 
@@ -115,13 +118,13 @@ var LinkDetails = Feature.extend('LinkDetails', {
     /**
      * @memberOf LinkDetails.prototype
      * @desc utility method to paint context menu based on click event, and position params
-     * @param {HTMLElement} linkDetailsHolderDiv - Html element that contains details
+     * @param {HTMLElement} linkDetailsHolderElement - Html element that contains details
      * @param {Hypergrid} grid
      * @param {array|string} linkValue - link that need to be detailed
      * @param {object} cellBounds - defines bounds of cell cell
      */
-    paintLinkDetails: function(linkDetailsHolderDiv, grid, linkValue, cellBounds) {
-        this.hideLinkDetails(grid, linkDetailsHolderDiv);
+    paintLinkDetails: function(linkDetailsHolderElement, grid, linkValue, cellBounds) {
+        this.hideLinkDetails(grid, linkDetailsHolderElement);
 
         let links = linkValue;
         if (!Array.isArray(linkValue)) {
@@ -136,6 +139,8 @@ var LinkDetails = Feature.extend('LinkDetails', {
                 Object.assign(detailsLink.style, grid.properties.linkDetailsAnchorStyle);
             }
 
+            linkDetailsHolderElement.href = l;
+            linkDetailsHolderElement.target = '_blank';
 
             detailsLink.href = l;
             let truncatedLink = this.truncateString(l, grid.properties.linkDetailsMaxStringLength, '...');
@@ -148,20 +153,20 @@ var LinkDetails = Feature.extend('LinkDetails', {
             detailsLink.appendChild(detailsLinkIcon);
 
             outerDiv.appendChild(detailsLink);
-            linkDetailsHolderDiv.appendChild(outerDiv);
-            linkDetailsHolderDiv.onmouseover = function(){
-                Object.assign(linkDetailsHolderDiv.style, grid.properties.linkDetailsHoveredStyle);
+            linkDetailsHolderElement.appendChild(outerDiv);
+            linkDetailsHolderElement.onmouseover = function(){
+                Object.assign(linkDetailsHolderElement.style, grid.properties.linkDetailsHoveredStyle);
             };
-            linkDetailsHolderDiv.onmouseout = function(){
-                Object.assign(linkDetailsHolderDiv.style, grid.properties.linkDetailsStyle);
+            linkDetailsHolderElement.onmouseout = function(){
+                Object.assign(linkDetailsHolderElement.style, grid.properties.linkDetailsStyle);
             };
         });
 
         if (grid.properties.linkDetailsStyle) {
-            Object.assign(linkDetailsHolderDiv.style, grid.properties.linkDetailsStyle);
+            Object.assign(linkDetailsHolderElement.style, grid.properties.linkDetailsStyle);
         }
 
-        this.showLinkDetails(grid, linkDetailsHolderDiv, cellBounds);
+        this.showLinkDetails(grid, linkDetailsHolderElement, cellBounds);
     },
 
     /**
@@ -169,13 +174,13 @@ var LinkDetails = Feature.extend('LinkDetails', {
      * @desc utility method to start show context menu on defined point.
      * @desc Menu must be formed before it will be passed to this method
      * @param {Hypergrid} grid
-     * @param {HTMLElement} linkDetailsHolderDiv - Html element that contains details
+     * @param {HTMLElement} linkDetailsHolderElement - Html element that contains details
      * @param {object} cellBounds - defines bounds of cell cell
      */
-    showLinkDetails: function(grid, linkDetailsHolderDiv, cellBounds) {
-        linkDetailsHolderDiv.style.display = 'block';
+    showLinkDetails: function(grid, linkDetailsHolderElement, cellBounds) {
+        linkDetailsHolderElement.style.display = 'block';
 
-        const holderComputedStyles = window.getComputedStyle(linkDetailsHolderDiv);
+        const holderComputedStyles = window.getComputedStyle(linkDetailsHolderElement);
 
         let startY, startX, bottomToTop = true;
 
@@ -192,19 +197,19 @@ var LinkDetails = Feature.extend('LinkDetails', {
             startX = cellBounds.x + grid.canvas.size.left + grid.properties.gridLinesVWidth;
         }
 
-        linkDetailsHolderDiv.style.top = startY + 'px';
-        linkDetailsHolderDiv.style.left = startX + 'px';
+        linkDetailsHolderElement.style.top = startY + 'px';
+        linkDetailsHolderElement.style.left = startX + 'px';
     },
 
     /**
      * @memberOf LinkDetails.prototype
      * @desc utility method to stop displaying context menu
      * @param {Hypergrid} grid
-     * @param {object} detailsHolderDiv - Html element that contains link info
+     * @param {object} detailsHolderElement - Html element that contains link info
      */
-    hideLinkDetails: function(grid, detailsHolderDiv) {
-        detailsHolderDiv.innerHTML = '';
-        detailsHolderDiv.style.display = 'none';
+    hideLinkDetails: function(grid, detailsHolderElement) {
+        detailsHolderElement.innerHTML = '';
+        detailsHolderElement.style.display = 'none';
         detailsShownOnDataCell = null;
         if (detailsHideTimeout) {
             clearTimeout(detailsHideTimeout);
@@ -216,12 +221,12 @@ var LinkDetails = Feature.extend('LinkDetails', {
      * @memberOf LinkDetails.prototype
      * @desc utility method to stop displaying context menu
      * @param {Hypergrid} grid
-     * @param {object} detailsHolderDiv - Html element that contains link info
+     * @param {object} detailsHolderElement - Html element that contains link info
      */
-    hideLinkDetailsTimeouted: function(grid, detailsHolderDiv) {
+    hideLinkDetailsTimeouted: function(grid, detailsHolderElement) {
         if (!detailsHideTimeout) {
             detailsHideTimeout = setTimeout(() => {
-                this.hideLinkDetails(grid, detailsHolderDiv);
+                this.hideLinkDetails(grid, detailsHolderElement);
             }, grid.properties.linkDetailsHideTimeout);
         }
     },

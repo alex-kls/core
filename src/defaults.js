@@ -1865,7 +1865,7 @@ var defaults = {
      * @memberOf module:defaults
      */
     linkDetailsStyle: {
-        cursor: 'default',
+        cursor: 'pointer',
         display: 'flex',
         flexFlow: 'column',
         position: 'absolute',
