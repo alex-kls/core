@@ -478,6 +478,11 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
 
     getColumnName: function(x) {
         return (typeof x)[0] === 'n' && this.schema[x] ? this.schema[x].name : x;
+    },
+
+    getRowsVithValuesCountByColumn: function(column) {
+        const columnName = this.getColumnName(column);
+        return this.data.filter(d => !!d[columnName]).length;
     }
 });
 

@@ -344,7 +344,7 @@ var CellSelection = Feature.extend('CellSelection', {
     handleCTRLa: function(grid) {
         const oldLastSelection = grid.selectionModel.getLastSelection();
         grid.clearMostRecentSelection();
-        grid.select(0, grid.properties.fictiveHeaderRowsCount, grid.getColumnCount(), grid.getRowCount());
+        grid.select(0, 0, grid.getColumnCount(), grid.getRowCount());
         const newLastSelection = grid.selectionModel.getLastSelection();
         newLastSelection.firstSelectedCell = oldLastSelection.firstSelectedCell;
         grid.repaint();
