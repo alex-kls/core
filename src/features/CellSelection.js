@@ -117,8 +117,7 @@ var CellSelection = Feature.extend('CellSelection', {
                 cellEvent.properties.mappedNavKey(detail.char, detail.ctrl) ||
                 cellEvent.properties.navKey(detail.char, detail.ctrl)
             ),
-            handler = this['handle' + navKey];
-
+            handler = (detail.ctrl && this['handleCTRL' + navKey]) ? this['handleCTRL' + navKey] : this['handle' + navKey];
 
         // STEP 1: Move the selection
         if (handler) {
@@ -290,7 +289,6 @@ var CellSelection = Feature.extend('CellSelection', {
         grid.repaint();
     },
 
-
     /**
      * @memberOf CellSelection.prototype
      * @param {Hypergrid} grid
@@ -337,6 +335,107 @@ var CellSelection = Feature.extend('CellSelection', {
 
         var count = this.getAutoScrollAcceleration();
         grid.moveSingleSelect(0, count);
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLa: function(grid) {
+        const oldLastSelection = grid.selectionModel.getLastSelection();
+        grid.clearMostRecentSelection();
+        grid.select(0, grid.properties.fictiveHeaderRowsCount, grid.getColumnCount(), grid.getRowCount());
+        const newLastSelection = grid.selectionModel.getLastSelection();
+        newLastSelection.firstSelectedCell = oldLastSelection.firstSelectedCell;
+        grid.repaint();
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLUP: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        if (lastSelection && lastSelection.origin.y > 0) {
+            grid.moveSingleSelect(0, - (lastSelection.corner.y - grid.properties.fictiveHeaderRowsCount));
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLDOWN: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        if (lastSelection && lastSelection.origin.y > 0) {
+            grid.moveSingleSelect(0, grid.getRowCount() - lastSelection.origin.y);
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLRIGHT: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        if (lastSelection) {
+            grid.moveSingleSelect((grid.getColumnCount() - lastSelection.origin.x), 0);
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLLEFT: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        if (lastSelection) {
+            grid.moveSingleSelect(-lastSelection.corner.x, 0);
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLUPSHIFT: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        if (lastSelection && lastSelection.origin.y > 0) {
+            this.moveShiftSelect(grid, 0, - (lastSelection.corner.y - grid.properties.fictiveHeaderRowsCount));
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLDOWNSHIFT: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        if (lastSelection && lastSelection.origin.y > 0) {
+            this.moveShiftSelect(grid, 0, grid.getRowCount() - lastSelection.origin.y);
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLRIGHTSHIFT: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        if (lastSelection) {
+            this.moveShiftSelect(grid, (grid.getColumnCount() - lastSelection.origin.x), 0);
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLLEFTSHIFT: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        if (lastSelection) {
+            this.moveShiftSelect(grid, -lastSelection.corner.x, 0);
+        }
     },
 
     /**

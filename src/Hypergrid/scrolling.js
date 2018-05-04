@@ -104,7 +104,7 @@ exports.mixin = {
         }
     },
 
-    scrollToMakeVisible: function(column, row) {
+    scrollToMakeVisible: function(column, row, repeat = true) {
         const { origin, corner } = this.renderer.dataWindow;
         const { fixedColumnCount, fixedRowCount } = this.properties;
 
@@ -145,35 +145,28 @@ exports.mixin = {
             delta = row - origin.y;
             // target is above scrollable rows; negative delta scrolls up
             if (delta < 0) {
-                pxDelta = 0;
-                for (let i = 0; i < Math.abs(delta) + 1; i++) {
-                    pxDelta += this.getRowHeight(origin.y - i);
+                const deltaPercent = (Math.abs(delta) + 1) / this.getRowCount();
+                pxDelta = this.sbVScroller._max * deltaPercent;
 
-                    if (this.properties.gridLinesH) {
-                        pxDelta += this.properties.gridLinesHWidth;
-                    }
-                }
                 this.sbVScroller.index -= pxDelta;
             }
 
             delta = row - corner.y;
-            // or target is below scrollable rows; positive delta scrolls down
             if (delta >= 0) {
-                pxDelta = 0;
-                // scroll more than just one cut row
-                for (let i = 0; i < Math.abs(delta) + 2; i++) {
-                    pxDelta += this.getRowHeight(corner.y + i);
+                const deltaPercent = (delta + 2) / this.getRowCount();
+                pxDelta = this.sbVScroller._max * deltaPercent;
 
-                    if (this.properties.gridLinesH) {
-                        pxDelta += this.properties.gridLinesHWidth;
-                    }
-                }
                 this.sbVScroller.index += pxDelta;
             }
         }
 
         if (this.sbVScroller.index <= this.getRowHeight(0)) {
             this.sbVScroller.index = 0;
+        }
+
+        // 04.05.2018 radev. ToDo: Need to be reworked.
+        if (repeat) {
+            this.scrollToMakeVisible(column, row, false);
         }
     },
 

@@ -608,9 +608,9 @@ FinBar.prototype = {
             }
         }
 
-        if (contentFullWidth) {
-            this.contentSize = contentFullWidth;
-        }
+        // if (contentFullWidth) {
+        //     this.contentSize = contentFullWidth;
+        // }
 
         this.containerSize = containerRect[this.oh.size];
         // this.increment = this.containerSize / (this.contentSize - this.containerSize) * (this._max - this._min);

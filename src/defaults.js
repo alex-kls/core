@@ -1874,7 +1874,8 @@ var defaults = {
         borderRadius: '1px',
         padding: '5px 7px',
         zIndex: 1030,
-        fontSize: '13px'
+        fontSize: '13px',
+        textDecoration: 'none',
     },
 
     /**
