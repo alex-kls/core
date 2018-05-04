@@ -46,7 +46,6 @@ function FinBar(options) {
     thumb.classList.add('thumb');
     thumb.onclick = bound.shortStop;
     thumb.onmouseover = bound.onmouseover;
-    thumb.onmouseout = this._bound.onmouseout;
     thumb.ontouchstart = this._bound.onthumbtouchstart;
 
     /**
@@ -72,7 +71,7 @@ function FinBar(options) {
     }
     bar.appendChild(thumb);
     bar.ontouchstart = this._bound.onbartouchstart;
-
+    bar.onmouseout = this._bound.onmouseout;
     options = options || {};
 
     /**
@@ -239,6 +238,8 @@ FinBar.prototype = {
      */
     _mouseHoldPerformInterval: 0,
 
+    _mouseHoldPerformIntervalCurrentCoordsObj: null,
+
     /**
      * @private
      * @summary utility field that contains timeout id, which used when moseHold processing starts
@@ -269,8 +270,9 @@ FinBar.prototype = {
      * @return {void}
      * @memberOf FinBar.prototype
      */
-    performMouseHoldEnd: function() {
+    performMouseHoldOverBarEnd: function() {
         this.isMouseHoldOverBar = false;
+        this._mouseHoldPerformIntervalCurrentCoordsObj = null;
         if (this._mouseHoldPerformInterval) {
             clearInterval(this._mouseHoldPerformInterval);
             this._mouseHoldPerformInterval = 0;
@@ -884,11 +886,11 @@ var handlersToBeBound = {
         // this.thumb.classList.add('hover');
     },
 
-    onmouseout: function() {
+    onmouseout: function(evt) {
         // 30.03.2017 - disable, cause GoogleDocs scrollbar not hovered
         // this.thumb.classList.remove('hover');
 
-        this.performMouseHoldEnd();
+        this.performMouseHoldOverBarEnd();
     },
 
     onmousedown: function(evt) {
@@ -914,6 +916,7 @@ var handlersToBeBound = {
         this._addEvt('touchmove');
 
         this._bound._performCursorDown(evt.touches[0]);
+        this._isLastTouchStartsOverBar = true;
 
         evt.stopPropagation();
         evt.preventDefault();
@@ -943,32 +946,39 @@ var handlersToBeBound = {
                 self.isMouseHoldOverBar = true;
                 self.isThumbDragging = false;
 
-                self._mouseHoldPerformInterval = setInterval(function() {
-                    thumbBox = self.thumb.getBoundingClientRect();
-                    mouseOverThumb = thumbBox.left <= coordsObject.clientX && coordsObject.clientX <= thumbBox.right &&
-                        thumbBox.top <= coordsObject.clientY && coordsObject.clientY <= thumbBox.bottom;
+                self._mouseHoldPerformIntervalCurrentCoordsObj = coordsObject;
 
-                    var thumbCenterLeadingSide = (thumbBox[self.oh.leading] + thumbBox[self.oh.size]/3);
-                    var thumbCenterTrailingSide = (thumbBox[self.oh.trailing] - thumbBox[self.oh.size]/3);
+                self._mouseHoldPerformInterval = setInterval(function() {
+                    const co = self._mouseHoldPerformIntervalCurrentCoordsObj;
+                    thumbBox = self.thumb.getBoundingClientRect();
+                    mouseOverThumb = thumbBox.left <= co.clientX && co.clientX <= thumbBox.right &&
+                        thumbBox.top <= co.clientY && co.clientY <= thumbBox.bottom;
+
+                    const thumbCenterLeadingSide = (thumbBox[self.oh.leading] + thumbBox[self.oh.size]/3);
+                    const thumbCenterTrailingSide = (thumbBox[self.oh.trailing] - thumbBox[self.oh.size]/3);
                     mouseOverThumbCenter = mouseOverThumb
-                        && (thumbCenterLeadingSide <= coordsObject[self.oh.coordinate])
-                        && (thumbCenterTrailingSide >= coordsObject[self.oh.coordinate]);
+                        && (thumbCenterLeadingSide <= co[self.oh.coordinate])
+                        && (thumbCenterTrailingSide >= co[self.oh.coordinate]);
 
                     // goingUp value changed only if thumb not in cursor yet.
                     // Otherwise we can think, that scroll continuous and goingUp don't need to be changed
                     if (!mouseOverThumb) {
-                        goingUp = coordsObject[self.oh.coordinate] < thumbBox[self.oh.leading];
+                        goingUp = co[self.oh.coordinate] < thumbBox[self.oh.leading];
                     }
 
                     incrementValue = goingUp ? -self.increment : self.increment;
 
                     if (self.isMouseHoldOverBar && !mouseOverThumbCenter) {
-                        if (goingUp && (coordsObject[self.oh.coordinate] <= thumbCenterLeadingSide)
+                        if (goingUp && (co[self.oh.coordinate] <= thumbCenterLeadingSide)
                             && ((self.index + incrementValue) <= 0)) {
                             self.index = 0;
                         } else {
                             self.index += incrementValue;
                         }
+                    }
+
+                    if (self.isMouseHoldOverBar && mouseOverThumbCenter) {
+                        self.performMouseHoldOverBarEnd();
                     }
                 }, this.mouseHoldPerformIntervalRate);
             }, 200);
@@ -985,12 +995,16 @@ var handlersToBeBound = {
             this._setScroll(idx, scaled);
         }
 
+        if (this.isMouseHoldOverBar) {
+            this._mouseHoldPerformIntervalCurrentCoordsObj = evt;
+        }
+
         evt.stopPropagation();
         evt.preventDefault();
     },
 
     onmouseup: function(evt) {
-        this.performMouseHoldEnd();
+        this.performMouseHoldOverBarEnd();
         this.isThumbDragging = false;
 
         this._removeEvt('mousemove');
@@ -1004,6 +1018,7 @@ var handlersToBeBound = {
 
     ontouchstart: function(evt) {
         this.lastContainerTouchMovePos = null;
+        this._isLastTouchStartsOverBar = false;
     },
 
     onthumbtouchstart: function(evt) {
@@ -1027,7 +1042,7 @@ var handlersToBeBound = {
         this.lastContainerTouchMovePos = null;
         this.lastThumbTouchMovePos = null;
 
-        this.performMouseHoldEnd();
+        this.performMouseHoldOverBarEnd();
 
         this._removeEvt('touchend');
         this._removeEvt('touchmove');
@@ -1045,7 +1060,7 @@ var handlersToBeBound = {
 
             this._setScroll(idx, scaled);
             this.lastThumbTouchMovePos = currentMovePos;
-        } else {
+        } else if (!this._isLastTouchStartsOverBar) {
             let currentMovePos = evt.touches[0][this.oh.coordinate];
 
             if (this.lastContainerTouchMovePos) {
@@ -1053,6 +1068,18 @@ var handlersToBeBound = {
             }
 
             this.lastContainerTouchMovePos = currentMovePos;
+        } else if (this._isLastTouchStartsOverBar) {
+            const boundsBox = this.bar.getBoundingClientRect();
+            const touchOverBar = boundsBox.left <= evt.touches[0].clientX && evt.touches[0].clientX <= boundsBox.right &&
+                boundsBox.top <= evt.touches[0].clientY && evt.touches[0].clientY <= boundsBox.bottom;
+
+            if (!touchOverBar) {
+                this.performMouseHoldOverBarEnd();
+            }
+        }
+
+        if (this._mouseHoldPerformIntervalCurrentCoordsObj) {
+            this._mouseHoldPerformIntervalCurrentCoordsObj = evt.touches[0];
         }
 
         evt.stopPropagation();
@@ -1109,6 +1136,19 @@ cssFinBars = 'div.finbar-horizontal,div.finbar-vertical{position:absolute;margin
 function error(msg) {
     throw 'finbars: ' + msg;
 }
+
+function mouseWithin(bounds,x,y) {
+    const offset = bounds.offset();
+    const l = offset.left;
+    const t = offset.top;
+    const h = bounds.height();
+    const w = bounds.width();
+
+    const maxx = l + w;
+    const maxy = t + h;
+
+    return (y <= maxy && y >= t) && (x <= maxx && x >= l);
+};
 
 // Interface
 module.exports = FinBar;
