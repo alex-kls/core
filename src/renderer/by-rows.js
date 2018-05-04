@@ -38,8 +38,8 @@ function paintCellsByRows(gc) {
         viewWidth = C ? visibleColumns[C - 1].right : 0,
         viewHeight = R ? visibleRows[R - 1].bottom : 0,
         drawLines = gridProps.gridLinesH,
-        lineWidth = gridProps.gridLinesHWidth,
-        lineColor = gridProps.gridLinesHColor;
+        lineWidth = gridProps.gridLinesWidth,
+        lineColor = gridProps.gridLinesColor;
 
     gc.clearRect(0, 0, this.bounds.width, this.bounds.height);
 

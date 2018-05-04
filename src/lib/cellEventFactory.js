@@ -15,7 +15,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @memberOf CellEvent#
      */
     isValueUrl: {
-        get: function() { return isValueUrl(this.value); },
+        get: function() { return this.subgrid.isValueUrl(this.value); },
     },
 
     /**
@@ -770,26 +770,3 @@ function shallowClone(obj) {
 }
 
 module.exports = factory;
-
-function isValueUrl(value) {
-    let result = false;
-    if (Array.isArray(value)) {
-        value.forEach(v => {
-            if (isStringUrl(v)) {
-                result = true;
-            }
-        });
-    } else {
-        result = isStringUrl(value);
-    }
-
-    return result;
-}
-
-function isStringUrl(string) {
-    if (!string) {
-        return false;
-    }
-    const URL_REGEXP = /^(\s*(http|https|ftp|ftps|itmss)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,6}(\/[^\s,;]*)?)$/g; // copy from datadoc
-    return URL_REGEXP.test(string);
-}

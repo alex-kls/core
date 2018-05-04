@@ -593,7 +593,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     formatValue: function(localizerName, value, isHeader) {
-        return value ? this.getFormatter(localizerName)(value, isHeader) : '';
+        return value !== undefined ? this.getFormatter(localizerName)(value, isHeader) : '';
     },
 
     /**
@@ -806,7 +806,8 @@ var Hypergrid = Base.extend('Hypergrid', {
         if (this.hasFocus() || this.menuClick) {
             event.preventDefault();
             var csvData = this.getSelectionAsTSV();
-            event.clipboardData.setData('text/plain', csvData);
+            event.clipboardData.setData('text/plain', csvData.text);
+            event.clipboardData.setData('text/html', csvData.html);
         }
     },
 

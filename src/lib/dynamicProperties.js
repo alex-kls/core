@@ -213,15 +213,15 @@ var dynamicPropertyDescriptors = {
     // The following grid line props are now dynamic (as of v2.1.0).
     // They're non-enumerable so they will not be output with `grid.saveState()`.
     // The new (as of 2.1.0) props they refer to are output instead:
-    // `gridLinesHColor`, `gridLinesVColor`, `gridLinesHWidth`, and `gridLinesVWidth`
+    // `gridLinesColor`, `gridLinesColor`, `gridLinesWidth`, and `gridLinesWidth`
     lineColor: {
-        get: function() { return this.gridLinesHColor; },
-        set: function(color) { this.gridLinesHColor = this.gridLinesVColor = color; }
+        get: function() { return this.gridLinesColor; },
+        set: function(color) { this.gridLinesColor = this.gridLinesColor = color; }
     },
 
     lineWidth: {
-        get: function() { return this.gridLinesHWidth; },
-        set: function(width) { this.gridLinesHWidth = this.gridLinesVWidth = width; }
+        get: function() { return this.gridLinesWidth; },
+        set: function(width) { this.gridLinesWidth = this.gridLinesWidth = width; }
     },
 
     gridBorder: getGridBorderDescriptor(),

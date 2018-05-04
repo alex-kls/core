@@ -370,8 +370,8 @@ exports.mixin = {
     getHScrollbarLeftMargin: function() {
         var res = 0;
         var visibleColumns = this.renderer.visibleColumns;
-        res -= this.properties.gridLinesV ? this.properties.gridLinesVWidth : 0;
-        res += this.properties.gridBorderLeft ? this.properties.gridLinesVWidth : 0;
+        res -= this.properties.gridLinesV ? this.properties.gridLinesWidth : 0;
+        res += this.properties.gridBorderLeft ? this.properties.gridLinesWidth : 0;
 
         var neededColumn = visibleColumns[this.behavior.rowColumnIndex];
         res += this.properties.rowHeaderNumbers && neededColumn
@@ -408,7 +408,7 @@ exports.mixin = {
         }
         res = row ? row.bottom : 0;
 
-        res -= this.properties.gridLinesH ? this.properties.gridLinesHWidth : 0;
+        res -= this.properties.gridLinesH ? this.properties.gridLinesWidth : 0;
 
         res += this.properties.fixedRowCount ? this.properties.fixedLinesHWidth : 0;
 

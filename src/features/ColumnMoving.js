@@ -281,8 +281,8 @@ const ColumnMoving = Feature.extend('ColumnMoving', {
         for (let i = 0; i < rowsToSkip; i++) {
             heightToSkip += grid.getRowHeight(i);
         }
-        if (grid.properties.gridLinesH && grid.properties.gridLinesHWidth) {
-            heightToSkip += grid.properties.gridLinesHWidth;
+        if (grid.properties.gridLinesH && grid.properties.gridLinesWidth) {
+            heightToSkip += grid.properties.gridLinesWidth;
         }
         colHeight -= heightToSkip;
 

@@ -54,9 +54,7 @@ exports.mixin = {
     getSelectionAsTSV: function() {
         var sm = this.selectionModel;
         if (sm.hasSelections()) {
-            var selections = this.getSelectionMatrix();
-            selections = selections[selections.length - 1];
-            return this.getMatrixSelectionAsTSV(selections);
+            return this.getMatrixSelectionAsTSV(this.getSelectionMatrix());
         } else if (sm.hasRowSelections()) {
             return this.getMatrixSelectionAsTSV(this.getRowSelectionMatrix());
         } else if (sm.hasColumnSelections()) {
@@ -65,31 +63,73 @@ exports.mixin = {
     },
 
     getMatrixSelectionAsTSV: function(selections) {
-        var result = '';
+        let text = '';
+        let html = '';
 
-        //only use the data from the last selection
+        // only use the data from the last selection
         if (selections.length) {
-            var width = selections.length,
+
+            const props = this.properties;
+
+            html = `<style type="text/css">
+table {
+border-collapse: collapse;
+font: 13px "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+td {
+border: ${props.gridLinesWidth}px solid ${props.gridLinesColor};
+max-width: ${props.maximumColumnWidth}px;
+padding: ${props.cellPadding}px ${props.cellPaddingLeft}px;
+}
+a {
+color: ${props.linkColor};
+text-decoration: underline;
+}
+.header {
+font: ${props.columnHeaderFontBold};
+}
+.prefix {
+font: ${props.columnTitlePrefixFont};
+color: ${props.columnTitlePrefixColor};
+padding-right: ${props.columnTitlePrefixRightSpace}px;
+}
+.postfix {
+color: ${props.cellValuePostfixColor};
+font: ${props.cellValuePostfixFont};
+padding-left: ${props.cellValuePostfixLeftOffset}px;
+}
+</style><table>`;
+
+            let width = selections.length,
                 height = selections[0].length,
-                area = width * height,
                 lastCol = width - 1,
                 //Whitespace will only be added on non-singular rows, selections
                 whiteSpaceDelimiterForRow = (height > 1 ? '\n' : '');
 
-            //disallow if selection is too big
-            if (area > 20000) {
-                alert('selection size is too big to copy to the paste buffer'); // eslint-disable-line no-alert
-                return '';
-            }
+            for (let h = 0; h < height; h++) {
+                for (let w = 0; w < width; w++) {
+                    const val = selections[w][h];
 
-            for (var h = 0; h < height; h++) {
-                for (var w = 0; w < width; w++) {
-                    result += (selections[w][h] || '') + (w < lastCol ? '\t' : whiteSpaceDelimiterForRow);
+                    const _text = typeof val === 'object' ? val.text : val;
+                    text += (_text || '') + (w < lastCol ? '\t' : whiteSpaceDelimiterForRow);
+
+                    if (w === 0) {
+                        html += '<tr>';
+                    }
+                    const _html = typeof val === 'object' ? val.html : val;
+                    if (_html !== undefined) {
+                        html += `<td ${val.colspan ? `colspan="${val.colspan + 1}"` : ''} ${val.rowspan ? `rowspan="${val.rowspan + 1}"` : ''}>${_html || ''}</td>`;
+                        if (w === lastCol) {
+                            html += '</tr>';
+                        }
+                    }
                 }
             }
+
+            html += '</table>';
         }
 
-        return result;
+        return { text: text, html: html };
     },
 
     /**
@@ -297,70 +337,110 @@ exports.mixin = {
     },
 
     getSelectionMatrix: function() {
-        const {behavior, behavior: {dataModel}} = this;
+        const { behavior, behavior: { dataModel } } = this;
         const selections = this.getSelections();
-        const rects = new Array(selections.length);
 
-        selections.forEach((selectionRect, i) => {
-            const rect = normalizeRect(selectionRect);
-            const colCount = rect.extent.x + 1;
-            const rowCount = rect.extent.y + 1;
-            const rows = [];
+        const selectionRect = normalizeRect(selections[selections.length - 1]);
 
-            for (let c = 0, x = rect.origin.x; c < colCount; c++, x++) {
-                const colProps = behavior.getColumnProperties(x);
-                let values = rows[c] = new Array(rowCount);
-                const alreadyCopied = [];
+        const colCount = selectionRect.extent.x + 1;
+        const rowCount = selectionRect.extent.y + 1;
+        const rows = [];
 
-                const getHeaderValue = (x, y) => {
-                    alreadyCopied.push(y);
-                    if (dataModel.isRenderSkipNeeded(x, y)) {
-                        return '';
-                    } else {
-                        let val = dataModel.getValue(x, y) || '';
+        for (let c = 0, x = selectionRect.origin.x; c < colCount; c++, x++) {
+            const colProps = behavior.getColumnProperties(x);
+            const columnName = dataModel.getColumnName(x);
+            const isAggregationColumn = columnName === '$$aggregation';
+            let values = rows[c] = new Array(rowCount);
+            const alreadyCopied = [];
 
-                        if (colProps.colDef && colProps.colDef.headerPrefix && !dataModel.getDefinedCellProperties(x, y).ignoreValuePrefix) {
-                            val = `${colProps.colDef.headerPrefix} ${val}`;
-                        }
+            const getHeaderValue = (x, y) => {
+                alreadyCopied.push(y);
+                if (dataModel.isRenderSkipNeeded(x, y)) {
+                    return { text: '' }; // no 'html' key because this cell will be merged with another onw
+                } else {
+                    let text = '';
+                    let html = '';
 
-                        return val.trim();
+                    // add prefix
+                    if (colProps.colDef && colProps.colDef.headerPrefix && !dataModel.getDefinedCellProperties(x, y).ignoreValuePrefix) {
+                        text += colProps.colDef.headerPrefix + ' ';
+                        html += `<span class="prefix">${colProps.colDef.headerPrefix}</span>`;
                     }
-                };
 
-                for (let r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
-                    if (behavior.getRowProperties(y).headerRow) {
-                        values[r] = getHeaderValue(x, y);
-                    } else {
-                        let val = dataModel.getValue(x, y);
-                        if (val) {
-                            values[r] = this.formatValue(dataModel.getColumnName(x), val, false);
-                        } else {
-                            values[r] = '';
-                        }
+                    // add value
+                    let val = (dataModel.getValue(x, y) || '').trim();
+                    text += val;
+                    html += `<span class="header">${val}</span>`;
+
+                    // add postfix
+                    const postfix = dataModel.getCount(x, y);
+                    if (postfix) {
+                        text += ` (${postfix})`;
+                        html += `<span class="postfix">(${postfix})</span>`;
                     }
+
+                    return {
+                        text: text.trim(),
+                        html: `<div>${html}</div>`,
+                        colspan: dataModel.getColspan(x, y),
+                        rowspan: dataModel.getRowspan(x, y)
+                    };
                 }
+            };
 
-                if (this.copyIncludeHeaders) {
-                    let y = 0;
-                    const headerValues = [];
+            for (let r = 0, y = selectionRect.origin.y; r < rowCount; r++, y++) {
+                if (behavior.getRowProperties(y).headerRow) {
+                    values[r] = getHeaderValue(x, y);
+                } else {
+                    let val = dataModel.getValue(x, y);
 
-                    while (behavior.getRowProperties(y).headerRow) {
-                        if (!alreadyCopied.includes(y)) {
-                            headerValues.push(getHeaderValue(x, y));
+                    if (val || val === false || val === 0 || val === null) {
+                        let color = this.properties[isAggregationColumn ? 'linkColor' : 'color'];
+
+                        let text = '';
+                        let html = '';
+
+                        // add value
+                        const isValueUrl = dataModel.isValueUrl(val);
+                        val = this.formatValue(columnName, val, false);
+                        text += val;
+                        html += `<span style="color: ${color}; ${isAggregationColumn ? 'text-decoration: underline;' : ''}">${isValueUrl ? `<a href="${val}">${val}</a>` : val}</span>`;
+
+                        // add postfix
+                        let postfix = isAggregationColumn ? behavior.getAggregationChildCountByIndex(y) : dataModel.getCount(x, y);
+                        if (postfix) {
+                            text += ` (${postfix})`;
+                            html += `<span class="postfix">(${postfix})</span>`;
                         }
-                        ++y;
-                    }
 
-                    if (headerValues.length > 0) {
-                        [].unshift.apply(values, headerValues);
+                        values[r] = {
+                            text: text.trim(),
+                            html: `<div style="text-align: ${colProps.halign || 'left'}">${html}</div>`
+                        };
+                    } else {
+                        values[r] = '';
                     }
                 }
             }
 
-            rects[i] = rows;
-        });
+            if (this.copyIncludeHeaders) {
+                let y = 0;
+                const headerValues = [];
 
-        return rects;
+                while (behavior.getRowProperties(y).headerRow) {
+                    if (!alreadyCopied.includes(y)) {
+                        headerValues.push(getHeaderValue(x, y));
+                    }
+                    ++y;
+                }
+
+                if (headerValues.length > 0) {
+                    [].unshift.apply(values, headerValues);
+                }
+            }
+        }
+
+        return rows;
     },
 
     selectCell: function(x, y, silent) {

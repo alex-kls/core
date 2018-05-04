@@ -1070,32 +1070,32 @@ var Renderer = Base.extend('Renderer', {
                 viewHeight = visibleRows[rowsLength - 1].bottom;
 
             if (gridProps.gridLinesV) {
-                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesVColor;
+                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesColor;
 
                 for (let right, vc = visibleColumns[0], c = 0; c < columnsLength; c++) {
                     vc = visibleColumns[c];
                     if (!vc.gap) {
                         right = vc.right;
 
-                        let shift = gridProps.defaultHeaderRowHeight - gridProps.gridLinesVWidth;
+                        let shift = gridProps.defaultHeaderRowHeight - gridProps.gridLinesWidth;
 
                         for (let i = 0; i < rowsLength; ++i) {
                             const row = visibleRows[i];
                             if (row.subgrid.isData) {
                                 if (this.grid.behavior.dataModel.isColspanedByLeftColumn(vc.columnIndex + 1, row.rowIndex)) {
-                                    shift += row.height + gridProps.gridLinesVWidth;
+                                    shift += row.height + gridProps.gridLinesWidth;
                                 } else {
                                     break;
                                 }
                             }
                         }
-                        this.drawLine(gc, right, shift, gridProps.gridLinesVWidth, viewHeight - shift);
+                        this.drawLine(gc, right, shift, gridProps.gridLinesWidth, viewHeight - shift);
                     }
                 }
             }
 
             if (gridProps.gridLinesH) {
-                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesHColor;
+                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesColor;
                 for (let bottom, vr = visibleRows[0], r = 0; r < rowsLength; r++) {
                     vr = visibleRows[r];
                     bottom = vr.bottom;
@@ -1107,8 +1107,8 @@ var Renderer = Base.extend('Renderer', {
                                 gc,
                                 column.left,
                                 bottom,
-                                column.width + (gridProps.gridLinesV ? gridProps.gridLinesVWidth : 0),
-                                gridProps.gridLinesHWidth
+                                column.width + (gridProps.gridLinesV ? gridProps.gridLinesWidth : 0),
+                                gridProps.gridLinesWidth
                             );
                         }
                     }
@@ -1116,14 +1116,14 @@ var Renderer = Base.extend('Renderer', {
                     //     for (let i = 0; i < columnsLength; ++i) {
                     //         const column = visibleColumns[i];
                     //         if (!vr.gap && !this.grid.behavior.dataModel.isRowspanedByRow(column.columnIndex - 1, vr.rowIndex + 1)) {
-                    //             this.drawLine(gc, column.left, bottom, column.width, gridProps.gridLinesHWidth);
+                    //             this.drawLine(gc, column.left, bottom, column.width, gridProps.gridLinesWidth);
                     //         }
                     //     }
                     // } else if (!vr.gap) {
-                    //     this.drawLine(gc, 0, bottom, viewWidth, gridProps.gridLinesHWidth);
+                    //     this.drawLine(gc, 0, bottom, viewWidth, gridProps.gridLinesWidth);
                     // }
                     // if (!vr.gap) {
-                    //     this.drawLine(gc, 0, bottom, viewWidth, gridProps.gridLinesHWidth);
+                    //     this.drawLine(gc, 0, bottom, viewWidth, gridProps.gridLinesWidth);
                     // }
                 }
             }
@@ -1131,7 +1131,7 @@ var Renderer = Base.extend('Renderer', {
             let edgeWidth;
             let gap = visibleRows.gap;
             if (gap) {
-                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.fixedLinesHColor || gridProps.gridLinesHColor;
+                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.fixedLinesHColor || gridProps.gridLinesColor;
                 edgeWidth = gridProps.fixedLinesHEdge;
                 if (edgeWidth) {
                     this.drawLine(gc, 0, gap.top, viewWidth, edgeWidth);
@@ -1143,7 +1143,7 @@ var Renderer = Base.extend('Renderer', {
 
             gap = visibleColumns.gap;
             if (gap) {
-                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.fixedLinesVColor || gridProps.gridLinesVColor;
+                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.fixedLinesVColor || gridProps.gridLinesColor;
                 edgeWidth = gridProps.fixedLinesVEdge;
                 if (edgeWidth) {
                     this.drawLine(gc, gap.left, 0, edgeWidth, viewHeight);
@@ -1172,7 +1172,7 @@ var Renderer = Base.extend('Renderer', {
                 viewHeight = visibleRows[rowsLength - 1].bottom;
             var headerRowsCount = this.grid.getHeaderRowCount();
 
-            if (gridProps.gridLinesV || gridProps.gridLinesVHeaderColor) {
+            if (gridProps.gridLinesV || gridProps.gridLinesHeaderColor) {
                 var headerHeight = headerRowsCount * this.properties.defaultHeaderRowHeight;
                 if (!headerHeight) {
                     for (var i = 0; i < headerRowsCount; i++) {
@@ -1182,41 +1182,41 @@ var Renderer = Base.extend('Renderer', {
 
                 gc.cache.fillStyle
                     = gc.cache.strokeStyle
-                    = gridProps.gridLinesVHeaderColor ? gridProps.gridLinesVHeaderColor : gridProps.gridLinesVColor;
+                    = gridProps.gridLinesHeaderColor ? gridProps.gridLinesHeaderColor : gridProps.gridLinesColor;
                 for (var headerRight, headerVc = visibleColumns[0], headerC = 0; headerC < columnsLength; headerC++) {
                     headerVc = visibleColumns[headerC];
                     headerRight = headerVc.right;
                     if (!headerVc.gap) {
-                        this.drawLine(gc, headerRight, 0, gridProps.gridLinesVWidth, headerHeight);
+                        this.drawLine(gc, headerRight, 0, gridProps.gridLinesWidth, headerHeight);
                     }
                 }
 
                 if (this.grid.properties.rowHeaderNumbers) {
                     var right = visibleColumns[this.grid.behavior.rowColumnIndex].right;
-                    gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesVHeaderColor || gridProps.gridLinesVColor;
-                    this.drawLine(gc, right, 0, gridProps.gridLinesVWidth, viewHeight);
+                    gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesHeaderColor || gridProps.gridLinesColor;
+                    this.drawLine(gc, right, 0, gridProps.gridLinesWidth, viewHeight);
                 }
             }
 
-            if (gridProps.gridLinesH || gridProps.gridLinesHHeaderColor) {
+            if (gridProps.gridLinesH || gridProps.gridLinesHeaderColor) {
                 gc.cache.fillStyle
                     = gc.cache.strokeStyle
-                    = gridProps.gridLinesHHeaderColor ? gridProps.gridLinesHHeaderColor : gridProps.gridLinesHColor;
+                    = gridProps.gridLinesHeaderColor ? gridProps.gridLinesHeaderColor : gridProps.gridLinesColor;
 
-                var additionalWidth = gridProps.gridLinesV ? gridProps.gridLinesVWidth : 0;
+                var additionalWidth = gridProps.gridLinesV ? gridProps.gridLinesWidth : 0;
                 var firstRowWidth = this.grid.properties.rowHeaderNumbers
                     ? visibleColumns[this.grid.behavior.rowColumnIndex].right + additionalWidth
                     : 0;
 
-                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesHHeaderColor;
+                gc.cache.fillStyle = gc.cache.strokeStyle = gridProps.gridLinesHeaderColor;
                 for (var headerBottom, headerVr = visibleRows[0], headerR = 0; headerR < rowsLength; headerR++) {
                     headerVr = visibleRows[headerR];
                     headerBottom = headerVr.bottom;
                     if (!headerVr.gap) {
                         if (headerR < headerRowsCount) {
-                            this.drawLine(gc, 0, headerBottom, viewWidth, gridProps.gridLinesHWidth);
+                            this.drawLine(gc, 0, headerBottom, viewWidth, gridProps.gridLinesWidth);
                         } else {
-                            this.drawLine(gc, 0, headerBottom, firstRowWidth, gridProps.gridLinesHWidth);
+                            this.drawLine(gc, 0, headerBottom, firstRowWidth, gridProps.gridLinesWidth);
                         }
                     }
                 }
@@ -1578,10 +1578,10 @@ function computeCellsBounds() {
         previousInsertionBoundsCursorValue = 0,
 
         gridProps = grid.properties,
-        lineWidthV = gridProps.gridLinesVWidth,
-        lineWidthH = gridProps.gridLinesHWidth,
-        fixedWidthV = gridProps.fixedLinesVWidth || gridProps.gridLinesVWidth,
-        fixedWidthH = gridProps.fixedLinesHWidth || gridProps.gridLinesHWidth,
+        lineWidthV = gridProps.gridLinesWidth,
+        lineWidthH = gridProps.gridLinesWidth,
+        fixedWidthV = gridProps.fixedLinesVWidth || gridProps.gridLinesWidth,
+        fixedWidthH = gridProps.fixedLinesHWidth || gridProps.gridLinesWidth,
         hasFixedColumnGap = fixedWidthV && fixedColumnCount,
         hasFixedRowGap = fixedWidthH && fixedRowCount,
 

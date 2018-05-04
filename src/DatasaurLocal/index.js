@@ -483,7 +483,35 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     getRowsVithValuesCountByColumn: function(column) {
         const columnName = this.getColumnName(column);
         return this.data.filter(d => !!d[columnName]).length;
+    },
+
+    /**
+     * @summary tells if value is link or array contains link
+     * @param value
+     * @returns {boolean}
+     */
+    isValueUrl(value) {
+        let result = false;
+        if (Array.isArray(value)) {
+            value.forEach(v => {
+                if (isStringUrl(v)) {
+                    result = true;
+                }
+            });
+        } else {
+            result = isStringUrl(value);
+        }
+
+        return result;
     }
 });
+
+function isStringUrl(string) {
+    if (!string) {
+        return false;
+    }
+    const URL_REGEXP = /^(\s*(http|https|ftp|ftps|itmss)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,6}(\/[^\s,;]*)?)$/g; // copy from datadoc
+    return URL_REGEXP.test(string);
+}
 
 module.exports = DataSourceLocal;

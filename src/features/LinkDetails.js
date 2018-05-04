@@ -191,10 +191,10 @@ var LinkDetails = Feature.extend('LinkDetails', {
 
         if (bottomToTop) {
             startY = cellBounds.y + grid.canvas.size.top - holderComputedStyles.height.replace('px', '');
-            startX = cellBounds.x + grid.canvas.size.left + grid.properties.gridLinesVWidth;
+            startX = cellBounds.x + grid.canvas.size.left + grid.properties.gridLinesWidth;
         } else {
             startY = cellBounds.y + cellBounds.height + grid.canvas.size.top;
-            startX = cellBounds.x + grid.canvas.size.left + grid.properties.gridLinesVWidth;
+            startX = cellBounds.x + grid.canvas.size.left + grid.properties.gridLinesWidth;
         }
 
         linkDetailsHolderElement.style.top = startY + 'px';

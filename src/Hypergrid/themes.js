@@ -75,8 +75,8 @@ var registry = Object.create(null, {
 });
 var pseudopropAdvice = {
     showRowNumbers: 'rowHeaderCheckboxes and rowHeaderNumbers',
-    lineColor: 'gridLinesHColor and gridLinesVColor',
-    lineWidth: 'gridLinesHWidth and gridLinesVWidth',
+    lineColor: 'gridLinesColor and gridLinesColor',
+    lineWidth: 'gridLinesWidth and gridLinesWidth',
     gridBorder: 'gridBorderLeft, gridBorderRight, gridBorderTop, and gridBorderBottom'
 };
 
