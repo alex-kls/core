@@ -114,12 +114,17 @@ Canvas.prototype = {
     currentPaintCount: 0,
     currentFPS: 0,
     lastFPSComputeTime: 0,
+    listeners: {},
 
     addEventListener: function(name, callback) {
         this.canvas.addEventListener(name, callback);
     },
 
     toggleDocumentEventListeners: function(isEnable) {
+        if (isEnable) {
+            this.toggleDocumentEventListeners(false);
+        }
+
         const listeners = {
             mousemove: e => {
                 if (this.hasMouse || this.isDragging()) {
@@ -154,7 +159,13 @@ Canvas.prototype = {
         };
 
         Object.keys(listeners).forEach(eventType => {
-            document[`${isEnable ? 'add' : 'remove'}EventListener`](eventType, listeners[eventType]);
+            if (!this.listeners[eventType]) {
+                this.listeners[eventType] = listeners[eventType];
+            }
+            document[`${isEnable ? 'add' : 'remove'}EventListener`](eventType, this.listeners[eventType]);
+            if (!isEnable) {
+                delete this.listeners[eventType];
+            }
         });
     },
 
