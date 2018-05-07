@@ -4,7 +4,7 @@
 /* eslint-env node, browser */
 
 var cssInjector = require('css-injector');
-// var lastContainerTouchMovePos;
+// var _lastContainerTouchMovePos;
 
 /**
  * @constructor FinBar
@@ -216,11 +216,67 @@ FinBar.prototype = {
      * @type {boolean}
      * @memberOf FinBar.prototype
      */
-    isMouseHoldOverBar: false,
+    _isTouchHoldOverBar: false,
 
-    lastContainerTouchMovePos: null,
+    /**
+     * @summary flag to detect is user touch starts over container (used to smooth scroll on mobile devices)
+     * @type {boolean}
+     * @memberOf FinBar.prototype
+     */
+    _isTouchHoldOverContainer: false,
+
+    /**
+     * @summary contains last detected position of user touch
+     * @type {number}
+     * @memberOf FinBar.prototype
+     */
+    _lastContainerTouchMovePos: null,
+
+    /**
+     * @summary contains last detected user touch time (timestamp)
+     * @type {number}
+     * @memberOf FinBar.prototype
+     */
+    _lastContainerTouchMoveTime: null,
+
+    /**
+     * @summary contains current user touch move velocity
+     * @type {number}
+     * @memberOf FinBar.prototype
+     */
+    _containerTouchMoveVelocity: 0,
+
+    /**
+     * @summary contains current user touch move a,plitude
+     * @type {number}
+     * @memberOf FinBar.prototype
+     */
+    _containerTouchMoveAmplitude: 0,
+
+    /**
+     * @summary contains current smooth touch scroll interval. Used to smoothly scroll content
+     * @type {number}
+     * @memberOf FinBar.prototype
+     */
+    _containerTouchMoveScrollInterval: 0,
+
+    /**
+     * @summary contains current user touch move offset
+     * @type {number}
+     * @memberOf FinBar.prototype
+     */
+    _containerTouchMoveScrollOffset: null,
+
+    /**
+     * @summary contains current user touch move target. Used to detect end position of smooth scroll
+     * @type {number}
+     * @memberOf FinBar.prototype
+     */
+    _containerTouchMoveScrollTarget: null,
 
     lastThumbTouchMovePos: null,
+
+    _isLastTouchStartsOverBar: null,
 
     /**
      * @summary interval which used when mouse hold scroll performed
@@ -271,7 +327,7 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     performMouseHoldOverBarEnd: function() {
-        this.isMouseHoldOverBar = false;
+        this._isTouchHoldOverBar = false;
         this._mouseHoldPerformIntervalCurrentCoordsObj = null;
         if (this._mouseHoldPerformInterval) {
             clearInterval(this._mouseHoldPerformInterval);
@@ -631,8 +687,9 @@ FinBar.prototype = {
 
         if (this.deltaProp !== null) {
             container.addEventListener('wheel', this._bound.onwheel);
-            container.addEventListener('touchmove', this._bound.ontouchmove);
             container.addEventListener('touchstart', this._bound.ontouchstart);
+            container.addEventListener('touchmove', this._bound.ontouchmove);
+            container.addEventListener('touchend', this._bound.ontouchend);
         }
 
         return this;
@@ -943,7 +1000,7 @@ var handlersToBeBound = {
 
             this.clearMouseHoldTimeout();
             this._mouseHoldPerformTimeout = setTimeout(function() {
-                self.isMouseHoldOverBar = true;
+                self._isTouchHoldOverBar = true;
                 self.isThumbDragging = false;
 
                 self._mouseHoldPerformIntervalCurrentCoordsObj = coordsObject;
@@ -968,7 +1025,7 @@ var handlersToBeBound = {
 
                     incrementValue = goingUp ? -self.increment : self.increment;
 
-                    if (self.isMouseHoldOverBar && !mouseOverThumbCenter) {
+                    if (self._isTouchHoldOverBar && !mouseOverThumbCenter) {
                         if (goingUp && (co[self.oh.coordinate] <= thumbCenterLeadingSide)
                             && ((self.index + incrementValue) <= 0)) {
                             self.index = 0;
@@ -977,12 +1034,12 @@ var handlersToBeBound = {
                         }
                     }
 
-                    if (self.isMouseHoldOverBar && mouseOverThumbCenter) {
+                    if (self._isTouchHoldOverBar && mouseOverThumbCenter) {
                         self.performMouseHoldOverBarEnd();
                     }
                 }, this.mouseHoldPerformIntervalRate);
             }, 200);
-        } else if(!this.isMouseHoldOverBar){
+        } else if(!this._isTouchHoldOverBar){
             this.isThumbDragging = true;
         }
     },
@@ -995,7 +1052,7 @@ var handlersToBeBound = {
             this._setScroll(idx, scaled);
         }
 
-        if (this.isMouseHoldOverBar) {
+        if (this._isTouchHoldOverBar) {
             this._mouseHoldPerformIntervalCurrentCoordsObj = evt;
         }
 
@@ -1016,9 +1073,32 @@ var handlersToBeBound = {
         evt.preventDefault();
     },
 
+    trackTouchScroll: function() {
+        let elapsed, delta, v;
+        const currentTimestamp = Date.now();
+        elapsed = currentTimestamp - this._lastContainerTouchMoveTime;
+        this._lastContainerTouchMoveTime = currentTimestamp;
+        delta = this._containerTouchMoveScrollOffset - this._containerTouchMoveScrollFrame;
+        this._containerTouchMoveScrollFrame = this._containerTouchMoveScrollOffset;
+        v = 1000 * delta / (1 + elapsed);
+        this._containerTouchMoveVelocity = 0.8 * v + 0.2 * this._containerTouchMoveVelocity;
+    },
+
     ontouchstart: function(evt) {
-        this.lastContainerTouchMovePos = null;
+        console.log('touch started');
+        this._isTouchHoldOverContainer = true;
+        this.isThumbTouchDragging = false;
+        this._lastContainerTouchMovePos = evt.touches[0][this.oh.coordinate];
+        this._lastContainerTouchMoveTime = Date.now();
+
+        this._containerTouchMoveScrollFrame = this._containerTouchMoveScrollOffset;
+        this._containerTouchMoveVelocity = this._containerTouchMoveAmplitude = 0;
+
         this._isLastTouchStartsOverBar = false;
+        this._containerTouchMoveScrollInterval = setInterval(this._bound.trackTouchScroll, 100);
+
+        evt.preventDefault();
+        evt.stopPropagation();
     },
 
     onthumbtouchstart: function(evt) {
@@ -1028,7 +1108,7 @@ var handlersToBeBound = {
 
         this.isThumbTouchDragging = true;
         this.lastThumbTouchMovePos = currentMovePos;
-        this.lastContainerTouchMovePos = null;
+        this._lastContainerTouchMovePos = null;
 
         this._addEvt('touchend');
         this._addEvt('touchmove');
@@ -1038,8 +1118,21 @@ var handlersToBeBound = {
     },
 
     ontouchend: function(evt) {
+        if (this._isTouchHoldOverContainer) {
+            this._isTouchHoldOverContainer = false;
+            clearInterval(this._containerTouchMoveScrollInterval);
+            if (this._containerTouchMoveVelocity > 10 || this._containerTouchMoveVelocity < -10) {
+                this._containerTouchMoveAmplitude = 0.8 * this._containerTouchMoveVelocity;
+                this._containerTouchMoveScrollTarget = Math.round(this._containerTouchMoveScrollOffset + this._containerTouchMoveAmplitude);
+                this._lastContainerTouchMoveTime = Date.now();
+                requestAnimationFrame(this._bound._performTouchAutoScroll);
+            }
+        }
+
+
         this.isThumbTouchDragging = false;
-        this.lastContainerTouchMovePos = null;
+        this._isTouchHoldOverContainer = false;
+        this._lastContainerTouchMovePos = null;
         this.lastThumbTouchMovePos = null;
 
         this.performMouseHoldOverBarEnd();
@@ -1051,6 +1144,25 @@ var handlersToBeBound = {
         evt.preventDefault();
     },
 
+    _performTouchAutoScroll: function() {
+        let elapsed, delta;
+        if (this._containerTouchMoveAmplitude) {
+            elapsed = Date.now() - this._lastContainerTouchMoveTime;
+            delta = - this._containerTouchMoveAmplitude * Math.exp(- elapsed / 125);
+            if (delta > 0.5 || delta < -0.5) {
+                this._bound._performTouchScroll(this._containerTouchMoveScrollTarget + delta);
+                requestAnimationFrame(this._bound._performTouchAutoScroll);
+            } else {
+                this._bound._performTouchScroll(this._containerTouchMoveScrollTarget);
+            }
+        }
+    },
+
+    _performTouchScroll: function(y) {
+        this._containerTouchMoveScrollOffset = (y > this._max) ? this._max : (y < this._min) ? this._min : y;
+        this._setScroll(this._containerTouchMoveScrollOffset);
+    },
+
     ontouchmove: function(evt) {
         if (this.isThumbTouchDragging) {
             let currentMovePos = evt.touches[0][this.oh.coordinate];
@@ -1060,14 +1172,13 @@ var handlersToBeBound = {
 
             this._setScroll(idx, scaled);
             this.lastThumbTouchMovePos = currentMovePos;
-        } else if (!this._isLastTouchStartsOverBar) {
-            let currentMovePos = evt.touches[0][this.oh.coordinate];
-
-            if (this.lastContainerTouchMovePos) {
-                this.index += (this.lastContainerTouchMovePos - currentMovePos);
+        } else if (this._isTouchHoldOverContainer) {
+            const y = evt.touches[0][this.oh.coordinate];
+            const delta = this._lastContainerTouchMovePos - y;
+            if (delta > 2 || delta < -2) {
+                this._lastContainerTouchMovePos = y;
+                this._bound._performTouchScroll(this._containerTouchMoveScrollOffset + delta);
             }
-
-            this.lastContainerTouchMovePos = currentMovePos;
         } else if (this._isLastTouchStartsOverBar) {
             const boundsBox = this.bar.getBoundingClientRect();
             const touchOverBar = boundsBox.left <= evt.touches[0].clientX && evt.touches[0].clientX <= boundsBox.right &&
