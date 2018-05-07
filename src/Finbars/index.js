@@ -1085,7 +1085,6 @@ var handlersToBeBound = {
     },
 
     ontouchstart: function(evt) {
-        console.log('touch started');
         this._isTouchHoldOverContainer = true;
         this.isThumbTouchDragging = false;
         this._lastContainerTouchMovePos = evt.touches[0][this.oh.coordinate];
