@@ -1081,7 +1081,7 @@ var handlersToBeBound = {
         delta = this._containerTouchMoveScrollOffset - this._containerTouchMoveScrollFrame;
         this._containerTouchMoveScrollFrame = this._containerTouchMoveScrollOffset;
         v = 1000 * delta / (1 + elapsed);
-        this._containerTouchMoveVelocity = 0.8 * v + 0.2 * this._containerTouchMoveVelocity;
+        this._containerTouchMoveVelocity = 1.2 * v + 0.2 * this._containerTouchMoveVelocity;
     },
 
     ontouchstart: function(evt) {
@@ -1100,9 +1100,22 @@ var handlersToBeBound = {
         evt.stopPropagation();
     },
 
+    getPos: function(e) {
+        // touch event
+        if (e.targetTouches && (e.targetTouches.length >= 1)) {
+            return e.targetTouches[0][this.oh.coordinate];
+        }
+        if (e.touches && (e.touches.length >= 1)) {
+            return e.touches[0][this.oh.coordinate];
+        }
+
+        // mouse event
+        return e[this.oh.coordinate];
+    },
+
     onthumbtouchstart: function(evt) {
         var thumbBox = this.thumb.getBoundingClientRect();
-        let currentMovePos = evt.touches[0][this.oh.coordinate];
+        let currentMovePos = this._bound.getPos(evt);
         this.pinOffset = currentMovePos - thumbBox[this.oh.leading] + this.bar.getBoundingClientRect()[this.oh.leading] + this._thumbMarginLeading;
 
         this.isThumbTouchDragging = true;
@@ -1120,6 +1133,7 @@ var handlersToBeBound = {
         if (this._isTouchHoldOverContainer) {
             this._isTouchHoldOverContainer = false;
             clearInterval(this._containerTouchMoveScrollInterval);
+            this._bound.trackTouchScroll();
             if (this._containerTouchMoveVelocity > 10 || this._containerTouchMoveVelocity < -10) {
                 this._containerTouchMoveAmplitude = 0.8 * this._containerTouchMoveVelocity;
                 this._containerTouchMoveScrollTarget = Math.round(this._containerTouchMoveScrollOffset + this._containerTouchMoveAmplitude);
@@ -1147,7 +1161,7 @@ var handlersToBeBound = {
         let elapsed, delta;
         if (this._containerTouchMoveAmplitude) {
             elapsed = Date.now() - this._lastContainerTouchMoveTime;
-            delta = - this._containerTouchMoveAmplitude * Math.exp(- elapsed / 125);
+            delta = - this._containerTouchMoveAmplitude * Math.exp(- elapsed / 325);
             if (delta > 0.5 || delta < -0.5) {
                 this._bound._performTouchScroll(this._containerTouchMoveScrollTarget + delta);
                 requestAnimationFrame(this._bound._performTouchAutoScroll);
@@ -1164,7 +1178,7 @@ var handlersToBeBound = {
 
     ontouchmove: function(evt) {
         if (this.isThumbTouchDragging) {
-            let currentMovePos = evt.touches[0][this.oh.coordinate];
+            let currentMovePos = this._bound.getPos(evt);
 
             let scaled = Math.min(this._thumbMax, Math.max(0, currentMovePos - this.pinOffset));
             let idx = scaled / this._thumbMax * (this._max - this._min) + this._min;
@@ -1172,10 +1186,10 @@ var handlersToBeBound = {
             this._setScroll(idx, scaled);
             this.lastThumbTouchMovePos = currentMovePos;
         } else if (this._isTouchHoldOverContainer) {
-            const y = evt.touches[0][this.oh.coordinate];
-            const delta = this._lastContainerTouchMovePos - y;
+            const pos = this._bound.getPos(evt);
+            const delta = this._lastContainerTouchMovePos - pos;
             if (delta > 2 || delta < -2) {
-                this._lastContainerTouchMovePos = y;
+                this._lastContainerTouchMovePos = pos;
                 this._bound._performTouchScroll(this._containerTouchMoveScrollOffset + delta);
             }
         } else if (this._isLastTouchStartsOverBar) {
