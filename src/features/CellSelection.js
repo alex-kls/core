@@ -544,16 +544,16 @@ var CellSelection = Feature.extend('CellSelection', {
 
         if (!this._isSelectionInsideDataArea(grid, lastSelection)) {
             if (lastSelection.origin.x > grid.behavior.dataModel.getColumnsWithValuesCount()) {
-                this.moveShiftSelect(grid, 0, - lastSelection.corner.y);
+                this.moveShiftSelect(grid, 0, - lastSelection.lastSelectedCell.y);
             } else {
-                this.moveShiftSelect(grid, 0, - (lastSelection.corner.y - maxRowWithContent));
+                this.moveShiftSelect(grid, 0, - (lastSelection.lastSelectedCell.y - maxRowWithContent));
             }
         } else {
             if (this._isSelectionAlreadyOnFictiveHeaderRow(grid, lastSelection)
                 || this._isSelectionAlreadyOnFirstDataRow(grid, lastSelection)) {
-                this.moveShiftSelect(grid, 0, - lastSelection.corner.y);
+                this.moveShiftSelect(grid, 0, - lastSelection.lastSelectedCell.y);
             } else {
-                this.moveShiftSelect(grid, 0, - (lastSelection.corner.y - grid.getFictiveHeaderRowsCount()));
+                this.moveShiftSelect(grid, 0, - (lastSelection.lastSelectedCell.y - grid.getFictiveHeaderRowsCount()));
             }
         }
     },
@@ -569,9 +569,9 @@ var CellSelection = Feature.extend('CellSelection', {
         if (!this._isSelectionInsideDataArea(grid, lastSelection)
             || this._isSelectionAlreadyOnLastDataRow(grid, lastSelection)
             || lastSelection.origin.x > grid.behavior.dataModel.getColumnsWithValuesCount()) {
-            this.moveShiftSelect(grid, 0, grid.getRowCount() - lastSelection.origin.y);
+            this.moveShiftSelect(grid, 0, grid.getRowCount() - lastSelection.lastSelectedCell.y);
         } else {
-            this.moveShiftSelect(grid, 0, maxRowWithContent - lastSelection.corner.y);
+            this.moveShiftSelect(grid, 0, maxRowWithContent - lastSelection.lastSelectedCell.y);
         }
     },
 
