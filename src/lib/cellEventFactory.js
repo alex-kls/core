@@ -109,7 +109,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
             const searchType = this.column ? this.column.searchType : 'NONE';
             const highlights = [];
 
-            if (!str || searchType === 'NONE' || searchType === undefined) {
+            if (!this.properties.highLightText || !str || searchType === 'NONE' || searchType === undefined) {
                 return highlights;
             }
 

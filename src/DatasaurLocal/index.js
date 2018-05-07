@@ -523,7 +523,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     },
 
     getHighlightedValue(str, match, searchType) {
-        if (!str || searchType === 'NONE' || searchType === undefined) {
+        if (!match || !str || searchType === 'NONE' || searchType === undefined) {
             return '';
         }
 
