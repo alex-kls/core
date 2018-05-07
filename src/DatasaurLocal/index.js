@@ -480,9 +480,12 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         return (typeof x)[0] === 'n' && this.schema[x] ? this.schema[x].name : x;
     },
 
-    getRowsVithValuesCountByColumn: function(column) {
-        const columnName = this.getColumnName(column);
-        return this.data.filter(d => !!d[columnName]).length;
+    getRowsWithValuesCount: function() {
+        return this.data.filter(d => !d.$$blank_node).length - this.grid.getFictiveHeaderRowsCount();
+    },
+
+    getColumnsWithValuesCount: function() {
+        return this.grid.behavior.columns.filter(c => !!c.colDef).length;
     },
 
     /**

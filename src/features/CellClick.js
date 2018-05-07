@@ -23,7 +23,7 @@ var CellClick = Feature.extend('CellClick', {
      * @memberOf CellClick#
      */
     handleClick: function(grid, event) {
-        grid.log('event', event);
+        console.log('event', event);
         let consumed = false;
         if (this.isAggregationTotalCell(event)) {
             if (this.overExpandIcon(grid, event)) {

@@ -129,6 +129,14 @@ exports.mixin = {
 
     /**
      * @memberOf Behavior#
+     * @returns {number} count of rows, that used as fictive headers.
+     */
+    getFictiveHeaderRowsCount: function() {
+        return this.grid.properties.fictiveHeaderRowsCount;
+    },
+
+    /**
+     * @memberOf Behavior#
      * @desc set the pixel height of a specific row
      * @param {number} yOrCellEvent - Data row index local to dataModel.
      * @param {number} height - pixel height

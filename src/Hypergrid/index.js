@@ -1566,6 +1566,14 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
+     * @returns {number} count of rows, that used as fictive headers
+     */
+    getFictiveHeaderRowsCount: function() {
+        return this.behavior.getFictiveHeaderRowsCount();
+    },
+
+    /**
+     * @memberOf Hypergrid#
      * @desc Set the height of the given row.
      * @param {number} rowIndex - The row index.
      * @param {number} rowHeight - The width in pixels.

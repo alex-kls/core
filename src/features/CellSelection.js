@@ -84,7 +84,9 @@ var CellSelection = Feature.extend('CellSelection', {
                 keys = primEvent.detail.keys;
             this.dragging = true;
             this.extendSelection(grid, dCell, keys);
-        } else if (this.next) {
+        }
+
+        if (this.next) {
             this.next.handleMouseDown(grid, event);
         }
     },
@@ -111,8 +113,8 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleKeyDown: function(grid, event) {
-        var detail = event.detail,
-            cellEvent = grid.getGridCellFromLastSelection(true),
+        let cellEvent = grid.getGridCellFromLastSelection(true);
+        const detail = event.detail,
             navKey = cellEvent && (
                 cellEvent.properties.mappedNavKey(detail.char, detail.ctrl) ||
                 cellEvent.properties.navKey(detail.char, detail.ctrl)
@@ -142,11 +144,11 @@ var CellSelection = Feature.extend('CellSelection', {
      * @memberOf CellSelection.prototype
      * @desc Handle a mousedrag selection.
      * @param {Hypergrid} grid
-     * @param {Object} mouse - the event details
+     * @param {Object} gridCell - grid cell
      * @param {Array} keys - array of the keys that are currently pressed down
      */
     handleMouseDragCellSelection: function(grid, gridCell, keys) {
-        var x = Math.max(0, gridCell.x),
+        const x = Math.max(0, gridCell.x),
             y = Math.max(0, gridCell.y),
             previousDragExtent = grid.getDragExtent(),
             mouseDown = grid.getMouseDown(),
@@ -175,8 +177,8 @@ var CellSelection = Feature.extend('CellSelection', {
         if (!grid.properties.scrollingEnabled) {
             return;
         }
-        var b = grid.getDataBounds();
-        var inside = b.contains(mouse);
+        const b = grid.getDataBounds();
+        const inside = b.contains(mouse);
         if (inside) {
             if (grid.isScrollingNow()) {
                 grid.setScrollingNow(false);
@@ -197,7 +199,7 @@ var CellSelection = Feature.extend('CellSelection', {
             return;
         }
 
-        var dragStartedInHeaderArea = grid.isMouseDownInHeaderArea(),
+        let dragStartedInHeaderArea = grid.isMouseDownInHeaderArea(),
             lastDragCell = this.lastDragCell,
             b = grid.getDataBounds(),
 
@@ -225,8 +227,8 @@ var CellSelection = Feature.extend('CellSelection', {
             yOffset = 1;
         }
 
-        var dragCellOffsetX = xOffset;
-        var dragCellOffsetY = yOffset;
+        let dragCellOffsetX = xOffset;
+        let dragCellOffsetY = yOffset;
 
         if (dragEndInFixedAreaX) {
             dragCellOffsetX = 0;
@@ -250,7 +252,7 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Array} keys - array of the keys that are currently pressed down
      */
     extendSelection: function(grid, gridCell, keys) {
-        var hasCTRL = keys.indexOf('CTRL') >= 0,
+        const hasCTRL = keys.indexOf('CTRL') >= 0,
             hasSHIFT = keys.indexOf('SHIFT') >= 0,
             mousePoint = grid.getMouseDown(),
             x = gridCell.x, // - numFixedColumns + scrollLeft;
@@ -300,7 +302,6 @@ var CellSelection = Feature.extend('CellSelection', {
     /**
      * @memberOf CellSelection.prototype
      * @param {Hypergrid} grid
-     * @param {Object} event - the event details
      */
     handleUPSHIFT: function(grid) {
         this.moveShiftSelect(grid, 0, -1);
@@ -309,7 +310,6 @@ var CellSelection = Feature.extend('CellSelection', {
     /**
      * @memberOf CellSelection.prototype
      * @param {Hypergrid} grid
-     * @param {Object} event - the event details
      */
     handleLEFTSHIFT: function(grid) {
         this.moveShiftSelect(grid, -1, 0);
@@ -318,10 +318,293 @@ var CellSelection = Feature.extend('CellSelection', {
     /**
      * @memberOf CellSelection.prototype
      * @param {Hypergrid} grid
-     * @param {Object} event - the event details
      */
     handleRIGHTSHIFT: function(grid) {
         this.moveShiftSelect(grid, 1, 0);
+    },
+
+    /**
+     * @private
+     * @memberOf CellSelection.prototype
+     * @param grid
+     * @param selection
+     * @return {boolean}
+     * @private
+     */
+    _isSelectionInsideDataArea: function(grid, selection){
+        const maxColumnWithContent = grid.behavior.dataModel.getColumnsWithValuesCount();
+        const maxRowWithContent = grid.behavior.dataModel.getRowsWithValuesCount();
+
+        return selection.corner.x <= (maxColumnWithContent - 1)
+            && selection.corner.y <= maxRowWithContent;
+    },
+
+    /**
+     * @private
+     * @memberOf CellSelection.prototype
+     * @param grid
+     * @param selection
+     * @return {boolean}
+     * @private
+     */
+    _isSelectionAlreadyOnFictiveHeaderRow: function(grid, selection){
+        return selection.origin.y < grid.getFictiveHeaderRowsCount();
+    },
+
+    /**
+     * @private
+     * @memberOf CellSelection.prototype
+     * @param grid
+     * @param selection
+     * @return {boolean}
+     * @private
+     */
+    _isSelectionAlreadyOnFirstDataRow: function(grid, selection){
+        return selection.origin.y === grid.getFictiveHeaderRowsCount()
+            || selection.corner.y === grid.getFictiveHeaderRowsCount();
+    },
+
+    /**
+     * @private
+     * @memberOf CellSelection.prototype
+     * @param grid
+     * @param selection
+     * @return {boolean}
+     * @private
+     */
+    _isSelectionAlreadyOnLastDataRow: function(grid, selection) {
+        const maxRowWithContent = grid.behavior.dataModel.getRowsWithValuesCount();
+        return selection.corner.y === maxRowWithContent + grid.getFictiveHeaderRowsCount() - 1;
+    },
+
+    /**
+     * @private
+     * @memberOf CellSelection.prototype
+     * @param grid
+     * @param selection
+     * @return {boolean}
+     * @private
+     */
+    _isSelectionAlreadyOnLastDataColumn: function(grid, selection) {
+        const maxColumnWithContent = grid.behavior.dataModel.getColumnsWithValuesCount();
+        return selection.corner.x === maxColumnWithContent - 1;
+    },
+
+    /**
+     * @private
+     * @memberOf CellSelection.prototype
+     * @param grid
+     * @param selection
+     * @return {boolean}
+     * @private
+     */
+    _isSelectionAlreadyOnLastDataColumnAndRow: function(grid, selection) {
+        return this._isSelectionAlreadyOnLastDataRow(grid, selection)
+            && this._isSelectionAlreadyOnLastDataColumn(grid, selection);
+    },
+
+    /**
+     * @private
+     * @memberOf CellSelection.prototype
+     * @param grid
+     * @param selection
+     * @return {boolean}
+     * @private
+     */
+    _isSelectionAlreadyOnFirstCell: function(grid, selection) {
+        return selection.origin.x <= 0 && selection.origin.y <= grid.getFictiveHeaderRowsCount();
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLa: function(grid) {
+        const oldLastSelection = grid.selectionModel.getLastSelection();
+        const maxColumnWithContent = grid.behavior.dataModel.getColumnsWithValuesCount();
+        const maxRowWithContent = grid.behavior.dataModel.getRowsWithValuesCount();
+        const fictiveHeaderRowsCount = grid.getFictiveHeaderRowsCount();
+
+        let newSelectionOriginX = 0, newSelectionOriginY = 0, newSelectionCornerX = 0,  newSelectionCornerY = 0;
+
+        if (this._isSelectionInsideDataArea(grid, oldLastSelection)
+            && !(this._isSelectionAlreadyOnLastDataColumnAndRow(grid, oldLastSelection)
+                && this._isSelectionAlreadyOnFirstCell(grid, oldLastSelection))) {
+            newSelectionOriginX = 0;
+            newSelectionOriginY = fictiveHeaderRowsCount;
+            newSelectionCornerX = maxColumnWithContent - 1;
+            newSelectionCornerY = maxRowWithContent - 1;
+        } else {
+            newSelectionOriginX = 0;
+            newSelectionOriginY = 0;
+            newSelectionCornerX = grid.getColumnCount();
+            newSelectionCornerY = grid.getRowCount();
+        }
+
+        if (this._isSelectionAlreadyOnFictiveHeaderRow(grid, oldLastSelection)) {
+            newSelectionOriginY = 0;
+            newSelectionCornerY += grid.getFictiveHeaderRowsCount();
+        }
+
+        grid.clearMostRecentSelection();
+        grid.select(newSelectionOriginX, newSelectionOriginY, newSelectionCornerX, newSelectionCornerY);
+        grid.setMouseDown(grid.newPoint(newSelectionOriginX, newSelectionOriginY));
+        grid.setDragExtent(grid.newPoint(newSelectionCornerX, newSelectionCornerY));
+        // const newLastSelection = grid.selectionModel.getLastSelection();
+        // newLastSelection.firstSelectedCell = oldLastSelection.firstSelectedCell;
+        grid.repaint();
+    },
+
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLUP: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        const maxRowWithContent = grid.behavior.dataModel.getRowsWithValuesCount();
+
+        if (!this._isSelectionInsideDataArea(grid, lastSelection)) {
+            if (lastSelection.origin.x >= grid.behavior.dataModel.getColumnsWithValuesCount()) {
+                grid.moveSingleSelect(0, - lastSelection.corner.y);
+            } else {
+                grid.moveSingleSelect(0, - (lastSelection.corner.y - maxRowWithContent));
+            }
+        } else {
+            if (this._isSelectionAlreadyOnFictiveHeaderRow(grid, lastSelection)
+                || this._isSelectionAlreadyOnFirstDataRow(grid, lastSelection)) {
+                grid.moveSingleSelect(0, - lastSelection.corner.y);
+            } else {
+                grid.moveSingleSelect(0, - (lastSelection.corner.y - grid.getFictiveHeaderRowsCount()));
+            }
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLDOWN: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        const maxRowWithContent = grid.behavior.dataModel.getRowsWithValuesCount();
+
+        if (!this._isSelectionInsideDataArea(grid, lastSelection)
+            || this._isSelectionAlreadyOnLastDataRow(grid, lastSelection)
+            || lastSelection.origin.x > grid.behavior.dataModel.getColumnsWithValuesCount()) {
+            grid.moveSingleSelect(0, grid.getRowCount() - lastSelection.origin.y);
+        } else {
+            if (this._isSelectionAlreadyOnFictiveHeaderRow(grid, lastSelection)
+                && !this._isSelectionAlreadyOnFirstDataRow(grid, lastSelection)) {
+                grid.moveSingleSelect(0, grid.getFictiveHeaderRowsCount() - lastSelection.corner.y);
+            } else {
+                grid.moveSingleSelect(0, maxRowWithContent - lastSelection.corner.y);
+            }
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLRIGHT: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        const maxColumnWithContent = grid.behavior.dataModel.getColumnsWithValuesCount();
+
+        if (!this._isSelectionInsideDataArea(grid, lastSelection)
+            || this._isSelectionAlreadyOnLastDataColumn(grid, lastSelection)) {
+            grid.moveSingleSelect((grid.getColumnCount() - lastSelection.origin.x), 0);
+        } else {
+            grid.moveSingleSelect(((maxColumnWithContent - 1) - lastSelection.origin.x), 0);
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLLEFT: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        const maxColumnWithContent = grid.behavior.dataModel.getColumnsWithValuesCount();
+
+        if (this._isSelectionInsideDataArea(grid, lastSelection)
+            || this._isSelectionAlreadyOnLastDataColumn(grid, lastSelection)) {
+            grid.moveSingleSelect(-lastSelection.corner.x, 0);
+        } else {
+            grid.moveSingleSelect(-(lastSelection.corner.x - (maxColumnWithContent - 1)), 0);
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLUPSHIFT: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        const maxRowWithContent = grid.behavior.dataModel.getRowsWithValuesCount();
+
+        if (!this._isSelectionInsideDataArea(grid, lastSelection)) {
+            if (lastSelection.origin.x > grid.behavior.dataModel.getColumnsWithValuesCount()) {
+                this.moveShiftSelect(grid, 0, - lastSelection.corner.y);
+            } else {
+                this.moveShiftSelect(grid, 0, - (lastSelection.corner.y - maxRowWithContent));
+            }
+        } else {
+            if (this._isSelectionAlreadyOnFictiveHeaderRow(grid, lastSelection)
+                || this._isSelectionAlreadyOnFirstDataRow(grid, lastSelection)) {
+                this.moveShiftSelect(grid, 0, - lastSelection.corner.y);
+            } else {
+                this.moveShiftSelect(grid, 0, - (lastSelection.corner.y - grid.getFictiveHeaderRowsCount()));
+            }
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLDOWNSHIFT: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        const maxRowWithContent = grid.behavior.dataModel.getRowsWithValuesCount();
+
+        if (!this._isSelectionInsideDataArea(grid, lastSelection)
+            || this._isSelectionAlreadyOnLastDataRow(grid, lastSelection)
+            || lastSelection.origin.x > grid.behavior.dataModel.getColumnsWithValuesCount()) {
+            this.moveShiftSelect(grid, 0, grid.getRowCount() - lastSelection.origin.y);
+        } else {
+            this.moveShiftSelect(grid, 0, maxRowWithContent - lastSelection.corner.y);
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLRIGHTSHIFT: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        const maxColumnWithContent = grid.behavior.dataModel.getColumnsWithValuesCount();
+
+        if (!this._isSelectionInsideDataArea(grid, lastSelection)
+            || this._isSelectionAlreadyOnLastDataColumn(grid, lastSelection)) {
+            this.moveShiftSelect(grid, (grid.getColumnCount() - lastSelection.origin.x), 0);
+        } else {
+            this.moveShiftSelect(grid, ((maxColumnWithContent - 1) - lastSelection.origin.x), 0);
+        }
+    },
+
+    /**
+     * @memberOf CellSelection.prototype
+     * @param {Hypergrid} grid
+     */
+    handleCTRLLEFTSHIFT: function(grid) {
+        const lastSelection = grid.selectionModel.getLastSelection();
+        const maxColumnWithContent = grid.behavior.dataModel.getColumnsWithValuesCount();
+
+        if (this._isSelectionInsideDataArea(grid, lastSelection)
+            || this._isSelectionAlreadyOnLastDataColumn(grid, lastSelection)) {
+            this.moveShiftSelect(grid, -lastSelection.corner.x, 0);
+        } else {
+            this.moveShiftSelect(grid, -(lastSelection.corner.x - (maxColumnWithContent - 1)), 0);
+        }
     },
 
     /**
@@ -333,109 +616,8 @@ var CellSelection = Feature.extend('CellSelection', {
         //keep the browser viewport from auto scrolling on key event
         event.primitiveEvent.preventDefault();
 
-        var count = this.getAutoScrollAcceleration();
+        const count = this.getAutoScrollAcceleration();
         grid.moveSingleSelect(0, count);
-    },
-
-    /**
-     * @memberOf CellSelection.prototype
-     * @param {Hypergrid} grid
-     */
-    handleCTRLa: function(grid) {
-        const oldLastSelection = grid.selectionModel.getLastSelection();
-        grid.clearMostRecentSelection();
-        grid.select(0, 0, grid.getColumnCount() - 1, grid.getRowCount() - 1);
-        const newLastSelection = grid.selectionModel.getLastSelection();
-        newLastSelection.firstSelectedCell = oldLastSelection.firstSelectedCell;
-        grid.repaint();
-    },
-
-    /**
-     * @memberOf CellSelection.prototype
-     * @param {Hypergrid} grid
-     */
-    handleCTRLUP: function(grid) {
-        const lastSelection = grid.selectionModel.getLastSelection();
-        if (lastSelection && lastSelection.origin.y > 0) {
-            grid.moveSingleSelect(0, - (lastSelection.corner.y - grid.properties.fictiveHeaderRowsCount));
-        }
-    },
-
-    /**
-     * @memberOf CellSelection.prototype
-     * @param {Hypergrid} grid
-     */
-    handleCTRLDOWN: function(grid) {
-        const lastSelection = grid.selectionModel.getLastSelection();
-        if (lastSelection && lastSelection.origin.y > 0) {
-            grid.moveSingleSelect(0, grid.getRowCount() - lastSelection.origin.y);
-        }
-    },
-
-    /**
-     * @memberOf CellSelection.prototype
-     * @param {Hypergrid} grid
-     */
-    handleCTRLRIGHT: function(grid) {
-        const lastSelection = grid.selectionModel.getLastSelection();
-        if (lastSelection) {
-            grid.moveSingleSelect((grid.getColumnCount() - lastSelection.origin.x), 0);
-        }
-    },
-
-    /**
-     * @memberOf CellSelection.prototype
-     * @param {Hypergrid} grid
-     */
-    handleCTRLLEFT: function(grid) {
-        const lastSelection = grid.selectionModel.getLastSelection();
-        if (lastSelection) {
-            grid.moveSingleSelect(-lastSelection.corner.x, 0);
-        }
-    },
-
-    /**
-     * @memberOf CellSelection.prototype
-     * @param {Hypergrid} grid
-     */
-    handleCTRLUPSHIFT: function(grid) {
-        const lastSelection = grid.selectionModel.getLastSelection();
-        if (lastSelection && lastSelection.origin.y > 0) {
-            this.moveShiftSelect(grid, 0, - (lastSelection.corner.y - grid.properties.fictiveHeaderRowsCount));
-        }
-    },
-
-    /**
-     * @memberOf CellSelection.prototype
-     * @param {Hypergrid} grid
-     */
-    handleCTRLDOWNSHIFT: function(grid) {
-        const lastSelection = grid.selectionModel.getLastSelection();
-        if (lastSelection && lastSelection.origin.y > 0) {
-            this.moveShiftSelect(grid, 0, grid.getRowCount() - lastSelection.origin.y);
-        }
-    },
-
-    /**
-     * @memberOf CellSelection.prototype
-     * @param {Hypergrid} grid
-     */
-    handleCTRLRIGHTSHIFT: function(grid) {
-        const lastSelection = grid.selectionModel.getLastSelection();
-        if (lastSelection) {
-            this.moveShiftSelect(grid, (grid.getColumnCount() - lastSelection.origin.x), 0);
-        }
-    },
-
-    /**
-     * @memberOf CellSelection.prototype
-     * @param {Hypergrid} grid
-     */
-    handleCTRLLEFTSHIFT: function(grid) {
-        const lastSelection = grid.selectionModel.getLastSelection();
-        if (lastSelection) {
-            this.moveShiftSelect(grid, -lastSelection.corner.x, 0);
-        }
     },
 
     /**
@@ -447,14 +629,13 @@ var CellSelection = Feature.extend('CellSelection', {
         //keep the browser viewport from auto scrolling on key event
         event.primitiveEvent.preventDefault();
 
-        var count = this.getAutoScrollAcceleration();
+        const count = this.getAutoScrollAcceleration();
         grid.moveSingleSelect(0, -count);
     },
 
     /**
      * @memberOf CellSelection.prototype
      * @param {Hypergrid} grid
-     * @param {Object} event - the event details
      */
     handleLEFT: function(grid) {
         grid.moveSingleSelect(-1, 0);
@@ -463,7 +644,6 @@ var CellSelection = Feature.extend('CellSelection', {
     /**
      * @memberOf CellSelection.prototype
      * @param {Hypergrid} grid
-     * @param {Object} event - the event details
      */
     handleRIGHT: function(grid) {
         grid.moveSingleSelect(1, 0);
@@ -475,10 +655,8 @@ var CellSelection = Feature.extend('CellSelection', {
      * #### returns: integer
      */
     getAutoScrollAcceleration: function() {
-        var count = 1;
-        var elapsed = this.getAutoScrollDuration() / 2000;
-        count = Math.max(1, Math.floor(elapsed * elapsed * elapsed * elapsed));
-        return count;
+        const elapsed = this.getAutoScrollDuration() / 2000;
+        return Math.max(1, Math.floor(elapsed * elapsed * elapsed * elapsed));
     },
 
     /**
@@ -494,7 +672,7 @@ var CellSelection = Feature.extend('CellSelection', {
      * @desc update the autoscroll start time if we haven't autoscrolled within the last 500ms otherwise update the current autoscroll time
      */
     pingAutoScroll: function() {
-        var now = Date.now();
+        const now = Date.now();
         if (now - this.sbLastAuto > 500) {
             this.setAutoScrollStartTime();
         }
