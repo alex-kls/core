@@ -397,7 +397,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         metrics;
 
     if (config.columnAutosizing) {
-        metrics = gc.getTextWidthTruncated(val, width - leftPadding - rightPadding, config.truncateTextWithEllipsis);
+        metrics = gc.getTextWidthTruncated(val, width - leftPadding - rightPadding, config.truncateTextWithEllipsis, config.highlightedChars);
         minWidth = metrics.width + rightPadding;
         val = metrics.string || val;
         switch (halign) {
@@ -409,7 +409,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
                 break;
         }
     } else {
-        metrics = gc.getTextWidthTruncated(val, width - leftPadding - rightPadding, config.truncateTextWithEllipsis, true);
+        metrics = gc.getTextWidthTruncated(val, width - leftPadding - rightPadding, config.truncateTextWithEllipsis, config.highlightedChars, true);
         minWidth = 0 + rightPadding;
         if (metrics.string !== undefined) {
             val = metrics.string;
@@ -428,6 +428,13 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
     if (val !== null) {
         x += Math.max(leftPadding, halignOffset);
         y += config.bounds.height / 2;
+
+        if (metrics.highlights.length > 0) {
+            const fillStyleOld = gc.cache.fillStyle;
+            gc.cache.fillStyle = config.highlightColor;
+            metrics.highlights.forEach(h => gc.fillRect(x + h.x, config.bounds.y, h.width, config.bounds.height));
+            gc.cache.fillStyle = fillStyleOld;
+        }
 
         if (config.isUserDataArea) {
             const isAggregationHighlightingNeeded = !config.isGrandTotalRow && config.isAggregationColumn && config.isAggregationRow && config.aggregationChildCount > 0;

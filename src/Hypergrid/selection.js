@@ -98,6 +98,9 @@ color: ${props.cellValuePostfixColor};
 font: ${props.cellValuePostfixFont};
 padding-left: ${props.cellValuePostfixLeftOffset}px;
 }
+mark {
+background-color: ${props.highlightColor}
+}
 </style><table>`;
 
             let width = selections.length,
@@ -349,6 +352,7 @@ padding-left: ${props.cellValuePostfixLeftOffset}px;
         for (let c = 0, x = selectionRect.origin.x; c < colCount; c++, x++) {
             const colProps = behavior.getColumnProperties(x);
             const columnName = dataModel.getColumnName(x);
+            const searchType = behavior.getColumn(x).searchType;
             const isAggregationColumn = columnName === '$$aggregation';
             let values = rows[c] = new Array(rowCount);
             const alreadyCopied = [];
@@ -403,6 +407,9 @@ padding-left: ${props.cellValuePostfixLeftOffset}px;
                         // add value
                         const isValueUrl = dataModel.isValueUrl(val);
                         val = this.formatValue(columnName, val, false);
+                        if (this.properties.highLightText && searchType) {
+                            val = dataModel.getHighlightedValue(val, this.properties.highLightText, searchType);
+                        }
                         text += val;
                         html += `<span style="color: ${color}; ${isAggregationColumn ? 'text-decoration: underline;' : ''}">${isValueUrl ? `<a href="${val}">${val}</a>` : val}</span>`;
 

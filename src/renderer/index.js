@@ -1359,6 +1359,7 @@ var Renderer = Base.extend('Renderer', {
         config.subrow = 0;
         config.halign = isHeaderRow ? config.rowHeaderHalign : behavior.getCellProperty('halign') || config.halign;
         config.ignoreValuePrefix = properties.ignoreValuePrefix;
+        config.highlightedChars = cellEvent.highlightedChars;
 
         config.isAggregationColumn = cellEvent.isAggregationColumn;
         if (config.isAggregationColumn) {

@@ -69,15 +69,17 @@ var ELLIPSIS = '\u2026'; // The "…" (dot-dot-dot) character
  * @param {string} string - Text to measure.
  * @param {number} width - Width of target cell; overflow point.
  * @param {boolean|null|undefined} truncateTextWithEllipsis - _Per {@link module:defaults.truncateTextWithEllipsis}._
+ * @param {array} highlightChars - List of {from: {number}, to: {number}} object to detect highlighting of text
  * @param {boolean} [abort=false] - Abort measuring upon overflow. Returned `width` sum will reflect truncated string rather than untruncated string. Note that returned `string` is truncated in either case.
  * @returns {{string:string,width:number}}
  * * `object.string` - `undefined` if it fits; truncated version of provided `string` if it does not.
  * * `object.width` - Width of provided `string` if it fits; width of truncated string if it does not.
  */
-function getTextWidthTruncated(string, width, truncateTextWithEllipsis, abort) {
+function getTextWidthTruncated(string, width, truncateTextWithEllipsis, highlightChars, abort) {
     var metrics = fontMetrics[this.cache.font],
         truncating = truncateTextWithEllipsis !== undefined,
         truncString, truncWidth, truncAt;
+    const highlights = [];
 
     if (!metrics) {
         metrics = fontMetrics[this.cache.font] = {};
@@ -87,11 +89,30 @@ function getTextWidthTruncated(string, width, truncateTextWithEllipsis, abort) {
         metrics[ELLIPSIS] = this.measureText(ELLIPSIS).width;
     }
 
+    let sum = 0;
+    let highlightIndex = 0;
+    let charWidth = 0;
     string = string + ''; // convert to string
     width += truncateTextWithEllipsis === false ? 2 : 0; // fudge for inequality
-    for (var i = 0, sum = 0, len = string.length; i < len; ++i) {
-        var char = string[i];
-        var charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
+    for (let i = 0, len = string.length; i < len; ++i) {
+        const char = string[i];
+        charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
+
+        if (highlightChars) {
+            const highlightObject = highlightChars[highlightIndex];
+            if (highlightObject) {
+                if (i === highlightObject.from) {
+                    // save start width of text highlight
+                    highlights[highlightIndex] = { x: sum };
+                }
+                if (i === highlightObject.to) {
+                    // save end position of text highlight
+                    highlights[highlightIndex].width = sum - highlights[highlightIndex].x;
+                    ++highlightIndex;
+                }
+            }
+        }
+
         sum += charWidth;
         if (!truncString && truncating && sum > width) {
             truncAt = i;
@@ -116,9 +137,21 @@ function getTextWidthTruncated(string, width, truncateTextWithEllipsis, abort) {
             if (abort) { break; }
         }
     }
+
+    // save end position of text highlight with corrections related to ellipsis
+    if (highlights[highlightIndex] && !highlights[highlightIndex].width) {
+        const width = (truncWidth ? truncWidth - charWidth : sum) - highlights[highlightIndex].x;
+        if (width > 0) {
+            highlights[highlightIndex].width = width;
+        } else {
+            highlights.pop();
+        }
+    }
+
     return {
         string: truncString,
-        width: sum
+        width: sum,
+        highlights: highlights
     };
 }
 

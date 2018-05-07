@@ -100,6 +100,34 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
     },
 
     /**
+     * @summary The formatted and highlighted value of the cell.
+     *  @memberOf CellEvent#
+     */
+    highlightedChars: {
+        get: function() {
+            const str = this.formattedValue;
+            const searchType = this.column ? this.column.searchType : 'NONE';
+            const highlights = [];
+
+            if (!str || searchType === 'NONE' || searchType === undefined) {
+                return highlights;
+            }
+
+            const reg = this.subgrid.getHighlightRegex(this.properties.highLightText, searchType);
+            if (!reg) {
+                return highlights;
+            }
+
+            let m;
+            while ((m = reg.exec(str + '')) != null) {
+                highlights.push({ from: m.index, to: m.index + m[0].length });
+            }
+
+            return highlights;
+        }
+    },
+
+    /**
      * The bounds of the cell.
      * @property {number} left
      * @property {number} top

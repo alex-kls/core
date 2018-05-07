@@ -503,6 +503,34 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         }
 
         return result;
+    },
+
+    // next two methods copied from datadocs
+    getHighlightRegex(match, searchType) {
+        const words = match.split(/[ ,]+(\(.*?\))?/).filter(e => !!e).join('|');
+        const flags = 'gi';
+        const antiTagRegExp = '(?![^<>]*(([\/\"\']|]]|\b)>))';
+        if (searchType === 'EXACT_MATCH') {
+            return new RegExp('\\b' + words + '\\b' + antiTagRegExp, flags);
+        } else if (searchType === 'EDGE') {
+            return new RegExp('\\b' + words + antiTagRegExp, flags);
+        } else if (searchType === 'FULL') {
+            return new RegExp(words + antiTagRegExp, flags);
+        }
+    },
+
+    getHighlightedValue(str, match, searchType) {
+        if (!str || searchType === 'NONE' || searchType === undefined) {
+            return '';
+        }
+
+        const reg = this.getHighlightRegex(match, searchType);
+
+        if (!reg) {
+            return str;
+        }
+
+        return (str + '').replace(reg, '<mark>$&</mark>');
     }
 });
 

@@ -415,6 +415,8 @@ function sizeColumnsToFit() {
 function destroy(total) {
     this.log('destroy', total);
 
+    this.setHighlightText('');
+
     this.cancelEditing();
 
     this.sbPrevVScrollValue = null;
@@ -529,9 +531,11 @@ function setDatasource(datasource) {
     this.log('setDatasource', datasource);
     this.api.datasource = datasource;
 
+    this.setHighlightText(datasource.search || '');
+
     const startRow = this.data.length || 0;
 
-    if (startRow < datasource.totalSize) {
+    if (startRow < datasource.totalSize || startRow === 0) {
         const params = {
             startRow: startRow, // replace with correct getter
             endRow: startRow + this.paginationPageSize, // replace with correct getter

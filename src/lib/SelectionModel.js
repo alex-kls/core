@@ -413,7 +413,7 @@ SelectionModel.prototype = {
             this.setAllRowsSelected(false);
             this.rowSelectionModel.clear();
         }
-        //this.getGrid().selectionChanged();
+        this.grid.selectionChanged();
     },
 
     /**

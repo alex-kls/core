@@ -1998,6 +1998,14 @@ var Hypergrid = Base.extend('Hypergrid', {
             console.log(...arguments);
         }
     },
+
+    /**
+     * @summary set text value for highlighting within all values in table
+     * @param text
+     */
+    setHighlightText(text) {
+        this.properties.highLightText = text;
+    }
 });
 
 

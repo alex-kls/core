@@ -1275,7 +1275,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    linkColor: '#15c',
+    linkColor: '#337ab7',
 
     /** @summary Color for visited link.
      * @desc Falsy means defer to foreground color.
@@ -1283,7 +1283,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    linkVisitedColor: '#15c',
+    linkVisitedColor: '#337ab7',
 
     /** @summary Color link on hover only.
      * @type {boolean}
@@ -2298,6 +2298,16 @@ var defaults = {
      * @summary color of placeholder for null values
      */
     nullCellColor: '#d4d4d4',
+
+    /**
+     * @summary tag in which wrapped text which needed to highlight, for instance, search result
+     */
+    highLightText: '',
+
+    /**
+     * @summary color for highlight text, for instance, search result
+     */
+    highlightColor: '#F7FFBA'
 };
 
 

@@ -150,6 +150,10 @@ Column.prototype = {
         return this.schema.calculator;
     },
 
+    get searchType() {
+        return this.colDef && this.colDef.searchType;
+    },
+
     /**
      * @summary Get or set the type of the column's header.
      * @desc Setting the type updates the filter which typically uses this information for proper collation.
