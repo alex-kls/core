@@ -142,6 +142,10 @@ var CellSelection = Feature.extend('CellSelection', {
             if (!grid.cellEditor) {
                 grid.takeFocus();
             }
+
+            if (event.detail.sourceEvent && event.detail.sourceEvent.preventDefault) {
+                event.detail.sourceEvent.preventDefault();
+            }
         } else if (this.next) {
             this.next.handleKeyDown(grid, event);
         }
@@ -461,7 +465,6 @@ var CellSelection = Feature.extend('CellSelection', {
         // newLastSelection.firstSelectedCell = oldLastSelection.firstSelectedCell;
         grid.repaint();
     },
-
 
     /**
      * @memberOf CellSelection.prototype

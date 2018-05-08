@@ -503,9 +503,9 @@ Canvas.prototype = {
             e.preventDefault();
         }
 
-        if (e.metaKey) {
-            e.preventDefault();
-        }
+        // if (e.ctrlKey || e.metaKey) {
+        //     e.preventDefault();
+        // }
 
         var keyChar = this.getKeyChar(e);
         if (e.repeat) {
@@ -535,7 +535,8 @@ Canvas.prototype = {
             repeatStartTime: this.repeatKeyStartTime,
             shift: e.shiftKey,
             identifier: e.key,
-            currentKeys: this.currentKeys.slice(0)
+            currentKeys: this.currentKeys.slice(0),
+            sourceEvent: e
         });
     },
 
@@ -570,7 +571,6 @@ Canvas.prototype = {
 
     _clearCurrentKeys: function() {
         this.currentKeys = [];
-        console.log('current keys array cleared');
     },
 
     finfocusgained: function(e) {
