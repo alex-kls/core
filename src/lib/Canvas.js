@@ -503,8 +503,7 @@ Canvas.prototype = {
             e.preventDefault();
         }
 
-        // console.log('event', e);
-        if (e.metaKey || e.ctrlKey) {
+        if (e.metaKey) {
             e.preventDefault();
         }
 
@@ -569,11 +568,17 @@ Canvas.prototype = {
         });
     },
 
+    _clearCurrentKeys: function() {
+        this.currentKeys = [];
+        console.log('current keys array cleared');
+    },
+
     finfocusgained: function(e) {
         this.dispatchNewEvent(e, 'fin-canvas-focus-gained');
     },
 
     finfocuslost: function(e) {
+        this._clearCurrentKeys();
         this.dispatchNewEvent(e, 'fin-canvas-focus-lost');
     },
 
