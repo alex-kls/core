@@ -716,10 +716,10 @@ var Renderer = Base.extend('Renderer', {
     },
 
     renderSelections: function(gc) {
-        (this.grid.selectionModel.getSelections() || []).forEach(s => this.renderSelectionRect(gc, s));
+        (this.grid.selectionModel.getSelections() || []).forEach((s, i, items) => this.renderSelectionRect(gc, s, (i + 1) === items.length));
     },
 
-    renderSelectionRect: function(gc, selection) {
+    renderSelectionRect: function(gc, selection, isLastSelection = false) {
         if (selection.origin.x === -1) {
             return;
         }
@@ -793,7 +793,7 @@ var Renderer = Base.extend('Renderer', {
                 width: width,
                 height: height
             },
-            selectionRegionOverlayColor: (this.gridRenderer.paintCells.partial || (selection.width === 0 && selection.height === 0)) ?
+            selectionRegionOverlayColor: (this.gridRenderer.paintCells.partial || (isLastSelection && (selection.width === 0 && selection.height === 0))) ?
                 'transparent' :
                 gridProps.selectionRegionOverlayColor,
             selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor,
