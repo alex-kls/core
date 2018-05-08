@@ -146,7 +146,7 @@ exports.mixin = {
             // target is above scrollable rows; negative delta scrolls up
             if (delta < 0) {
                 const deltaPercent = (Math.abs(delta) + 1) / this.getRowCount();
-                pxDelta = this.sbVScroller._max * deltaPercent;
+                pxDelta = this.sbVScroller.max * deltaPercent;
 
                 this.sbVScroller.index -= pxDelta;
             }
@@ -154,7 +154,7 @@ exports.mixin = {
             delta = row - corner.y;
             if (delta >= 0) {
                 const deltaPercent = (delta + 2) / this.getRowCount();
-                pxDelta = this.sbVScroller._max * deltaPercent;
+                pxDelta = this.sbVScroller.max * deltaPercent;
 
                 this.sbVScroller.index += pxDelta;
             }
