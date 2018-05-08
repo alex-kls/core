@@ -1068,7 +1068,6 @@ const handlersToBeBound = {
         const delta = this.containerTouchScrollOffset - this._touchScrollFrame;
         this._touchScrollFrame = this.containerTouchScrollOffset;
         const v = 1000 * delta / (1 + elapsed);
-        console.log(this.containerTouchVelocityModifier * v + 0.2 * this.containerTouchVelocity);
         this.containerTouchVelocity = this.containerTouchVelocityModifier * v + 0.2 * this.containerTouchVelocity;
         if (this.containerTouchVelocity < -this.containerTouchVelocityMax) {
             this.containerTouchVelocity = -this.containerTouchVelocityMax;
