@@ -1437,15 +1437,13 @@ var defaults = {
         {
             name: '<b>Filter</b> to value',
             action: function(clickEvent, gridEvent) {
-                console.log('first callback works fine');
-                console.log('grid event', gridEvent);
+                console.log('<b>Filter</b> to value with event', gridEvent);
             }
         },
         {
             name: '<b>Exclude</b> this value',
             action: function(clickEvent, gridEvent) {
-                console.log('second callback works fine');
-                console.log('grid event', gridEvent);
+                console.log('<b>Exclude</b> this value with event', gridEvent);
             }
         },
         {
@@ -1891,7 +1889,7 @@ var defaults = {
      * @memberOf module:defaults
      */
     linkDetailsAnchorStyle: {
-        color: '#15c',
+        color: '#337ab7',
         textDecoration: 'none',
         lineHeight: '19px',
         fontFamily: 'Arial,sans-serif'
