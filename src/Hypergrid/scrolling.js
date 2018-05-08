@@ -1,7 +1,7 @@
 'use strict';
 /* eslint-env browser */
 
-var Scrollbar = require('./modules').Scrollbar;
+const Scrollbar = require('./modules').Scrollbar;
 
 /**
  * @summary Scrollbar support.
@@ -25,7 +25,7 @@ exports.mixin = {
     hScrollValue: 0,
 
     /**
-     * @property {fin-vampire-bar} sbVScroller - An instance of {@link https://github.com/openfin/finbars|FinBar}.
+     * @property {FinBar} sbVScroller - An instance of {@link https://github.com/openfin/finbars|FinBar}.
      * @memberOf Hypergrid#
      */
     sbVScroller: null,
@@ -35,14 +35,14 @@ exports.mixin = {
      * @type {number}
      * @memberOf Hypergrid#
      */
-    sbPrevVScrollValue: null,
+    sbPrevVScrollValue: 0,
 
     /**
      * The previous value of sbHScrollValue.
      * @type {number}
      * @memberOf Hypergrid#
      */
-    sbPrevHScrollValue: null,
+    sbPrevHScrollValue: 0,
 
     scrollingNow: false,
 
@@ -96,16 +96,16 @@ exports.mixin = {
      * @param {number} offsetX - Scroll in the x direction this much.
      */
     scrollHBy: function(offsetX) {
-        var max = this.sbHScroller.range.max;
-        var oldValue = this.hScrollValue;
-        var oldOffset = this.getHScrollValue();
-        var newValue = Math.min(max, oldValue + offsetX * this.behavior.getColumnWidth(Math.max(0, oldOffset + offsetX)));
+        const max = this.sbHScroller.range.max;
+        const oldValue = this.hScrollValue;
+        const oldOffset = this.getHScrollValue();
+        const newValue = Math.min(max, oldValue + offsetX * this.behavior.getColumnWidth(Math.max(0, oldOffset + offsetX)));
         if (newValue !== oldValue) {
             this.setHScrollValue(newValue);
         }
     },
 
-    scrollToMakeVisible: function(column, row, repeat = true) {
+    scrollToMakeVisible: function(column, row) {
         const { origin, corner } = this.renderer.dataWindow;
         const { fixedColumnCount, fixedRowCount } = this.properties;
 
@@ -118,7 +118,7 @@ exports.mixin = {
             // target is to left of scrollable columns; negative delta scrolls left
             if (delta < 0) {
                 pxDelta = 0;
-                for (let i = 0; i <= Math.abs(delta); i++) {
+                for (let i = 0; i <= Math.abs(delta) + 1; i++) {
                     pxDelta += this.getColumnWidth(origin.x - i);
                 }
 
@@ -149,7 +149,15 @@ exports.mixin = {
                 const deltaPercent = (Math.abs(delta) + 1) / this.getRowCount();
                 pxDelta = this.sbVScroller.max * deltaPercent;
 
-                this.sbVScroller.index -= pxDelta;
+                if (pxDelta < this.canvas.height) {
+                    this.sbVScroller.index -= pxDelta;
+                } else {
+                    delta = row - corner.y;
+
+                    const deltaPercent = (Math.abs(delta) + 1) / this.getRowCount();
+                    pxDelta = this.sbVScroller.max * deltaPercent;
+                    this.sbVScroller.index -= pxDelta;
+                }
             }
 
             delta = row - corner.y;
@@ -157,17 +165,20 @@ exports.mixin = {
                 const deltaPercent = (delta + 2) / this.getRowCount();
                 pxDelta = this.sbVScroller.max * deltaPercent;
 
-                this.sbVScroller.index += pxDelta;
+                if (pxDelta < this.canvas.height) {
+                    this.sbVScroller.index += pxDelta;
+                } else {
+                    delta = origin.y - row;
+
+                    const deltaPercent = (Math.abs(delta) + 1) / this.getRowCount();
+                    pxDelta = this.sbVScroller.max * deltaPercent;
+                    this.sbVScroller.index += pxDelta;
+                }
             }
         }
 
         if (this.sbVScroller.index <= this.getRowHeight(0)) {
             this.sbVScroller.index = 0;
-        }
-
-        // 04.05.2018 radev. ToDo: Need to be reworked.
-        if (repeat) {
-            this.scrollToMakeVisible(column, row, false);
         }
     },
 
@@ -184,13 +195,13 @@ exports.mixin = {
      * @param checkFunction - function for checking height of horizontal or certical scroll
      */
     findCellByScrollValue: function(scrollValue, from, to, checkFunction) {
-        var search = Math.round((from + to) / 2);
+        const search = Math.round((from + to) / 2);
 
         if (search === from || search === to) {
             return from;
         }
 
-        var currentHeight = checkFunction.call(this.behavior, search);
+        const currentHeight = checkFunction.call(this.behavior, search);
 
         if (currentHeight > scrollValue) {
             return this.findCellByScrollValue(scrollValue, from, search, checkFunction);
@@ -209,7 +220,7 @@ exports.mixin = {
         if (newValue !== this.vScrollValue) {
             this.behavior.setScrollPositionY(newValue);
             this.behavior.changed();
-            var oldY = this.vScrollValue;
+            const oldY = this.vScrollValue;
 
             this.vScrollValue = newValue;
             this.scrollValueChangedNotification();
@@ -238,12 +249,12 @@ exports.mixin = {
      * @param {number} newValue - The new scroll value.
      */
     setHScrollValue: function(newValue) {
-        var self = this;
+        const self = this;
         newValue = Math.min(this.sbHScroller.range.max, Math.max(0, Math.round(newValue)));
         if (newValue !== this.hScrollValue) {
             this.behavior.setScrollPositionX(newValue);
             this.behavior.changed();
-            var oldX = this.hScrollValue;
+            const oldX = this.hScrollValue;
             this.hScrollValue = newValue;
             this.scrollValueChangedNotification();
 
@@ -280,9 +291,9 @@ exports.mixin = {
             return;
         }
 
-        var self = this;
+        const self = this;
 
-        var horzBar = new Scrollbar({
+        const horzBar = new Scrollbar({
             orientation: 'horizontal',
             onBarVisibilityChanged: function(isVisible) {
                 self.properties.canvasHeightOffset = isVisible
@@ -298,7 +309,7 @@ exports.mixin = {
             }
         });
 
-        var vertBar = new Scrollbar({
+        const vertBar = new Scrollbar({
             orientation: 'vertical',
             onBarVisibilityChanged: function(isVisible) {
                 self.properties.canvasWidthOffset = isVisible
@@ -316,8 +327,8 @@ exports.mixin = {
         this.sbHScroller = horzBar;
         this.sbVScroller = vertBar;
 
-        var hPrefix = this.properties.hScrollbarClassPrefix;
-        var vPrefix = this.properties.vScrollbarClassPrefix;
+        const hPrefix = this.properties.hScrollbarClassPrefix;
+        const vPrefix = this.properties.vScrollbarClassPrefix;
 
         if (hPrefix && hPrefix !== '') {
             this.sbHScroller.classPrefix = hPrefix;
@@ -368,17 +379,17 @@ exports.mixin = {
     },
 
     getHScrollbarLeftMargin: function() {
-        var res = 0;
-        var visibleColumns = this.renderer.visibleColumns;
+        let res = 0;
+        const visibleColumns = this.renderer.visibleColumns;
         res -= this.properties.gridLinesV ? this.properties.gridLinesWidth : 0;
         res += this.properties.gridBorderLeft ? this.properties.gridLinesWidth : 0;
 
-        var neededColumn = visibleColumns[this.behavior.rowColumnIndex];
+        const neededColumn = visibleColumns[this.behavior.rowColumnIndex];
         res += this.properties.rowHeaderNumbers && neededColumn
             ? neededColumn.right
             : 0;
 
-        for (var i = 0; i < this.properties.fixedColumnCount; i++) {
+        for (let i = 0; i < this.properties.fixedColumnCount; i++) {
             if (i !== this.behavior.rowColumnIndex) {
                 res += this.getColumnWidth(i);
             }
@@ -390,7 +401,7 @@ exports.mixin = {
     },
 
     getHScrollbarRightMargin: function() {
-        var res = -1;
+        let res = -1;
 
         if (this.properties.scrollbarVStyle && this.properties.scrollbarVStyle.width) {
             res += this.properties.scrollbarVStyle.width;
@@ -400,9 +411,10 @@ exports.mixin = {
     },
 
     getVScrollbarTopMargin: function() {
-        var res, rowIndex = this.properties.fixedRowCount;
+        let res;
+        const rowIndex = this.properties.fixedRowCount;
 
-        var row = this.renderer.visibleRows[rowIndex];
+        let row = this.renderer.visibleRows[rowIndex];
         if (!row) {
             row = this.renderer.visibleRows[0];
         }
@@ -421,7 +433,7 @@ exports.mixin = {
     },
 
     getVScrollbarBottomMargin: function() {
-        var res = -1;
+        let res = -1;
 
         if (this.properties.scrollbarHStyle && this.properties.scrollbarHStyle.height) {
             res += this.properties.scrollbarHStyle.height;
@@ -431,18 +443,18 @@ exports.mixin = {
     },
 
     getFullContentWidth: function() {
-        var res = 0;
+        let res = 0;
 
-        for (var i = 0; i <= this.getColumnCount(); i++){
+        for (let i = 0; i <= this.getColumnCount(); i++){
             res += this.getColumnWidth(i);
         }
 
         return res;
     },
     getFullContentHeight: function() {
-        var res = 0;
+        let res = 0;
 
-        for (var i = 0; i <= this.getRowCount(); i++){
+        for (let i = 0; i <= this.getRowCount(); i++){
             res += this.getRowHeight(i);
         }
 
@@ -499,15 +511,15 @@ exports.mixin = {
      * Adjust the scrollbar properties as necessary.
      */
     synchronizeScrollingBoundaries: function() {
-        var numColumns = this.getColumnCount();
-        var numRows = this.getRowCount();
+        const numColumns = this.getColumnCount();
+        const numRows = this.getRowCount();
 
-        var bounds = this.getBounds();
+        const bounds = this.getBounds();
         if (!bounds) {
             return;
         }
 
-        var scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
+        const scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
         for (
             var columnsWidth = 0, lastPageColumnCount = 0;
             lastPageColumnCount < numColumns && columnsWidth < scrollableWidth;
@@ -519,7 +531,7 @@ exports.mixin = {
             lastPageColumnCount--;
         }
 
-        var scrollableHeight = this.renderer.getVisibleScrollHeight();
+        const scrollableHeight = this.renderer.getVisibleScrollHeight();
         for (
             var rowsHeight = 0, lastPageRowCount = 0;
             lastPageRowCount < numRows && rowsHeight < scrollableHeight;
@@ -533,13 +545,13 @@ exports.mixin = {
 
         // inform scroll bars
         if (this.sbHScroller) {
-            var hMax = Math.max(0, this.behavior.getColumnsWidth(this.behavior.getActiveColumnCount() - lastPageColumnCount + 1) - this.behavior.getFixedColumnsWidth());
+            let hMax = Math.max(0, this.behavior.getColumnsWidth(this.behavior.getActiveColumnCount() - lastPageColumnCount + 1) - this.behavior.getFixedColumnsWidth());
             hMax += this.behavior.getColumnWidth(this.behavior.getActiveColumnCount());
             this.setHScrollbarValues(hMax);
             this.setHScrollValue(Math.min(this.hScrollValue, hMax));
         }
         if (this.sbVScroller) {
-            var vMax = Math.max(0, this.behavior.getRowsHeight(this.behavior.getRowCount() - lastPageRowCount + 2) - this.behavior.getFixedRowsHeight()); // todo determine why 2
+            const vMax = Math.max(0, this.behavior.getRowsHeight(this.behavior.getRowCount() - lastPageRowCount + 2) - this.behavior.getFixedRowsHeight()); // todo determine why 2
             this.setVScrollbarValues(vMax);
             this.setVScrollValue(Math.min(this.vScrollValue, vMax));
         }
@@ -556,8 +568,8 @@ exports.mixin = {
      * @returns {number}
      */
     pageUp: function() {
-        var rowNum = this.renderer.getPageUpRow();
-        var rowNumPixels = this.behavior.getRowsHeight(rowNum);
+        const rowNum = this.renderer.getPageUpRow();
+        const rowNumPixels = this.behavior.getRowsHeight(rowNum);
         this.setVScrollValue(rowNumPixels);
         return rowNumPixels;
     },
@@ -568,8 +580,8 @@ exports.mixin = {
      * @returns {number}
      */
     pageDown: function() {
-        var rowNum = this.renderer.getPageDownRow();
-        var rowNumPixels = this.behavior.getRowsHeight(rowNum);
+        const rowNum = this.renderer.getPageDownRow();
+        const rowNumPixels = this.behavior.getRowsHeight(rowNum);
         this.setVScrollValue(rowNumPixels);
         return rowNumPixels;
     },
@@ -580,10 +592,10 @@ exports.mixin = {
      * @returns {number}
      */
     pageLeft: function() {
-        var bounds = this.getBounds();
-        var currentScroll = this.behavior.getScrollPositionX();
-        var scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
-        var leftPixel = currentScroll - scrollableWidth;
+        const bounds = this.getBounds();
+        const currentScroll = this.behavior.getScrollPositionX();
+        const scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
+        const leftPixel = currentScroll - scrollableWidth;
         this.setHScrollValue(leftPixel);
         return leftPixel;
     },
@@ -594,10 +606,10 @@ exports.mixin = {
      * @returns {number}
      */
     pageRight: function() {
-        var bounds = this.getBounds();
-        var currentScroll = this.behavior.getScrollPositionX();
-        var scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
-        var rightPixel = currentScroll + scrollableWidth;
+        const bounds = this.getBounds();
+        const currentScroll = this.behavior.getScrollPositionX();
+        const scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
+        const rightPixel = currentScroll + scrollableWidth;
         this.setHScrollValue(rightPixel);
         return rightPixel;
     }
