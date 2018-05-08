@@ -115,11 +115,18 @@ var CellSelection = Feature.extend('CellSelection', {
     handleKeyDown: function(grid, event) {
         let cellEvent = grid.getGridCellFromLastSelection(true);
         const detail = event.detail,
-            navKey = cellEvent && (
-                cellEvent.properties.mappedNavKey(detail.char, detail.ctrl) ||
-                cellEvent.properties.navKey(detail.char, detail.ctrl)
-            ),
-            handler = (detail.ctrl && this['handleCTRL' + navKey]) ? this['handleCTRL' + navKey] : this['handle' + navKey];
+            keys = detail.currentKeys;
+        const ctrlPressed = event.metaKey
+            || event.ctrlKey
+            || keys.indexOf('CTRL') >= 0
+            || keys.indexOf('COMMANDLEFT') >= 0
+            || keys.indexOf('COMMANDRIGHT') >= 0;
+        const navKey = cellEvent && (
+                cellEvent.properties.mappedNavKey(detail.char, ctrlPressed) ||
+                cellEvent.properties.navKey(detail.char, ctrlPressed)
+            );
+
+        const handler = (ctrlPressed && this['handleCTRL' + navKey]) ? this['handleCTRL' + navKey] : this['handle' + navKey];
 
         // STEP 1: Move the selection
         if (handler) {
@@ -252,7 +259,7 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Array} keys - array of the keys that are currently pressed down
      */
     extendSelection: function(grid, gridCell, keys) {
-        const hasCTRL = keys.indexOf('CTRL') >= 0,
+        const hasCTRL = keys.indexOf('CTRL') >= 0 || keys.indexOf('COMMANDLEFT') >= 0 || keys.indexOf('COMMANDRIGHT') >= 0,
             hasSHIFT = keys.indexOf('SHIFT') >= 0,
             mousePoint = grid.getMouseDown(),
             x = gridCell.x, // - numFixedColumns + scrollLeft;
@@ -463,8 +470,6 @@ var CellSelection = Feature.extend('CellSelection', {
     handleCTRLUP: function(grid) {
         const lastSelection = grid.selectionModel.getLastSelection();
         const maxRowWithContent = grid.behavior.dataModel.getRowsWithValuesCount();
-
-        console.log('lastSelection', lastSelection);
 
         if (!this._isSelectionInsideDataArea(grid, lastSelection)) {
             if (lastSelection.origin.x >= grid.behavior.dataModel.getColumnsWithValuesCount()) {

@@ -503,6 +503,11 @@ Canvas.prototype = {
             e.preventDefault();
         }
 
+        // console.log('event', e);
+        if (e.metaKey || e.ctrlKey) {
+            e.preventDefault();
+        }
+
         var keyChar = this.getKeyChar(e);
         if (e.repeat) {
             if (this.repeatKey === keyChar) {
