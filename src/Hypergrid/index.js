@@ -1241,6 +1241,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {number} offsetY - Scroll in the y direction this much.
      */
     scrollBy: function(offsetX, offsetY) {
+        // OVERRIDED BY scrolling.js FILE
         this.scrollHBy(offsetX);
         this.scrollVBy(offsetY);
     },
@@ -1251,6 +1252,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {number} offsetY - Scroll in the y direction this much.
      */
     scrollVBy: function(offsetY) {
+        // OVERRIDED BY scrolling.js FILE
         var max = this.sbVScroller.range.max;
         var oldValue = this.vScrollValue;
         var oldOffset = this.getVScrollValue();
@@ -1266,6 +1268,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {number} offsetX - Scroll in the x direction this much.
      */
     scrollHBy: function(offsetX) {
+        // OVERRIDED BY scrolling.js FILE
         var max = this.sbHScroller.range.max;
         var oldValue = this.hScrollValue;
         var oldOffset = this.getHScrollValue();

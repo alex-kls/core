@@ -198,7 +198,7 @@ var CellSelection = Feature.extend('CellSelection', {
 
     /**
      * @memberOf CellSelection.prototype
-     * @desc this function makes sure that while we are dragging outside of the grid visible bounds, we srcroll accordingly
+     * @desc this function makes sure that while we are dragging outside of the grid visible bounds, we scroll accordingly
      * @param {Hypergrid} grid
      */
     scrollDrag: function(grid) {

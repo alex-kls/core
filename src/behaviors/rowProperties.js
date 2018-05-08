@@ -35,17 +35,15 @@ exports.mixin = {
      * 2. The visible data rows of the data subgrid.
      */
     getRowsHeight: function(toY) {
-        var subgrid, r, R,
-            subgrids = this.subgrids,
-            height = 0;
+        let height = 0;
 
-        for (var i = 0; i < subgrids.length; ++i) {
-            subgrid = subgrids[i];
-            R = toY === undefined ? subgrid.getRowCount() : toY;
-            for (r = 0; r < R; ++r) {
+        this.subgrids.forEach(subgrid => {
+            const maxRowCount = subgrid.getRowCount();
+            const R = toY === undefined || toY > maxRowCount ? maxRowCount : toY;
+            for (let r = 0; r < R; ++r) {
                 height += this.getRowHeight(r, subgrid);
             }
-        }
+        });
 
         return height;
     },

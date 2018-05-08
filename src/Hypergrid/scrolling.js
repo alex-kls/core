@@ -80,10 +80,11 @@ exports.mixin = {
      * @param {number} offsetY - Scroll in the y direction this much.
      */
     scrollVBy: function(offsetY) {
-        var max = this.sbVScroller.range.max;
-        var oldValue = this.vScrollValue;
-        var oldOffset = this.getVScrollValue();
-        var newValue = Math.min(max, oldValue + offsetY * this.behavior.getRowHeight(Math.max(0, oldOffset + offsetY)));
+        const max = this.sbVScroller.range.max;
+        const oldValue = this.vScrollValue;
+        const oldOffset = this.getVScrollValue();
+        const rowHeight = this.behavior.getRowHeight(Math.max(0, oldOffset + offsetY));
+        const newValue = Math.min(max, oldValue + offsetY * rowHeight);
         if (newValue !== oldValue) {
             this.setVScrollValue(newValue);
         }
@@ -204,7 +205,6 @@ exports.mixin = {
      * @param {number} newValue - The new scroll value.
      */
     setVScrollValue: function(newValue) {
-        var self = this;
         newValue = Math.min(this.sbVScroller.range.max, Math.max(0, Math.round(newValue)));
         if (newValue !== this.vScrollValue) {
             this.behavior.setScrollPositionY(newValue);
@@ -213,9 +213,9 @@ exports.mixin = {
 
             this.vScrollValue = newValue;
             this.scrollValueChangedNotification();
-            setTimeout(function() {
+            setTimeout(()=> {
                 // self.sbVRangeAdapter.subjectChanged();
-                self.fireScrollEvent('fin-scroll-y', oldY, newValue);
+                this.fireScrollEvent('fin-scroll-y', oldY, newValue);
             });
         }
         // update scrollbar
