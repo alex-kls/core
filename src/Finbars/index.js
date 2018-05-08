@@ -3,8 +3,7 @@
 /* eslint-disable */
 /* eslint-env node, browser */
 
-var cssInjector = require('css-injector');
-// var _lastContainerTouchMovePos;
+const cssInjector = require('css-injector');
 
 /**
  * @constructor FinBar
@@ -28,8 +27,8 @@ var cssInjector = require('css-injector');
 function FinBar(options) {
 
     // make bound versions of all the mouse event handler
-    var bound = this._bound = {};
-    for (key in handlersToBeBound) {
+    const bound = this.bound = {};
+    for (const key in handlersToBeBound) {
         bound[key] = handlersToBeBound[key].bind(this);
     }
 
@@ -42,11 +41,11 @@ function FinBar(options) {
      * @type {Element}
      * @memberOf FinBar.prototype
      */
-    var thumb = this.thumb = document.createElement('div');
+    const thumb = this.thumb = document.createElement('div');
     thumb.classList.add('thumb');
     thumb.onclick = bound.shortStop;
     thumb.onmouseover = bound.onmouseover;
-    thumb.ontouchstart = this._bound.onthumbtouchstart;
+    thumb.ontouchstart = this.bound.onthumbtouchstart;
 
     /**
      * @name bar
@@ -62,16 +61,15 @@ function FinBar(options) {
      * @type {Element}
      * @memberOf FinBar.prototype
      */
-
-    var bar = this.bar = document.createElement('div');
+    const bar = this.bar = document.createElement('div');
     bar.classList.add('finbar-vertical');
-    bar.onmousedown = this._bound.onmousedown;
+    bar.onmousedown = this.bound.onmousedown;
     if (this.paging) {
         bar.onclick = bound.onclick;
     }
     bar.appendChild(thumb);
-    bar.ontouchstart = this._bound.onbartouchstart;
-    bar.onmouseout = this._bound.onmouseout;
+    bar.ontouchstart = this.bound.onbartouchstart;
+    bar.onmouseout = this.bound.onmouseout;
     options = options || {};
 
     /**
@@ -81,19 +79,18 @@ function FinBar(options) {
      * @type {Element}
      * @memberOf FinBar.prototype
      */
-
-    var mountDiv = this.mountDiv = document.createElement('div');
+    const mountDiv = this.mountDiv = document.createElement('div');
     mountDiv.appendChild(bar);
 
     // presets
     this.orientation = 'vertical';
-    this._min = this._index = 0;
-    this._max = 100;
+    this.min = this._index = 0;
+    this.max = 100;
 
     // options
-    for (var key in options) {
+    for (const key in options) {
         if (options.hasOwnProperty(key)) {
-            var option = options[key];
+            const option = options[key];
             switch (key) {
 
                 case 'index':
@@ -102,8 +99,8 @@ function FinBar(options) {
 
                 case 'range':
                     validRange(option);
-                    this._min = option.min;
-                    this._max = option.max;
+                    this.min = option.min;
+                    this.max = option.max;
                     this.contentSize = option.max - option.min + 1;
                     break;
 
@@ -227,56 +224,70 @@ FinBar.prototype = {
 
     /**
      * @summary contains last detected position of user touch
-     * @type {number}
+     * @type {number|null}
      * @memberOf FinBar.prototype
      */
-    _lastContainerTouchMovePos: null,
+    containerLastTouchPos: null,
 
     /**
      * @summary contains last detected user touch time (timestamp)
-     * @type {number}
+     * @type {number|null}
      * @memberOf FinBar.prototype
      */
-    _lastContainerTouchMoveTime: null,
+    containerLastTouchTime: null,
 
     /**
      * @summary contains current user touch move velocity
      * @type {number}
      * @memberOf FinBar.prototype
      */
-    _containerTouchMoveVelocity: 0,
+    containerTouchVelocity: 0,
+
+    /**
+     * @summary contains current user touch move velocity limit
+     * @description use this variable for tuning kinetic scroll speed
+     * @type {number}
+     * @memberOf FinBar.prototype
+     */
+    containerTouchVelocityMax: 20000,
+
+    /**
+     * @summary multiplier for start scroll speed calculation
+     * @description use this variable for tuning kinetic scroll speed
+     * @type {number}
+     * @memberOf FinBar.prototype
+     */
+    containerTouchVelocityModifier: 4.2,
 
     /**
      * @summary contains current user touch move a,plitude
      * @type {number}
      * @memberOf FinBar.prototype
      */
-    _containerTouchMoveAmplitude: 0,
+    containerTouchAmplitude: 0,
 
     /**
      * @summary contains current smooth touch scroll interval. Used to smoothly scroll content
      * @type {number}
      * @memberOf FinBar.prototype
      */
-    _containerTouchMoveScrollInterval: 0,
+    containerTouchScrollInterval: 0,
 
     /**
      * @summary contains current user touch move offset
      * @type {number}
      * @memberOf FinBar.prototype
      */
-    _containerTouchMoveScrollOffset: null,
+    containerTouchScrollOffset: null,
 
     /**
      * @summary contains current user touch move target. Used to detect end position of smooth scroll
      * @type {number}
      * @memberOf FinBar.prototype
      */
-    _containerTouchMoveScrollTarget: null,
+    containerTouchScrollTarget: null,
 
-    lastThumbTouchMovePos: null,
-
-    _isLastTouchStartsOverBar: null,
+    isLastTouchOverBar: null,
 
     /**
      * @summary interval which used when mouse hold scroll performed
@@ -292,9 +303,9 @@ FinBar.prototype = {
      * @type {number}
      * @memberOf FinBar.prototype
      */
-    _mouseHoldPerformInterval: 0,
+    mouseHoldPerformInterval: 0,
 
-    _mouseHoldPerformIntervalCurrentCoordsObj: null,
+    mouseHoldPerformIntervalCurrentCoordsObj: null,
 
     /**
      * @private
@@ -302,7 +313,7 @@ FinBar.prototype = {
      * @type {number}
      * @memberOf FinBar.prototype
      */
-    _mouseHoldPerformTimeout: 0,
+    mouseHoldPerformTimeout: 0,
 
     /**
      * @private
@@ -327,11 +338,11 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     performMouseHoldOverBarEnd: function() {
-        this._isTouchHoldOverBar = false;
-        this._mouseHoldPerformIntervalCurrentCoordsObj = null;
-        if (this._mouseHoldPerformInterval) {
-            clearInterval(this._mouseHoldPerformInterval);
-            this._mouseHoldPerformInterval = 0;
+        this.isTouchHoldOverBar = false;
+        this.mouseHoldPerformIntervalCurrentCoordsObj = null;
+        if (this.mouseHoldPerformInterval) {
+            clearInterval(this.mouseHoldPerformInterval);
+            this.mouseHoldPerformInterval = 0;
         }
 
         this.clearMouseHoldTimeout();
@@ -345,13 +356,14 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     clearMouseHoldTimeout: function() {
-        if (this._mouseHoldPerformTimeout) {
-            clearTimeout(this._mouseHoldPerformTimeout);
-            this._mouseHoldPerformTimeout = 0;
+        if (this.mouseHoldPerformTimeout) {
+            clearTimeout(this.mouseHoldPerformTimeout);
+            this.mouseHoldPerformTimeout = 0;
         }
     },
 
-    onBarVisibilityChanged: function() {},
+    onBarVisibilityChanged: function() {
+    },
 
     /**
      * @summary Add a CSS class name to the bar element's class list.
@@ -435,12 +447,12 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     set style(styles) {
-        var keys = Object.keys(styles = extend({}, styles, this._auxStyles));
+        const keys = Object.keys(styles = extend({}, styles, this._auxStyles));
 
         if (keys.length) {
-            var bar = this.bar,
+            const bar = this.bar,
                 barRect = bar.getBoundingClientRect(),
-                container = this.container || bar.parentElement,
+                container = bar.parentElement,
                 containerRect = container.getBoundingClientRect(),
                 oh = this.oh;
 
@@ -448,7 +460,7 @@ FinBar.prototype = {
             // bar.removeAttribute('style');
 
             keys.forEach(function(key) {
-                var val = styles[key];
+                let val = styles[key];
                 if (key in oh) {
                     key = oh[key];
                 }
@@ -458,7 +470,7 @@ FinBar.prototype = {
                 } else if (/%$/.test(val)) {
                     // When bar size given as percentage of container, if bar has margins, restate size in pixels less margins.
                     // (If left as percentage, CSS's calculation will not exclude margins.)
-                    var oriented = axis[key],
+                    const oriented = axis[key],
                         margins = barRect[oriented.marginLeading] + barRect[oriented.marginTrailing];
                     if (margins) {
                         val = parseInt(val, 10) / 100 * containerRect[oriented.size] - margins + 'px';
@@ -473,13 +485,12 @@ FinBar.prototype = {
     },
 
     set thumbStyle(styles) {
-        var keys = Object.keys(styles = extend({}, styles));
+        const thumb = this.thumb;
+        const keys = Object.keys(styles = extend({}, styles));
 
         if (keys.length) {
-            var thumb = this.thumb;
-
             keys.forEach(function(key) {
-                var val = styles[key];
+                let val = styles[key];
 
                 if (!isNaN(Number(val))) {
                     val = (val || 0) + 'px';
@@ -495,13 +506,13 @@ FinBar.prototype = {
     },
 
     set mountStyle(styles) {
-        var keys = Object.keys(styles = extend({}, styles));
+        const keys = Object.keys(styles = extend({}, styles));
 
         if (keys.length) {
-            var mount = this.mountDiv;
+            const mount = this.mountDiv;
 
             keys.forEach(function(key) {
-                var val = styles[key];
+                let val = styles[key];
 
                 if (!isNaN(Number(val))) {
                     val = (val || 0) + 'px';
@@ -542,16 +553,13 @@ FinBar.prototype = {
      */
     set range(range) {
         validRange(range);
-        this._min = range.min;
-        this._max = range.max;
+        this.min = range.min;
+        this.max = range.max;
         this.contentSize = range.max - range.min + 1;
         this.index = this.index; // re-clamp
     },
     get range() {
-        return {
-            min: this._min,
-            max: this._max
-        };
+        return { min: this.min, max: this.max };
     },
 
     /**
@@ -569,10 +577,8 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     set index(idx) {
-        idx = Math.min(this._max, Math.max(this._min, idx)); // clamp it
+        idx = Math.min(this.max, Math.max(this.min, idx)); // clamp it
         this._setScroll(idx);
-
-        // this._setThumbSize();
     },
     get index() {
         return this._index;
@@ -601,17 +607,16 @@ FinBar.prototype = {
 
         // Move the thumb
         if (scaled === undefined) {
-            scaled = (idx - this._min) / (this._max - this._min) * this._thumbMax;
+            scaled = (idx - this.min) / (this.max - this.min) * this.thumbMax;
         }
         this.thumb.style[this.oh.leading] = scaled + 'px';
     },
 
     scrollRealContent: function(idx) {
-        var containerRect = this.content.parentElement.getBoundingClientRect(),
+        const containerRect = this.content.parentElement.getBoundingClientRect(),
             sizeProp = this.oh.size,
             maxScroll = Math.max(0, this.content[sizeProp] - containerRect[sizeProp]),
-            //scroll = Math.min(idx, maxScroll);
-            scroll = (idx - this._min) / (this._max - this._min) * maxScroll;
+            scroll = (idx - this.min) / (this.max - this.min) * maxScroll;
 
         this.content.style[this.oh.leading] = -scroll + 'px';
     },
@@ -635,19 +640,18 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     resize: function(increment, barStyles, contentFullWidth) {
-        var bar = this.bar;
+        const bar = this.bar;
 
         if (!bar.parentNode) {
             return; // not in DOM yet so nothing to do
         }
 
-        var container = this.container || this.mountDiv.parentElement,
+        const container = this.mountDiv.parentElement,
             containerRect = container.getBoundingClientRect();
 
         // shift args if if 1st arg omitted
         if (typeof increment === 'object') {
             barStyles = increment;
-            increment = undefined;
         }
 
         this.style = this.barStyles = barStyles || this.barStyles;
@@ -659,44 +663,32 @@ FinBar.prototype = {
             if (!this.onchange) {
                 this.onchange = this.scrollRealContent;
                 this.contentSize = this.content[this.oh.size];
-                this._min = 0;
-                this._max = this.contentSize - 1;
+                this.min = 0;
+                this.max = this.contentSize - 1;
             }
         }
 
-        // if (contentFullWidth) {
-        //     this.contentSize = contentFullWidth;
-        // }
-
         this.containerSize = containerRect[this.oh.size];
-        // this.increment = this.containerSize / (this.contentSize - this.containerSize) * (this._max - this._min);
         this.increment = this.containerSize / 3;
-        // if (this.onchange === this.scrollRealContent) {
-        //     this.containerSize = containerRect[this.oh.size];
-        //     this.increment = this.containerSize / (this.contentSize - this.containerSize) * (this._max - this._min);
-        // } else {
-        //     this.containerSize = 1;
-        //     this.increment = increment || this.increment;
-        // }
 
-        var index = this.index;
+        const index = this.index;
         this.testPanelItem = this.testPanelItem || this._addTestPanelItem();
         this._setThumbSize();
         this.index = index;
         this.restyleMountDiv();
 
         if (this.deltaProp !== null) {
-            container.addEventListener('wheel', this._bound.onwheel);
-            container.addEventListener('touchstart', this._bound.ontouchstart);
-            container.addEventListener('touchmove', this._bound.ontouchmove);
-            container.addEventListener('touchend', this._bound.ontouchend);
+            container.addEventListener('wheel', this.bound.onwheel);
+            container.addEventListener('touchstart', this.bound.ontouchstart);
+            container.addEventListener('touchmove', this.bound.ontouchmove);
+            container.addEventListener('touchend', this.bound.ontouchend);
         }
 
         return this;
     },
 
-    restyleMountDiv: function(){
-        var computedStyles = window.getComputedStyle(this.bar);
+    restyleMountDiv: function() {
+        const computedStyles = window.getComputedStyle(this.bar);
 
         if (this.orientation === 'horizontal') {
             this.mountDiv.style.height = computedStyles.height;
@@ -747,7 +739,7 @@ FinBar.prototype = {
         if (!otherFinBar) {
             delete this._auxStyles;
         } else if (otherFinBar instanceof FinBar && otherFinBar.orientation !== this.orientation) {
-            var otherStyle = window.getComputedStyle(otherFinBar.bar),
+            const otherStyle = window.getComputedStyle(otherFinBar.bar),
                 ooh = orientationHashes[otherFinBar.orientation];
             this._auxStyles = {};
             this._auxStyles[whichEnd] = otherStyle[ooh.thickness] - 1;
@@ -768,8 +760,7 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     _setThumbSize: function() {
-        var oh = this.oh,
-            mountDivComp = window.getComputedStyle(this.mountDiv),
+        const oh = this.oh,
             thumbComp = window.getComputedStyle(this.thumb),
             thumbMarginLeading = parseInt(thumbComp[oh.marginLeading]),
             thumbMarginTrailing = parseInt(thumbComp[oh.marginTrailing]),
@@ -777,7 +768,7 @@ FinBar.prototype = {
             barSize = this.bar.getBoundingClientRect()[oh.size] - thumbMargins,
             thumbSize = Math.max(20, barSize * this.containerSize / this.contentSize);
 
-        var oldVisibility = this.mountDiv.style.visibility;
+        const oldVisibility = this.mountDiv.style.visibility;
         if (this.containerSize < this.contentSize) {
             this.mountDiv.style.visibility = 'visible';
             this.thumb.style[oh.size] = thumbSize + 'px';
@@ -785,13 +776,13 @@ FinBar.prototype = {
             this.mountDiv.style.visibility = 'hidden';
         }
 
-        if(oldVisibility !== this.mountDiv.style.visibility && this.onBarVisibilityChanged) {
+        if (oldVisibility !== this.mountDiv.style.visibility && this.onBarVisibilityChanged) {
             this.onBarVisibilityChanged(this.mountDiv.style.visibility === 'visible');
         }
 
         /**
          * @private
-         * @name _thumbMax
+         * @name thumbMax
          * @summary Maximum offset of thumb's leading edge.
          * @desc This is the pixel offset within the scrollbar of the thumb when it is at its maximum position at the extreme end of its range.
          *
@@ -801,9 +792,9 @@ FinBar.prototype = {
          * @type {number}
          * @memberOf FinBar.prototype
          */
-        this._thumbMax = barSize - thumbSize - thumbMargins;
+        this.thumbMax = barSize - thumbSize - thumbMargins;
 
-        this._thumbMarginLeading = thumbMarginLeading; // used in mousedown
+        this.thumbMarginLeading = thumbMarginLeading; // used in mousedown
     },
 
     /**
@@ -816,9 +807,9 @@ FinBar.prototype = {
         this._removeEvt('mousemove');
         this._removeEvt('mouseup');
 
-        var container = (this.container || this.mountDiv.parentElement);
+        const container = this.mountDiv.parentElement;
         if (container._removeEvt) {
-            container._removeEvt('wheel', this._bound.onwheel);
+            container._removeEvt('wheel', this.bound.onwheel);
         }
 
         this.bar.onclick =
@@ -843,11 +834,11 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     _addTestPanelItem: function() {
-        var testPanelItem,
-            testPanelElement = document.querySelector('.' + this._classPrefix + '.test-panel') || document.querySelector('.test-panel');
+        let testPanelItem,
+            testPanelElement = document.querySelector(`.${this._classPrefix}.test-panel`) || document.querySelector('.test-panel');
 
         if (testPanelElement) {
-            var testPanelItemPartNames = ['mousedown', 'mousemove', 'mouseup', 'index'],
+            const testPanelItemPartNames = ['mousedown', 'mousemove', 'mouseup', 'index'],
                 item = document.createElement('li');
 
             testPanelItemPartNames.forEach(function(partName) {
@@ -866,27 +857,27 @@ FinBar.prototype = {
     },
 
     _addEvt: function(evtName) {
-        var spy = this.testPanelItem && this.testPanelItem[evtName];
+        const spy = this.testPanelItem && this.testPanelItem[evtName];
         if (spy) {
             spy.classList.add('listening');
         }
-        window.addEventListener(evtName, this._bound['on' + evtName]);
+        window.addEventListener(evtName, this.bound['on' + evtName]);
     },
 
     _removeEvt: function(evtName) {
-        var spy = this.testPanelItem && this.testPanelItem[evtName];
+        const spy = this.testPanelItem && this.testPanelItem[evtName];
         if (spy) {
             spy.classList.remove('listening');
         }
-        window.removeEventListener(evtName, this._bound['on' + evtName]);
+        window.removeEventListener(evtName, this.bound['on' + evtName]);
     }
 };
 
 function extend(obj) {
-    for (var i = 1; i < arguments.length; ++i) {
-        var objn = arguments[i];
+    for (let i = 1; i < arguments.length; ++i) {
+        const objn = arguments[i];
         if (objn) {
-            for (var key in objn) {
+            for (const key in objn) {
                 obj[key] = objn[key];
             }
         }
@@ -895,7 +886,7 @@ function extend(obj) {
 }
 
 function validRange(range) {
-    var keys = Object.keys(range),
+    const keys = Object.keys(range),
         valid = keys.length === 2 &&
             typeof range.min === 'number' &&
             typeof range.max === 'number' &&
@@ -912,13 +903,13 @@ function validRange(range) {
  * @type {object}
  * @desc The functions defined in this object are all DOM event handlers that are bound by the FinBar constructor to each new instance. In other words, the `this` value of these handlers, once bound, refer to the FinBar object and not to the event emitter. "Do not consume raw."
  */
-var handlersToBeBound = {
+const handlersToBeBound = {
     shortStop: function(evt) {
         evt.stopPropagation();
     },
 
     onwheel: function(evt) {
-        var key = this.deltaProp;
+        let key = this.deltaProp;
         // swap coordinates if shift key pressed
         if (evt.shiftKey) {
             key = orientationHashes[key === orientationHashes.horizontal.delta ? 'vertical' : 'horizontal'].delta;
@@ -929,11 +920,10 @@ var handlersToBeBound = {
     },
 
     onclick: function(evt) {
-        var self = this;
         this.thumb.addEventListener('transitionend', function waitForIt() {
             this.removeEventListener('transitionend', waitForIt);
-            self._bound.onmouseup(evt);
-        });
+            this.bound.onmouseup(evt);
+        }.bind(this));
 
         evt.stopPropagation();
     },
@@ -951,29 +941,29 @@ var handlersToBeBound = {
     },
 
     onmousedown: function(evt) {
-        var thumbBox = this.thumb.getBoundingClientRect();
-        this.pinOffset = evt[this.oh.axis] - thumbBox[this.oh.leading] + this.bar.getBoundingClientRect()[this.oh.leading] + this._thumbMarginLeading;
+        const thumbBox = this.thumb.getBoundingClientRect();
+        this.pinOffset = evt[this.oh.axis] - thumbBox[this.oh.leading] + this.bar.getBoundingClientRect()[this.oh.leading] + this.thumbMarginLeading;
         document.documentElement.style.cursor = 'default';
 
         this._addEvt('mousemove');
         this._addEvt('mouseup');
 
-        this._bound._performCursorDown(evt);
+        this.bound._performCursorDown(evt);
 
         evt.stopPropagation();
         evt.preventDefault();
     },
 
     onbartouchstart: function(evt) {
-        var thumbBox = this.thumb.getBoundingClientRect();
-        this.pinOffset = evt.touches[0][this.oh.coordinate] - thumbBox[this.oh.leading] + this.bar.getBoundingClientRect()[this.oh.leading] + this._thumbMarginLeading;
+        const thumbBox = this.thumb.getBoundingClientRect();
+        this.pinOffset = evt.touches[0][this.oh.coordinate] - thumbBox[this.oh.leading] + this.bar.getBoundingClientRect()[this.oh.leading] + this.thumbMarginLeading;
         document.documentElement.style.cursor = 'default';
 
         this._addEvt('touchend');
         this._addEvt('touchmove');
 
-        this._bound._performCursorDown(evt.touches[0]);
-        this._isLastTouchStartsOverBar = true;
+        this.bound._performCursorDown(evt.touches[0]);
+        this.isLastTouchOverBar = true;
 
         evt.stopPropagation();
         evt.preventDefault();
@@ -996,64 +986,62 @@ var handlersToBeBound = {
                 this.index += goingUp ? -this.increment : this.increment;
             }
 
-            var self = this;
-
             this.clearMouseHoldTimeout();
-            this._mouseHoldPerformTimeout = setTimeout(function() {
-                self._isTouchHoldOverBar = true;
-                self.isThumbDragging = false;
+            this.mouseHoldPerformTimeout = setTimeout(() => {
+                this.isTouchHoldOverBar = true;
+                this.isThumbDragging = false;
 
-                self._mouseHoldPerformIntervalCurrentCoordsObj = coordsObject;
+                this.mouseHoldPerformIntervalCurrentCoordsObj = coordsObject;
 
-                self._mouseHoldPerformInterval = setInterval(function() {
-                    const co = self._mouseHoldPerformIntervalCurrentCoordsObj;
-                    thumbBox = self.thumb.getBoundingClientRect();
+                this.mouseHoldPerformInterval = setInterval(() => {
+                    const co = this.mouseHoldPerformIntervalCurrentCoordsObj;
+                    thumbBox = this.thumb.getBoundingClientRect();
                     mouseOverThumb = thumbBox.left <= co.clientX && co.clientX <= thumbBox.right &&
                         thumbBox.top <= co.clientY && co.clientY <= thumbBox.bottom;
 
-                    const thumbCenterLeadingSide = (thumbBox[self.oh.leading] + thumbBox[self.oh.size]/3);
-                    const thumbCenterTrailingSide = (thumbBox[self.oh.trailing] - thumbBox[self.oh.size]/3);
+                    const thumbCenterLeadingSide = (thumbBox[this.oh.leading] + thumbBox[this.oh.size] / 3);
+                    const thumbCenterTrailingSide = (thumbBox[this.oh.trailing] - thumbBox[this.oh.size] / 3);
                     mouseOverThumbCenter = mouseOverThumb
-                        && (thumbCenterLeadingSide <= co[self.oh.coordinate])
-                        && (thumbCenterTrailingSide >= co[self.oh.coordinate]);
+                        && (thumbCenterLeadingSide <= co[this.oh.coordinate])
+                        && (thumbCenterTrailingSide >= co[this.oh.coordinate]);
 
                     // goingUp value changed only if thumb not in cursor yet.
                     // Otherwise we can think, that scroll continuous and goingUp don't need to be changed
                     if (!mouseOverThumb) {
-                        goingUp = co[self.oh.coordinate] < thumbBox[self.oh.leading];
+                        goingUp = co[this.oh.coordinate] < thumbBox[this.oh.leading];
                     }
 
-                    incrementValue = goingUp ? -self.increment : self.increment;
+                    incrementValue = goingUp ? -this.increment : this.increment;
 
-                    if (self._isTouchHoldOverBar && !mouseOverThumbCenter) {
-                        if (goingUp && (co[self.oh.coordinate] <= thumbCenterLeadingSide)
-                            && ((self.index + incrementValue) <= 0)) {
-                            self.index = 0;
+                    if (this.isTouchHoldOverBar && !mouseOverThumbCenter) {
+                        if (goingUp && (co[this.oh.coordinate] <= thumbCenterLeadingSide)
+                            && ((this.index + incrementValue) <= 0)) {
+                            this.index = 0;
                         } else {
-                            self.index += incrementValue;
+                            this.index += incrementValue;
                         }
                     }
 
-                    if (self._isTouchHoldOverBar && mouseOverThumbCenter) {
-                        self.performMouseHoldOverBarEnd();
+                    if (this.isTouchHoldOverBar && mouseOverThumbCenter) {
+                        this.performMouseHoldOverBarEnd();
                     }
                 }, this.mouseHoldPerformIntervalRate);
             }, 200);
-        } else if(!this._isTouchHoldOverBar){
+        } else if (!this.isTouchHoldOverBar) {
             this.isThumbDragging = true;
         }
     },
 
     onmousemove: function(evt) {
         if (this.isThumbDragging) {
-            var scaled = Math.min(this._thumbMax, Math.max(0, evt[this.oh.axis] - this.pinOffset));
-            var idx = scaled / this._thumbMax * (this._max - this._min) + this._min;
+            const scaled = Math.min(this.thumbMax, Math.max(0, evt[this.oh.axis] - this.pinOffset));
+            const idx = scaled / this.thumbMax * (this.max - this.min) + this.min;
 
             this._setScroll(idx, scaled);
         }
 
-        if (this._isTouchHoldOverBar) {
-            this._mouseHoldPerformIntervalCurrentCoordsObj = evt;
+        if (this.isTouchHoldOverBar) {
+            this.mouseHoldPerformIntervalCurrentCoordsObj = evt;
         }
 
         evt.stopPropagation();
@@ -1074,27 +1062,33 @@ var handlersToBeBound = {
     },
 
     trackTouchScroll: function() {
-        let elapsed, delta, v;
         const currentTimestamp = Date.now();
-        elapsed = currentTimestamp - this._lastContainerTouchMoveTime;
-        this._lastContainerTouchMoveTime = currentTimestamp;
-        delta = this._containerTouchMoveScrollOffset - this._containerTouchMoveScrollFrame;
-        this._containerTouchMoveScrollFrame = this._containerTouchMoveScrollOffset;
-        v = 1000 * delta / (1 + elapsed);
-        this._containerTouchMoveVelocity = 1.2 * v + 0.2 * this._containerTouchMoveVelocity;
+        const elapsed = currentTimestamp - this.containerLastTouchTime;
+        this.containerLastTouchTime = currentTimestamp;
+        const delta = this.containerTouchScrollOffset - this._touchScrollFrame;
+        this._touchScrollFrame = this.containerTouchScrollOffset;
+        const v = 1000 * delta / (1 + elapsed);
+        console.log(this.containerTouchVelocityModifier * v + 0.2 * this.containerTouchVelocity);
+        this.containerTouchVelocity = this.containerTouchVelocityModifier * v + 0.2 * this.containerTouchVelocity;
+        if (this.containerTouchVelocity < -this.containerTouchVelocityMax) {
+            this.containerTouchVelocity = -this.containerTouchVelocityMax;
+        }
+        if (this.containerTouchVelocity > this.containerTouchVelocityMax) {
+            this.containerTouchVelocity = this.containerTouchVelocityMax;
+        }
     },
 
     ontouchstart: function(evt) {
         this._isTouchHoldOverContainer = true;
         this.isThumbTouchDragging = false;
-        this._lastContainerTouchMovePos = evt.touches[0][this.oh.coordinate];
-        this._lastContainerTouchMoveTime = Date.now();
+        this.containerLastTouchPos = evt.touches[0][this.oh.coordinate];
+        this.containerLastTouchTime = Date.now();
 
-        this._containerTouchMoveScrollFrame = this._containerTouchMoveScrollOffset;
-        this._containerTouchMoveVelocity = this._containerTouchMoveAmplitude = 0;
+        this._touchScrollFrame = this.containerTouchScrollOffset;
+        this.containerTouchVelocity = this.containerTouchAmplitude = 0;
 
-        this._isLastTouchStartsOverBar = false;
-        this._containerTouchMoveScrollInterval = setInterval(this._bound.trackTouchScroll, 100);
+        this.isLastTouchOverBar = false;
+        this.containerTouchScrollInterval = setInterval(this.bound.trackTouchScroll, 100);
 
         evt.preventDefault();
         evt.stopPropagation();
@@ -1114,13 +1108,12 @@ var handlersToBeBound = {
     },
 
     onthumbtouchstart: function(evt) {
-        var thumbBox = this.thumb.getBoundingClientRect();
-        let currentMovePos = this._bound.getPos(evt);
-        this.pinOffset = currentMovePos - thumbBox[this.oh.leading] + this.bar.getBoundingClientRect()[this.oh.leading] + this._thumbMarginLeading;
+        const thumbBox = this.thumb.getBoundingClientRect();
+        let currentMovePos = this.bound.getPos(evt);
+        this.pinOffset = currentMovePos - thumbBox[this.oh.leading] + this.bar.getBoundingClientRect()[this.oh.leading] + this.thumbMarginLeading;
 
         this.isThumbTouchDragging = true;
-        this.lastThumbTouchMovePos = currentMovePos;
-        this._lastContainerTouchMovePos = null;
+        this.containerLastTouchPos = null;
 
         this._addEvt('touchend');
         this._addEvt('touchmove');
@@ -1132,21 +1125,20 @@ var handlersToBeBound = {
     ontouchend: function(evt) {
         if (this._isTouchHoldOverContainer) {
             this._isTouchHoldOverContainer = false;
-            clearInterval(this._containerTouchMoveScrollInterval);
-            this._bound.trackTouchScroll();
-            if (this._containerTouchMoveVelocity > 10 || this._containerTouchMoveVelocity < -10) {
-                this._containerTouchMoveAmplitude = 0.8 * this._containerTouchMoveVelocity;
-                this._containerTouchMoveScrollTarget = Math.round(this._containerTouchMoveScrollOffset + this._containerTouchMoveAmplitude);
-                this._lastContainerTouchMoveTime = Date.now();
-                requestAnimationFrame(this._bound._performTouchAutoScroll);
+            clearInterval(this.containerTouchScrollInterval);
+            this.bound.trackTouchScroll();
+            if (this.containerTouchVelocity > 10 || this.containerTouchVelocity < -10) {
+                this.containerTouchAmplitude = 0.8 * this.containerTouchVelocity;
+                this.containerTouchScrollTarget = Math.round(this.containerTouchScrollOffset + this.containerTouchAmplitude);
+                this.containerLastTouchTime = Date.now();
+                requestAnimationFrame(this.bound._performTouchAutoScroll);
             }
         }
 
 
         this.isThumbTouchDragging = false;
         this._isTouchHoldOverContainer = false;
-        this._lastContainerTouchMovePos = null;
-        this.lastThumbTouchMovePos = null;
+        this.containerLastTouchPos = null;
 
         this.performMouseHoldOverBarEnd();
 
@@ -1158,41 +1150,42 @@ var handlersToBeBound = {
     },
 
     _performTouchAutoScroll: function() {
-        let elapsed, delta;
-        if (this._containerTouchMoveAmplitude) {
-            elapsed = Date.now() - this._lastContainerTouchMoveTime;
-            delta = - this._containerTouchMoveAmplitude * Math.exp(- elapsed / 325);
+        if (this.containerTouchAmplitude) {
+            const elapsed = Date.now() - this.containerLastTouchTime;
+            const delta = -this.containerTouchAmplitude * Math.exp(-elapsed / 325);
             if (delta > 0.5 || delta < -0.5) {
-                this._bound._performTouchScroll(this._containerTouchMoveScrollTarget + delta);
-                requestAnimationFrame(this._bound._performTouchAutoScroll);
+                this.bound._performTouchScroll(this.containerTouchScrollTarget + delta);
+                requestAnimationFrame(this.bound._performTouchAutoScroll);
             } else {
-                this._bound._performTouchScroll(this._containerTouchMoveScrollTarget);
+                this.bound._performTouchScroll(this.containerTouchScrollTarget);
             }
         }
     },
 
     _performTouchScroll: function(y) {
-        this._containerTouchMoveScrollOffset = (y > this._max) ? this._max : (y < this._min) ? this._min : y;
-        this._setScroll(this._containerTouchMoveScrollOffset);
+        const newOffset = (y > this.max) ? this.max : (y < this.min) ? this.min : y;
+        if (newOffset !== this.containerTouchScrollOffset) {
+            this.containerTouchScrollOffset = newOffset;
+            this._setScroll(this.containerTouchScrollOffset);
+        }
     },
 
     ontouchmove: function(evt) {
         if (this.isThumbTouchDragging) {
-            let currentMovePos = this._bound.getPos(evt);
+            let currentMovePos = this.bound.getPos(evt);
 
-            let scaled = Math.min(this._thumbMax, Math.max(0, currentMovePos - this.pinOffset));
-            let idx = scaled / this._thumbMax * (this._max - this._min) + this._min;
+            let scaled = Math.min(this.thumbMax, Math.max(0, currentMovePos - this.pinOffset));
+            let idx = scaled / this.thumbMax * (this.max - this.min) + this.min;
 
             this._setScroll(idx, scaled);
-            this.lastThumbTouchMovePos = currentMovePos;
         } else if (this._isTouchHoldOverContainer) {
-            const pos = this._bound.getPos(evt);
-            const delta = this._lastContainerTouchMovePos - pos;
+            const pos = this.bound.getPos(evt);
+            const delta = this.containerLastTouchPos - pos;
             if (delta > 2 || delta < -2) {
-                this._lastContainerTouchMovePos = pos;
-                this._bound._performTouchScroll(this._containerTouchMoveScrollOffset + delta);
+                this.containerLastTouchPos = pos;
+                this.bound._performTouchScroll(this.containerTouchScrollOffset + delta);
             }
-        } else if (this._isLastTouchStartsOverBar) {
+        } else if (this.isLastTouchOverBar) {
             const boundsBox = this.bar.getBoundingClientRect();
             const touchOverBar = boundsBox.left <= evt.touches[0].clientX && evt.touches[0].clientX <= boundsBox.right &&
                 boundsBox.top <= evt.touches[0].clientY && evt.touches[0].clientY <= boundsBox.bottom;
@@ -1202,8 +1195,8 @@ var handlersToBeBound = {
             }
         }
 
-        if (this._mouseHoldPerformIntervalCurrentCoordsObj) {
-            this._mouseHoldPerformIntervalCurrentCoordsObj = evt.touches[0];
+        if (this.mouseHoldPerformIntervalCurrentCoordsObj) {
+            this.mouseHoldPerformIntervalCurrentCoordsObj = evt.touches[0];
         }
 
         evt.stopPropagation();
@@ -1211,7 +1204,7 @@ var handlersToBeBound = {
     }
 };
 
-var orientationHashes = {
+const orientationHashes = {
     vertical: {
         coordinate: 'clientY',
         axis: 'pageY',
@@ -1242,7 +1235,7 @@ var orientationHashes = {
     }
 };
 
-var axis = {
+const axis = {
     top: 'vertical',
     bottom: 'vertical',
     height: 'vertical',
@@ -1251,7 +1244,7 @@ var axis = {
     width: 'horizontal'
 };
 
-var cssFinBars; // definition inserted by gulpfile between following comments
+let cssFinBars; // definition inserted by gulpfile between following comments
 /* inject:css */
 cssFinBars = 'div.finbar-horizontal,div.finbar-vertical{position:absolute;margin:3px}div.finbar-horizontal>.thumb,div.finbar-vertical>.thumb{position:absolute;background-color:#d3d3d3;-webkit-box-shadow:0 0 1px #000;-moz-box-shadow:0 0 1px #000;box-shadow:0 0 1px #000;border-radius:4px;margin:2px;opacity:.4;transition:opacity .5s}div.finbar-horizontal>.thumb.hover,div.finbar-vertical>.thumb.hover{opacity:1;transition:opacity .5s}div.finbar-vertical{top:0;bottom:0;right:0;width:11px}div.finbar-vertical>.thumb{top:0;right:0;width:7px}div.finbar-horizontal{left:0;right:0;bottom:0;height:11px}div.finbar-horizontal>.thumb{left:0;bottom:0;height:7px}';
 
@@ -1261,7 +1254,7 @@ function error(msg) {
     throw 'finbars: ' + msg;
 }
 
-function mouseWithin(bounds,x,y) {
+function mouseWithin(bounds, x, y) {
     const offset = bounds.offset();
     const l = offset.left;
     const t = offset.top;
@@ -1272,7 +1265,7 @@ function mouseWithin(bounds,x,y) {
     const maxy = t + h;
 
     return (y <= maxy && y >= t) && (x <= maxx && x >= l);
-};
+}
 
 // Interface
 module.exports = FinBar;
