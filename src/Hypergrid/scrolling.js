@@ -539,7 +539,7 @@ exports.mixin = {
             this.setHScrollValue(Math.min(this.hScrollValue, hMax));
         }
         if (this.sbVScroller) {
-            var vMax = Math.max(0, this.behavior.getRowsHeight(this.behavior.getRowCount() - lastPageRowCount + 1) - this.behavior.getFixedRowsHeight());
+            var vMax = Math.max(0, this.behavior.getRowsHeight(this.behavior.getRowCount() - lastPageRowCount + 2) - this.behavior.getFixedRowsHeight()); // todo determine why 2
             this.setVScrollbarValues(vMax);
             this.setVScrollValue(Math.min(this.vScrollValue, vMax));
         }
