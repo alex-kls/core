@@ -452,7 +452,8 @@ var CellSelection = Feature.extend('CellSelection', {
             newSelectionCornerY = grid.getRowCount();
         }
 
-        if (this._isSelectionAlreadyOnFictiveHeaderRow(grid, oldLastSelection)) {
+        if (this._isSelectionAlreadyOnFictiveHeaderRow(grid, oldLastSelection)
+            || grid.properties.selectFictiveHeaderCellsAsRegular) {
             newSelectionOriginY = 0;
             newSelectionCornerY += grid.getFictiveHeaderRowsCount();
         }
@@ -474,15 +475,18 @@ var CellSelection = Feature.extend('CellSelection', {
         const lastSelection = grid.selectionModel.getLastSelection();
         const maxRowWithContent = grid.behavior.dataModel.getRowsWithValuesCount();
 
-        if (!this._isSelectionInsideDataArea(grid, lastSelection)) {
-            if (lastSelection.origin.x >= grid.behavior.dataModel.getColumnsWithValuesCount()) {
+        if (!this._isSelectionInsideDataArea(grid, lastSelection)
+            || grid.properties.ignoreDataCellsOnVerticalCtrlSelection) {
+            if (lastSelection.origin.x >= grid.behavior.dataModel.getColumnsWithValuesCount()
+                || grid.properties.ignoreDataCellsOnVerticalCtrlSelection) {
                 grid.moveSingleSelect(0, - Math.max(lastSelection.corner.y, lastSelection.origin.y));
             } else {
                 grid.moveSingleSelect(0, - (Math.max(lastSelection.corner.y, lastSelection.origin.y) - maxRowWithContent));
             }
         } else {
             if (this._isSelectionAlreadyOnFictiveHeaderRow(grid, lastSelection)
-                || this._isSelectionAlreadyOnFirstDataRow(grid, lastSelection)) {
+                || this._isSelectionAlreadyOnFirstDataRow(grid, lastSelection)
+                || grid.properties.selectFictiveHeaderCellsAsRegular) {
                 grid.moveSingleSelect(0, - Math.max(lastSelection.corner.y, lastSelection.origin.y));
             } else {
                 grid.moveSingleSelect(0, - (Math.max(lastSelection.corner.y, lastSelection.origin.y) - grid.getFictiveHeaderRowsCount()));
@@ -500,11 +504,13 @@ var CellSelection = Feature.extend('CellSelection', {
 
         if (!this._isSelectionInsideDataArea(grid, lastSelection)
             || this._isSelectionAlreadyOnLastDataRow(grid, lastSelection)
-            || lastSelection.origin.x > grid.behavior.dataModel.getColumnsWithValuesCount()) {
+            || lastSelection.origin.x > grid.behavior.dataModel.getColumnsWithValuesCount()
+            || grid.properties.ignoreDataCellsOnVerticalCtrlSelection) {
             grid.moveSingleSelect(0, grid.getRowCount() - lastSelection.lastSelectedCell.y);
         } else {
             if (this._isSelectionAlreadyOnFictiveHeaderRow(grid, lastSelection)
-                && !this._isSelectionAlreadyOnFirstDataRow(grid, lastSelection)) {
+                && !this._isSelectionAlreadyOnFirstDataRow(grid, lastSelection)
+                && !grid.properties.selectFictiveHeaderCellsAsRegular) {
                 grid.moveSingleSelect(0, grid.getFictiveHeaderRowsCount() - lastSelection.lastSelectedCell.y);
             } else {
                 grid.moveSingleSelect(0, maxRowWithContent - lastSelection.lastSelectedCell.y);
@@ -553,15 +559,18 @@ var CellSelection = Feature.extend('CellSelection', {
         const maxRowWithContent = grid.behavior.dataModel.getRowsWithValuesCount();
 
 
-        if (!this._isSelectionInsideDataArea(grid, lastSelection)) {
-            if (lastSelection.origin.x >= grid.behavior.dataModel.getColumnsWithValuesCount()) {
+        if (!this._isSelectionInsideDataArea(grid, lastSelection)
+            || grid.properties.ignoreDataCellsOnVerticalCtrlSelection) {
+            if (lastSelection.origin.x >= grid.behavior.dataModel.getColumnsWithValuesCount()
+                || grid.properties.ignoreDataCellsOnVerticalCtrlSelection) {
                 this.moveShiftSelect(grid, 0, - Math.max(lastSelection.corner.y, lastSelection.origin.y));
             } else {
                 this.moveShiftSelect(grid, 0, - (Math.max(lastSelection.corner.y, lastSelection.origin.y) - maxRowWithContent));
             }
         } else {
             if (this._isSelectionAlreadyOnFictiveHeaderRow(grid, lastSelection)
-                || this._isSelectionAlreadyOnFirstDataRow(grid, lastSelection)) {
+                || this._isSelectionAlreadyOnFirstDataRow(grid, lastSelection)
+                || grid.properties.selectFictiveHeaderCellsAsRegular) {
                 this.moveShiftSelect(grid, 0, - Math.max(lastSelection.corner.y, lastSelection.origin.y));
             } else {
                 this.moveShiftSelect(grid, 0, - (Math.max(lastSelection.corner.y, lastSelection.origin.y) - grid.getFictiveHeaderRowsCount()));
@@ -579,7 +588,8 @@ var CellSelection = Feature.extend('CellSelection', {
 
         if (!this._isSelectionInsideDataArea(grid, lastSelection)
             || this._isSelectionAlreadyOnLastDataRow(grid, lastSelection)
-            || lastSelection.origin.x > grid.behavior.dataModel.getColumnsWithValuesCount()) {
+            || lastSelection.origin.x > grid.behavior.dataModel.getColumnsWithValuesCount()
+            || grid.properties.ignoreDataCellsOnVerticalCtrlSelection) {
             this.moveShiftSelect(grid, 0, grid.getRowCount() - lastSelection.lastSelectedCell.y);
         } else {
             this.moveShiftSelect(grid, 0, maxRowWithContent - lastSelection.lastSelectedCell.y);

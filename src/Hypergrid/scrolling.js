@@ -146,15 +146,15 @@ exports.mixin = {
             delta = row - origin.y;
             // target is above scrollable rows; negative delta scrolls up
             if (delta < 0) {
-                const deltaPercent = (Math.abs(delta) + 1) / this.getRowCount();
+                const deltaPercent = (Math.abs(delta) + 2) / this.getRowCount();
                 pxDelta = this.sbVScroller.max * deltaPercent;
 
-                if (pxDelta < this.canvas.height) {
+                if (pxDelta < this.properties.defaultRowHeight * 3) {
                     this.sbVScroller.index -= pxDelta;
                 } else {
                     delta = row - corner.y;
 
-                    const deltaPercent = (Math.abs(delta) + 1) / this.getRowCount();
+                    const deltaPercent = (Math.abs(delta) + 2) / this.getRowCount();
                     pxDelta = this.sbVScroller.max * deltaPercent;
                     this.sbVScroller.index -= pxDelta;
                 }
@@ -165,12 +165,14 @@ exports.mixin = {
                 const deltaPercent = (delta + 2) / this.getRowCount();
                 pxDelta = this.sbVScroller.max * deltaPercent;
 
-                if (pxDelta < this.canvas.height) {
+                console.log('pxDelta', pxDelta);
+
+                if (pxDelta < this.properties.defaultRowHeight * 3) {
                     this.sbVScroller.index += pxDelta;
                 } else {
                     delta = origin.y - row;
 
-                    const deltaPercent = (Math.abs(delta) + 1) / this.getRowCount();
+                    const deltaPercent = (Math.abs(delta) + 2) / this.getRowCount();
                     pxDelta = this.sbVScroller.max * deltaPercent;
                     this.sbVScroller.index += pxDelta;
                 }

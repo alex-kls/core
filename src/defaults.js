@@ -958,6 +958,22 @@ var defaults = {
     rowSelection: true,
 
     /**
+     * @desc If true, fictive header rows will use regular selection rules
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    selectFictiveHeaderCellsAsRegular: true,
+
+    /**
+     * @desc If true, Ctrl+[UP/Down] will only goes to very first/last row
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    ignoreDataCellsOnVerticalCtrlSelection: true,
+
+    /**
      * @default
      * @type {boolean}
      * @memberOf module:defaults
