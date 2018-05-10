@@ -591,20 +591,22 @@ var Local = Behavior.extend('Local', {
      */
     expandChildRows: function(rowOrIndex) {
         const row = typeof rowOrIndex === 'object' ? rowOrIndex : this.grid.getRow(rowOrIndex);
-        if (!row.$$open && row.$$children && row.$$children.length > 0) {
+        if (!row.$$open && row.$$children) {
             this.populateAggregationNamesForRow(row);
-            const rowIndex = this.dataModel.data.indexOf(row);
-            this.dataModel.addRows(row.$$children, rowIndex + 1);
-            row.$$children.forEach(r => {
-                this.populateAggregationNamesForRow(r, row.parentAggs);
-                r.$$parentRow = row;
-            });
+            if (row.$$children.length > 0) {
+                const rowIndex = this.dataModel.data.indexOf(row);
+                this.dataModel.addRows(row.$$children, rowIndex + 1);
+                row.$$children.forEach(r => {
+                    this.populateAggregationNamesForRow(r, row.parentAggs);
+                    r.$$parentRow = row;
+                });
 
-            // remove column because of flat mode
-            if (!this.grid.properties.isPivot) {
-                this.dataModel.data.splice(rowIndex, 1);
+                // remove column because of flat mode
+                if (!this.grid.properties.isPivot) {
+                    this.dataModel.data.splice(rowIndex, 1);
+                }
+                this.flatReady = false;
             }
-            this.flatReady = false;
         }
         row.$$open = true;
     },
