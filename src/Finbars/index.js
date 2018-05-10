@@ -4,6 +4,8 @@
 /* eslint-env node, browser */
 
 const cssInjector = require('css-injector');
+const events = require('./events');
+const orientationHashes = require('./orientationHashes');
 
 /**
  * @constructor FinBar
@@ -25,12 +27,10 @@ const cssInjector = require('css-injector');
  * @param {finbarOptions} [options={}] - Options object. See the type definition for member details.
  */
 function FinBar(options) {
-
-    // make bound versions of all the mouse event handler
-    const bound = this.bound = {};
-    for (const key in handlersToBeBound) {
-        bound[key] = handlersToBeBound[key].bind(this);
-    }
+    const bound = this.events = new events(this);
+    Object.getOwnPropertyNames(Object.getPrototypeOf(bound))
+        .filter(f => typeof bound[f] === 'function')
+        .forEach(f => bound[f] = bound[f].bind(bound));
 
     /**
      * @name thumb
@@ -44,8 +44,7 @@ function FinBar(options) {
     const thumb = this.thumb = document.createElement('div');
     thumb.classList.add('thumb');
     thumb.onclick = bound.shortStop;
-    thumb.onmouseover = bound.onmouseover;
-    thumb.ontouchstart = this.bound.onthumbtouchstart;
+    thumb.ontouchstart = bound.onthumbtouchstart;
 
     /**
      * @name bar
@@ -63,13 +62,13 @@ function FinBar(options) {
      */
     const bar = this.bar = document.createElement('div');
     bar.classList.add('finbar-vertical');
-    bar.onmousedown = this.bound.onmousedown;
+    bar.onmousedown = bound.onmousedown;
     if (this.paging) {
         bar.onclick = bound.onclick;
     }
     bar.appendChild(thumb);
-    bar.ontouchstart = this.bound.onbartouchstart;
-    bar.onmouseout = this.bound.onmouseout;
+    bar.ontouchstart = bound.onbartouchstart;
+    bar.onmouseout = bound.onmouseout;
     options = options || {};
 
     /**
@@ -207,160 +206,6 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     onchange: null,
-
-    /**
-     * @summary flag to detect is mouse was continuously clicked over scrollbar (not thumb)
-     * @type {boolean}
-     * @memberOf FinBar.prototype
-     */
-    _isTouchHoldOverBar: false,
-
-    /**
-     * @summary flag to detect is user touch starts over container (used to smooth scroll on mobile devices)
-     * @type {boolean}
-     * @memberOf FinBar.prototype
-     */
-    _isTouchHoldOverContainer: false,
-
-    /**
-     * @summary contains last detected position of user touch
-     * @type {number|null}
-     * @memberOf FinBar.prototype
-     */
-    containerLastTouchPos: null,
-
-    /**
-     * @summary contains last detected user touch time (timestamp)
-     * @type {number|null}
-     * @memberOf FinBar.prototype
-     */
-    containerLastTouchTime: null,
-
-    /**
-     * @summary contains current user touch move velocity
-     * @type {number}
-     * @memberOf FinBar.prototype
-     */
-    containerTouchVelocity: 0,
-
-    /**
-     * @summary contains current user touch move velocity limit
-     * @description use this variable for tuning kinetic scroll speed
-     * @type {number}
-     * @memberOf FinBar.prototype
-     */
-    containerTouchVelocityMax: 20000,
-
-    /**
-     * @summary multiplier for start scroll speed calculation
-     * @description use this variable for tuning kinetic scroll speed
-     * @type {number}
-     * @memberOf FinBar.prototype
-     */
-    containerTouchVelocityModifier: 4.2,
-
-    /**
-     * @summary contains current user touch move a,plitude
-     * @type {number}
-     * @memberOf FinBar.prototype
-     */
-    containerTouchAmplitude: 0,
-
-    /**
-     * @summary contains current smooth touch scroll interval. Used to smoothly scroll content
-     * @type {number}
-     * @memberOf FinBar.prototype
-     */
-    containerTouchScrollInterval: 0,
-
-    /**
-     * @summary contains current user touch move offset
-     * @type {number}
-     * @memberOf FinBar.prototype
-     */
-    containerTouchScrollOffset: null,
-
-    /**
-     * @summary contains current user touch move target. Used to detect end position of smooth scroll
-     * @type {number}
-     * @memberOf FinBar.prototype
-     */
-    containerTouchScrollTarget: null,
-
-    isLastTouchOverBar: null,
-
-    /**
-     * @summary interval which used when mouse hold scroll performed
-     * @desc table will be scrolled on one full page with this interval until mouse hold ends
-     * @type {number}
-     * @memberOf FinBar.prototype
-     */
-    mouseHoldPerformIntervalRate: 50,
-
-    /**
-     * @private
-     * @summary utility field that contains mouseHold processing interval id
-     * @type {number}
-     * @memberOf FinBar.prototype
-     */
-    mouseHoldPerformInterval: 0,
-
-    mouseHoldPerformIntervalCurrentCoordsObj: null,
-
-    /**
-     * @private
-     * @summary utility field that contains timeout id, which used when moseHold processing starts
-     * @type {number}
-     * @memberOf FinBar.prototype
-     */
-    mouseHoldPerformTimeout: 0,
-
-    /**
-     * @private
-     * @summary flag to detect that user clicked over thumb, and scroll need to be performed exactly to that point
-     * @type {boolean}
-     * @memberOf FinBar.prototype
-     */
-    isThumbDragging: true,
-
-    /**
-     * @private
-     * @summary flag to detect that user start touch move over thumb, and scroll need to be placed based on mouse position
-     * @type {boolean}
-     * @memberOf FinBar.prototype
-     */
-    isThumbTouchDragging: false,
-
-    /**
-     * @private
-     * @summary utility method to unify logic when user stops holding mouse on empty scroll bar space
-     * @return {void}
-     * @memberOf FinBar.prototype
-     */
-    performMouseHoldOverBarEnd: function() {
-        this.isTouchHoldOverBar = false;
-        this.mouseHoldPerformIntervalCurrentCoordsObj = null;
-        if (this.mouseHoldPerformInterval) {
-            clearInterval(this.mouseHoldPerformInterval);
-            this.mouseHoldPerformInterval = 0;
-        }
-
-        this.clearMouseHoldTimeout();
-    },
-
-    /**
-     * @private
-     * @summary utility method to perform clearing of an mouseHold timeout,
-     * if user stops holding mouse before timeout function fork
-     * @return {void}
-     * @memberOf FinBar.prototype
-     */
-    clearMouseHoldTimeout: function() {
-        if (this.mouseHoldPerformTimeout) {
-            clearTimeout(this.mouseHoldPerformTimeout);
-            this.mouseHoldPerformTimeout = 0;
-        }
-    },
 
     onBarVisibilityChanged: function() {
     },
@@ -552,6 +397,7 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     set range(range) {
+        console.log(range);
         validRange(range);
         this.min = range.min;
         this.max = range.max;
@@ -630,7 +476,8 @@ FinBar.prototype = {
      *
      * @param {number} [increment=this.increment] - Resets {@link FooBar#increment|increment} (see).
      *
-     * @param {finbarStyles} [barStyles=this.barStyles] - (See type definition for details.) Scrollbar styles to be applied to the bar element.
+     * @param {barStyles} [barStyles=this.barStyles] - (See type definition for details.) Scrollbar styles to be applied to the bar element.
+     * @param {contentFullWidth} [contentFullWidth=this.contentSize] - Content full width in px
      *
      * Only specify a `barStyles` object when you need to override stylesheet values. If provided, becomes the new default (`this.barStyles`), for use as a default on subsequent calls.
      *
@@ -640,6 +487,10 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     resize: function(increment, barStyles, contentFullWidth) {
+        if (contentFullWidth !== undefined) {
+            this.contentSize = contentFullWidth;
+        }
+
         const bar = this.bar;
 
         if (!bar.parentNode) {
@@ -678,10 +529,10 @@ FinBar.prototype = {
         this.restyleMountDiv();
 
         if (this.deltaProp !== null) {
-            container.addEventListener('wheel', this.bound.onwheel);
-            container.addEventListener('touchstart', this.bound.ontouchstart);
-            container.addEventListener('touchmove', this.bound.ontouchmove);
-            container.addEventListener('touchend', this.bound.ontouchend);
+            container.addEventListener('wheel', this.events.onwheel);
+            container.addEventListener('touchstart', this.events.ontouchstart);
+            container.addEventListener('touchmove', this.events.ontouchmove);
+            container.addEventListener('touchend', this.events.ontouchend);
         }
 
         return this;
@@ -809,14 +660,13 @@ FinBar.prototype = {
 
         const container = this.mountDiv.parentElement;
         if (container._removeEvt) {
-            container._removeEvt('wheel', this.bound.onwheel);
+            container._removeEvt('wheel', this.events.onwheel);
         }
 
         this.bar.onclick =
             this.thumb.onclick =
-                this.thumb.onmouseover =
-                    this.thumb.transitionend =
-                        this.thumb.onmouseout = null;
+                this.thumb.transitionend =
+                    this.thumb.onmouseout = null;
 
         this.bar.remove();
     },
@@ -856,20 +706,8 @@ FinBar.prototype = {
         return testPanelItem;
     },
 
-    _addEvt: function(evtName) {
-        const spy = this.testPanelItem && this.testPanelItem[evtName];
-        if (spy) {
-            spy.classList.add('listening');
-        }
-        window.addEventListener(evtName, this.bound['on' + evtName]);
-    },
-
     _removeEvt: function(evtName) {
-        const spy = this.testPanelItem && this.testPanelItem[evtName];
-        if (spy) {
-            spy.classList.remove('listening');
-        }
-        window.removeEventListener(evtName, this.bound['on' + evtName]);
+        this.events._removeEvt(evtName);
     }
 };
 
@@ -897,343 +735,6 @@ function validRange(range) {
     }
 }
 
-/**
- * @private
- * @name handlersToBeBound
- * @type {object}
- * @desc The functions defined in this object are all DOM event handlers that are bound by the FinBar constructor to each new instance. In other words, the `this` value of these handlers, once bound, refer to the FinBar object and not to the event emitter. "Do not consume raw."
- */
-const handlersToBeBound = {
-    shortStop: function(evt) {
-        evt.stopPropagation();
-    },
-
-    onwheel: function(evt) {
-        let key = this.deltaProp;
-        // swap coordinates if shift key pressed
-        if (evt.shiftKey) {
-            key = orientationHashes[key === orientationHashes.horizontal.delta ? 'vertical' : 'horizontal'].delta;
-        }
-        this.index += evt[key];
-        evt.stopPropagation();
-        evt.preventDefault();
-    },
-
-    onclick: function(evt) {
-        this.thumb.addEventListener('transitionend', function waitForIt() {
-            this.removeEventListener('transitionend', waitForIt);
-            this.bound.onmouseup(evt);
-        }.bind(this));
-
-        evt.stopPropagation();
-    },
-
-    onmouseover: function() {
-        // 30.03.2017 - disable, cause GoogleDocs scrollbar not hovered
-        // this.thumb.classList.add('hover');
-    },
-
-    onmouseout: function(evt) {
-        // 30.03.2017 - disable, cause GoogleDocs scrollbar not hovered
-        // this.thumb.classList.remove('hover');
-
-        this.performMouseHoldOverBarEnd();
-    },
-
-    onmousedown: function(evt) {
-        const thumbBox = this.thumb.getBoundingClientRect();
-        this.pinOffset = evt[this.oh.axis] - thumbBox[this.oh.leading] + this.bar.getBoundingClientRect()[this.oh.leading] + this.thumbMarginLeading;
-        document.documentElement.style.cursor = 'default';
-
-        this._addEvt('mousemove');
-        this._addEvt('mouseup');
-
-        this.bound._performCursorDown(evt);
-
-        evt.stopPropagation();
-        evt.preventDefault();
-    },
-
-    onbartouchstart: function(evt) {
-        const thumbBox = this.thumb.getBoundingClientRect();
-        this.pinOffset = evt.touches[0][this.oh.coordinate] - thumbBox[this.oh.leading] + this.bar.getBoundingClientRect()[this.oh.leading] + this.thumbMarginLeading;
-        document.documentElement.style.cursor = 'default';
-
-        this._addEvt('touchend');
-        this._addEvt('touchmove');
-
-        this.bound._performCursorDown(evt.touches[0]);
-        this.isLastTouchOverBar = true;
-
-        evt.stopPropagation();
-        evt.preventDefault();
-    },
-
-    _performCursorDown: function(coordsObject) {
-        let thumbBox = this.thumb.getBoundingClientRect();
-        let mouseOverThumb = thumbBox.left <= coordsObject.clientX && coordsObject.clientX <= thumbBox.right &&
-            thumbBox.top <= coordsObject.clientY && coordsObject.clientY <= thumbBox.bottom,
-            mouseOverThumbCenter = false,
-            goingUp = false,
-            incrementValue = 0;
-
-        if (!mouseOverThumb) {
-            goingUp = coordsObject[this.oh.coordinate] < thumbBox[this.oh.leading];
-
-            if (typeof this.paging === 'object') {
-                this.index = this.paging[goingUp ? 'up' : 'down'](Math.round(this.index));
-            } else {
-                this.index += goingUp ? -this.increment : this.increment;
-            }
-
-            this.clearMouseHoldTimeout();
-            this.mouseHoldPerformTimeout = setTimeout(() => {
-                this.isTouchHoldOverBar = true;
-                this.isThumbDragging = false;
-
-                this.mouseHoldPerformIntervalCurrentCoordsObj = coordsObject;
-
-                this.mouseHoldPerformInterval = setInterval(() => {
-                    const co = this.mouseHoldPerformIntervalCurrentCoordsObj;
-                    thumbBox = this.thumb.getBoundingClientRect();
-                    mouseOverThumb = thumbBox.left <= co.clientX && co.clientX <= thumbBox.right &&
-                        thumbBox.top <= co.clientY && co.clientY <= thumbBox.bottom;
-
-                    const thumbCenterLeadingSide = (thumbBox[this.oh.leading] + thumbBox[this.oh.size] / 3);
-                    const thumbCenterTrailingSide = (thumbBox[this.oh.trailing] - thumbBox[this.oh.size] / 3);
-                    mouseOverThumbCenter = mouseOverThumb
-                        && (thumbCenterLeadingSide <= co[this.oh.coordinate])
-                        && (thumbCenterTrailingSide >= co[this.oh.coordinate]);
-
-                    // goingUp value changed only if thumb not in cursor yet.
-                    // Otherwise we can think, that scroll continuous and goingUp don't need to be changed
-                    if (!mouseOverThumb) {
-                        goingUp = co[this.oh.coordinate] < thumbBox[this.oh.leading];
-                    }
-
-                    incrementValue = goingUp ? -this.increment : this.increment;
-
-                    if (this.isTouchHoldOverBar && !mouseOverThumbCenter) {
-                        if (goingUp && (co[this.oh.coordinate] <= thumbCenterLeadingSide)
-                            && ((this.index + incrementValue) <= 0)) {
-                            this.index = 0;
-                        } else {
-                            this.index += incrementValue;
-                        }
-                    }
-
-                    if (this.isTouchHoldOverBar && mouseOverThumbCenter) {
-                        this.performMouseHoldOverBarEnd();
-                    }
-                }, this.mouseHoldPerformIntervalRate);
-            }, 200);
-        } else if (!this.isTouchHoldOverBar) {
-            this.isThumbDragging = true;
-        }
-    },
-
-    onmousemove: function(evt) {
-        if (this.isThumbDragging) {
-            const scaled = Math.min(this.thumbMax, Math.max(0, evt[this.oh.axis] - this.pinOffset));
-            const idx = scaled / this.thumbMax * (this.max - this.min) + this.min;
-
-            this._setScroll(idx, scaled);
-        }
-
-        if (this.isTouchHoldOverBar) {
-            this.mouseHoldPerformIntervalCurrentCoordsObj = evt;
-        }
-
-        evt.stopPropagation();
-        evt.preventDefault();
-    },
-
-    onmouseup: function(evt) {
-        this.performMouseHoldOverBarEnd();
-        this.isThumbDragging = false;
-
-        this._removeEvt('mousemove');
-        this._removeEvt('mouseup');
-
-        document.documentElement.style.cursor = 'auto';
-
-        evt.stopPropagation();
-        evt.preventDefault();
-    },
-
-    trackTouchScroll: function() {
-        const currentTimestamp = Date.now();
-        const elapsed = currentTimestamp - this.containerLastTouchTime;
-        this.containerLastTouchTime = currentTimestamp;
-        const delta = this.containerTouchScrollOffset - this._touchScrollFrame;
-        this._touchScrollFrame = this.containerTouchScrollOffset;
-        const v = 1000 * delta / (1 + elapsed);
-        this.containerTouchVelocity = this.containerTouchVelocityModifier * v + 0.2 * this.containerTouchVelocity;
-        if (this.containerTouchVelocity < -this.containerTouchVelocityMax) {
-            this.containerTouchVelocity = -this.containerTouchVelocityMax;
-        }
-        if (this.containerTouchVelocity > this.containerTouchVelocityMax) {
-            this.containerTouchVelocity = this.containerTouchVelocityMax;
-        }
-    },
-
-    ontouchstart: function(evt) {
-        this._isTouchHoldOverContainer = true;
-        this.isThumbTouchDragging = false;
-        this.containerLastTouchPos = evt.touches[0][this.oh.coordinate];
-        this.containerLastTouchTime = Date.now();
-
-        this._touchScrollFrame = this.containerTouchScrollOffset;
-        this.containerTouchVelocity = this.containerTouchAmplitude = 0;
-
-        this.isLastTouchOverBar = false;
-        this.containerTouchScrollInterval = setInterval(this.bound.trackTouchScroll, 100);
-
-        evt.preventDefault();
-        evt.stopPropagation();
-    },
-
-    getPos: function(e) {
-        // touch event
-        if (e.targetTouches && (e.targetTouches.length >= 1)) {
-            return e.targetTouches[0][this.oh.coordinate];
-        }
-        if (e.touches && (e.touches.length >= 1)) {
-            return e.touches[0][this.oh.coordinate];
-        }
-
-        // mouse event
-        return e[this.oh.coordinate];
-    },
-
-    onthumbtouchstart: function(evt) {
-        const thumbBox = this.thumb.getBoundingClientRect();
-        let currentMovePos = this.bound.getPos(evt);
-        this.pinOffset = currentMovePos - thumbBox[this.oh.leading] + this.bar.getBoundingClientRect()[this.oh.leading] + this.thumbMarginLeading;
-
-        this.isThumbTouchDragging = true;
-        this.containerLastTouchPos = null;
-
-        this._addEvt('touchend');
-        this._addEvt('touchmove');
-
-        evt.stopPropagation();
-        evt.preventDefault();
-    },
-
-    ontouchend: function(evt) {
-        if (this._isTouchHoldOverContainer) {
-            this._isTouchHoldOverContainer = false;
-            clearInterval(this.containerTouchScrollInterval);
-            this.bound.trackTouchScroll();
-            if (this.containerTouchVelocity > 10 || this.containerTouchVelocity < -10) {
-                this.containerTouchAmplitude = 0.8 * this.containerTouchVelocity;
-                this.containerTouchScrollTarget = Math.round(this.containerTouchScrollOffset + this.containerTouchAmplitude);
-                this.containerLastTouchTime = Date.now();
-                requestAnimationFrame(this.bound._performTouchAutoScroll);
-            }
-        }
-
-
-        this.isThumbTouchDragging = false;
-        this._isTouchHoldOverContainer = false;
-        this.containerLastTouchPos = null;
-
-        this.performMouseHoldOverBarEnd();
-
-        this._removeEvt('touchend');
-        this._removeEvt('touchmove');
-
-        evt.stopPropagation();
-        evt.preventDefault();
-    },
-
-    _performTouchAutoScroll: function() {
-        if (this.containerTouchAmplitude) {
-            const elapsed = Date.now() - this.containerLastTouchTime;
-            const delta = -this.containerTouchAmplitude * Math.exp(-elapsed / 325);
-            if (delta > 0.5 || delta < -0.5) {
-                this.bound._performTouchScroll(this.containerTouchScrollTarget + delta);
-                requestAnimationFrame(this.bound._performTouchAutoScroll);
-            } else {
-                this.bound._performTouchScroll(this.containerTouchScrollTarget);
-            }
-        }
-    },
-
-    _performTouchScroll: function(y) {
-        const newOffset = (y > this.max) ? this.max : (y < this.min) ? this.min : y;
-        if (newOffset !== this.containerTouchScrollOffset) {
-            this.containerTouchScrollOffset = newOffset;
-            this._setScroll(this.containerTouchScrollOffset);
-        }
-    },
-
-    ontouchmove: function(evt) {
-        if (this.isThumbTouchDragging) {
-            let currentMovePos = this.bound.getPos(evt);
-
-            let scaled = Math.min(this.thumbMax, Math.max(0, currentMovePos - this.pinOffset));
-            let idx = scaled / this.thumbMax * (this.max - this.min) + this.min;
-
-            this._setScroll(idx, scaled);
-        } else if (this._isTouchHoldOverContainer) {
-            const pos = this.bound.getPos(evt);
-            const delta = this.containerLastTouchPos - pos;
-            if (delta > 2 || delta < -2) {
-                this.containerLastTouchPos = pos;
-                this.bound._performTouchScroll(this.containerTouchScrollOffset + delta);
-            }
-        } else if (this.isLastTouchOverBar) {
-            const boundsBox = this.bar.getBoundingClientRect();
-            const touchOverBar = boundsBox.left <= evt.touches[0].clientX && evt.touches[0].clientX <= boundsBox.right &&
-                boundsBox.top <= evt.touches[0].clientY && evt.touches[0].clientY <= boundsBox.bottom;
-
-            if (!touchOverBar) {
-                this.performMouseHoldOverBarEnd();
-            }
-        }
-
-        if (this.mouseHoldPerformIntervalCurrentCoordsObj) {
-            this.mouseHoldPerformIntervalCurrentCoordsObj = evt.touches[0];
-        }
-
-        evt.stopPropagation();
-        evt.preventDefault();
-    }
-};
-
-const orientationHashes = {
-    vertical: {
-        coordinate: 'clientY',
-        axis: 'pageY',
-        size: 'height',
-        outside: 'right',
-        inside: 'left',
-        leading: 'top',
-        trailing: 'bottom',
-        marginLeading: 'marginTop',
-        marginTrailing: 'marginBottom',
-        thickness: 'width',
-        delta: 'deltaY',
-        // gridOffsetProperty: 'canvasWidthOffset'
-    },
-    horizontal: {
-        coordinate: 'clientX',
-        axis: 'pageX',
-        size: 'width',
-        outside: 'bottom',
-        inside: 'top',
-        leading: 'left',
-        trailing: 'right',
-        marginLeading: 'marginLeft',
-        marginTrailing: 'marginRight',
-        thickness: 'height',
-        delta: 'deltaX',
-        // gridOffsetProperty: 'canvasHeightOffset'
-    }
-};
-
 const axis = {
     top: 'vertical',
     bottom: 'vertical',
@@ -1251,19 +752,6 @@ cssFinBars = 'div.finbar-horizontal,div.finbar-vertical{position:absolute;margin
 
 function error(msg) {
     throw 'finbars: ' + msg;
-}
-
-function mouseWithin(bounds, x, y) {
-    const offset = bounds.offset();
-    const l = offset.left;
-    const t = offset.top;
-    const h = bounds.height();
-    const w = bounds.width();
-
-    const maxx = l + w;
-    const maxy = t + h;
-
-    return (y <= maxy && y >= t) && (x <= maxx && x >= l);
 }
 
 // Interface
