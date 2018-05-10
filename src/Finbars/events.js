@@ -475,8 +475,8 @@ class FinBarTouch {
         } else if (this.isTouchHoldOverContainer) {
             const pos = this.getPos(evt);
             let delta = this.containerLastTouchPos - pos;
-            delta = delta * this.oh.touchScrollOffsetCoefficient;
-            if (delta > 2 * this.oh.touchScrollOffsetCoefficient || delta < -2 * this.oh.touchScrollOffsetCoefficient) {
+            delta = delta * this.oh.touchToScrollPixelsCoefficient;
+            if (delta > 2 * this.oh.touchToScrollPixelsCoefficient || delta < -2 * this.oh.touchToScrollPixelsCoefficient) {
                 this.containerLastTouchPos = pos;
                 this._performTouchScroll(this.containerTouchScrollOffset + delta);
             }
