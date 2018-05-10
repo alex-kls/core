@@ -1144,6 +1144,10 @@ var Behavior = Base.extend('Behavior', {
         this.changed();
     },
 
+    synchronizeSchemaToColumnDefs: function() {
+        this.grid.api.setColumnDefs(this.grid.columnDefs);
+    },
+
     /**
      * @desc utility method to perform columns reordering
      * @param {number} from - visible columns start index
@@ -1212,6 +1216,8 @@ var Behavior = Base.extend('Behavior', {
         }
 
         this.changed();
+
+        this.synchronizeSchemaToColumnDefs();
     },
 
     convertViewPointToDataPoint: function(unscrolled) {
