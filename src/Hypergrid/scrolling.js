@@ -165,8 +165,6 @@ exports.mixin = {
                 const deltaPercent = (delta + 2) / this.getRowCount();
                 pxDelta = this.sbVScroller.max * deltaPercent;
 
-                console.log('pxDelta', pxDelta);
-
                 if (pxDelta < this.properties.defaultRowHeight * 3) {
                     this.sbVScroller.index += pxDelta;
                 } else {
