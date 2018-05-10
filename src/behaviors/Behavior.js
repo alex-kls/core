@@ -1188,15 +1188,6 @@ var Behavior = Base.extend('Behavior', {
             let columnWithSameColDef = columns.find((c) => c.colDef === colDef);
             if (columnWithSameColDef) {
                 movedColumns.unshift(columnWithSameColDef);
-
-                let targetColumnIndex = target;
-                let invisibleColumnsCountBeforeColDef = colDefs.slice(0).splice(0, target).filter((cd) => cd.isHidden).length;
-                targetColumnIndex -= invisibleColumnsCountBeforeColDef;
-
-                let currentColumnIndex = columns.indexOf(columnWithSameColDef);
-                columns.splice(targetColumnIndex, 0, columns.splice(currentColumnIndex, 1)[0]);
-
-                this.log(`Column with index ${currentColumnIndex} moved to ${targetColumnIndex}`);
             }
 
             let currentColDefIndex = colDefs.indexOf(colDef);
@@ -1204,6 +1195,8 @@ var Behavior = Base.extend('Behavior', {
 
             this.log(`ColDef with index ${currentColDefIndex} moved to ${target}`);
         });
+
+        this.synchronizeSchemaToColumnDefs();
 
         if (broadcastEvent) {
             this.grid.fireSyntheticColumnsMovedEvent(movedColumns, target);
@@ -1216,8 +1209,6 @@ var Behavior = Base.extend('Behavior', {
         }
 
         this.changed();
-
-        this.synchronizeSchemaToColumnDefs();
     },
 
     convertViewPointToDataPoint: function(unscrolled) {
