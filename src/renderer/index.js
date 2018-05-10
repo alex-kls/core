@@ -1391,6 +1391,15 @@ var Renderer = Base.extend('Renderer', {
             }
         }
 
+        if (cellEvent.hasChildColumns) {
+            config.valuePrefix = cellEvent.isColumnGroupShow
+                ? this.properties.aggregationGroupExpandIconCollapsedChar
+                : this.properties.aggregationGroupExpandIconExpandedChar;
+            config.valuePrefixFont = this.properties.aggregationGroupExpandIconFont;
+            config.valuePrefixColor = this.properties.aggregationGroupExpandIconColor;
+            config.prefixIgnoreUnderliningNeeded = true;
+        }
+
         if (!config.valuePrefix && config.headerRow) {
             if (cellEvent.column.hasError) {
                 config.valuePrefix = this.properties.errorIconUnicodeChar;

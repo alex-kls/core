@@ -118,7 +118,10 @@ function convertColDefs(colDefs) {
                     properties: {
                         ignoreValuePrefix: true
                     },
-                    count: singleColDef.count
+                    count: singleColDef.count,
+                    childColumnDefs: singleColDef.children,
+                    columnOpenByDefault: singleColDef.openByDefault,
+                    columnGroupShow: singleColDef.columnGroupShow
                 };
 
                 for (let i = 1; i < insertedColumnNames.length; i++) {
@@ -333,7 +336,7 @@ function setColumnDefs(colDefs) {
     //     return;
     // }
 
-    this.log('setColumnDefs', colDefs);
+    console.log('setColumnDefs', colDefs);
 
     this.columnDefs = colDefs;
     this.visibleColumnDefs = getVisibleColDefs(this.columnDefs);

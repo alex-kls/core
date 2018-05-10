@@ -264,6 +264,37 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         }
     },
 
+    getChildColumnsFromCell: function(x, y) {
+        let val = this._getDataRowObject(x, y).foundedValue;
+
+        return val
+            && val.childColumnDefs
+            && val.childColumnDefs !== null
+            && val.childColumnDefs !== undefined ? val.childColumnDefs : [];
+    },
+
+    getHasChildColumnsFromCell: function(x, y) {
+        const childColumnsArray = this.getChildColumnsFromCell(x, y);
+
+        return childColumnsArray && childColumnsArray.length !== undefined ? childColumnsArray.length > 0 : false;
+    },
+
+    getIsColumnOpenByDefaultFromCell: function(x, y) {
+        let val = this._getDataRowObject(x, y).foundedValue;
+
+        if (val !== undefined) {
+            return val && val.columnOpenByDefault && val.columnOpenByDefault !== null ? val.columnOpenByDefault : false;
+        }
+    },
+
+    getIsColumnGroupShowFromCell: function(x, y) {
+        let val = this._getDataRowObject(x, y).foundedValue;
+
+        if (val !== undefined) {
+            return val && val.columnGroupShow && val.columnGroupShow !== null ? val.columnGroupShow === 'open' : false;
+        }
+    },
+
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getValue}
      * @memberOf DataSourceLocal#
@@ -434,30 +465,6 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
 
     isRenderSkipNeeded: function(x, y) {
         return this.isRowspanedByRow(x, y) || this.isColspanedByLeftColumn(x, y);
-    },
-
-    /**
-     * @deprecated
-     * @desc Not recommended to use in any case. Especially, while render grid
-     * @public
-     * @param x
-     * @param y
-     * @return {*}
-     */
-    isVerticalRenderSkipNeeded: function(x, y) {
-        if (y === 0) {
-            return false;
-        }
-        for (let i = y - 1; i >= 0; i--) {
-            let cellOnRow = this._getDataRowObject(x, i);
-            if (!!cellOnRow
-                && (cellOnRow.foundedValue && (!cellOnRow.foundedValue.rowspan || cellOnRow.foundedValue.rowspan < 1))
-                || (cellOnRow.skipNeeded)) {
-                return false;
-            }
-        }
-
-        return true;
     },
 
     /**

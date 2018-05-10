@@ -79,18 +79,46 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         get: function() { return this.subgrid.getColspanMainColumnName(this.dataCell.x, this.dataCell.y); }
     },
 
-    // Not recommended to use in any case. Especially, while render grid
-    // /**
-    //  * If true, cell will be ignored on render
-    //  * @memberOf CellEvent#
-    //  */
-    // isVerticalRenderSkipNeeded: {
-    //     get: function() { return this.subgrid.isVerticalRenderSkipNeeded(this.dataCell.x, this.dataCell.y); }
-    // },
+    /**
+     * Returns child colDefs, if cell has it
+     * @memberOf CellEvent#
+     * @return {array}
+     */
+    childColumns: {
+        get: function() { return this.subgrid.getChildColumnsFromCell(this.dataCell.x, this.dataCell.y); }
+    },
+
+    /**
+     * Returns boolean value, that shows, is cell has child colDefs
+     * @memberOf CellEvent#
+     * @return {boolean}
+     */
+    hasChildColumns: {
+        get: function() { return this.subgrid.getHasChildColumnsFromCell(this.dataCell.x, this.dataCell.y); }
+    },
+
+    /**
+     * Returns boolean value, that shows, is child columns needed to be shown by default
+     * @memberOf CellEvent#
+     * @return {boolean}
+     */
+    isColumnOpenByDefault: {
+        get: function() { return this.subgrid.getIsColumnOpenByDefaultFromCell(this.dataCell.x, this.dataCell.y); }
+    },
+
+    /**
+     * Returns boolean value, that shows, is cell has child colDefs
+     * @memberOf CellEvent#
+     * @return {boolean}
+     */
+    isColumnGroupShow: {
+        get: function() { return this.subgrid.getIsColumnGroupShowFromCell(this.dataCell.x, this.dataCell.y); }
+    },
 
     isRowspanedByRow: {
         get: function() { this.subgrid.isRowspanedByRow(this.dataCell.x, this.dataCell.y); }
     },
+
     /**
      * The formatted value of the cell.
      * @memberOf CellEvent#
