@@ -51,24 +51,25 @@ class FinBarTouch {
          */
         this.containerTouchVelocity = 0;
 
-        /**
-         * @summary contains current user touch move velocity limit
-         * @description use this variable for tuning kinetic scroll speed
-         * @type {number}
-         * @memberOf FinBarTouch.prototype
-         */
-        this.containerTouchVelocityMax = 20000;
+        // /**
+        //  * @summary contains current user touch move velocity limit
+        //  * @description use this variable for tuning kinetic scroll speed
+        //  * @type {number}
+        //  * @memberOf FinBarTouch.prototype
+        //  */
+        // this.containerTouchVelocityMax = 20000;
+
+        // /**
+        //  * @deprecated use containerTouchVelocityModifier from hashed instead
+        //  * @summary multiplier for start scroll speed calculation
+        //  * @description use this variable for tuning kinetic scroll speed
+        //  * @type {number}
+        //  * @memberOf FinBarTouch.prototype
+        //  */
+        // this.containerTouchVelocityModifier = 4.2;
 
         /**
-         * @summary multiplier for start scroll speed calculation
-         * @description use this variable for tuning kinetic scroll speed
-         * @type {number}
-         * @memberOf FinBarTouch.prototype
-         */
-        this.containerTouchVelocityModifier = 4.2;
-
-        /**
-         * @summary contains current user touch move a,plitude
+         * @summary contains current user touch move amplitude
          * @type {number}
          * @memberOf FinBarTouch.prototype
          */
@@ -360,13 +361,13 @@ class FinBarTouch {
         const delta = this.containerTouchScrollOffset - this._touchScrollFrame;
         this._touchScrollFrame = this.containerTouchScrollOffset;
         const v = 1000 * delta / (1 + elapsed);
-        this.containerTouchVelocity = this.containerTouchVelocityModifier * v + 0.2 * this.containerTouchVelocity;
+        this.containerTouchVelocity = this.oh.containerTouchVelocityModifier * v + 0.2 * this.containerTouchVelocity;
         // correct velocity with max value
-        if (this.containerTouchVelocity < -this.containerTouchVelocityMax) {
-            this.containerTouchVelocity = -this.containerTouchVelocityMax;
+        if (this.containerTouchVelocity < -this.oh.containerTouchVelocityMax) {
+            this.containerTouchVelocity = -this.oh.containerTouchVelocityMax;
         }
-        if (this.containerTouchVelocity > this.containerTouchVelocityMax) {
-            this.containerTouchVelocity = this.containerTouchVelocityMax;
+        if (this.containerTouchVelocity > this.oh.containerTouchVelocityMax) {
+            this.containerTouchVelocity = this.oh.containerTouchVelocityMax;
         }
     }
 
@@ -473,8 +474,9 @@ class FinBarTouch {
             this._setScroll(idx, scaled);
         } else if (this.isTouchHoldOverContainer) {
             const pos = this.getPos(evt);
-            const delta = this.containerLastTouchPos - pos;
-            if (delta > 2 || delta < -2) {
+            let delta = this.containerLastTouchPos - pos;
+            delta = delta * this.oh.touchScrollOffsetCoefficient;
+            if (delta > 2 * this.oh.touchScrollOffsetCoefficient || delta < -2 * this.oh.touchScrollOffsetCoefficient) {
                 this.containerLastTouchPos = pos;
                 this._performTouchScroll(this.containerTouchScrollOffset + delta);
             }

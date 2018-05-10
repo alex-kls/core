@@ -15,7 +15,10 @@ module.exports = {
         marginTrailing: 'marginBottom',
         thickness: 'width',
         delta: 'deltaY',
-        // gridOffsetProperty: 'canvasWidthOffset'
+        // gridOffsetProperty: 'canvasWidthOffset',
+        containerTouchVelocityModifier: 4.2,
+        containerTouchVelocityMax: 20000,
+        touchScrollOffsetCoefficient: 1
     },
     horizontal: {
         coordinate: 'clientX',
@@ -30,5 +33,8 @@ module.exports = {
         thickness: 'height',
         delta: 'deltaX',
         // gridOffsetProperty: 'canvasHeightOffset'
+        containerTouchVelocityModifier: 4.5,
+        containerTouchVelocityMax: 20000,
+        touchScrollOffsetCoefficient: 1.5
     }
 };
