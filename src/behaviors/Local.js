@@ -617,8 +617,9 @@ var Local = Behavior.extend('Local', {
      * @type {boolean}
      * @memberOf CellEvent#
      */
-    collapseChildRows: function(row) {
-        if (row.$$open && !!row.$$children && row.$$children.length > 0) {
+    collapseChildRows: function(rowOrIndex) {
+        const row = typeof rowOrIndex === 'object' ? rowOrIndex : this.grid.getRow(rowOrIndex);
+        if (row.$$open && row.$$children && row.$$children.length > 0) {
             let dataToDelete = this.dataModel.data.filter((d) => d.$$parentRow === row);
             dataToDelete.forEach(dtd => {
                 this.collapseChildRows(dtd);
