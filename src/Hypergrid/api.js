@@ -474,7 +474,7 @@ function getModel() {
 }
 
 function applyProperties(newProps) {
-    Object.assign(this.behavior.grid.properties, newProps);
+    Object.assign(this.properties, newProps);
     this.repaint();
 }
 
@@ -522,10 +522,6 @@ function hideOverlay() {
 
 function refreshCells(rowNodes, colIds, animate) {
     this.log('refreshCells', rowNodes, colIds, animate);
-}
-
-function setFloatingTopRowDataForInMemoryModel(rows) {
-    this.log('setFloatingTopRowDataForInMemoryModel', rows);
 }
 
 function setDatasource(datasource) {
@@ -617,7 +613,6 @@ module.exports = {
     showNoRowsOverlay: showNoRowsOverlay,
     hideOverlay: hideOverlay,
     refreshCells: refreshCells,
-    setFloatingTopRowDataForInMemoryModel: setFloatingTopRowDataForInMemoryModel,
     setDatasource: setDatasource,
     onGroupExpandedOrCollapsed: onGroupExpandedOrCollapsed,
     getSortModel: getSortModel,

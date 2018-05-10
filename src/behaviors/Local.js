@@ -571,6 +571,11 @@ var Local = Behavior.extend('Local', {
         return this.grid.selectionModel.getSelections();
     },
 
+    /**
+     * @summary extend row data with aggregation name from parent row
+     * @param row - row structure which will be populated with new agg data
+     * @param parentParentAggs - agg data from previous row data
+     */
     populateAggregationNamesForRow(row, parentParentAggs) {
         if (row.__treeLevel !== undefined && row.$$aggregation !== undefined) {
             let parentAggs = Object.assign({}, row.parentAggs || parentParentAggs || {}); // copy parentAggs
@@ -588,11 +593,18 @@ var Local = Behavior.extend('Local', {
         const row = typeof rowOrIndex === 'object' ? rowOrIndex : this.grid.getRow(rowOrIndex);
         if (!row.$$open && row.$$children && row.$$children.length > 0) {
             this.populateAggregationNamesForRow(row);
-            this.dataModel.addRows(row.$$children, this.dataModel.data.indexOf(row) + 1);
+            const rowIndex = this.dataModel.data.indexOf(row);
+            this.dataModel.addRows(row.$$children, rowIndex + 1);
             row.$$children.forEach(r => {
                 this.populateAggregationNamesForRow(r, row.parentAggs);
                 r.$$parentRow = row;
             });
+
+            // remove column because of flat mode
+            if (!this.grid.properties.isPivot) {
+                this.dataModel.data.splice(rowIndex, 1);
+            }
+            this.flatReady = false;
         }
         row.$$open = true;
     },
@@ -604,8 +616,9 @@ var Local = Behavior.extend('Local', {
         const data = this.dataModel.data;
 
         let lengthBefore = 0;
-        while (data.length !== lengthBefore) {
+        while (data.length !== lengthBefore || !this.flatReady) {
             lengthBefore = data.length;
+            this.flatReady = true;
             data.forEach(row => this.expandChildRows(row));
         }
 

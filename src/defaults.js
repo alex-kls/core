@@ -2321,7 +2321,12 @@ var defaults = {
     /**
      * @summary color for highlight text, for instance, search result
      */
-    highlightColor: '#F7FFBA'
+    highlightColor: '#F7FFBA',
+
+    /**
+     * @summary value for managing behaviour with aggregated data
+     */
+    isPivot: false,
 };
 
 
