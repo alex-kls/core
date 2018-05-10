@@ -391,6 +391,7 @@ function setRowData(rowData) {
     this.data = rowData;
 
     this.setData({ data: rowData });
+    this.behavior.buildFlatMode();
 
     if (this.columnDefs) {
         this.api.setColumnDefs(this.columnDefs);

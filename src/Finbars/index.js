@@ -397,7 +397,6 @@ FinBar.prototype = {
      * @memberOf FinBar.prototype
      */
     set range(range) {
-        console.log(range);
         validRange(range);
         this.min = range.min;
         this.max = range.max;

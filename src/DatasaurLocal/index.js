@@ -188,7 +188,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         if (y === undefined || y >= this.getRowCount()) {
             y = this.getRowCount();
         }
-        this.data.splice(y, 0, dataRows);
+        this.data.splice(y, 0, ...dataRows);
         this.cache = [];
         this.dispatchEvent('data-shape-changed');
     },
@@ -534,6 +534,14 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         }
 
         return (str + '').replace(reg, '<mark>$&</mark>');
+    },
+
+    get data() {
+        return this._data;
+    },
+    set data(data) {
+        this._data = data;
+        this.cache = [];
     }
 });
 

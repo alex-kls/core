@@ -571,22 +571,45 @@ var Local = Behavior.extend('Local', {
         return this.grid.selectionModel.getSelections();
     },
 
+    populateAggregationNamesForRow(row, parentParentAggs) {
+        if (row.__treeLevel !== undefined && row.$$aggregation !== undefined) {
+            let parentAggs = Object.assign({}, row.parentAggs || parentParentAggs || {}); // copy parentAggs
+            parentAggs[`$$aggregation${row.__treeLevel}`] = row.$$aggregation;
+            Object.assign(row, parentAggs, { parentAggs });
+        }
+    },
+
     /**
      * @desc append child rows right after parent
      * @type {boolean}
      * @memberOf CellEvent#
      */
-    expandChildRows: function(rowIndex) {
-        const row = this.grid.getRow(rowIndex);
-        if (!row.$$open && !!row.$$children && row.$$children.length > 0) {
-            for (let i = 0; i < row.$$children.length; i++) {
-                const rowToInsert = row.$$children[i];
-                // rowToInsert.$$parentRowAggregation = row.$$aggregation;
-                rowToInsert.$$parentRow = row;
-                this.dataModel.addRow(rowToInsert, rowIndex + 1 + i);
-            }
+    expandChildRows: function(rowOrIndex) {
+        const row = typeof rowOrIndex === 'object' ? rowOrIndex : this.grid.getRow(rowOrIndex);
+        if (!row.$$open && row.$$children && row.$$children.length > 0) {
+            this.populateAggregationNamesForRow(row);
+            this.dataModel.addRows(row.$$children, this.dataModel.data.indexOf(row) + 1);
+            row.$$children.forEach(r => {
+                this.populateAggregationNamesForRow(r, row.parentAggs);
+                r.$$parentRow = row;
+            });
         }
         row.$$open = true;
+    },
+
+    /**
+     * @summary set all rows expanded in one time
+     */
+    buildFlatMode: function() {
+        const data = this.dataModel.data;
+
+        let lengthBefore = 0;
+        while (data.length !== lengthBefore) {
+            lengthBefore = data.length;
+            data.forEach(row => this.expandChildRows(row));
+        }
+
+        this.dataModel.cache = [];
     },
 
     /**
