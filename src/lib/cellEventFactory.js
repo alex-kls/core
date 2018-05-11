@@ -93,7 +93,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @memberOf CellEvent#
      * @return {boolean}
      */
-    hasChildColumns: {
+    isExpandableColumn: {
         get: function() { return this.subgrid.getHasChildColumnsFromCell(this.dataCell.x, this.dataCell.y); }
     },
 
@@ -111,7 +111,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @memberOf CellEvent#
      * @return {boolean}
      */
-    isColumnGroupShow: {
+    isColumnExpanded: {
         get: function() { return this.subgrid.getIsColumnGroupShowFromCell(this.dataCell.x, this.dataCell.y); }
     },
 

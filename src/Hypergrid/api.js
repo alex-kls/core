@@ -116,7 +116,7 @@ function convertColDefs(colDefs) {
                     colspan: colspan,
                     value: singleColDef.headerName || '',
                     properties: {
-                        ignoreValuePrefix: true
+                        ignoreValuePrefix: false
                     },
                     count: singleColDef.count,
                     childColumnDefs: singleColDef.children,
@@ -129,7 +129,10 @@ function convertColDefs(colDefs) {
                         colspan: colspan - i,
                         isColspanedByColumn: true,
                         colspanedByColumn: insertedColumnNames[0],
-                        count: singleColDef.count
+                        count: singleColDef.count,
+                        childColumnDefs: singleColDef.children,
+                        columnOpenByDefault: singleColDef.openByDefault,
+                        columnGroupShow: singleColDef.columnGroupShow
                     };
                 }
 

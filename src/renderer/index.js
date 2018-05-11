@@ -1391,8 +1391,8 @@ var Renderer = Base.extend('Renderer', {
             }
         }
 
-        if (cellEvent.hasChildColumns) {
-            config.valuePrefix = cellEvent.isColumnGroupShow
+        if (cellEvent.isExpandableColumn) {
+            config.valuePrefix = cellEvent.isColumnExpanded
                 ? this.properties.aggregationGroupExpandIconCollapsedChar
                 : this.properties.aggregationGroupExpandIconExpandedChar;
             config.valuePrefixFont = this.properties.aggregationGroupExpandIconFont;

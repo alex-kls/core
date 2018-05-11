@@ -10,7 +10,8 @@ var CellClick = Feature.extend('CellClick', {
 
     handleMouseMove: function(grid, event) {
         let isActionableCell = this.isAggregationTotalCell(event);
-        this.cursor = isActionableCell ? 'pointer' : null;
+        const isOverExpandIcon = this.overExpandIcon(grid, event);
+        this.cursor = isActionableCell || isOverExpandIcon ? 'pointer' : null;
 
         if (this.next) {
             this.next.handleMouseMove(grid, event);
@@ -26,15 +27,13 @@ var CellClick = Feature.extend('CellClick', {
         grid.log('event', event);
         let consumed = false;
         if (this.isAggregationTotalCell(event)) {
-            if (this.overExpandIcon(grid, event)) {
-                if (!event.isRowExpanded) {
-                    grid.behavior.expandChildRows(event.dataCell.y);
-                } else {
-                    grid.behavior.collapseChildRows(event.dataRow);
-                }
-            } else if (grid.onAggregatedCellClick) {
+            if (this.overExpandIcon(grid, event) && event.isExpandableRow) {
+                this._toggleExpandableRow(grid, event);
+            } else if (event.isExpandableRow && grid.onAggregatedCellClick) {
                 grid.onAggregatedCellClick(event);
             }
+        } else if (this.overExpandIcon(grid, event) && event.isExpandableColumn) {
+            this._toggleExpandableColumn(grid, event);
         } else {
             consumed = (event.isDataCell || event.isTreeColumn) && (
                 this.openLink(grid, event) !== undefined ||
@@ -44,6 +43,24 @@ var CellClick = Feature.extend('CellClick', {
 
         if (!consumed && this.next) {
             this.next.handleClick(grid, event);
+        }
+    },
+
+    _toggleExpandableRow: function(grid, event) {
+        console.log('row toggle called');
+        if (!event.isRowExpanded) {
+            grid.behavior.expandChildRows(event.dataCell.y);
+        } else {
+            grid.behavior.collapseChildRows(event.dataRow);
+        }
+    },
+
+    _toggleExpandableColumn: function(grid, event) {
+        console.log('column toggle called');
+        if (!event.isColumnExpanded) {
+            grid.behavior.expandChildRows(event.dataCell.y);
+        } else {
+            grid.behavior.collapseChildRows(event.dataRow);
         }
     },
 
@@ -62,7 +79,7 @@ var CellClick = Feature.extend('CellClick', {
     },
 
     overExpandIcon: function(grid, event) {
-        if (!event.isExpandableRow) {
+        if ((!event.isExpandableRow && !event.isExpandableColumn) || event.isRenderSkipNeeded) {
             return false;
         }
 
