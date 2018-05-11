@@ -210,8 +210,7 @@ var CellSelection = Feature.extend('CellSelection', {
             return;
         }
 
-        let dragStartedInHeaderArea = grid.isMouseDownInHeaderArea(),
-            lastDragCell = this.lastDragCell,
+        let lastDragCell = this.lastDragCell,
             b = grid.getDataBounds(),
 
             xOffset = 0,
@@ -223,14 +222,13 @@ var CellSelection = Feature.extend('CellSelection', {
             dragEndInFixedAreaX = lastDragCell.x < numFixedColumns,
             dragEndInFixedAreaY = lastDragCell.y < numFixedRows;
 
-        if (!dragStartedInHeaderArea) {
-            if (this.currentDrag.x < b.origin.x) {
-                xOffset = -1;
-            }
-            if (this.currentDrag.y < b.origin.y) {
-                yOffset = -1;
-            }
+        if (this.currentDrag.x < b.origin.x) {
+            xOffset = -1;
         }
+        if (this.currentDrag.y < b.origin.y) {
+            yOffset = -1;
+        }
+
         if (this.currentDrag.x > b.origin.x + b.extent.x) {
             xOffset = 1;
         }
@@ -259,15 +257,15 @@ var CellSelection = Feature.extend('CellSelection', {
      * @memberOf CellSelection.prototype
      * @desc extend a selection or create one if there isnt yet
      * @param {Hypergrid} grid
-     * @param {Object} gridCell - the event details
+     * @param {Object} dataCell - the event details
      * @param {Array} keys - array of the keys that are currently pressed down
      */
-    extendSelection: function(grid, gridCell, keys) {
+    extendSelection: function(grid, dataCell, keys) {
         const hasCTRL = keys.indexOf('CTRL') >= 0 || keys.indexOf('COMMANDLEFT') >= 0 || keys.indexOf('COMMANDRIGHT') >= 0,
             hasSHIFT = keys.indexOf('SHIFT') >= 0,
             mousePoint = grid.getMouseDown(),
-            x = gridCell.x, // - numFixedColumns + scrollLeft;
-            y = gridCell.y; // - numFixedRows + scrollTop;
+            x = dataCell.x, // - numFixedColumns + scrollLeft;
+            y = dataCell.y; // - numFixedRows + scrollTop;
 
         //were outside of the grid do nothing
         if (x < 0 || y < 0) {

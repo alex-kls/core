@@ -354,7 +354,7 @@ function setColumnDefs(colDefs) {
     //     return;
     // }
 
-    console.log('setColumnDefs', colDefs);
+    this.log('setColumnDefs', colDefs);
 
     this.columnDefs = colDefs;
     this.visibleColumnDefs = getVisibleColDefs(this.columnDefs);
