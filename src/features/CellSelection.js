@@ -431,6 +431,7 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Hypergrid} grid
      */
     handleCTRLa: function(grid) {
+        console.log('kek');
         const oldLastSelection = grid.selectionModel.getLastSelection();
         const maxColumnWithContent = grid.behavior.dataModel.getColumnsWithValuesCount();
         const maxRowWithContent = grid.behavior.dataModel.getRowsWithValuesCount();
@@ -458,12 +459,17 @@ var CellSelection = Feature.extend('CellSelection', {
             newSelectionCornerY += grid.getFictiveHeaderRowsCount();
         }
 
+        // 11.05.2018 - Do not remove commented code yet
         grid.clearMostRecentSelection();
         grid.select(newSelectionOriginX, newSelectionOriginY, newSelectionCornerX, newSelectionCornerY);
-        grid.setMouseDown(grid.newPoint(newSelectionOriginX, newSelectionOriginY));
-        grid.setDragExtent(grid.newPoint(newSelectionCornerX, newSelectionCornerY));
-        // const newLastSelection = grid.selectionModel.getLastSelection();
-        // newLastSelection.firstSelectedCell = oldLastSelection.firstSelectedCell;
+        // grid.setMouseDown(grid.newPoint(newSelectionOriginX, newSelectionOriginY));
+        // grid.setDragExtent(grid.newPoint(newSelectionCornerX, newSelectionCornerY));
+        grid.setMouseDown(grid.newPoint(oldLastSelection.firstSelectedCell.x, oldLastSelection.firstSelectedCell.y));
+        grid.setDragExtent(grid.newPoint(newSelectionCornerX - oldLastSelection.firstSelectedCell.x,
+            newSelectionCornerY - oldLastSelection.firstSelectedCell.y));
+        const newLastSelection = grid.selectionModel.getLastSelection();
+        newLastSelection.firstSelectedCell = oldLastSelection.firstSelectedCell;
+        newLastSelection.lastSelectedCell = oldLastSelection.lastSelectedCell;
         grid.repaint();
     },
 

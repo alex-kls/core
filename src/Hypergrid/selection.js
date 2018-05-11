@@ -783,7 +783,8 @@ background-color: ${props.highlightColor}
      * @memberOf Hypergrid#
      */
     moveSingleSelect: function(offsetX, offsetY) {
-        var mouseCorner = this.getMouseDown().plus(this.getDragExtent());
+        // 11.05.2018 client wants to be able continue cell selection from same point after ctrl+a
+        var mouseCorner = this.getMouseDown();//.plus(this.getDragExtent());
         this.moveToSingleSelect(
             mouseCorner.x + offsetX,
             mouseCorner.y + offsetY
