@@ -578,7 +578,7 @@ var Local = Behavior.extend('Local', {
      */
     populateAggregationNamesForRow(row, parentParentAggs) {
         if (row.__treeLevel !== undefined && row.$$aggregation !== undefined) {
-            let parentAggs = Object.assign({}, row.parentAggs || parentParentAggs || {}); // copy parentAggs
+            let parentAggs = Object.assign({}, row.parentAggs || (this.grid.properties.isPivot ? {} : parentParentAggs) || {}); // copy parentAggs
             parentAggs[`$$aggregation${row.__treeLevel}`] = row.$$aggregation;
             Object.assign(row, parentAggs, { parentAggs });
         }
