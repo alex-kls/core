@@ -295,6 +295,14 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         }
     },
 
+    getColumnGroupIdFromCell: function(x, y) {
+        let val = this._getDataRowObject(x, y).foundedValue;
+
+        if (val !== undefined) {
+            return val && val.groupId && val.groupId !== null ? val.groupId : undefined;
+        }
+    },
+
     /**
      * @see {@link https://fin-hypergrid.github.io/3.0.0/doc/dataModelAPI#getValue}
      * @memberOf DataSourceLocal#

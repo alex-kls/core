@@ -11,7 +11,7 @@ var CellClick = Feature.extend('CellClick', {
     handleMouseMove: function(grid, event) {
         let isActionableCell = this.isAggregationTotalCell(event);
         const isOverExpandIcon = this.overExpandIcon(grid, event);
-        this.cursor = isActionableCell || isOverExpandIcon ? 'pointer' : null;
+        this.cursor = isActionableCell || (event.isExpandableColumn && isOverExpandIcon) ? 'pointer' : null;
 
         if (this.next) {
             this.next.handleMouseMove(grid, event);
@@ -46,8 +46,13 @@ var CellClick = Feature.extend('CellClick', {
         }
     },
 
+    /**
+     * @private
+     * @param {Hypergrid} grid
+     * @param {CellEvent} event
+     * @private
+     */
     _toggleExpandableRow: function(grid, event) {
-        console.log('row toggle called');
         if (!event.isRowExpanded) {
             grid.behavior.expandChildRows(event.dataCell.y);
         } else {
@@ -55,12 +60,17 @@ var CellClick = Feature.extend('CellClick', {
         }
     },
 
+    /**
+     * @private
+     * @param {Hypergrid} grid
+     * @param {CellEvent} event
+     * @private
+     */
     _toggleExpandableColumn: function(grid, event) {
-        console.log('column toggle called');
         if (!event.isColumnExpanded) {
-            grid.behavior.expandChildRows(event.dataCell.y);
+            grid.behavior.expandChildColumns(event.columnGroupId);
         } else {
-            grid.behavior.collapseChildRows(event.dataRow);
+            grid.behavior.collapseChildColumns(event.columnGroupId);
         }
     },
 
@@ -78,6 +88,12 @@ var CellClick = Feature.extend('CellClick', {
         return isAggregationColumn && isAggregationRow && aggregationChildCount > 0 && !aggregationGrandTotalRow;
     },
 
+    /**
+     * @desc unility function to detect if cursor over expand/collapse button
+     * @param {Hypergrid} grid
+     * @param {CellEvent} event
+     * @memberOf CellClick#
+     */
     overExpandIcon: function(grid, event) {
         if ((!event.isExpandableRow && !event.isExpandableColumn) || event.isRenderSkipNeeded) {
             return false;

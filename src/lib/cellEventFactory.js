@@ -115,8 +115,22 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         get: function() { return this.subgrid.getIsColumnGroupShowFromCell(this.dataCell.x, this.dataCell.y); }
     },
 
+    /**
+     * Returns boolean value, that shows, is cell was rowspaned by any row at left
+     * @memberOf CellEvent#
+     * @return {boolean}
+     */
     isRowspanedByRow: {
-        get: function() { this.subgrid.isRowspanedByRow(this.dataCell.x, this.dataCell.y); }
+        get: function() { return this.subgrid.isRowspanedByRow(this.dataCell.x, this.dataCell.y); }
+    },
+
+    /**
+     * Returns colDefs group id, if exist (if cell represent fictive header)
+     * @memberOf CellEvent#
+     * @return {number}
+     */
+    columnGroupId: {
+        get: function() { return this.subgrid.getColumnGroupIdFromCell(this.dataCell.x, this.dataCell.y); }
     },
 
     /**

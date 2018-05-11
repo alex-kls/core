@@ -612,6 +612,48 @@ var Local = Behavior.extend('Local', {
     },
 
     /**
+     * @desc set colDefs group state to open and synchronize schema
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    expandChildColumns: function(groupId) {
+        this._setColDefGroupShowStateRecursive(this.grid.columnDefs, groupId, 'open');
+
+        this.synchronizeSchemaToColumnDefs();
+    },
+
+    /**
+     * @desc set colDefs group state to closed and synchronize schema
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    collapseChildColumns: function(groupId) {
+        this._setColDefGroupShowStateRecursive(this.grid.columnDefs, groupId, 'closed');
+
+        this.synchronizeSchemaToColumnDefs();
+    },
+
+    /**
+     * @desc utility function to recursively found colDefs group by id and set it's open state
+     * @param {array} colDefs
+     * @param {number} groupId
+     * @param {string} newState
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    _setColDefGroupShowStateRecursive: function(colDefs, groupId, newState) {
+        colDefs.forEach(cd => {
+            if (cd.groupId === groupId) {
+                cd.columnGroupShow = newState;
+            }
+
+            if (cd.children && cd.children.length > 0) {
+                this._setColDefGroupShowStateRecursive(cd.children, groupId, newState);
+            }
+        });
+    },
+
+    /**
      * @summary set all rows expanded in one time
      */
     buildFlatMode: function() {

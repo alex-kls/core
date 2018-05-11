@@ -431,7 +431,6 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Hypergrid} grid
      */
     handleCTRLa: function(grid) {
-        console.log('kek');
         const oldLastSelection = grid.selectionModel.getLastSelection();
         const maxColumnWithContent = grid.behavior.dataModel.getColumnsWithValuesCount();
         const maxRowWithContent = grid.behavior.dataModel.getRowsWithValuesCount();

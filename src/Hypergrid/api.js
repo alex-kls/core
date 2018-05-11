@@ -96,15 +96,20 @@ function convertColDefs(colDefs) {
 
     countMaxTreeLevel(0, colDefs);
 
-    function colDefMapper(singleColDef, headerLevel = 0) {
+    function colDefMapper(singleColDef, headerLevel = 0, topGroupCollapsed = false) {
         const letter = idOf(colDefMapperCallsCount);
         colDefMapperCallsCount++;
 
         if (singleColDef) {
+            if (topGroupCollapsed && !singleColDef.isTotal) {
+                return [];
+            }
+
             if (!!singleColDef.children && singleColDef.children.length > 0) {
                 let insertedColumnNames = [];
+
                 singleColDef.children.forEach((ch) => {
-                    insertedColumnNames = [...insertedColumnNames, ...colDefMapper(ch, headerLevel + 1)];
+                    insertedColumnNames = [...insertedColumnNames, ...colDefMapper(ch, headerLevel + 1, singleColDef.columnGroupShow !== 'open')];
                 });
 
                 if (!data[headerLevel]) {
@@ -112,14 +117,20 @@ function convertColDefs(colDefs) {
                 }
 
                 const colspan = insertedColumnNames.length - 1;
+
+                let columnName = (topGroupCollapsed && singleColDef.collapsedHeaderName)
+                    ? singleColDef.collapsedHeaderName
+                    : singleColDef.headerName || '';
+
                 data[headerLevel][insertedColumnNames[0]] = {
                     colspan: colspan,
-                    value: singleColDef.headerName || '',
+                    value: columnName,
                     properties: {
                         ignoreValuePrefix: false
                     },
                     count: singleColDef.count,
                     childColumnDefs: singleColDef.children,
+                    groupId: singleColDef.groupId,
                     columnOpenByDefault: singleColDef.openByDefault,
                     columnGroupShow: singleColDef.columnGroupShow
                 };
@@ -131,6 +142,7 @@ function convertColDefs(colDefs) {
                         colspanedByColumn: insertedColumnNames[0],
                         count: singleColDef.count,
                         childColumnDefs: singleColDef.children,
+                        groupId: singleColDef.groupId,
                         columnOpenByDefault: singleColDef.openByDefault,
                         columnGroupShow: singleColDef.columnGroupShow
                     };
@@ -161,9 +173,12 @@ function convertColDefs(colDefs) {
                         data[headerLevel] = getEmptyHeaderRow();
                     }
                     const rowspan = maxTreeLevel - headerLevel - 1;
+                    let columnName = (topGroupCollapsed && singleColDef.collapsedHeaderName)
+                        ? singleColDef.collapsedHeaderName
+                        : singleColDef.headerName || '';
                     data[headerLevel][originalField] = {
                         rowspan: rowspan,
-                        value: singleColDef.headerName || '',
+                        value: columnName,
                         count: singleColDef.count
                     };
                     for (let i = headerLevel + 1, it = 1; i < maxTreeLevel; i++, it++) {
