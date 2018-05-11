@@ -61,7 +61,7 @@ function convertColDefs(colDefs) {
 
     const az = range('A', 'Z');
 
-    let colDefMapperCallsCount = 0;
+    let colDefMapperCallsCount = 0, schemaColumnsCount = 0;
     let maxTreeLevel = 0;
 
     function countMaxTreeLevel(prevLevel, colDefsToDetect) {
@@ -97,58 +97,113 @@ function convertColDefs(colDefs) {
     countMaxTreeLevel(0, colDefs);
 
     function colDefMapper(singleColDef, headerLevel = 0, topGroupCollapsed = false) {
-        const letter = idOf(colDefMapperCallsCount);
+        const letter = idOf(schemaColumnsCount);
         colDefMapperCallsCount++;
 
         if (singleColDef) {
-            if (topGroupCollapsed && !singleColDef.isTotal) {
+            if (topGroupCollapsed && singleColDef.collapsedHeaderName !== 'undefined') {
                 return [];
             }
 
             if (!!singleColDef.children && singleColDef.children.length > 0) {
                 let insertedColumnNames = [];
-
+                const groupCollapsed = singleColDef.columnGroupShow === undefined
+                    || (singleColDef.columnGroupShow !== 'open' && singleColDef.columnGroupShow !== 'always-showing');
                 singleColDef.children.forEach((ch) => {
-                    insertedColumnNames = [...insertedColumnNames, ...colDefMapper(ch, headerLevel + 1, singleColDef.columnGroupShow !== 'open')];
+                    insertedColumnNames = [...insertedColumnNames, ...colDefMapper(ch, headerLevel + 1, groupCollapsed)];
                 });
 
-                if (!data[headerLevel]) {
-                    data[headerLevel] = getEmptyHeaderRow();
-                }
+                if (insertedColumnNames.length === 0) {
+                    const originalField = singleColDef.groupId;
+                    const maxWidth = singleColDef && singleColDef.maxWidth;
+                    const name = originalField || letter;
 
-                const colspan = insertedColumnNames.length - 1;
+                    schema.push({
+                        header: letter || '',
+                        name: name,
+                        width: singleColDef.width,
+                        halign: singleColDef.halign,
+                        colTypeSign: singleColDef.colTypeSign,
+                        maxWidth: maxWidth && maxWidth < maximumColumnWidth ? maxWidth : maximumColumnWidth,
+                        formatter: getFormatter(singleColDef) || undefined,
+                        format: name,
+                        headerPrefix: singleColDef.headerPrefix,
+                        cellContextMenu: getContextMenuItems,
+                        colDef: singleColDef
+                    });
+                    schemaColumnsCount++;
 
-                let columnName = (topGroupCollapsed && singleColDef.collapsedHeaderName)
-                    ? singleColDef.collapsedHeaderName
-                    : singleColDef.headerName || '';
+                    if (originalField) {
+                        if (!data[headerLevel]) {
+                            data[headerLevel] = getEmptyHeaderRow();
+                        }
+                        const rowspan = maxTreeLevel - headerLevel - 1;
+                        let columnName = (topGroupCollapsed && singleColDef.collapsedHeaderName)
+                            ? singleColDef.collapsedHeaderName
+                            : singleColDef.headerName || '';
+                        data[headerLevel][originalField] = {
+                            rowspan: rowspan,
+                            value: columnName,
+                            count: singleColDef.count,
+                            childColumnDefs: singleColDef.children,
+                            groupId: singleColDef.groupId,
+                            columnOpenByDefault: singleColDef.openByDefault,
+                            columnGroupShow: singleColDef.columnGroupShow
+                        };
+                        for (let i = headerLevel + 1, it = 1; i < maxTreeLevel; i++, it++) {
+                            if (!data[i]) {
+                                data[i] = getEmptyHeaderRow();
+                            }
+                            data[i][originalField] = {
+                                rowspan: rowspan - i,
+                                isRowspanedByRow: true,
+                                rowspanedByRow: headerLevel,
+                                count: singleColDef.count
+                            };
+                        }
+                    }
 
-                data[headerLevel][insertedColumnNames[0]] = {
-                    colspan: colspan,
-                    value: columnName,
-                    properties: {
-                        ignoreValuePrefix: false
-                    },
-                    count: singleColDef.count,
-                    childColumnDefs: singleColDef.children,
-                    groupId: singleColDef.groupId,
-                    columnOpenByDefault: singleColDef.openByDefault,
-                    columnGroupShow: singleColDef.columnGroupShow
-                };
+                    return [name];
+                } else {
+                    if (!data[headerLevel]) {
+                        data[headerLevel] = getEmptyHeaderRow();
+                    }
 
-                for (let i = 1; i < insertedColumnNames.length; i++) {
-                    data[headerLevel][insertedColumnNames[i]] = {
-                        colspan: colspan - i,
-                        isColspanedByColumn: true,
-                        colspanedByColumn: insertedColumnNames[0],
+                    const colspan = insertedColumnNames.length - 1;
+
+                    let columnName = (topGroupCollapsed && singleColDef.collapsedHeaderName)
+                        ? singleColDef.collapsedHeaderName
+                        : singleColDef.headerName || '';
+
+                    data[headerLevel][insertedColumnNames[0]] = {
+                        colspan: colspan,
+                        value: columnName,
+                        properties: {
+                            ignoreValuePrefix: false
+                        },
                         count: singleColDef.count,
                         childColumnDefs: singleColDef.children,
                         groupId: singleColDef.groupId,
                         columnOpenByDefault: singleColDef.openByDefault,
                         columnGroupShow: singleColDef.columnGroupShow
                     };
+
+                    for (let i = 1; i < insertedColumnNames.length; i++) {
+                        data[headerLevel][insertedColumnNames[i]] = {
+                            colspan: colspan - i,
+                            isColspanedByColumn: true,
+                            colspanedByColumn: insertedColumnNames[0],
+                            count: singleColDef.count,
+                            childColumnDefs: singleColDef.children,
+                            groupId: singleColDef.groupId,
+                            columnOpenByDefault: singleColDef.openByDefault,
+                            columnGroupShow: singleColDef.columnGroupShow
+                        };
+                    }
+
+                    return insertedColumnNames;
                 }
 
-                return insertedColumnNames;
             } else {
                 const originalField = singleColDef.field;
                 const maxWidth = singleColDef && singleColDef.maxWidth;
@@ -167,6 +222,7 @@ function convertColDefs(colDefs) {
                     cellContextMenu: getContextMenuItems,
                     colDef: singleColDef
                 });
+                schemaColumnsCount++;
 
                 if (originalField) {
                     if (!data[headerLevel]) {
@@ -203,6 +259,7 @@ function convertColDefs(colDefs) {
                 format: name,
                 cellContextMenu: getContextMenuItems
             });
+            schemaColumnsCount++;
             return [letter];
         }
     }
@@ -354,7 +411,7 @@ function setColumnDefs(colDefs) {
     //     return;
     // }
 
-    this.log('setColumnDefs', colDefs);
+    console.log('setColumnDefs', colDefs);
 
     this.columnDefs = colDefs;
     this.visibleColumnDefs = getVisibleColDefs(this.columnDefs);

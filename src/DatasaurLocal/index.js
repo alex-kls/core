@@ -290,8 +290,12 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
     getIsColumnGroupShowFromCell: function(x, y) {
         let val = this._getDataRowObject(x, y).foundedValue;
 
+        const shownValues = ['always-showing', 'open'];
+
         if (val !== undefined) {
-            return val && val.columnGroupShow && val.columnGroupShow !== null ? val.columnGroupShow === 'open' : false;
+            return val && val.columnGroupShow && val.columnGroupShow !== null
+                ? shownValues.indexOf(val.columnGroupShow) > -1
+                : false;
         }
     },
 

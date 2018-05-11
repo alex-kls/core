@@ -1148,6 +1148,10 @@ var Behavior = Base.extend('Behavior', {
         this.grid.api.setColumnDefs(this.grid.columnDefs);
     },
 
+    recalculateColumnSizes: function() {
+        this.grid.api.sizeColumnsToFit();
+    },
+
     /**
      * @desc utility method to perform columns reordering
      * @param {number} from - visible columns start index
