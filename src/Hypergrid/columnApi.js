@@ -16,11 +16,10 @@ function setColumnsVisible(keys, visible) {
     let colDef = this.columnDefs;
     let columnsStateChanged = false;
     keys.forEach((key) => {
-        let singleColDef = this.getColDef(key);
-        if (singleColDef) {
-            singleColDef.isHidden = !visible;
+        this.getColDefs(key).forEach(cd => {
+            cd.isHidden = !visible;
             columnsStateChanged = true;
-        }
+        });
     });
 
     if (columnsStateChanged) {

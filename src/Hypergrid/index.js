@@ -1978,19 +1978,18 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.behavior.charMap;
     },
 
-    getColDef: function(name, columnDefs = this.columnDefs) {
+    /**
+     * @summary find all column defs by name
+     * @param name
+     * @param columnDefs
+     */
+    getColDefs: function(name, columnDefs = this.columnDefs) {
         if (!columnDefs) {
-            return;
+            return [];
         }
-        let found = columnDefs.find(cd => cd.field === name || cd.colId === name || cd.originalField === name);
+        const found = columnDefs.filter(cd => cd.field === name || cd.colId === name || cd.originalField === name);
 
-        if (!found) {
-            columnDefs.filter(cd => cd.children).forEach(cd => {
-                if (!found) {
-                    found = this.getColDef(name, cd.children);
-                }
-            });
-        }
+        columnDefs.filter(cd => cd.children).forEach(cd => [].push.apply(found, this.getColDefs(name, cd.children)));
 
         return found;
     },

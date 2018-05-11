@@ -99,7 +99,7 @@ Column.prototype = {
     },
 
     get colDef() { // read-only (no setter)
-        return this.properties.colDef || this.behavior.grid.getColDef(this.name);
+        return this.properties.colDef;
     },
 
     /**

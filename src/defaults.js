@@ -1501,12 +1501,11 @@ var defaults = {
                 const colDef = grid.columnDefs;
                 const column = cellEvent.column;
 
-                const singleColDef = grid.getColDef(column.name);
-
                 // remove if it isn't removed in 'onRemoveColumn' callback
-                if (singleColDef) {
+                grid.getColDefs(column.name).forEach(singleColDef => {
                     colDef.splice(colDef.indexOf(singleColDef), 1);
-                }
+                });
+
                 grid.api.setColumnDefs(colDef);
             }
         }
