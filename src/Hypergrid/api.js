@@ -67,7 +67,9 @@ function convertColDefs(colDefs) {
     function countMaxTreeLevel(prevLevel, colDefsToDetect) {
         let currentLevel = prevLevel + 1;
         colDefsToDetect.forEach((cd) => {
-            if (cd.children && cd.children.length > 0) {
+            const groupCollapsed = cd.columnGroupShow === undefined
+                || (cd.columnGroupShow !== 'open' && cd.columnGroupShow !== 'always-showing');
+            if (cd.children && cd.children.length > 0 && !groupCollapsed) {
                 countMaxTreeLevel(currentLevel, cd.children);
             }
         });
@@ -411,7 +413,7 @@ function setColumnDefs(colDefs) {
     //     return;
     // }
 
-    console.log('setColumnDefs', colDefs);
+    this.log('setColumnDefs', colDefs);
 
     this.columnDefs = colDefs;
     this.visibleColumnDefs = getVisibleColDefs(this.columnDefs);
