@@ -737,11 +737,11 @@ var defaults = {
     //for immediate painting, set these values to 0, true respectively
 
     /**
-     * @default
+     * @default FPS fow drawing table
      * @type {number}
      * @memberOf module:defaults
      */
-    repaintIntervalRate: 40,
+    repaintIntervalRate: 60,
 
     /**
      * @default

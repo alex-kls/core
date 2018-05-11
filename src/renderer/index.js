@@ -1434,7 +1434,7 @@ var Renderer = Base.extend('Renderer', {
             config.value = !isArray && isUserDataArea ? config.exec(value) : value;
         }
 
-        if (!config.link && config.value && config.detectLinksPermanently && cellEvent.isValueUrl) {
+        if (config.isDataRow && !config.link && config.value && config.detectLinksPermanently && cellEvent.isValueUrl) {
             config.link = config.value;
         }
 

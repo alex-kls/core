@@ -124,7 +124,9 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @memberOf CellEvent#
      */
     formattedValue: {
-        get: function() { return this.grid.formatValue(this.properties.format, this.value, this.rowProperties.headerRow); }
+        get: function() {
+            return this._formattedValue || (this._formattedValue = this.grid.formatValue(this.properties.format, this.value, this.rowProperties.headerRow));
+        }
     },
 
     /**
@@ -133,15 +135,24 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      */
     highlightedChars: {
         get: function() {
-            const str = this.formattedValue;
-            const searchType = this.column ? this.column.searchType : 'NONE';
             const highlights = [];
 
-            if (!this.properties.highLightText || !str || searchType === 'NONE' || searchType === undefined) {
+            const { highLightText } = this.properties;
+            if (!highLightText) {
                 return highlights;
             }
 
-            const reg = this.subgrid.getHighlightRegex(this.properties.highLightText, searchType);
+            const searchType = this.column ? this.column.searchType : 'NONE';
+            if (searchType === 'NONE' || searchType === undefined) {
+                return highlights;
+            }
+
+            const str = this.formattedValue;
+            if (!str) {
+                return highlights;
+            }
+
+            const reg = this.subgrid.getHighlightRegex(highLightText, searchType);
             if (!reg) {
                 return highlights;
             }
@@ -208,6 +219,10 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      */
     properties: {
         get: function() {
+            if (this._properties) {
+                return this._properties;
+            }
+
             let props = shallowClone(this.cellOwnProperties || this.columnProperties);
 
             this._cellOwnDefinedProperties = this._cellOwnDefinedProperties || this.subgrid.getDefinedCellProperties(this.valueCell.x, this.valueCell.y);
@@ -219,7 +234,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
                 Object.assign(props, this._cellOwnDefinedProperties);
             }
 
-            return props;
+            return (this._properties = props);
         }
     },
     /**
@@ -277,6 +292,8 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
             this._cellOwnProperties = undefined;
             this._cellOwnDefinedProperties = undefined;
             this._bounds = undefined;
+            this._formattedValue = undefined;
+            this._properties = undefined;
 
             // partial render support
             this.snapshot = [];
