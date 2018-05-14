@@ -636,6 +636,7 @@ function setDatasource(datasource) {
 
                 [].push.apply(this.data, rows);
                 this.addData({ data: rows });
+                this.behavior.buildFlatMode();
             },
             failCallback: function() {
                 this.log('failCallback');

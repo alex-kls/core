@@ -17,7 +17,8 @@ var srcDir = './src/',
     testDir = './test/',
     jsFiles = '**/*.js',
     demoDir = './demo/',
-    buildDir = demoDir + 'build/';
+    buildDir = demoDir + 'build/',
+    datadocDir = '/root/Docs/dataparse/src/main/resources/assets/js/lib/';
 
 //  //  //  //  //  //  //  //  //  //  //  //
 
@@ -115,7 +116,8 @@ function bundleUp(destName, srcDir, buildDir) {
                 )
             )
         )
-        .pipe(gulp.dest(buildDir));
+        .pipe(gulp.dest(buildDir))
+        .pipe(gulp.dest(datadocDir));
 }
 
 function doc(cb) {

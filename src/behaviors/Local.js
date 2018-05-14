@@ -659,10 +659,10 @@ var Local = Behavior.extend('Local', {
      * @summary set all rows expanded in one time
      */
     buildFlatMode: function() {
-        while (!this.flatReady) {
+        do {
             this.flatReady = true;
             this.dataModel.data.forEach(row => this.expandChildRows(row));
-        }
+        } while (!this.flatReady);
 
         this.dataModel.cache = [];
     },
