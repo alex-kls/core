@@ -127,7 +127,7 @@ function convertColDefs(colDefs) {
                 });
 
                 if (insertedColumnNames.length === 0) {
-                    const originalField = singleColDef.key + singleColDef.groupId;
+                    const originalField = singleColDef.columnName + '_$$cluster_size';
                     const name = originalField || letter;
 
                     schema.push({
