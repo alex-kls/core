@@ -297,7 +297,7 @@ var ContextMenu = Feature.extend('ContextMenu', {
         menuHolderDiv.element.appendChild(menuListHolderDiv);
 
         if (typeof items === 'function') {
-            items = items({ column: event.column, node: { data: event.dataRow }, value: event.value });
+            items = items({ column: event.column, node: { data: event.dataRow, level: event.column.treeLevel }, value: event.value });
         }
 
         items.forEach((item) => {

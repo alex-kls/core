@@ -128,7 +128,6 @@ function convertColDefs(colDefs) {
 
                 if (insertedColumnNames.length === 0) {
                     const originalField = singleColDef.key + singleColDef.groupId;
-                    const maxWidth = singleColDef && singleColDef.maxWidth;
                     const name = originalField || letter;
 
                     schema.push({
@@ -137,7 +136,6 @@ function convertColDefs(colDefs) {
                         width: singleColDef.width,
                         halign: singleColDef.halign,
                         colTypeSign: singleColDef.colTypeSign,
-                        maxWidth: maxWidth && maxWidth < maximumColumnWidth ? maxWidth : maximumColumnWidth,
                         formatter: getFormatter(singleColDef) || undefined,
                         format: name,
                         headerPrefix: singleColDef.headerPrefix,

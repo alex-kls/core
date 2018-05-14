@@ -62,16 +62,8 @@ exports.mixin = {
         }
     },
 
-    getMatrixSelectionAsTSV: function(selections) {
-        let text = '';
-        let html = '';
-
-        // only use the data from the last selection
-        if (selections.length) {
-
-            const props = this.properties;
-
-            html = `<style type="text/css">
+    getMatrixSelectionHtmlStyles: function(props) {
+        return `<style type="text/css">
 table {
 border-collapse: collapse;
 font: 13px "Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -101,7 +93,19 @@ padding-left: ${props.cellValuePostfixLeftOffset}px;
 mark {
 background-color: ${props.highlightColor}
 }
-</style><table>`;
+</style>`;
+    },
+
+    getMatrixSelectionAsTSV: function(selections) {
+        let text = '';
+        let html = '';
+
+        // only use the data from the last selection
+        if (selections.length) {
+
+            const props = this.properties;
+
+            html = this.getMatrixSelectionHtmlStyles(props) + '<table>';
 
             let width = selections.length,
                 height = selections[0].length,
@@ -368,7 +372,7 @@ background-color: ${props.highlightColor}
                     // add prefix
                     if (colProps.colDef && colProps.colDef.headerPrefix && !dataModel.getDefinedCellProperties(x, y).ignoreValuePrefix) {
                         text += colProps.colDef.headerPrefix + ' ';
-                        html += `<span class="prefix">${colProps.colDef.headerPrefix}</span>`;
+                        html += `<span class="prefix">${colProps.colDef.headerPrefix}</span> `;
                     }
 
                     // add value
@@ -380,7 +384,7 @@ background-color: ${props.highlightColor}
                     const postfix = dataModel.getCount(x, y);
                     if (postfix) {
                         text += ` (${postfix})`;
-                        html += `<span class="postfix">(${postfix})</span>`;
+                        html += ` <span class="postfix">(${postfix})</span>`;
                     }
 
                     return {

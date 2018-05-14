@@ -102,6 +102,10 @@ Column.prototype = {
         return this.properties.colDef;
     },
 
+    get treeLevel() { // read-only (no setter)
+        return this.colDef.treeLevel;
+    },
+
     /**
      * @summary Get or set the text of the column's header.
      * @desc The _header_ is the label at the top of the column.

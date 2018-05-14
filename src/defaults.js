@@ -2267,7 +2267,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    aggregationGroupTreeLevelOffset: 20,
+    aggregationGroupTreeLevelOffset: 17,
 
     /**
      * @desc width of clickable area, that starts on group expand icon start

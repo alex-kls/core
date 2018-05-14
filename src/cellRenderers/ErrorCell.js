@@ -46,7 +46,7 @@ var ErrorCell = CellRenderer.extend('ErrorCell', {
         gc.cache.textAlign = 'start';
         gc.cache.textBaseline = 'middle';
         gc.cache.font = '13px "Helvetica Neue",Helvetica,Arial,sans-serif';
-        gc.fillText(message, x + 4, y + height / 2 + 0.5);
+        gc.simpleText(message, x + 4, y + height / 2 + 0.5);
     }
 });
 

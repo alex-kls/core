@@ -659,13 +659,9 @@ var Local = Behavior.extend('Local', {
      * @summary set all rows expanded in one time
      */
     buildFlatMode: function() {
-        const data = this.dataModel.data;
-
-        let lengthBefore = 0;
-        while (data.length !== lengthBefore || !this.flatReady) {
-            lengthBefore = data.length;
+        while (!this.flatReady) {
             this.flatReady = true;
-            data.forEach(row => this.expandChildRows(row));
+            this.dataModel.data.forEach(row => this.expandChildRows(row));
         }
 
         this.dataModel.cache = [];

@@ -45,7 +45,7 @@ var Button = CellRenderer.extend('Button', {
         gc.cache.fillStyle = '#333333';
         gc.cache.font = height - 2 + 'px sans-serif';
         config.backgroundColor = 'rgba(0,0,0,0)';
-        gc.fillText(val, x + ox, y + oy);
+        gc.simpleText(val, x + ox, y + oy);
 
         // Identify that we are a button by inserting an array of bounds into buttonCells for this cell's coords,
         // one element per subrow. This will be a single-element array for a cell without `subrows`.

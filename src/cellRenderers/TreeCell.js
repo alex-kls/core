@@ -28,7 +28,7 @@ var TreeCell = CellRenderer.extend('TreeCell', {
         gc.cache.fillStyle = config.isSelected ? config.backgroundColor : config.backgroundColor;
 
         var valignOffset = Math.ceil(config.bounds.height / 2);
-        gc.fillText(icon + val, x + indent, y + valignOffset);
+        gc.simpleText(icon + val, x + indent, y + valignOffset);
 
         config.minWidth = x + indent + gc.getTextWidth(icon + val) + 10;
     }
