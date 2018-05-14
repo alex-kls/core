@@ -641,21 +641,6 @@ var Renderer = Base.extend('Renderer', {
         }
 
         let { x, y } = firstSelectedCell;
-        // if (!this.grid.isDataVisible(x, y)) {
-        //     const colspan = this.grid.behavior.getColspan(x, y);
-        //     const rowspan = this.grid.behavior.getRowspan(x, y);
-        //
-        //     if (colspan >= 0) {
-        //         while (!this.grid.isDataVisible(x, y) && x < firstSelectedCell.x + colspan) {
-        //             ++x;
-        //         }
-        //     }
-        //     if (rowspan >= 0) {
-        //         while (!this.grid.isDataVisible(x, y) && y < firstSelectedCell.y + rowspan) {
-        //             ++y;
-        //         }
-        //     }
-        // }
 
         if (!this.grid.isDataVisible(x, y) && this.visibleColumns.length > 0) {
             let firstVisibleColumnIndex = this.visibleColumns[0].columnIndex;

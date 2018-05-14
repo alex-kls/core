@@ -58,7 +58,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
          * @memberOf DataSourceLocal#
          */
         this.data = data || [];
-        this.cache = [];
+        this.onChange();
 
         if (schema) {
             this.setSchema(schema);
@@ -77,7 +77,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      */
     addData: function(data, schema) {
         this.data.push.apply(this.data, data || []);
-        this.cache = [];
+        this.onChange();
 
         if (schema) {
             this.setSchema(schema);
@@ -99,9 +99,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      */
     setSchema: function(newSchema) {
         if (!newSchema.length) {
-            var dataRow = this.data.find(function(dataRow) {
-                return dataRow;
-            });
+            const dataRow = this.data.find(dataRow => dataRow);
             if (dataRow) {
                 newSchema = Object.keys(dataRow);
             }
@@ -130,7 +128,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      */
     setRow: function(y, dataRow) {
         this.data[y] = dataRow || undefined;
-        this.cache = [];
+        this.onChange();
     },
 
     /**
@@ -172,7 +170,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         } else {
             this.data.splice(y, 0, dataRow);
         }
-        this.cache = [];
+        this.onChange();
         this.dispatchEvent('data-shape-changed');
     },
 
@@ -189,7 +187,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
             y = this.getRowCount();
         }
         this.data.splice(y, 0, ...dataRows);
-        this.cache = [];
+        this.onChange();
         this.dispatchEvent('data-shape-changed');
     },
 
@@ -203,7 +201,7 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
      */
     delRow: function(y, rowCount) {
         var rows = this.data.splice(y, rowCount === undefined ? 1 : rowCount);
-        this.cache = [];
+        this.onChange();
         if (rows.length) {
             this.dispatchEvent('data-shape-changed');
         }
@@ -333,8 +331,8 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
                 foundedDataRowValue = value;
             }
         }
-        this.cache = [];
         this.data[y][this.getColumnName(x)] = foundedDataRowValue;
+        this.onChange();
     },
 
     /**
@@ -553,6 +551,15 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         }
 
         return (str + '').replace(reg, '<mark>$&</mark>');
+    },
+
+    onChange() {
+        this.cache = [];
+        this._data = this._data.filter(d => !d.$$blank_node);
+        const minimumRowCount = this.grid && this.grid.properties.minimumRowCount || 50;
+        while (this._data.length < minimumRowCount) {
+            this._data.push({ ['$$blank_node']: true });
+        }
     },
 
     get data() {
