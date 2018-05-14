@@ -107,7 +107,6 @@ function convertColDefs(colDefs) {
     }
 
     countMaxTreeLevel(0, colDefs);
-    console.log('maxTreeLevel', maxTreeLevel);
 
     function colDefMapper(singleColDef, headerLevel = 0, topGroupCollapsed = false) {
         const letter = idOf(schemaColumnsCount);
