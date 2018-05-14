@@ -630,7 +630,22 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @type {boolean}
      * @memberOf CellEvent#
      */
-    isAggregationColumn: {get: function() { return !!this.column && this.column.name === '$$aggregation'; }},
+    isAggregationTreeColumn: {
+        get: function() {
+            return !!this.column && this.column.name === '$$aggregation';
+        }
+    },
+
+    /**
+     * @desc shows, is cell located in aggregation column
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    isAggregationColumn: {
+        get: function() {
+            return !!this.column && this.column.name.startsWith('$$aggregation');
+        }
+    },
 
     /**
      * @desc shows, is cell located in aggregation row

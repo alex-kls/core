@@ -353,7 +353,7 @@ background-color: ${props.highlightColor}
             const colProps = behavior.getColumnProperties(x);
             const columnName = dataModel.getColumnName(x);
             const searchType = behavior.getColumn(x).searchType;
-            const isAggregationColumn = columnName === '$$aggregation';
+            const isAggregationTreeColumn = columnName === '$$aggregation';
             let values = rows[c] = new Array(rowCount);
             const alreadyCopied = [];
 
@@ -399,7 +399,7 @@ background-color: ${props.highlightColor}
                     let val = dataModel.getValue(x, y);
 
                     if (val || val === false || val === 0 || val === null) {
-                        let color = this.properties[isAggregationColumn ? 'linkColor' : 'color'];
+                        let color = this.properties[isAggregationTreeColumn ? 'linkColor' : 'color'];
 
                         let text = '';
                         let html = '';
@@ -411,10 +411,10 @@ background-color: ${props.highlightColor}
                             val = dataModel.getHighlightedValue(val, this.properties.highLightText, searchType);
                         }
                         text += val;
-                        html += `<span style="color: ${color}; ${isAggregationColumn ? 'text-decoration: underline;' : ''}">${isValueUrl ? `<a href="${val}">${val}</a>` : val}</span>`;
+                        html += `<span style="color: ${color}; ${isAggregationTreeColumn ? 'text-decoration: underline;' : ''}">${isValueUrl ? `<a href="${val}">${val}</a>` : val}</span>`;
 
                         // add postfix
-                        let postfix = isAggregationColumn ? behavior.getAggregationChildCountByIndex(y) : dataModel.getCount(x, y);
+                        let postfix = isAggregationTreeColumn ? behavior.getAggregationChildCountByIndex(y) : dataModel.getCount(x, y);
                         if (postfix) {
                             text += ` (${postfix})`;
                             html += `<span class="postfix">(${postfix})</span>`;

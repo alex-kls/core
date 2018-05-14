@@ -148,7 +148,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         leftPadding = leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPaddingLeft;
         rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPaddingRight;
 
-        if (config.isAggregationColumn) {
+        if (config.isAggregationTreeColumn) {
             leftPadding += config.treeLevel * config.aggregationGroupTreeLevelOffset;
         }
 
@@ -437,7 +437,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         }
 
         if (config.isUserDataArea) {
-            const isAggregationHighlightingNeeded = !config.isGrandTotalRow && config.isAggregationColumn && config.isAggregationRow && config.aggregationChildCount > 0;
+            const isAggregationHighlightingNeeded = !config.isGrandTotalRow && config.isAggregationTreeColumn && config.isAggregationRow && config.aggregationChildCount > 0;
             if (config.link || isAggregationHighlightingNeeded && !config.ignoreUnderlining) {
                 if (config.isCellHovered || !config.linkOnHover) {
                     if (config.linkColor) {

@@ -80,12 +80,12 @@ var CellClick = Feature.extend('CellClick', {
      * @memberOf CellClick#
      */
     isAggregationTotalCell: function(event) {
-        const isAggregationColumn = event.isAggregationColumn,
+        const isAggregationTreeColumn = event.isAggregationTreeColumn,
             isAggregationRow = event.isAggregationRow,
             aggregationChildCount = event.aggregationChildCount,
             aggregationGrandTotalRow = event.isGrandTotalRow;
 
-        return isAggregationColumn && isAggregationRow && aggregationChildCount > 0 && !aggregationGrandTotalRow;
+        return isAggregationTreeColumn && isAggregationRow && aggregationChildCount > 0 && !aggregationGrandTotalRow;
     },
 
     /**

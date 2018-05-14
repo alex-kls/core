@@ -1346,15 +1346,14 @@ var Renderer = Base.extend('Renderer', {
         config.ignoreValuePrefix = properties.ignoreValuePrefix;
         config.highlightedChars = cellEvent.highlightedChars;
 
-        config.isAggregationColumn = cellEvent.isAggregationColumn;
-        if (config.isAggregationColumn) {
+        config.isAggregationTreeColumn = cellEvent.isAggregationTreeColumn;
+        if (config.isAggregationTreeColumn) {
             config.hasChildRows = cellEvent.hasChildRows;
             config.isAggregationRow = cellEvent.isAggregationRow;
             config.aggregationChildCount = cellEvent.aggregationChildCount;
             config.isExpandableRow = cellEvent.isExpandableRow;
             config.isRowExpanded = cellEvent.isRowExpanded;
             config.treeLevel = cellEvent.treeLevel;
-            config.isGrandTotalRow = cellEvent.isGrandTotalRow;
 
             if (config.isExpandableRow) {
                 config.valuePrefix = config.isRowExpanded
@@ -1368,12 +1367,14 @@ var Renderer = Base.extend('Renderer', {
             if (config.aggregationChildCount && !config.headerRow) {
                 config.valuePostfix = `(${config.aggregationChildCount})`;
             }
+        }
 
-            if (config.isGrandTotalRow) {
-                config.backgroundTextFont = this.properties.grandAggregationCellFont;
-                config.foregroundSelectionFont  = this.properties.grandAggregationCellFont;
-                config.font = this.properties.grandAggregationCellFont;
-            }
+        config.isAggregationColumn = cellEvent.isAggregationColumn;
+        config.isGrandTotalRow = cellEvent.isGrandTotalRow;
+        if (config.isAggregationColumn && config.isGrandTotalRow) {
+            config.backgroundTextFont = this.properties.grandAggregationCellFont;
+            config.foregroundSelectionFont = this.properties.grandAggregationCellFont;
+            config.font = this.properties.grandAggregationCellFont;
         }
 
         if (cellEvent.isExpandableColumn) {
