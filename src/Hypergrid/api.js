@@ -148,12 +148,12 @@ function convertColDefs(colDefs) {
                         if (!data[headerLevel]) {
                             data[headerLevel] = getEmptyHeaderRow();
                         }
-                        const rowspan = maxTreeLevel - headerLevel - 1;
+                        let rowspan = maxTreeLevel - headerLevel - 1;
                         let columnName = (topGroupCollapsed && singleColDef.collapsedHeaderName && singleColDef.collapsedHeaderName.length)
                             ? singleColDef.collapsedHeaderName
                             : singleColDef.headerName || '';
                         data[headerLevel][originalField] = {
-                            rowspan: rowspan,
+                            rowspan: 0,
                             value: columnName,
                             count: singleColDef.count,
                             childColumnDefs: singleColDef.children,
@@ -161,16 +161,28 @@ function convertColDefs(colDefs) {
                             columnOpenByDefault: singleColDef.openByDefault,
                             columnGroupShow: singleColDef.columnGroupShow
                         };
-                        for (let i = headerLevel + 1, it = 1; i < maxTreeLevel; i++, it++) {
-                            if (!data[i]) {
-                                data[i] = getEmptyHeaderRow();
-                            }
-                            data[i][originalField] = {
-                                rowspan: rowspan - i,
-                                isRowspanedByRow: true,
-                                rowspanedByRow: headerLevel,
+
+                        if (rowspan > 0) {
+                            rowspan--;
+                            data[headerLevel + 1][originalField] = {
+                                rowspan: rowspan,
+                                value: 'Count',
                                 count: singleColDef.count
                             };
+                        }
+
+                        if (rowspan > 0) {
+                            for (let i = headerLevel + 2; i < maxTreeLevel; i++) {
+                                if (!data[i]) {
+                                    data[i] = getEmptyHeaderRow();
+                                }
+                                data[i][originalField] = {
+                                    rowspan: rowspan - i,
+                                    isRowspanedByRow: true,
+                                    rowspanedByRow: headerLevel,
+                                    count: singleColDef.count
+                                };
+                            }
                         }
                     }
 
@@ -376,30 +388,6 @@ const virtualPageRowModel = {
     }
 };
 
-// function isColumnDefsSimilar(colDefs1, colDefs2) {
-//     if (colDefs1.length === 0 && colDefs2.length === 0) {
-//         return true;
-//     }
-//
-//     if (colDefs1.length !== colDefs2.length) {
-//         return false;
-//     }
-//
-//     colDefs1.forEach((cd, i) => {
-//         let cd2WidhSameIndex = colDefs2[i];
-//
-//         if (!cd2WidhSameIndex) {
-//             return false;
-//         }
-//
-//         if (cd.colId !== cd2WidhSameIndex.colId) {
-//             return false;
-//         }
-//     });
-//
-//     return true;
-// }
-
 function getVisibleColDefs(colDefs) {
     const res = colDefs.filter((cd) => !cd.isHidden);
 
@@ -411,17 +399,6 @@ function getVisibleColDefs(colDefs) {
 }
 
 function setColumnDefs(colDefs) {
-    // works like expected, but datadocs calls method 11 times and if not reflect all, first row not shown
-    // if (!!this.columnDefs
-    //     && !!colDefs
-    //     && !(colDefs.length === 0)
-    //     && !(this.columnDefs.length === 0)
-    //     && !!this.behavior.dataModel
-    //     && !!this.behavior.dataModel.schema
-    //     && isColumnDefsSimilar(this.columnDefs, colDefs)) {
-    //     return;
-    // }
-
     this.log('setColumnDefs', colDefs);
 
     this.columnDefs = colDefs;
