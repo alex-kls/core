@@ -620,7 +620,7 @@ var Local = Behavior.extend('Local', {
         this._setColDefGroupShowStateRecursive(this.grid.columnDefs, groupId, 'open');
 
         this.synchronizeSchemaToColumnDefs();
-        this.recalculateColumnSizes();
+        // this.recalculateColumnSizes();
     },
 
     /**
@@ -632,7 +632,7 @@ var Local = Behavior.extend('Local', {
         this._setColDefGroupShowStateRecursive(this.grid.columnDefs, groupId, 'closed');
 
         this.synchronizeSchemaToColumnDefs();
-        this.recalculateColumnSizes();
+        // this.recalculateColumnSizes();
     },
 
     /**

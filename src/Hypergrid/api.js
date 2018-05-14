@@ -61,7 +61,7 @@ function convertColDefs(colDefs) {
 
     const az = range('A', 'Z');
 
-    let colDefMapperCallsCount = 0, schemaColumnsCount = 0;
+    let schemaColumnsCount = 0;
     let maxTreeLevel = 0;
 
     function countMaxTreeLevel(prevLevel, colDefsToDetect, isTopGroupCollapsed = false) {
@@ -110,7 +110,6 @@ function convertColDefs(colDefs) {
 
     function colDefMapper(singleColDef, headerLevel = 0, topGroupCollapsed = false) {
         const letter = idOf(schemaColumnsCount);
-        colDefMapperCallsCount++;
 
         if (singleColDef) {
             if (topGroupCollapsed && !singleColDef.collapsedHeaderName && !singleColDef.isTotal) {
@@ -286,11 +285,10 @@ function convertColDefs(colDefs) {
             return [letter];
         }
     }
-
     colDefs.forEach(singleColDef => colDefMapper(singleColDef));
 
-    if (colDefMapperCallsCount < az.length) {
-        for (let i = colDefMapperCallsCount; i < az.length; ++i) {
+    if (schemaColumnsCount < az.length) {
+        for (let i = schemaColumnsCount; i < az.length; ++i) {
             colDefMapper();
         }
     }
