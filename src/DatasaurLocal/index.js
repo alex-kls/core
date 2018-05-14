@@ -291,7 +291,11 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         const shownValues = ['always-showing', 'open'];
 
         if (val !== undefined) {
-            return val && val.columnGroupShow && val.columnGroupShow !== null
+            if (val.columnGroupShow === undefined) {
+                return true;
+            }
+
+            return val && val.columnGroupShow
                 ? shownValues.indexOf(val.columnGroupShow) > -1
                 : false;
         }

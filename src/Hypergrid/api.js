@@ -64,17 +64,27 @@ function convertColDefs(colDefs) {
     let colDefMapperCallsCount = 0, schemaColumnsCount = 0;
     let maxTreeLevel = 0;
 
-    function countMaxTreeLevel(prevLevel, colDefsToDetect) {
+    function countMaxTreeLevel(prevLevel, colDefsToDetect, isTopGroupCollapsed = false) {
         let currentLevel = prevLevel + 1;
+        let hasVisibleColumns = false;
+
         colDefsToDetect.forEach((cd) => {
-            const groupCollapsed = cd.columnGroupShow === undefined
-                || (cd.columnGroupShow !== 'open' && cd.columnGroupShow !== 'always-showing');
-            if (cd.children && cd.children.length > 0 && !groupCollapsed) {
-                countMaxTreeLevel(currentLevel, cd.children);
+            const isAlwaysDisplayedColDef = cd.collapsedHeaderName || cd.isTotal;
+
+            const isColDefVisible = !isTopGroupCollapsed || isAlwaysDisplayedColDef;
+            if (isColDefVisible) {
+                hasVisibleColumns = true;
+                const groupCollapsed = cd.columnGroupShow !== undefined
+                    && cd.columnGroupShow !== 'open'
+                    && cd.columnGroupShow !== 'always-showing';
+
+                if (cd.children && cd.children.length > 0) {
+                    countMaxTreeLevel(currentLevel, cd.children, groupCollapsed);
+                }
             }
         });
 
-        if (currentLevel > maxTreeLevel) {
+        if (currentLevel > maxTreeLevel && hasVisibleColumns) {
             maxTreeLevel = currentLevel;
         }
     }
@@ -97,26 +107,28 @@ function convertColDefs(colDefs) {
     }
 
     countMaxTreeLevel(0, colDefs);
+    console.log('maxTreeLevel', maxTreeLevel);
 
     function colDefMapper(singleColDef, headerLevel = 0, topGroupCollapsed = false) {
         const letter = idOf(schemaColumnsCount);
         colDefMapperCallsCount++;
 
         if (singleColDef) {
-            if (topGroupCollapsed && singleColDef.collapsedHeaderName !== 'undefined') {
+            if (topGroupCollapsed && !singleColDef.collapsedHeaderName && !singleColDef.isTotal) {
                 return [];
             }
 
             if (!!singleColDef.children && singleColDef.children.length > 0) {
                 let insertedColumnNames = [];
-                const groupCollapsed = singleColDef.columnGroupShow === undefined
-                    || (singleColDef.columnGroupShow !== 'open' && singleColDef.columnGroupShow !== 'always-showing');
+                const groupCollapsed = singleColDef.columnGroupShow
+                    && singleColDef.columnGroupShow !== 'open'
+                    && singleColDef.columnGroupShow !== 'always-showing';
                 singleColDef.children.forEach((ch) => {
                     insertedColumnNames = [...insertedColumnNames, ...colDefMapper(ch, headerLevel + 1, groupCollapsed)];
                 });
 
                 if (insertedColumnNames.length === 0) {
-                    const originalField = singleColDef.groupId;
+                    const originalField = singleColDef.key + singleColDef.groupId;
                     const maxWidth = singleColDef && singleColDef.maxWidth;
                     const name = originalField || letter;
 
@@ -140,7 +152,7 @@ function convertColDefs(colDefs) {
                             data[headerLevel] = getEmptyHeaderRow();
                         }
                         const rowspan = maxTreeLevel - headerLevel - 1;
-                        let columnName = (topGroupCollapsed && singleColDef.collapsedHeaderName)
+                        let columnName = (topGroupCollapsed && singleColDef.collapsedHeaderName && singleColDef.collapsedHeaderName.length)
                             ? singleColDef.collapsedHeaderName
                             : singleColDef.headerName || '';
                         data[headerLevel][originalField] = {
@@ -173,7 +185,7 @@ function convertColDefs(colDefs) {
 
                     const colspan = insertedColumnNames.length - 1;
 
-                    let columnName = (topGroupCollapsed && singleColDef.collapsedHeaderName)
+                    let columnName = (topGroupCollapsed && singleColDef.collapsedHeaderName && singleColDef.collapsedHeaderName.length)
                         ? singleColDef.collapsedHeaderName
                         : singleColDef.headerName || '';
 
@@ -231,7 +243,7 @@ function convertColDefs(colDefs) {
                         data[headerLevel] = getEmptyHeaderRow();
                     }
                     const rowspan = maxTreeLevel - headerLevel - 1;
-                    let columnName = (topGroupCollapsed && singleColDef.collapsedHeaderName)
+                    let columnName = (topGroupCollapsed && singleColDef.collapsedHeaderName && singleColDef.collapsedHeaderName.length)
                         ? singleColDef.collapsedHeaderName
                         : singleColDef.headerName || '';
                     data[headerLevel][originalField] = {
@@ -423,10 +435,6 @@ function setColumnDefs(colDefs) {
     const firstRowsData = schema.data;
     let data = this.behavior.getData();
 
-    if (schema.fictiveHeaderRowsCount) {
-        this.behavior.grid.properties.fictiveHeaderRowsCount = schema.fictiveHeaderRowsCount;
-    }
-
     if (this.getMainMenuItems) {
         this.behavior.grid.properties.headerContextMenu = this.getMainMenuItems;
     }
@@ -436,6 +444,11 @@ function setColumnDefs(colDefs) {
         if (!data || data.length === 0) {
             data = [...firstRowsData];
         } else {
+            if (schema.fictiveHeaderRowsCount < this.behavior.grid.properties.fictiveHeaderRowsCount) {
+                const diff = this.behavior.grid.properties.fictiveHeaderRowsCount - schema.fictiveHeaderRowsCount;
+                data.splice(schema.fictiveHeaderRowsCount - 1, diff);
+            }
+            this.behavior.grid.properties.fictiveHeaderRowsCount = schema.fictiveHeaderRowsCount;
             firstRowsData.forEach((d, i) => {
                 if (!equal(data[0], d)) {
                     if (this.behavior.getRowProperties(i).headerRow) {

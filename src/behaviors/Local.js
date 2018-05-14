@@ -646,6 +646,9 @@ var Local = Behavior.extend('Local', {
     _setColDefGroupShowStateRecursive: function(colDefs, groupId, newState) {
         colDefs.forEach(cd => {
             if (cd.groupId === groupId) {
+                console.log('child coldef found');
+                console.log('cd', cd);
+
                 cd.columnGroupShow = newState;
             }
 
