@@ -24,7 +24,9 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @memberOf CellEvent#
      */
     dataRow: {
-        get: function() { return this.subgrid.getRow(this.dataCell.y); }
+        get: function() {
+            return this.subgrid.getRow(this.dataCell.y, this.column.treeLevel);
+        }
     },
 
     /**

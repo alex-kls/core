@@ -111,11 +111,12 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
 
     /**
      * @param y
+     * @param treeLevel
      * @returns {dataRowObject}
      * @memberOf DataSourceLocal#
      */
-    getRow: function(y) {
-        return this.data[y];
+    getRow: function(y, treeLevel) {
+        return this._getRowByTreeLevel(this.data[y], treeLevel);
     },
 
     /**
@@ -232,8 +233,42 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
         return (this.cache[x][y] = this._getDataRowObjectByRowAndColumnIndex(row, x));
     },
 
+    indexOf: function(row) {
+        let data = this.data;
+
+        let index = data.indexOf(row);
+
+        while (index < 0 && data.some(d => d)) {
+            data = data.map(d => d.$$children && d.$$children[0]);
+            index = data.indexOf(row);
+        }
+
+        return index;
+    },
+
+    _getRowByTreeLevel: function(row, treeLevel) {
+        if (row && row.$$children && row.__treeLevel !== treeLevel) {
+            while (row.__treeLevel !== treeLevel) {
+                if (row.$$children.length === 0) {
+                    // if it last level use this level
+                    break;
+                } else if (row.$$open) {
+                    // if it open row, we need to go deeper
+                    row = row.$$children[0];
+                } else {
+                    // if it closed row use parent row
+                    break;
+                }
+            }
+        }
+        return row;
+    },
+
     _getDataRowObjectByRowAndColumnIndex: function(row, x) {
         const columnName = this.getColumnName(x);
+        const treeLevel = this.getColumnTreeLevel(x);
+
+        row = this._getRowByTreeLevel(row, treeLevel);
 
         if (columnName in row) {
             return { foundedValue: row[columnName] };
@@ -499,6 +534,10 @@ var DataSourceLocal = DataSourceBase.extend('DataSourceLocal', {
 
     getColumnName: function(x) {
         return (typeof x)[0] === 'n' && this.schema[x] ? this.schema[x].name : x;
+    },
+
+    getColumnTreeLevel: function(x) {
+        return (typeof x)[0] === 'n' && this.schema[x] && this.schema[x].colDef ? this.schema[x].colDef.treeLevel : undefined;
     },
 
     getRowsWithValuesCount: function() {

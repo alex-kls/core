@@ -9,7 +9,7 @@ var Feature = require('./Feature');
 var CellClick = Feature.extend('CellClick', {
 
     handleMouseMove: function(grid, event) {
-        let isActionableCell = this.isAggregationTotalCell(event);
+        let isActionableCell = this.isAggregationTreeCell(event);
         const isOverExpandIcon = this.overExpandIcon(grid, event);
         this.cursor = isActionableCell || (event.isExpandableColumn && isOverExpandIcon) ? 'pointer' : null;
 
@@ -26,12 +26,10 @@ var CellClick = Feature.extend('CellClick', {
     handleClick: function(grid, event) {
         grid.log('event', event);
         let consumed = false;
-        if (this.isAggregationTotalCell(event)) {
-            if (this.overExpandIcon(grid, event) && event.isExpandableRow) {
-                this._toggleExpandableRow(grid, event);
-            } else if (event.isExpandableRow && grid.onAggregatedCellClick) {
-                grid.onAggregatedCellClick(event);
-            }
+        if (event.isAggregationColumn && this.overExpandIcon(grid, event) && event.isExpandableRow) {
+            this._toggleExpandableRow(grid, event);
+        } else if (this.isAggregationTreeCell(event) && event.isExpandableRow && grid.onAggregatedCellClick) {
+            grid.onAggregatedCellClick(event);
         } else if (this.overExpandIcon(grid, event) && event.isExpandableColumn) {
             this._toggleExpandableColumn(grid, event);
         } else {
@@ -54,7 +52,7 @@ var CellClick = Feature.extend('CellClick', {
      */
     _toggleExpandableRow: function(grid, event) {
         if (!event.isRowExpanded) {
-            grid.behavior.expandChildRows(event.dataCell.y);
+            grid.behavior.expandChildRows(event.dataRow);
         } else {
             grid.behavior.collapseChildRows(event.dataRow);
         }
@@ -79,7 +77,7 @@ var CellClick = Feature.extend('CellClick', {
      * @param {CellEvent} event - the event details
      * @memberOf CellClick#
      */
-    isAggregationTotalCell: function(event) {
+    isAggregationTreeCell: function(event) {
         const isAggregationTreeColumn = event.isAggregationTreeColumn,
             isAggregationRow = event.isAggregationRow,
             aggregationChildCount = event.aggregationChildCount,

@@ -12,6 +12,8 @@ var DefaultDataModel = require('../DatasaurLocal');
 
 var decorators = require('./dataModel/decorators');
 
+const GRAND_TOTAL = '$$grand_total';
+
 
 /**
  * This class mimics the {@link dataModelAPI}.
@@ -140,7 +142,7 @@ var Local = Behavior.extend('Local', {
                     widths.hasError = gc.getTextWidth(props.errorIconUnicodeChar) + props.columnTitlePrefixRightSpace;
                 }
 
-                if (column.name === '$$aggregation') {
+                if (column.name.startsWith('$$aggregation')) {
                     const treeLevel = this.getRowTreeLevel(d);
                     const treeOffset = treeLevel ? this.getRowTreeLevel(d) * props.aggregationGroupTreeLevelOffset : 0;
                     widths.treeOffset = treeOffset;
@@ -578,10 +580,20 @@ var Local = Behavior.extend('Local', {
      */
     populateAggregationNamesForRow(row, parentParentAggs) {
         if (row.__treeLevel !== undefined && row.$$aggregation !== undefined) {
-            let parentAggs = Object.assign({}, row.parentAggs || (this.grid.properties.isPivot ? {} : parentParentAggs) || {}); // copy parentAggs
-            parentAggs[`$$aggregation${row.__treeLevel}`] = row.$$aggregation;
+            let parentAggs = Object.assign({}, row.parentAggs || parentParentAggs || {}); // copy parentAggs
+            parentAggs[this.aggNameFromRow(row)] = row.$$aggregation;
             Object.assign(row, parentAggs, { parentAggs });
         }
+    },
+
+    aggNameFromRow: function(row) {
+        return `$$aggregation${row.__treeLevel}`;
+    },
+
+    copyValues: function(row) {
+        const res = {};
+        Object.keys(row).filter(k => !k.startsWith('$$') && !k.startsWith('__')).forEach(k => res[k] = row[k]);
+        return res;
     },
 
     /**
@@ -589,26 +601,58 @@ var Local = Behavior.extend('Local', {
      * @type {boolean}
      * @memberOf CellEvent#
      */
-    expandChildRows: function(rowOrIndex) {
-        const row = typeof rowOrIndex === 'object' ? rowOrIndex : this.grid.getRow(rowOrIndex);
-        if (!row.$$open && row.$$children) {
+    expandChildRows: function(row) {
+        if (!this.isRowExpanded(row) && row.$$children) {
             this.populateAggregationNamesForRow(row);
             if (row.$$children.length > 0) {
-                const rowIndex = this.dataModel.data.indexOf(row);
-                this.dataModel.addRows(row.$$children, rowIndex + 1);
+                const rowIndex = this.dataModel.indexOf(row);
+
+                let childrenToAdd = row.$$children;
+
+                if (this.grid.properties.isPivot) {
+                    if (row.$$children.length === 0 || !row.$$children[row.$$children.length - 1][GRAND_TOTAL]) {
+                        row.$$children.push(Object.assign(this.copyValues(row), {
+                            [GRAND_TOTAL]: true,
+                            [this.aggNameFromRow(row)]: `${row[this.aggNameFromRow(row)]} Total`
+                        }));
+                    }
+                    childrenToAdd = row.$$children.slice(1);
+                }
+
+                this.dataModel.addRows(childrenToAdd, rowIndex + 1);
+
                 row.$$children.forEach(r => {
-                    this.populateAggregationNamesForRow(r, row.parentAggs);
-                    r.$$parentRow = row;
+                    r.$$open = false;
+                    this.populateAggregationNamesForRow(r, this.grid.properties.isPivot ? {} : row.parentAggs);
                 });
 
                 // remove column because of flat mode
                 if (!this.grid.properties.isPivot) {
                     this.dataModel.data.splice(rowIndex, 1);
                 }
-                this.flatReady = false;
+                this.dataModel.cache = [];
             }
         }
         row.$$open = true;
+    },
+
+    /**
+     * @desc remove all child rows from data model
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
+    collapseChildRows: function(row) {
+        if (row.$$open && row.$$children && row.$$children.length > 0) {
+            const rowIndex = this.dataModel.indexOf(row) + 1; // deleting starts from next row
+
+            // collapse children before deleting parent
+            this.collapseChildRows(row.$$children[0]);
+            for (let i = rowIndex; i < rowIndex + row.$$children.length - 1; ++i) {
+                this.collapseChildRows(this.dataModel.data[i]); // really needed access by index
+            }
+            this.dataModel.delRow(rowIndex, row.$$children.length - 1);
+        }
+        row.$$open = false;
     },
 
     /**
@@ -659,31 +703,16 @@ var Local = Behavior.extend('Local', {
      * @summary set all rows expanded in one time
      */
     buildFlatMode: function() {
-        do {
-            this.flatReady = true;
-            this.dataModel.data.forEach(row => this.expandChildRows(row));
-        } while (!this.flatReady);
+        const expandRow = (row) => {
+            this.expandChildRows(row);
+            if (row.$$children) {
+                row.$$children.forEach(c => expandRow(c));
+            }
+        };
+        this.dataModel.data.forEach(row => expandRow(row));
 
         this.dataModel.cache = [];
     },
-
-    /**
-     * @desc remove all child rows from data model
-     * @type {boolean}
-     * @memberOf CellEvent#
-     */
-    collapseChildRows: function(rowOrIndex) {
-        const row = typeof rowOrIndex === 'object' ? rowOrIndex : this.grid.getRow(rowOrIndex);
-        if (row.$$open && row.$$children && row.$$children.length > 0) {
-            let dataToDelete = this.dataModel.data.filter((d) => d.$$parentRow === row);
-            dataToDelete.forEach(dtd => {
-                this.collapseChildRows(dtd);
-                this.dataModel.data = this.dataModel.data.filter((d) => d !== dtd);
-            });
-        }
-        row.$$open = false;
-    },
-
 
     /**
      * @summary get additional width based on colspan

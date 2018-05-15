@@ -103,7 +103,7 @@ Column.prototype = {
     },
 
     get treeLevel() { // read-only (no setter)
-        return this.colDef.treeLevel;
+        return this.colDef ? this.colDef.treeLevel : undefined;
     },
 
     /**

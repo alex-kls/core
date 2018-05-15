@@ -1325,7 +1325,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getRowTreeLevel: function(row) {
-        return !!row && row.__treeLevel ? row.__treeLevel : false;
+        return !!row && row.__treeLevel !== undefined ? row.__treeLevel : false;
     },
 
     hasTreeColumn: function(columnIndex) {

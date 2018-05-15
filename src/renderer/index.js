@@ -969,21 +969,6 @@ var Renderer = Base.extend('Renderer', {
 
     drawLine: function(gc, x1, y1, width, height) {
         gc.fillRect(x1, y1, width, height);
-        // if (width <= 1) {
-        //     gc.lineWidth = width / 2;
-        //     gc.beginPath();
-        //     gc.moveTo(x1, y1);
-        //     gc.lineTo(x1, y1 + height);
-        //     gc.stroke();
-        // } else if (height <= 1) {
-        //     gc.lineWidth = height / 2;
-        //     gc.beginPath();
-        //     gc.moveTo(x1, y1);
-        //     gc.lineTo(x1 + width, y1);
-        //     gc.stroke();
-        // } else {
-        //     gc.fillRect(x1, y1, width, height);
-        // }
     },
 
     /**
@@ -1348,14 +1333,28 @@ var Renderer = Base.extend('Renderer', {
 
         config.isAggregationTreeColumn = cellEvent.isAggregationTreeColumn;
         if (config.isAggregationTreeColumn) {
+            config.aggregationChildCount = cellEvent.aggregationChildCount;
+            if (config.aggregationChildCount && !config.headerRow) {
+                config.valuePostfix = `(${config.aggregationChildCount})`;
+            }
+        }
+
+        config.isAggregationColumn = cellEvent.isAggregationColumn;
+        if (config.isAggregationColumn) {
             config.hasChildRows = cellEvent.hasChildRows;
             config.isAggregationRow = cellEvent.isAggregationRow;
-            config.aggregationChildCount = cellEvent.aggregationChildCount;
-            config.isExpandableRow = cellEvent.isExpandableRow;
             config.isRowExpanded = cellEvent.isRowExpanded;
             config.treeLevel = cellEvent.treeLevel;
 
-            if (config.isExpandableRow) {
+            config.isGrandTotalRow = cellEvent.isGrandTotalRow;
+            if (config.isGrandTotalRow) {
+                config.backgroundTextFont = this.properties.grandAggregationCellFont;
+                config.foregroundSelectionFont = this.properties.grandAggregationCellFont;
+                config.font = this.properties.grandAggregationCellFont;
+            }
+
+            config.isExpandableRow = cellEvent.isExpandableRow;
+            if (config.isExpandableRow && value) {
                 config.valuePrefix = config.isRowExpanded
                     ? this.properties.aggregationGroupExpandIconCollapsedChar
                     : this.properties.aggregationGroupExpandIconExpandedChar;
@@ -1363,18 +1362,6 @@ var Renderer = Base.extend('Renderer', {
                 config.valuePrefixColor = this.properties.aggregationGroupExpandIconColor;
                 config.prefixIgnoreUnderliningNeeded = true;
             }
-
-            if (config.aggregationChildCount && !config.headerRow) {
-                config.valuePostfix = `(${config.aggregationChildCount})`;
-            }
-        }
-
-        config.isAggregationColumn = cellEvent.isAggregationColumn;
-        config.isGrandTotalRow = cellEvent.isGrandTotalRow;
-        if (config.isAggregationColumn && config.isGrandTotalRow) {
-            config.backgroundTextFont = this.properties.grandAggregationCellFont;
-            config.foregroundSelectionFont = this.properties.grandAggregationCellFont;
-            config.font = this.properties.grandAggregationCellFont;
         }
 
         if (cellEvent.isExpandableColumn) {

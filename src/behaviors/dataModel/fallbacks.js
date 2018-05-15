@@ -33,7 +33,7 @@ module.exports = {
             metadata;
 
         for (y = 0; y < Y; y++) {
-            row = this.getRow(y);
+            row = this.data[y]; // do not use getRow because of tree levels
             if (row) {
                 rows[y] = Object.assign({}, row);
                 if (metadataFieldName) {
