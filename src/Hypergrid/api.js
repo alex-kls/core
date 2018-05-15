@@ -114,6 +114,7 @@ function convertColDefs(colDefs) {
         const schemaMapper = (header, name) => ({
             header,
             name,
+            topGroupsIds,
             width: singleColDef.width,
             halign: singleColDef.halign,
             colTypeSign: singleColDef.colTypeSign,
@@ -121,8 +122,7 @@ function convertColDefs(colDefs) {
             format: name,
             headerPrefix: singleColDef.headerPrefix,
             cellContextMenu: getContextMenuItems,
-            colDef: singleColDef,
-            topGroupsIds: topGroupsIds
+            colDef: singleColDef
         });
 
         if (singleColDef) {
@@ -144,6 +144,7 @@ function convertColDefs(colDefs) {
                     const originalField = singleColDef.columnName + '_$$cluster_size';
                     const name = originalField || letter;
 
+                    topGroupsIds = [...topGroupsIds, singleColDef.groupId];
                     schema.push(schemaMapper(letter || '', name));
                     schemaColumnsCount++;
 
