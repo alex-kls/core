@@ -372,45 +372,49 @@ var mixin = {
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a fin-before-cell-edit event.
      * @param {Point} cell - The x,y coordinates.
-     * @param {Object} value - The current value.
+     * @param {Object} oldValue - The old value.
+     * @param {Object} newValue - The new value.
      * @returns {boolean} Proceed (don't cancel).
      */
-    fireBeforeCellEdit: function(cellEvent, oldValue, newValue, control) {
+    fireBeforeCellEdit: function(cell, oldValue, newValue, control) {
         return dispatchEvent.call(this, 'fin-before-cell-edit', true, {
             oldValue: oldValue,
             newValue: newValue,
             input: control
-        }, cellEvent);
+        }, cell);
     },
 
     /**
      * @memberOf Hypergrid#
-     * @returns {Renderer} sub-component
+     * @desc Synthesize and fire a fin-before-cell-edit event.
      * @param {Point} cell - The x,y coordinates.
      * @param {Object} oldValue - The old value.
      * @param {Object} newValue - The new value.
+     * @returns {boolean} Proceed (don't cancel).
      */
-    fireAfterCellEdit: function(cellEvent, oldValue, newValue, control) {
+    fireAfterCellEdit: function(cell, oldValue, newValue, control) {
+        console.log('cellEvent fired', cell);
         return dispatchEvent.call(this, 'fin-after-cell-edit', {
             newValue: newValue,
             oldValue: oldValue,
             input: control
-        }, cellEvent);
+        }, cell);
     },
 
     /**
      * @memberOf Hypergrid#
-     * @returns {Renderer} sub-component
+     * @desc Synthesize and fire a fin-before-cell-edit event.
      * @param {Point} cell - The x,y coordinates.
      * @param {Object} oldValue - The old value.
      * @param {Object} newValue - The new value.
+     * @returns {boolean} Proceed (don't cancel).
      */
-    fireAfterHeaderCellEdit: function(cellEvent, oldValue, newValue, control) {
+    fireAfterHeaderCellEdit: function(cell, oldValue, newValue, control) {
         return dispatchEvent.call(this, 'fin-after-header-cell-edit', {
             newValue: newValue,
             oldValue: oldValue,
             input: control
-        }, cellEvent);
+        }, cell);
     },
 
     delegateCanvasEvents: function() {
@@ -608,17 +612,19 @@ var mixin = {
                     if (column) {
                         grid.onUpdateColumnName(column, e.detail.newValue);
 
+                        // Unexpected behavior after colspans/rowspans implemented. Not recommended to use!!
                         // refresh names from colDefs
-                        const rowProps = grid.behavior.getRowProperties(0);
-                        if (rowProps && rowProps.headerRow) {
-                            const row = grid.getRow(0);
 
-                            grid.getColumns().forEach(c => {
-                                if (c.colDef && row[c.name] !== c.colDef.headerName) {
-                                    row[c.name] = c.colDef.headerName;
-                                }
-                            });
-                        }
+                        // const rowProps = grid.behavior.getRowProperties(0);
+                        // if (rowProps && rowProps.headerRow) {
+                        //     const row = grid.getRow(0);
+                        //
+                        //     grid.getColumns().forEach(c => {
+                        //         if (c.colDef && row[c.name] !== c.colDef.headerName) {
+                        //             row[c.name] = c.colDef.headerName;
+                        //         }
+                        //     });
+                        // }
                     }
                 }
             }
