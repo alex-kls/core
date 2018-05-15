@@ -141,7 +141,11 @@ function convertColDefs(colDefs) {
                 });
 
                 if (insertedColumnNames.length === 0) {
-                    const originalField = singleColDef.columnName + '_$$cluster_size';
+                    const colDefId = singleColDef.columnName ? singleColDef.columnName : singleColDef.key;
+                    if (!colDefId) {
+                        return [];
+                    }
+                    const originalField = colDefId + '_$$cluster_size';
                     const name = originalField || letter;
 
                     topGroupsIds = [...topGroupsIds, singleColDef.groupId];

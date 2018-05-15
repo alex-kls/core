@@ -112,8 +112,8 @@ var CellClick = Feature.extend('CellClick', {
             return false;
         }
 
-        let iconLeftX = event.properties.cellPaddingLeft +
-            event.treeLevel * event.properties.aggregationGroupTreeLevelOffset;
+        let iconLeftX = event.properties.cellPaddingLeft;
+            //+ event.treeLevel * event.properties.aggregationGroupTreeLevelOffset;
         let iconRightX = iconLeftX + event.properties.aggregationGroupExpandIconClickableWidth;
 
         let iconTopY = 5;
