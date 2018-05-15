@@ -111,6 +111,20 @@ function convertColDefs(colDefs) {
     function colDefMapper(singleColDef, headerLevel = 0, topGroupCollapsed = false, topGroupsIds = []) {
         const letter = idOf(schemaColumnsCount);
 
+        const schemaMapper = (header, name) => ({
+            header,
+            name,
+            width: singleColDef.width,
+            halign: singleColDef.halign,
+            colTypeSign: singleColDef.colTypeSign,
+            formatter: getFormatter(singleColDef) || undefined,
+            format: name,
+            headerPrefix: singleColDef.headerPrefix,
+            cellContextMenu: getContextMenuItems,
+            colDef: singleColDef,
+            topGroupsIds: topGroupsIds
+        });
+
         if (singleColDef) {
             if (topGroupCollapsed && !singleColDef.collapsedHeaderName && !singleColDef.isTotal) {
                 return [];
@@ -130,19 +144,7 @@ function convertColDefs(colDefs) {
                     const originalField = singleColDef.columnName + '_$$cluster_size';
                     const name = originalField || letter;
 
-                    schema.push({
-                        header: letter || '',
-                        name: name,
-                        width: singleColDef.width,
-                        halign: singleColDef.halign,
-                        colTypeSign: singleColDef.colTypeSign,
-                        formatter: getFormatter(singleColDef) || undefined,
-                        format: name,
-                        headerPrefix: singleColDef.headerPrefix,
-                        cellContextMenu: getContextMenuItems,
-                        colDef: singleColDef,
-                        topGroupsIds: topGroupsIds
-                    });
+                    schema.push(schemaMapper(letter || '', name));
                     schemaColumnsCount++;
 
                     if (originalField) {
@@ -230,23 +232,9 @@ function convertColDefs(colDefs) {
 
             } else {
                 const originalField = singleColDef.field;
-                const maxWidth = singleColDef && singleColDef.maxWidth;
                 const name = originalField || letter;
 
-                schema.push({
-                    header: letter || '',
-                    name: name,
-                    width: singleColDef.width,
-                    halign: singleColDef.halign,
-                    colTypeSign: singleColDef.colTypeSign,
-                    maxWidth: maxWidth && maxWidth < maximumColumnWidth ? maxWidth : maximumColumnWidth,
-                    formatter: getFormatter(singleColDef) || undefined,
-                    format: name,
-                    headerPrefix: singleColDef.headerPrefix,
-                    cellContextMenu: getContextMenuItems,
-                    colDef: singleColDef,
-                    topGroupsIds: topGroupsIds
-                });
+                schema.push(schemaMapper(letter || '', name));
                 schemaColumnsCount++;
 
                 if (originalField) {
