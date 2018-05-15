@@ -108,7 +108,7 @@ function convertColDefs(colDefs) {
 
     countMaxTreeLevel(0, colDefs);
 
-    function colDefMapper(singleColDef, headerLevel = 0, topGroupCollapsed = false) {
+    function colDefMapper(singleColDef, headerLevel = 0, topGroupCollapsed = false, topGroupsIds = []) {
         const letter = idOf(schemaColumnsCount);
 
         if (singleColDef) {
@@ -122,7 +122,8 @@ function convertColDefs(colDefs) {
                     && singleColDef.columnGroupShow !== 'open'
                     && singleColDef.columnGroupShow !== 'always-showing';
                 singleColDef.children.forEach((ch) => {
-                    insertedColumnNames = [...insertedColumnNames, ...colDefMapper(ch, headerLevel + 1, groupCollapsed)];
+                    const newTopGroupsArray = [...topGroupsIds, singleColDef.groupId];
+                    insertedColumnNames = [...insertedColumnNames, ...colDefMapper(ch, headerLevel + 1, groupCollapsed, newTopGroupsArray)];
                 });
 
                 if (insertedColumnNames.length === 0) {
@@ -139,7 +140,8 @@ function convertColDefs(colDefs) {
                         format: name,
                         headerPrefix: singleColDef.headerPrefix,
                         cellContextMenu: getContextMenuItems,
-                        colDef: singleColDef
+                        colDef: singleColDef,
+                        topGroupsIds: topGroupsIds
                     });
                     schemaColumnsCount++;
 
@@ -242,7 +244,8 @@ function convertColDefs(colDefs) {
                     format: name,
                     headerPrefix: singleColDef.headerPrefix,
                     cellContextMenu: getContextMenuItems,
-                    colDef: singleColDef
+                    colDef: singleColDef,
+                    topGroupsIds: topGroupsIds
                 });
                 schemaColumnsCount++;
 

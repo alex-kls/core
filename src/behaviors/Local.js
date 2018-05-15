@@ -27,13 +27,17 @@ var Local = Behavior.extend('Local', {
         this.setData(options);
     },
 
+    /**
+     * @memberOf Local#
+     * @description Create columns based on old value of grid.columns
+     */
     createColumns: function() {
         const oldColumns = this.columns;
         const oldAllColumns = this.allColumns;
 
         Behavior.prototype.createColumns.call(this);
 
-        this.schema.forEach(function(columnSchema, index) {
+        this.schema.forEach((columnSchema, index) => {
             const findFunction = function(c) {
                 return c.properties.index === index &&
                     c.properties.name === columnSchema.name &&
@@ -101,6 +105,12 @@ var Local = Behavior.extend('Local', {
         }, this);
     },
 
+    /**
+     * @memberOf Local#
+     * @description Calculate column prefered size based on cells content
+     * @param {number|object} xOrColumn - column object or index
+     * @param {boolean} force - if true, width will be changed even if column autosizing disabled
+     */
     fitColumn: function(xOrColumn, force) {
         if (typeof xOrColumn !== 'object') {
             xOrColumn = this.getColumn(xOrColumn);
@@ -202,11 +212,39 @@ var Local = Behavior.extend('Local', {
         }
     },
 
+    /**
+     * @memberOf Local#
+     * @description Recalculate all columns prefered sizes
+     * @return {array} - affected columns
+     */
     fitColumns: function() {
-        var gc = this.grid.canvas.gc;
-        var oldFont = gc.cache.font;
+        const gc = this.grid.canvas.gc;
+        const oldFont = gc.cache.font;
         this.allColumns.forEach(c => this.fitColumn(c));
         gc.cache.font = oldFont;
+
+        return this.allColumns;
+    },
+
+    /**
+     * @memberOf Local#
+     * @description Find columns by given group Id and recalculate prefered size for each
+     * @param {string} groupId - column group id
+     * @return {array} - affected columns
+     */
+    fitColumnsGroup: function(groupId) {
+        const columnsToFit = this.allColumns.filter(ac => {
+            return ac.schema && ac.schema.topGroupsIds && ac.schema.topGroupsIds.includes(groupId);
+        });
+
+        if (columnsToFit.length > 0) {
+            const gc = this.grid.canvas.gc;
+            const oldFont = gc.cache.font;
+            columnsToFit.forEach(c => this.fitColumn(c));
+            gc.cache.font = oldFont;
+        }
+
+        return columnsToFit;
     },
 
     /**
@@ -377,10 +415,19 @@ var Local = Behavior.extend('Local', {
         grid.allowEvents(this.getRowCount());
     },
 
+    /**
+     * @memberOf Local#
+     * @description Get errors summary object
+     * @return {object} - errors summary
+     */
     getColumnsErrors: function() {
         return this.errors;
     },
 
+    /**
+     * @memberOf Local#
+     * @description Check grid data errors, and fill "errors" object using found errors data
+     */
     checkForErrors: function() {
         this.errors = {};
 
@@ -565,10 +612,18 @@ var Local = Behavior.extend('Local', {
             this.dataModel.click(event.dataCell.y);
     },
 
+    /**
+     * @memberOf Local#
+     * @description Get boolean data about tree columns show needed
+     */
     hasTreeColumn: function(columnIndex) {
         return this.grid.properties.showTreeColumn && this.dataModel.isDrillDown(columnIndex);
     },
 
+    /**
+     * @memberOf Local#
+     * @desc Get all selections made in current grid session
+     */
     getSelections: function() {
         return this.grid.selectionModel.getSelections();
     },
@@ -664,7 +719,7 @@ var Local = Behavior.extend('Local', {
         this._setColDefGroupShowStateRecursive(this.grid.columnDefs, groupId, 'open');
 
         this.synchronizeSchemaToColumnDefs();
-        // this.recalculateColumnSizes();
+        this.fitColumnsGroup(groupId);
     },
 
     /**
@@ -676,7 +731,7 @@ var Local = Behavior.extend('Local', {
         this._setColDefGroupShowStateRecursive(this.grid.columnDefs, groupId, 'closed');
 
         this.synchronizeSchemaToColumnDefs();
-        // this.recalculateColumnSizes();
+        this.fitColumnsGroup(groupId);
     },
 
     /**
