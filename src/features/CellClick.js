@@ -7,11 +7,8 @@ var Feature = require('./Feature');
  * @extends Feature
  */
 var CellClick = Feature.extend('CellClick', {
-
     handleMouseMove: function(grid, event) {
-        let isActionableCell = this.isAggregationTreeCell(event);
-        const isOverExpandIcon = this.overExpandIcon(grid, event);
-        this.cursor = isActionableCell || (event.isExpandableColumn && isOverExpandIcon) ? 'pointer' : null;
+        this.cursor = this._isMouseOverActiveExpandIcon(grid, event) ? 'pointer' : null;
 
         if (this.next) {
             this.next.handleMouseMove(grid, event);
@@ -26,12 +23,14 @@ var CellClick = Feature.extend('CellClick', {
     handleClick: function(grid, event) {
         grid.log('event', event);
         let consumed = false;
-        if (event.isAggregationColumn && this.overExpandIcon(grid, event) && event.isExpandableRow) {
+        if (event.isAggregationColumn && this._isMouseOverExpandIcon(grid, event) && event.isExpandableRow) {
             this._toggleExpandableRow(grid, event);
+            consumed = true;
         } else if (this.isAggregationTreeCell(event) && event.isExpandableRow && grid.onAggregatedCellClick) {
             grid.onAggregatedCellClick(event);
-        } else if (this.overExpandIcon(grid, event) && event.isExpandableColumn) {
+        } else if (this._isMouseOverExpandIcon(grid, event) && event.isExpandableColumn) {
             this._toggleExpandableColumn(grid, event);
+            consumed = true;
         } else {
             consumed = (event.isDataCell || event.isTreeColumn) && (
                 this.openLink(grid, event) !== undefined ||
@@ -41,6 +40,22 @@ var CellClick = Feature.extend('CellClick', {
 
         if (!consumed && this.next) {
             this.next.handleClick(grid, event);
+        }
+    },
+
+    /**
+     * @memberOf CellEditing.prototype
+     * @param {Hypergrid} grid
+     * @param {CellEvent} event - the event details
+     */
+    handleDoubleClick: function(grid, event) {
+        // used to disable event propagation
+        if (this._isMouseOverActiveExpandIcon(grid, event)) {
+            return;
+        }
+
+        if (this.next) {
+            this.next.handleDoubleClick(grid, event);
         }
     },
 
@@ -87,12 +102,12 @@ var CellClick = Feature.extend('CellClick', {
     },
 
     /**
-     * @desc unility function to detect if cursor over expand/collapse button
+     * @desc utility function to detect if cursor over expand/collapse button
      * @param {Hypergrid} grid
      * @param {CellEvent} event
      * @memberOf CellClick#
      */
-    overExpandIcon: function(grid, event) {
+    _isMouseOverExpandIcon: function(grid, event) {
         if ((!event.isExpandableRow && !event.isExpandableColumn) || event.isRenderSkipNeeded) {
             return false;
         }
@@ -108,6 +123,17 @@ var CellClick = Feature.extend('CellClick', {
             && event.mousePoint.x >= 0
             && event.mousePoint.y <= iconBottomY
             && event.mousePoint.y >= iconTopY;
+    },
+
+    /**
+     * @desc utility function to detect if cursor over expand/collapse button, that can be clicked because of various factors
+     * @param {Hypergrid} grid
+     * @param {CellEvent} event
+     * @memberOf CellClick#
+     */
+    _isMouseOverActiveExpandIcon: function(grid, event) {
+        return ((event.isAggregationColumn && event.isExpandableRow) || this.isAggregationTreeCell(event) || event.isExpandableColumn)
+            && this._isMouseOverExpandIcon(grid, event);
     },
 
     /**
