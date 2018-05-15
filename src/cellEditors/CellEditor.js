@@ -470,7 +470,17 @@ var CellEditor = Base.extend('CellEditor', {
         Object.assign(style, {left: px(left), width: px(width), font: rowFont, resize: 'none'});
 
         // additional height because of inner padding and border
-        let height = (width === maximumColumnWidth + selectionRegionBorderWidth ? this.el.scrollHeight : cellBounds.height) + 2;
+        console.log('this.el.scrollHeight', this.el.scrollHeight);
+        console.log('maximumColumnWidth', maximumColumnWidth);
+        console.log('selectionRegionBorderWidth', selectionRegionBorderWidth);
+        console.log('cellBounds.height', cellBounds.height);
+
+        console.log('width === maximumColumnWidth + selectionRegionBorderWidth', width === maximumColumnWidth + selectionRegionBorderWidth);
+
+        const contentWidth = gc.getTextWidth(this.initialValue);
+        console.log('contentWidth', contentWidth);
+        // let height = (width === maximumColumnWidth + selectionRegionBorderWidth ? this.el.scrollHeight : cellBounds.height) + 2;
+        let height = (contentWidth > width ? this.el.scrollHeight : cellBounds.height) + 2;
         let top = cellBounds.y - selectionRegionBorderWidth;
         const maximumColumnHeight = canvasHeight - top;
 
