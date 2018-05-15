@@ -127,6 +127,7 @@ var Local = Behavior.extend('Local', {
         // get max width based of
         data.forEach((d, i) => {
             let val = column.getValue(i);
+            const { schema } = column;
             if (val && (typeof val !== 'object' || val instanceof Array)) {
                 const widths = {};
 
@@ -138,13 +139,13 @@ var Local = Behavior.extend('Local', {
                     widths.showCellContextMenuIcon = props.contextMenuButtonIconPreferedWidth + 2 * props.contextMenuButtonPadding + props.contextMenuLeftSpaceToCutText;
                 }
 
-                if (dataProps.showColumnType && column.schema.colTypeSign) {
+                if (dataProps.showColumnType && schema.colTypeSign) {
                     widths.colTypeSign = (widths.showCellContextMenuIcon || 0) + widths.cellPaddingRight;
                 }
 
-                if (column.schema && column.schema.headerPrefix && dataProps.headerRow) {
+                if (schema && schema.headerPrefix && dataProps.headerRow) {
                     gc.cache.font = props.columnTitlePrefixFont;
-                    widths.headerPrefix = gc.getTextWidth(column.schema.headerPrefix) + props.columnTitlePrefixRightSpace;
+                    widths.headerPrefix = gc.getTextWidth(schema.headerPrefix) + props.columnTitlePrefixRightSpace;
                 }
 
                 if (column.hasError && dataProps.headerRow) {
@@ -162,13 +163,13 @@ var Local = Behavior.extend('Local', {
                         gc.cache.font = props.cellValuePostfixFont;
                         widths.aggregationCount = props.cellPaddingLeft + treeOffset + gc.getTextWidth(`(${aggregationCount})`) + props.cellValuePostfixLeftOffset;
                     }
+                }
 
-                    if (this.isExpandableRow(d)) {
-                        const valuePrefix = props[`aggregationGroupExpandIcon${ this.isRowExpanded(d) ? 'Collapsed' : 'Expanded'}Char`];
-                        if (valuePrefix) {
-                            gc.cache.font = props.aggregationGroupExpandIconFont;
-                            widths.valuePrefix = gc.getTextWidth(valuePrefix) + props.columnTitlePrefixRightSpace;
-                        }
+                if (this.isExpandableRow(d) || this.dataModel.getHasChildColumnsFromCell(column.index, i)) {
+                    const valuePrefix = props[`aggregationGroupExpandIcon${ this.isRowExpanded(d) ? 'Collapsed' : 'Expanded'}Char`];
+                    if (valuePrefix) {
+                        gc.cache.font = props.aggregationGroupExpandIconFont;
+                        widths.valuePrefix = gc.getTextWidth(valuePrefix) + props.columnTitlePrefixRightSpace;
                     }
                 }
 
@@ -685,6 +686,7 @@ var Local = Behavior.extend('Local', {
                 if (!this.grid.properties.isPivot) {
                     this.dataModel.data.splice(rowIndex, 1);
                 }
+                this.flatReady = false;
                 this.dataModel.cache = [];
             }
         }
@@ -764,7 +766,10 @@ var Local = Behavior.extend('Local', {
                 row.$$children.forEach(c => expandRow(c));
             }
         };
-        this.dataModel.data.forEach(row => expandRow(row));
+        do {
+            this.flatReady = true;
+            this.dataModel.data.forEach(row => expandRow(row));
+        } while (!this.flatReady);
 
         this.dataModel.cache = [];
     },
