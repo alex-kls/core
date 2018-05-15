@@ -23,6 +23,13 @@ var Localization = require('../lib/Localization');
  */
 var CellEditor = Base.extend('CellEditor', {
 
+    specialKeyups: {
+        //0x08: 'clearStopEditing', // backspace
+        0x09: 'stopEditing', // tab
+        0x0d: 'stopEditing', // return/enter
+        0x1b: 'cancelEditing' // escape
+    },
+
     initialize: function(grid, options) {
         // Mix in all enumerable properties for mustache use, typically `column` and `format`.
         for (var key in options) {
@@ -73,20 +80,25 @@ var CellEditor = Base.extend('CellEditor', {
 
         this.errors = 0;
 
-        var self = this;
         this.el.addEventListener('keyup', this.keyup.bind(this));
-        this.el.addEventListener('keydown', function(e) {
-            if (e.keyCode === 9) {
-                // prevent TAB from leaving input control
+        this.el.addEventListener('keydown', (e) => {
+            if (Object.keys(this.specialKeyups).includes(String(e.keyCode))) {
                 e.preventDefault();
+                e.stopImmediatePropagation();
             }
-            grid.fireSyntheticEditorKeyDownEvent(self, e);
+
+            grid.fireSyntheticEditorKeyDownEvent(this, e);
         });
-        this.el.addEventListener('keypress', function(e) {
-            grid.fireSyntheticEditorKeyPressEvent(self, e);
+        this.el.addEventListener('keypress', (e) => {
+            if (Object.keys(this.specialKeyups).includes(String(e.keyCode))) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            }
+
+            grid.fireSyntheticEditorKeyPressEvent(this, e);
         });
-        this.el.addEventListener('mousedown', function(e) {
-            self.onmousedown(e);
+        this.el.addEventListener('mousedown', (e) => {
+            this.onmousedown(e);
         });
     },
 
@@ -96,13 +108,6 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     localizer: Localization.prototype.null,
-
-    specialKeyups: {
-        //0x08: 'clearStopEditing', // backspace
-        0x09: 'stopEditing', // tab
-        0x0d: 'stopEditing', // return/enter
-        0x1b: 'cancelEditing' // escape
-    },
 
     keyup: function(e) {
         var grid = this.grid,
@@ -147,6 +152,11 @@ var CellEditor = Base.extend('CellEditor', {
                 });
                 grid.delegateKeyDown(finEvent);
             }
+        }
+
+        if (Object.keys(this.specialKeyups).includes(String(e.keyCode))) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
         }
 
         this.grid.fireSyntheticEditorKeyUpEvent(this, e);

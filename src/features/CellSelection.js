@@ -118,9 +118,9 @@ var CellSelection = Feature.extend('CellSelection', {
             keys = detail.currentKeys;
         const ctrlPressed = event.metaKey
             || event.ctrlKey
-            || keys.indexOf('CTRL') >= 0
-            || keys.indexOf('COMMANDLEFT') >= 0
-            || keys.indexOf('COMMANDRIGHT') >= 0;
+            || (keys && (keys.indexOf('CTRL') >= 0
+                || keys.indexOf('COMMANDLEFT') >= 0
+                || keys.indexOf('COMMANDRIGHT') >= 0));
         const navKey = cellEvent && (
                 cellEvent.properties.mappedNavKey(detail.char, ctrlPressed) ||
                 cellEvent.properties.navKey(detail.char, ctrlPressed)
